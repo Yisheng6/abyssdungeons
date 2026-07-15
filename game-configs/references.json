@@ -1,0 +1,37 @@
+{
+  "_description": "统一引用定义中心 - 所有跨表引用的枚举值在此定义，作为唯一真理源。修改此文件后，所有引用它的配表必须通过校验。",
+  "version": "1.0",
+
+  "enums": {
+    "classIds": ["warrior", "mage", "assassin", "ranger", "priest", "warlock"],
+    "skillTypes": ["active", "passive", "ultimate"],
+    "elements": ["none", "fire", "water", "earth", "wind", "light", "dark"],
+    "itemQualities": ["common", "fine", "rare", "epic", "legendary", "mythic"],
+    "itemSlots": ["weapon", "helmet", "armor", "legs", "boots", "necklace", "ring1", "ring2"],
+    "monsterTypes": ["normal", "elite", "boss"],
+    "aiTypes": ["aggressive", "defensive", "cunning", "support", "berserk"],
+    "roomTypes": ["normal", "elite", "treasure", "trap", "safe", "merchant", "boss", "hidden", "altar"],
+    "consumableTargets": ["self", "enemy", "ally", "all_enemies", "all_allies"],
+    "chatChannels": ["world", "area", "party", "guild"],
+    "leaderboardCategories": ["deepest_layer", "speedrun", "kills", "wealth", "gear_score"],
+    "statusEffects": ["poison", "burn", "freeze", "stun", "bleed", "buff_atk", "buff_def", "buff_agi"]
+  },
+
+  "crossReferences": {
+    "skills.classId": { "$ref": "enums.classIds" },
+    "enemies.aiType": { "$ref": "enums.aiTypes" },
+    "enemies.element": { "$ref": "enums.elements" },
+    "enemies.family": { "$comment": "Valid enemy families must have at least one enemy defined" },
+    "dungeonThemes.enemyFamilies[]": { "$ref": "enemies.family" },
+    "roomTypes.id": { "$ref": "enums.roomTypes" },
+    "classes.skillTree[]": { "$ref": "skills.id" }
+  },
+
+  "namingRules": {
+    "idFormat": "lowercase_snake_case",
+    "idPattern": "^[a-z][a-z0-9_]*$",
+    "maxIdLength": 32,
+    "nameMaxLength": 20,
+    "descriptionMaxLength": 500
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "roomTypes": [
+    { "id": "normal", "name": "普通房间", "description": "标准战斗区域", "probability": 0.40, "hasCombat": true, "hasLoot": false },
+    { "id": "elite", "name": "精英房间", "description": "更强的精英怪物", "probability": 0.15, "hasCombat": true, "hasLoot": true, "lootBonus": 1.5 },
+    { "id": "treasure", "name": "宝箱房间", "description": "包含未上锁的宝箱", "probability": 0.10, "hasCombat": false, "hasLoot": true, "lootBonus": 2.0 },
+    { "id": "trap", "name": "陷阱房间", "description": "隐藏着陷阱", "probability": 0.08, "hasCombat": false, "hasLoot": false },
+    { "id": "safe", "name": "安全房间", "description": "无敌人，可休息", "probability": 0.07, "hasCombat": false, "hasLoot": false, "canRest": true },
+    { "id": "merchant", "name": "商人房间", "description": "神秘商人", "probability": 0.05, "hasCombat": false, "hasLoot": false, "hasMerchant": true },
+    { "id": "boss", "name": "Boss房间", "description": "层级守卫者", "probability": 0.05, "hasCombat": true, "hasLoot": true, "lootBonus": 3.0, "isBoss": true },
+    { "id": "hidden", "name": "隐藏房间", "description": "需要特殊条件才能发现", "probability": 0.05, "hasCombat": false, "hasLoot": true, "lootBonus": 2.5, "isHidden": true },
+    { "id": "altar", "name": "祭坛房间", "description": "祝福或诅咒事件", "probability": 0.05, "hasCombat": false, "hasLoot": false, "hasAltar": true }
+  ],
+  "dungeonThemes": [
+    { "layerMin": 1, "layerMax": 10, "id": "cave", "name": "遗忘矿坑", "description": "昏暗潮湿的矿井", "envModifier": {}, "enemyFamilies": ["cave"] },
+    { "layerMin": 11, "layerMax": 20, "id": "tomb", "name": "腐化墓穴", "description": "古老王陵，亡灵横行", "envModifier": { "curseChance": 0.1 }, "enemyFamilies": ["tomb"] },
+    { "layerMin": 21, "layerMax": 30, "id": "magma", "name": "熔岩深渊", "description": "地下火山，炽热难耐", "envModifier": { "dotDamage": 5, "dotElement": "fire" }, "enemyFamilies": ["cave", "tomb"] },
+    { "layerMin": 31, "layerMax": 40, "id": "ice", "name": "冰霜牢笼", "description": "冰封洞窟，寒冷刺骨", "envModifier": { "agiDebuff": 3 }, "enemyFamilies": ["cave", "tomb"] },
+    { "layerMin": 41, "layerMax": 50, "id": "void", "name": "虚空裂隙", "description": "异次元空间，重力混乱", "envModifier": { "statShuffle": true }, "enemyFamilies": ["cave", "tomb"] }
+  ],
+  "mapGen": {
+    "baseRoomCount": 8,
+    "roomPerLayer": 2,
+    "roomRandomBonus": 4,
+    "connectivity": 0.85,
+    "secretRoomChance": 0.15
+  }
+}

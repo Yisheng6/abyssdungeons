@@ -1,0 +1,100 @@
+{
+  "_description": "全局通用配置 - 游戏数值常量、系统开关、文案模板。策划修改此文件可直接调整全局体验，无需改代码。",
+  "version": "1.0",
+
+  "player": {
+    "maxLevel": 100,
+    "startingGold": 100,
+    "statPointsPerLevel": 5,
+    "skillPointsPerLevel": 2,
+    "hpRegenPerTurn": 0,
+    "mpRegenPerTurnPercent": 0.05,
+    "maxPartySize": 4,
+    "maxCharactersPerAccount": 3,
+    "reviveHpPercent": 0.3,
+    "inventorySlots": 40
+  },
+
+  "combat": {
+    "critMultiplier": 1.5,
+    "critRatePerLukPoint": 0.002,
+    "maxCritRate": 0.30,
+    "dodgeRatePerAgiPoint": 0.003,
+    "maxDodgeRate": 0.30,
+    "damageVarianceMin": 0.9,
+    "damageVarianceMax": 1.1,
+    "minDamage": 1,
+    "fleeBaseChance": 0.30,
+    "fleeAgiMultiplier": 0.02,
+    "fleeMaxChance": 0.80,
+    "defendDamageReduction": 0.50,
+    "firstStrikeBonus": 0.15,
+    "elementAdvantageMultiplier": 1.5,
+    "elementDisadvantageMultiplier": 0.67
+  },
+
+  "experience": {
+    "baseExpForLevel": 100,
+    "expGrowthRate": 1.15,
+    "expShareRadius": 5,
+    "partyBonusPercent": 0.20
+  },
+
+  "dungeon": {
+    "maxLayer": 100,
+    "globalSeed": "default",
+    "seedHashAlgorithm": "sha256",
+    "prngAlgorithm": "xorshift",
+    "roomCount": {
+      "base": 8,
+      "perLayer": 2,
+      "randomBonus": 4
+    },
+    "deathPenalty": {
+      "loseExpPercent": 1.0,
+      "keepItems": true,
+      "respawnLocation": "town"
+    },
+    "fullExploreBonusPercent": 0.50
+  },
+
+  "drop": {
+    "qualityWeights": {
+      "common": 5000,
+      "fine": 3000,
+      "rare": 1500,
+      "epic": 400,
+      "legendary": 90,
+      "mythic": 10
+    },
+    "eliteLootMultiplier": 1.5,
+    "bossLootMultiplier": 3.0,
+    "treasureLootMultiplier": 2.0
+  },
+
+  "chat": {
+    "maxMessageLength": 500,
+    "chatHistoryLimit": 100,
+    "chatMessageTTL": 86400,
+    "chatCooldownMs": 1000,
+    "channels": ["world", "area", "party", "guild"]
+  },
+
+  "switches": {
+    "pvpEnabled": false,
+    "pvpUnlockLevel": 30,
+    "marketEnabled": false,
+    "guildSystemEnabled": true,
+    "dailyDungeonLimit": 0,
+    "maintenanceMode": false
+  },
+
+  "textTemplates": {
+    "deathMessage": "你被击败了... 经验值损失 {lostExp}，已自动返回城镇。",
+    "levelUpMessage": "恭喜升级！当前等级 {level}，获得 {statPoints} 属性点和 {skillPoints} 技能点。",
+    "firstTimeClear": "首次通关 {dungeonName} 第 {layer} 层！",
+    "combatVictory": "战斗胜利！获得 {exp} 经验，{gold} 金币。",
+    "combatFleeSuccess": "成功逃离了战斗！",
+    "combatFleeFail": "逃跑失败！"
+  }
+}

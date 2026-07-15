@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "itemQualities": [
+    { "id": "common", "name": "普通", "color": "#FFFFFF", "extraStatsMin": 0, "extraStatsMax": 0, "dropWeight": 5000 },
+    { "id": "fine", "name": "精良", "color": "#3FB950", "extraStatsMin": 1, "extraStatsMax": 2, "dropWeight": 3000 },
+    { "id": "rare", "name": "稀有", "color": "#58A6FF", "extraStatsMin": 2, "extraStatsMax": 3, "dropWeight": 1500 },
+    { "id": "epic", "name": "史诗", "color": "#A371F7", "extraStatsMin": 3, "extraStatsMax": 4, "dropWeight": 400 },
+    { "id": "legendary", "name": "传说", "color": "#C9A84C", "extraStatsMin": 4, "extraStatsMax": 5, "dropWeight": 90 },
+    { "id": "mythic", "name": "神话", "color": "#F85149", "extraStatsMin": 5, "extraStatsMax": 6, "dropWeight": 10 }
+  ],
+  "itemSlots": ["weapon", "helmet", "armor", "legs", "boots", "necklace", "ring1", "ring2"],
+  "consumables": [
+    { "id": "hp_potion_small", "name": "小型生命药水", "type": "consumable", "effect": { "heal": 50 }, "target": "self", "stackSize": 99 },
+    { "id": "hp_potion_medium", "name": "中型生命药水", "type": "consumable", "effect": { "heal": 150 }, "target": "self", "stackSize": 99 },
+    { "id": "hp_potion_large", "name": "大型生命药水", "type": "consumable", "effect": { "heal": 400 }, "target": "self", "stackSize": 99 },
+    { "id": "mp_potion_small", "name": "小型法力药水", "type": "consumable", "effect": { "restoreMp": 30 }, "target": "self", "stackSize": 99 },
+    { "id": "mp_potion_medium", "name": "中型法力药水", "type": "consumable", "effect": { "restoreMp": 80 }, "target": "self", "stackSize": 99 },
+    { "id": "scroll_town", "name": "回城卷轴", "type": "consumable", "effect": { "teleport": "town" }, "target": "self", "stackSize": 20 },
+    { "id": "bomb_fire", "name": "火焰炸弹", "type": "consumable", "effect": { "damage": 100, "element": "fire", "aoe": true }, "target": "enemy", "stackSize": 20 }
+  ],
+  "equipmentPrefixes": [
+    { "id": "sharp", "name": "锋利的", "statModifiers": { "atk": 3 }, "qualityMin": "fine" },
+    { "id": "sturdy", "name": "坚固的", "statModifiers": { "def": 3 }, "qualityMin": "fine" },
+    { "id": "mystic", "name": "神秘的", "statModifiers": { "mag": 3 }, "qualityMin": "fine" },
+    { "id": "swift", "name": "迅捷的", "statModifiers": { "agi": 3 }, "qualityMin": "fine" },
+    { "id": "lucky", "name": "幸运的", "statModifiers": { "luk": 3 }, "qualityMin": "rare" },
+    { "id": "vampiric", "name": "吸血的", "specialEffect": "lifesteal_0.05", "qualityMin": "epic" },
+    { "id": "flaming", "name": "燃烧的", "specialEffect": "fire_damage_10", "qualityMin": "epic" },
+    { "id": "divine", "name": "神圣的", "statModifiers": { "atk": 5, "mag": 5, "luk": 5 }, "qualityMin": "legendary" }
+  ]
+}

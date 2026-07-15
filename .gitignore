@@ -1,0 +1,16 @@
+node_modules/
+npm-debug.log*
+.env
+.env.local
+dist/boot.js.map
+public/assets/*.map
+*.log
+pm2/logs/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+coverage/
+.nyc_output/
+

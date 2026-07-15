@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "monsterTypes": [
+    { "id": "normal", "name": "普通", "hpMultiplier": 1.0, "atkMultiplier": 1.0, "expMultiplier": 1.0, "goldMultiplier": 1.0 },
+    { "id": "elite", "name": "精英", "hpMultiplier": 2.5, "atkMultiplier": 1.5, "expMultiplier": 3.0, "goldMultiplier": 2.5 },
+    { "id": "boss", "name": "Boss", "hpMultiplier": 8.0, "atkMultiplier": 2.0, "expMultiplier": 10.0, "goldMultiplier": 8.0 }
+  ],
+  "aiTypes": [
+    { "id": "aggressive", "name": "攻击性", "description": "优先使用高伤害技能" },
+    { "id": "defensive", "name": "防御性", "description": "低血量时切换防御姿态" },
+    { "id": "cunning", "name": "狡猾型", "description": "优先攻击 HP 最低目标" },
+    { "id": "support", "name": "支援型", "description": "为其他敌人恢复或增益" },
+    { "id": "berserk", "name": "狂暴型", "description": "低血量时攻击力翻倍" }
+  ],
+  "enemies": [
+    { "id": "bat_cave", "name": "矿洞蝙蝠", "family": "cave", "baseLevel": 1, "baseStats": { "hp": 30, "mp": 0, "atk": 6, "def": 2, "mag": 0, "mdef": 1, "agi": 10, "luk": 3 }, "aiType": "aggressive", "skills": [], "element": "none" },
+    { "id": "miner_corrupted", "name": "腐化矿工", "family": "cave", "baseLevel": 3, "baseStats": { "hp": 60, "mp": 0, "atk": 10, "def": 5, "mag": 0, "mdef": 3, "agi": 4, "luk": 2 }, "aiType": "aggressive", "skills": ["club_strike"], "element": "none" },
+    { "id": "spider_giant", "name": "巨型蜘蛛", "family": "cave", "baseLevel": 5, "baseStats": { "hp": 50, "mp": 10, "atk": 12, "def": 4, "mag": 5, "mdef": 4, "agi": 14, "luk": 5 }, "aiType": "cunning", "skills": ["web_trap", "poison_bite"], "element": "none" },
+    { "id": "slime_toxic", "name": "毒泥怪", "family": "cave", "baseLevel": 2, "baseStats": { "hp": 40, "mp": 5, "atk": 5, "def": 8, "mag": 8, "mdef": 6, "agi": 2, "luk": 1 }, "aiType": "defensive", "skills": ["toxic_splash"], "element": "water" },
+    { "id": "skeleton", "name": "骷髅兵", "family": "tomb", "baseLevel": 12, "baseStats": { "hp": 80, "mp": 0, "atk": 15, "def": 10, "mag": 0, "mdef": 5, "agi": 6, "luk": 2 }, "aiType": "aggressive", "skills": ["bone_strike"], "element": "dark" },
+    { "id": "ghost", "name": "幽灵", "family": "tomb", "baseLevel": 15, "baseStats": { "hp": 60, "mp": 40, "atk": 5, "def": 3, "mag": 18, "mdef": 15, "agi": 12, "luk": 8 }, "aiType": "cunning", "skills": ["spectral_touch", "fear"], "element": "dark" },
+    { "id": "zombie", "name": "僵尸", "family": "tomb", "baseLevel": 11, "baseStats": { "hp": 120, "mp": 0, "atk": 12, "def": 6, "mag": 0, "mdef": 3, "agi": 2, "luk": 1 }, "aiType": "berserk", "skills": [], "element": "dark" },
+    { "id": "boss_golem_ore", "name": "矿脉巨像", "family": "cave", "baseLevel": 10, "isBoss": true, "phases": 3, "baseStats": { "hp": 300, "mp": 50, "atk": 20, "def": 15, "mag": 5, "mdef": 10, "agi": 3, "luk": 2 }, "aiType": "berserk", "skills": ["slam", "rock_summon", "enrage"], "element": "earth" }
+  ]
+}

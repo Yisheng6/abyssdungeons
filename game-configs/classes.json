@@ -1,0 +1,71 @@
+{
+  "version": "1.0",
+  "classes": [
+    {
+      "id": "warrior",
+      "name": "战士",
+      "nameEn": "Warrior",
+      "role": "近战坦克",
+      "difficulty": "简单",
+      "description": "高生命高防御，前排承伤",
+      "baseStats": { "hp": 150, "mp": 30, "atk": 12, "def": 10, "mag": 2, "mdef": 5, "agi": 6, "luk": 5 },
+      "growthStats": { "hp": 15, "mp": 2, "atk": 2, "def": 2, "mag": 0, "mdef": 1, "agi": 1, "luk": 1 },
+      "skillTree": ["shield_bash", "taunt", "heavy_strike", "iron_will", "whirlwind", "last_stand"]
+    },
+    {
+      "id": "mage",
+      "name": "法师",
+      "nameEn": "Mage",
+      "role": "远程魔法",
+      "difficulty": "中等",
+      "description": "高魔法伤害，群体输出",
+      "baseStats": { "hp": 80, "mp": 80, "atk": 4, "def": 3, "mag": 15, "mdef": 10, "agi": 7, "luk": 6 },
+      "growthStats": { "hp": 6, "mp": 8, "atk": 0, "def": 0, "mag": 3, "mdef": 2, "agi": 1, "luk": 1 },
+      "skillTree": ["fireball", "frostbolt", "lightning", "mana_shield", "meteor", "arcane_power"]
+    },
+    {
+      "id": "assassin",
+      "name": "刺客",
+      "nameEn": "Assassin",
+      "role": "近战爆发",
+      "difficulty": "困难",
+      "description": "高敏捷高暴击，秒杀敌人",
+      "baseStats": { "hp": 90, "mp": 40, "atk": 15, "def": 4, "mag": 3, "mdef": 4, "agi": 15, "luk": 12 },
+      "growthStats": { "hp": 8, "mp": 3, "atk": 3, "def": 0, "mag": 0, "mdef": 1, "agi": 3, "luk": 2 },
+      "skillTree": ["shadow_step", "backstab", "poison_blade", "smoke_bomb", "assassinate", "shadow_dance"]
+    },
+    {
+      "id": "ranger",
+      "name": "游侠",
+      "nameEn": "Ranger",
+      "role": "远程物理",
+      "difficulty": "中等",
+      "description": "持续输出，陷阱与控制",
+      "baseStats": { "hp": 100, "mp": 45, "atk": 13, "def": 5, "mag": 4, "mdef": 5, "agi": 12, "luk": 8 },
+      "growthStats": { "hp": 9, "mp": 3, "atk": 2, "def": 1, "mag": 0, "mdef": 1, "agi": 2, "luk": 1 },
+      "skillTree": ["aimed_shot", "trap", "multishot", "poison_arrow", "stampede", "eagle_eye"]
+    },
+    {
+      "id": "priest",
+      "name": "牧师",
+      "nameEn": "Priest",
+      "role": "辅助治疗",
+      "difficulty": "简单",
+      "description": "团队续航，驱散负面状态",
+      "baseStats": { "hp": 110, "mp": 70, "atk": 5, "def": 6, "mag": 12, "mdef": 12, "agi": 5, "luk": 7 },
+      "growthStats": { "hp": 10, "mp": 6, "atk": 0, "def": 1, "mag": 2, "mdef": 2, "agi": 1, "luk": 1 },
+      "skillTree": ["heal", "holy_light", "bless", "dispel", "resurrection", "divine_shield"]
+    },
+    {
+      "id": "warlock",
+      "name": "术士",
+      "nameEn": "Warlock",
+      "role": "持续伤害",
+      "difficulty": "困难",
+      "description": "DOT 与召唤，资源管理",
+      "baseStats": { "hp": 95, "mp": 65, "atk": 6, "def": 4, "mag": 14, "mdef": 8, "agi": 6, "luk": 9 },
+      "growthStats": { "hp": 8, "mp": 5, "atk": 0, "def": 0, "mag": 3, "mdef": 1, "agi": 1, "luk": 1 },
+      "skillTree": ["corruption", "summon_imp", "life_drain", "curse", "demon_form", "soul_harvest"]
+    }
+  ]
+}
