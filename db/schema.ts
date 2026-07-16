@@ -168,6 +168,7 @@ export const parties = mysqlTable(
       layer: number; x: number; y: number; globalSeed: string;
     }>(),
     maxMembers: int("max_members").default(4).notNull(),
+    expiresAt: timestamp("expires_at"), // auto-disband if not in dungeon after 10min
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
   },

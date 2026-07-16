@@ -371,8 +371,12 @@ export default function Party() {
                         </div>
                         <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Lv.{member.level} {CLASS_NAMES[member.classId] || member.classId}</div>
                       </div>
-                      {/* Ready Status */}
-                      {member.isReady ? (
+                      {/* Ready Status — leader is auto-ready */}
+                      {isLeader ? (
+                        <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs" style={{ backgroundColor: 'rgba(201,168,76,0.15)', color: '#C9A84C' }}>
+                          <Crown size={10} /> 队长
+                        </span>
+                      ) : member.isReady ? (
                         <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs" style={{ backgroundColor: 'rgba(63,185,80,0.15)', color: '#3FB950' }}>
                           <Check size={10} /> 已准备
                         </span>

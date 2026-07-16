@@ -38,6 +38,22 @@ function eqNum(a: unknown, b: unknown): boolean {
   return num(a) === num(b);
 }
 
+// ─── 10-minute expiration from now ───
+function getExpiresAt(): Date {
+  return new Date(Date.now() + 10 * 60 * 1000);
+}
+
+// ─── Auto-disband expired recruiting parties ───
+async function cleanupExpiredParties(): Promise<void> {
+  const allParties = await db.select().from(parties);
+  const now = new Date();
+  for (const p of allParties) {
+    if (p.status === "recruiting" && p.expiresAt && new Date(p.expiresAt) < now) {
+      await disbandParty(num(p.id));
+    }
+  }
+}
+
 // ─── Helper: get latest party by leader (reliable for MySQL) ───
 async function getLatestPartyByLeader(leaderId: number): Promise<number> {
   const rows = await db.select().from(parties).where(eq(parties.leaderId, leaderId)).orderBy(desc(parties.id)).limit(1);
@@ -56,6 +72,9 @@ export async function createParty(params: {
   // Leave any existing party first
   await leaveAllParties(leaderId);
 
+  // Clean expired parties
+  await cleanupExpiredParties();
+
   const partyName = name || `${leaderName}的队伍`;
 
   await db.insert(parties).values({
@@ -64,19 +83,20 @@ export async function createParty(params: {
     leaderName,
     maxMembers,
     status: "recruiting",
+    expiresAt: getExpiresAt(),
   });
 
   // Query back the inserted party (MySQL doesn't support .returning())
   const partyId = await getLatestPartyByLeader(leaderId);
 
-  // Add leader as first member
+  // Add leader as first member — leader is auto-ready
   await db.insert(partyMembers).values({
     partyId,
     characterId: leaderId,
     characterName: leaderName,
     classId: "warrior",
     level: 1,
-    isReady: false,
+    isReady: true,
   });
 
   return (await getPartyById(partyId))!;
@@ -92,11 +112,20 @@ export async function joinParty(params: {
 }): Promise<{ success: boolean; party?: PartyInfo; message: string }> {
   const { partyId, characterId, characterName, classId, level } = params;
 
+  // Clean expired parties first
+  await cleanupExpiredParties();
+
   // Check target party first (before leaving existing)
   const allParties = await db.select().from(parties);
   const targetParty = allParties.find((p) => eqNum(p.id, partyId));
   if (!targetParty) return { success: false, message: "队伍不存在" };
   if (targetParty.status !== "recruiting") return { success: false, message: "队伍已开始地牢，无法加入" };
+
+  // Check if expired
+  if (targetParty.expiresAt && new Date(targetParty.expiresAt) < new Date()) {
+    await disbandParty(num(targetParty.id));
+    return { success: false, message: "队伍已过期解散" };
+  }
 
   // Check capacity
   const allMembers = await db.select().from(partyMembers);
@@ -122,6 +151,9 @@ export async function joinParty(params: {
     level,
     isReady: false,
   });
+
+  // Reset expiration timer on member join
+  await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
 
   const updated = await getPartyById(partyId);
   return { success: true, party: updated || undefined, message: "加入成功" };
@@ -149,6 +181,12 @@ export async function leaveParty(characterId: number): Promise<{ success: boolea
   }
 
   await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+
+  // Reset expiration timer on member leave
+  if (party.status === "recruiting") {
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+  }
+
   return { success: true, message: "已离开队伍" };
 }
 
@@ -166,6 +204,12 @@ export async function kickMember(leaderId: number, memberId: number): Promise<{ 
   if (!target) return { success: false, message: "该成员不在队伍中" };
 
   await db.delete(partyMembers).where(eq(partyMembers.id, target.id));
+
+  // Reset expiration timer
+  if (party.status === "recruiting") {
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+  }
+
   return { success: true, message: "已踢出成员" };
 }
 
@@ -199,7 +243,7 @@ export async function startDungeon(leaderId: number, layer: number, x: number, y
   const partyMembersList = allMembers.filter((m) => eqNum(m.partyId, party.id));
   if (partyMembersList.length < 1) return { success: false, message: "队伍为空" };
 
-  // All members must be ready (except leader)
+  // All NON-LEADER members must be ready (leader is auto-ready)
   const notReady = partyMembersList.filter((m) => !eqNum(m.characterId, leaderId) && !m.isReady);
   if (notReady.length > 0) {
     return { success: false, message: `${notReady.map((m) => m.characterName).join("、")} 未准备` };
@@ -210,6 +254,7 @@ export async function startDungeon(leaderId: number, layer: number, x: number, y
     .set({
       status: "in_dungeon",
       dungeonParams: JSON.stringify({ layer, x, y, globalSeed: "default" }),
+      expiresAt: null, // clear expiration once in dungeon
     })
     .where(eq(parties.id, party.id));
 
@@ -225,6 +270,9 @@ export async function disbandParty(partyId: number): Promise<void> {
 
 // ─── Get Party ───
 export async function getPartyById(id: number): Promise<PartyInfo | null> {
+  // Auto-cleanup expired parties on every read
+  await cleanupExpiredParties();
+
   const allParties = await db.select().from(parties);
   const party = allParties.find((p) => eqNum(p.id, id));
   if (!party) return null;
@@ -254,6 +302,8 @@ export async function getPartyById(id: number): Promise<PartyInfo | null> {
 
 // ─── Get Party by Character ───
 export async function getPartyByCharacter(characterId: number): Promise<PartyInfo | null> {
+  await cleanupExpiredParties();
+
   const allMembers = await db.select().from(partyMembers);
   const member = allMembers.find((m) => eqNum(m.characterId, characterId));
   if (!member) return null;
@@ -271,6 +321,9 @@ async function leaveAllParties(characterId: number): Promise<void> {
 
 // ─── List Available Parties ───
 export async function listAvailableParties(): Promise<PartyInfo[]> {
+  // Auto-cleanup expired parties
+  await cleanupExpiredParties();
+
   const allParties = await db.select().from(parties);
   const recruiting = allParties.filter((p) => p.status === "recruiting");
 

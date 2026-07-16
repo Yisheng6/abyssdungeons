@@ -38429,6 +38429,8 @@ var init_schema2 = __esm({
         // recruiting | in_dungeon | disbanded
         dungeonParams: json("dungeon_params").$type(),
         maxMembers: int("max_members").default(4).notNull(),
+        expiresAt: timestamp("expires_at"),
+        // auto-disband if not in dungeon after 10min
         createdAt: timestamp("created_at").defaultNow(),
         updatedAt: timestamp("updated_at").defaultNow().onUpdateNow()
       },
@@ -38547,6 +38549,18 @@ function num(v) {
 function eqNum(a, b) {
   return num(a) === num(b);
 }
+function getExpiresAt() {
+  return new Date(Date.now() + 10 * 60 * 1e3);
+}
+async function cleanupExpiredParties() {
+  const allParties = await db.select().from(parties);
+  const now = /* @__PURE__ */ new Date();
+  for (const p of allParties) {
+    if (p.status === "recruiting" && p.expiresAt && new Date(p.expiresAt) < now) {
+      await disbandParty(num(p.id));
+    }
+  }
+}
 async function getLatestPartyByLeader(leaderId) {
   const rows = await db.select().from(parties).where(eq(parties.leaderId, leaderId)).orderBy(desc(parties.id)).limit(1);
   return num(rows[0]?.id) || 0;
@@ -38554,13 +38568,15 @@ async function getLatestPartyByLeader(leaderId) {
 async function createParty(params) {
   const { leaderId, leaderName, name, maxMembers = 4 } = params;
   await leaveAllParties(leaderId);
+  await cleanupExpiredParties();
   const partyName = name || `${leaderName}\u7684\u961F\u4F0D`;
   await db.insert(parties).values({
     name: partyName,
     leaderId,
     leaderName,
     maxMembers,
-    status: "recruiting"
+    status: "recruiting",
+    expiresAt: getExpiresAt()
   });
   const partyId = await getLatestPartyByLeader(leaderId);
   await db.insert(partyMembers).values({
@@ -38569,16 +38585,21 @@ async function createParty(params) {
     characterName: leaderName,
     classId: "warrior",
     level: 1,
-    isReady: false
+    isReady: true
   });
   return await getPartyById(partyId);
 }
 async function joinParty(params) {
   const { partyId, characterId, characterName, classId, level } = params;
+  await cleanupExpiredParties();
   const allParties = await db.select().from(parties);
   const targetParty = allParties.find((p) => eqNum(p.id, partyId));
   if (!targetParty) return { success: false, message: "\u961F\u4F0D\u4E0D\u5B58\u5728" };
   if (targetParty.status !== "recruiting") return { success: false, message: "\u961F\u4F0D\u5DF2\u5F00\u59CB\u5730\u7262\uFF0C\u65E0\u6CD5\u52A0\u5165" };
+  if (targetParty.expiresAt && new Date(targetParty.expiresAt) < /* @__PURE__ */ new Date()) {
+    await disbandParty(num(targetParty.id));
+    return { success: false, message: "\u961F\u4F0D\u5DF2\u8FC7\u671F\u89E3\u6563" };
+  }
   const allMembers = await db.select().from(partyMembers);
   const partyMemberCount = allMembers.filter((m) => eqNum(m.partyId, partyId)).length;
   if (partyMemberCount >= targetParty.maxMembers) return { success: false, message: "\u961F\u4F0D\u5DF2\u6EE1" };
@@ -38596,6 +38617,7 @@ async function joinParty(params) {
     level,
     isReady: false
   });
+  await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
   const updated = await getPartyById(partyId);
   return { success: true, party: updated || void 0, message: "\u52A0\u5165\u6210\u529F" };
 }
@@ -38614,6 +38636,9 @@ async function leaveParty(characterId) {
     return { success: true, message: "\u961F\u957F\u79BB\u5F00\uFF0C\u961F\u4F0D\u5DF2\u89E3\u6563", disbanded: true };
   }
   await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+  if (party.status === "recruiting") {
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+  }
   return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
 }
 async function kickMember(leaderId, memberId) {
@@ -38626,6 +38651,9 @@ async function kickMember(leaderId, memberId) {
   const target = allMembers.find((m) => eqNum(m.characterId, memberId) && eqNum(m.partyId, party.id));
   if (!target) return { success: false, message: "\u8BE5\u6210\u5458\u4E0D\u5728\u961F\u4F0D\u4E2D" };
   await db.delete(partyMembers).where(eq(partyMembers.id, target.id));
+  if (party.status === "recruiting") {
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+  }
   return { success: true, message: "\u5DF2\u8E22\u51FA\u6210\u5458" };
 }
 async function setReady(characterId, ready) {
@@ -38652,7 +38680,9 @@ async function startDungeon(leaderId, layer, x, y) {
   }
   await db.update(parties).set({
     status: "in_dungeon",
-    dungeonParams: JSON.stringify({ layer, x, y, globalSeed: "default" })
+    dungeonParams: JSON.stringify({ layer, x, y, globalSeed: "default" }),
+    expiresAt: null
+    // clear expiration once in dungeon
   }).where(eq(parties.id, party.id));
   const updated = await getPartyById(num(party.id));
   return { success: true, party: updated || void 0, message: "\u5730\u7262\u5F00\u59CB\uFF01" };
@@ -38662,6 +38692,7 @@ async function disbandParty(partyId) {
   await db.delete(parties).where(eq(parties.id, partyId));
 }
 async function getPartyById(id) {
+  await cleanupExpiredParties();
   const allParties = await db.select().from(parties);
   const party = allParties.find((p) => eqNum(p.id, id));
   if (!party) return null;
@@ -38687,6 +38718,7 @@ async function getPartyById(id) {
   };
 }
 async function getPartyByCharacter(characterId) {
+  await cleanupExpiredParties();
   const allMembers = await db.select().from(partyMembers);
   const member = allMembers.find((m) => eqNum(m.characterId, characterId));
   if (!member) return null;
@@ -38700,6 +38732,7 @@ async function leaveAllParties(characterId) {
   }
 }
 async function listAvailableParties() {
+  await cleanupExpiredParties();
   const allParties = await db.select().from(parties);
   const recruiting = allParties.filter((p) => p.status === "recruiting");
   const result = [];
