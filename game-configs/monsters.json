@@ -13,13 +13,100 @@
     { "id": "berserk", "name": "狂暴型", "description": "低血量时攻击力翻倍" }
   ],
   "enemies": [
-    { "id": "bat_cave", "name": "矿洞蝙蝠", "family": "cave", "baseLevel": 1, "baseStats": { "hp": 30, "mp": 0, "atk": 6, "def": 2, "mag": 0, "mdef": 1, "agi": 10, "luk": 3 }, "aiType": "aggressive", "skills": [], "element": "none" },
-    { "id": "miner_corrupted", "name": "腐化矿工", "family": "cave", "baseLevel": 3, "baseStats": { "hp": 60, "mp": 0, "atk": 10, "def": 5, "mag": 0, "mdef": 3, "agi": 4, "luk": 2 }, "aiType": "aggressive", "skills": ["club_strike"], "element": "none" },
-    { "id": "spider_giant", "name": "巨型蜘蛛", "family": "cave", "baseLevel": 5, "baseStats": { "hp": 50, "mp": 10, "atk": 12, "def": 4, "mag": 5, "mdef": 4, "agi": 14, "luk": 5 }, "aiType": "cunning", "skills": ["web_trap", "poison_bite"], "element": "none" },
-    { "id": "slime_toxic", "name": "毒泥怪", "family": "cave", "baseLevel": 2, "baseStats": { "hp": 40, "mp": 5, "atk": 5, "def": 8, "mag": 8, "mdef": 6, "agi": 2, "luk": 1 }, "aiType": "defensive", "skills": ["toxic_splash"], "element": "water" },
-    { "id": "skeleton", "name": "骷髅兵", "family": "tomb", "baseLevel": 12, "baseStats": { "hp": 80, "mp": 0, "atk": 15, "def": 10, "mag": 0, "mdef": 5, "agi": 6, "luk": 2 }, "aiType": "aggressive", "skills": ["bone_strike"], "element": "dark" },
-    { "id": "ghost", "name": "幽灵", "family": "tomb", "baseLevel": 15, "baseStats": { "hp": 60, "mp": 40, "atk": 5, "def": 3, "mag": 18, "mdef": 15, "agi": 12, "luk": 8 }, "aiType": "cunning", "skills": ["spectral_touch", "fear"], "element": "dark" },
-    { "id": "zombie", "name": "僵尸", "family": "tomb", "baseLevel": 11, "baseStats": { "hp": 120, "mp": 0, "atk": 12, "def": 6, "mag": 0, "mdef": 3, "agi": 2, "luk": 1 }, "aiType": "berserk", "skills": [], "element": "dark" },
-    { "id": "boss_golem_ore", "name": "矿脉巨像", "family": "cave", "baseLevel": 10, "isBoss": true, "phases": 3, "baseStats": { "hp": 300, "mp": 50, "atk": 20, "def": 15, "mag": 5, "mdef": 10, "agi": 3, "luk": 2 }, "aiType": "berserk", "skills": ["slam", "rock_summon", "enrage"], "element": "earth" }
+    {
+      "id": "bat_cave", "name": "矿洞蝙蝠", "family": "cave", "baseLevel": 1,
+      "baseStats": { "hp": 30, "mp": 0, "atk": 6, "def": 2, "mag": 0, "mdef": 1, "agi": 10, "luk": 3 },
+      "aiType": "aggressive", "skills": [], "element": "none",
+      "dropTable": [
+        { "itemId": "bat_wing", "name": "蝙蝠翅膀", "type": "material", "chance": 35, "quantityMin": 1, "quantityMax": 2, "quality": "common" },
+        { "itemId": "hp_small", "name": "小型生命药水", "type": "consumable", "chance": 20, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 60, "quantityMin": 5, "quantityMax": 15, "quality": "common" }
+      ]
+    },
+    {
+      "id": "miner_corrupted", "name": "腐化矿工", "family": "cave", "baseLevel": 3,
+      "baseStats": { "hp": 60, "mp": 0, "atk": 10, "def": 5, "mag": 0, "mdef": 3, "agi": 4, "luk": 2 },
+      "aiType": "aggressive", "skills": ["club_strike"], "element": "none",
+      "dropTable": [
+        { "itemId": "pickaxe_broken", "name": "破旧的镐头", "type": "material", "chance": 25, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "ore_iron", "name": "铁矿石", "type": "material", "chance": 30, "quantityMin": 1, "quantityMax": 3, "quality": "common" },
+        { "itemId": "mp_small", "name": "小型法力药水", "type": "consumable", "chance": 15, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 70, "quantityMin": 10, "quantityMax": 25, "quality": "common" }
+      ]
+    },
+    {
+      "id": "spider_giant", "name": "巨型蜘蛛", "family": "cave", "baseLevel": 5,
+      "baseStats": { "hp": 50, "mp": 10, "atk": 12, "def": 4, "mag": 5, "mdef": 4, "agi": 14, "luk": 5 },
+      "aiType": "cunning", "skills": ["web_trap", "poison_bite"], "element": "none",
+      "dropTable": [
+        { "itemId": "spider_silk", "name": "蜘蛛丝", "type": "material", "chance": 40, "quantityMin": 1, "quantityMax": 3, "quality": "fine" },
+        { "itemId": "venom_sac", "name": "毒囊", "type": "material", "chance": 20, "quantityMin": 1, "quantityMax": 1, "quality": "fine" },
+        { "itemId": "hp_small", "name": "小型生命药水", "type": "consumable", "chance": 25, "quantityMin": 1, "quantityMax": 2, "quality": "common" },
+        { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 75, "quantityMin": 15, "quantityMax": 35, "quality": "common" }
+      ]
+    },
+    {
+      "id": "slime_toxic", "name": "毒泥怪", "family": "cave", "baseLevel": 2,
+      "baseStats": { "hp": 40, "mp": 5, "atk": 5, "def": 8, "mag": 8, "mdef": 6, "agi": 2, "luk": 1 },
+      "aiType": "defensive", "skills": ["toxic_splash"], "element": "water",
+      "dropTable": [
+        { "itemId": "slime_gel", "name": "史莱姆凝胶", "type": "material", "chance": 50, "quantityMin": 1, "quantityMax": 3, "quality": "common" },
+        { "itemId": "antidote_herb", "name": "解毒草", "type": "consumable", "chance": 30, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 55, "quantityMin": 8, "quantityMax": 20, "quality": "common" }
+      ]
+    },
+    {
+      "id": "skeleton", "name": "骷髅兵", "family": "tomb", "baseLevel": 12,
+      "baseStats": { "hp": 80, "mp": 0, "atk": 15, "def": 10, "mag": 0, "mdef": 5, "agi": 6, "luk": 2 },
+      "aiType": "aggressive", "skills": ["bone_strike"], "element": "dark",
+      "dropTable": [
+        { "itemId": "bone_fragment", "name": "碎骨片", "type": "material", "chance": 35, "quantityMin": 1, "quantityMax": 2, "quality": "common" },
+        { "itemId": "sword_rusty", "name": "生锈的剑", "type": "equipment", "chance": 8, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "hp_medium", "name": "中型生命药水", "type": "consumable", "chance": 20, "quantityMin": 1, "quantityMax": 1, "quality": "fine" },
+        { "itemId": "coin_silver", "name": "银币", "type": "currency", "chance": 65, "quantityMin": 3, "quantityMax": 8, "quality": "fine" }
+      ]
+    },
+    {
+      "id": "ghost", "name": "幽灵", "family": "tomb", "baseLevel": 15,
+      "baseStats": { "hp": 60, "mp": 40, "atk": 5, "def": 3, "mag": 18, "mdef": 15, "agi": 12, "luk": 8 },
+      "aiType": "cunning", "skills": ["spectral_touch", "fear"], "element": "dark",
+      "dropTable": [
+        { "itemId": "ectoplasm", "name": "灵质", "type": "material", "chance": 30, "quantityMin": 1, "quantityMax": 2, "quality": "fine" },
+        { "itemId": "soul_shard", "name": "灵魂碎片", "type": "material", "chance": 15, "quantityMin": 1, "quantityMax": 1, "quality": "rare" },
+        { "itemId": "mp_medium", "name": "中型法力药水", "type": "consumable", "chance": 25, "quantityMin": 1, "quantityMax": 1, "quality": "fine" },
+        { "itemId": "coin_silver", "name": "银币", "type": "currency", "chance": 70, "quantityMin": 5, "quantityMax": 12, "quality": "fine" }
+      ]
+    },
+    {
+      "id": "zombie", "name": "僵尸", "family": "tomb", "baseLevel": 11,
+      "baseStats": { "hp": 120, "mp": 0, "atk": 12, "def": 6, "mag": 0, "mdef": 3, "agi": 2, "luk": 1 },
+      "aiType": "berserk", "skills": [], "element": "dark",
+      "dropTable": [
+        { "itemId": "rotten_flesh", "name": "腐肉", "type": "material", "chance": 45, "quantityMin": 1, "quantityMax": 2, "quality": "common" },
+        { "itemId": "hp_small", "name": "小型生命药水", "type": "consumable", "chance": 20, "quantityMin": 1, "quantityMax": 1, "quality": "common" },
+        { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 60, "quantityMin": 10, "quantityMax": 30, "quality": "common" }
+      ]
+    },
+    {
+      "id": "boss_golem_ore", "name": "矿脉巨像", "family": "cave", "baseLevel": 10, "isBoss": true, "phases": 3,
+      "baseStats": { "hp": 300, "mp": 50, "atk": 20, "def": 15, "mag": 5, "mdef": 10, "agi": 3, "luk": 2 },
+      "aiType": "berserk", "skills": ["slam", "rock_summon", "enrage"], "element": "earth",
+      "dropTable": [
+        { "itemId": "golem_core", "name": "巨像核心", "type": "material", "chance": 100, "quantityMin": 1, "quantityMax": 1, "quality": "epic" },
+        { "itemId": "ore_mithril", "name": "秘银矿石", "type": "material", "chance": 60, "quantityMin": 2, "quantityMax": 5, "quality": "rare" },
+        { "itemId": "armor_stone", "name": "石甲", "type": "equipment", "chance": 25, "quantityMin": 1, "quantityMax": 1, "quality": "rare" },
+        { "itemId": "weapon_earth", "name": "大地之锤", "type": "equipment", "chance": 15, "quantityMin": 1, "quantityMax": 1, "quality": "epic" },
+        { "itemId": "hp_large", "name": "大型生命药水", "type": "consumable", "chance": 80, "quantityMin": 2, "quantityMax": 5, "quality": "rare" },
+        { "itemId": "coin_gold", "name": "金币", "type": "currency", "chance": 100, "quantityMin": 10, "quantityMax": 30, "quality": "epic" }
+      ]
+    }
+  ],
+  "globalDropPool": [
+    { "itemId": "hp_small", "name": "小型生命药水", "type": "consumable", "chance": 15, "quantityMin": 1, "quantityMax": 1, "quality": "common", "minLayer": 1 },
+    { "itemId": "mp_small", "name": "小型法力药水", "type": "consumable", "chance": 10, "quantityMin": 1, "quantityMax": 1, "quality": "common", "minLayer": 1 },
+    { "itemId": "hp_medium", "name": "中型生命药水", "type": "consumable", "chance": 8, "quantityMin": 1, "quantityMax": 1, "quality": "fine", "minLayer": 5 },
+    { "itemId": "scroll_town", "name": "回城卷轴", "type": "consumable", "chance": 5, "quantityMin": 1, "quantityMax": 1, "quality": "fine", "minLayer": 3 },
+    { "itemId": "coin_copper", "name": "铜币", "type": "currency", "chance": 25, "quantityMin": 3, "quantityMax": 10, "quality": "common", "minLayer": 1 },
+    { "itemId": "herb_glow", "name": "荧光草", "type": "material", "chance": 12, "quantityMin": 1, "quantityMax": 2, "quality": "common", "minLayer": 1 }
   ]
 }
