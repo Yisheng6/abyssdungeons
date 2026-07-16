@@ -10,7 +10,7 @@ import {
   getPartyById,
   getPartyByCharacter,
   listAvailableParties,
-  heartbeat,
+  heartbeat as heartbeatSvc,
   type PartyInfo,
 } from "../services/party-service";
 import {
@@ -192,7 +192,7 @@ export const partyRouter = createRouter({
   heartbeat: publicQuery
     .input(z.object({ characterId: z.number() }))
     .mutation(async ({ input }) => {
-      const result = await heartbeat(input.characterId);
+      const result = await heartbeatSvc(input.characterId);
       return result;
     }),
 

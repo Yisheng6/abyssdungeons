@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowLeft, Users, Plus, LogOut, Crown, Check, User, X, Swords, Shield, Sparkles, Wind, Star, Heart, Zap, Wifi, WifiOff } from 'lucide-react'
+import { ArrowLeft, Users, Plus, LogOut, Crown, Check, User, X, Swords, Shield, Sparkles, Wind, Star, Heart, Zap } from 'lucide-react'
 import { trpc } from '@/providers/trpc'
 import { useGameStore } from '@/stores/gameStore'
 
@@ -126,16 +126,6 @@ export default function Party() {
     }
   }, [myPartyQuery.data?.party, view])
 
-  // Heartbeat: send every 10s when in party view
-  const heartbeatMut = trpc.party.heartbeat.useMutation()
-  useEffect(() => {
-    if (view !== 'myParty' || !isInParty) return
-    const sendBeat = () => heartbeatMut.mutate({ characterId })
-    sendBeat() // send immediately
-    const timer = setInterval(sendBeat, 10000)
-    return () => clearInterval(timer)
-  }, [view, isInParty, characterId])
-
   // Mutations
   const createMut = trpc.party.create.useMutation({
     onSuccess: (data) => {
@@ -236,6 +226,16 @@ export default function Party() {
   const me = myParty?.members?.find((m: any) => m.characterId === characterId)
   const allReady = myParty?.members?.length > 0 &&
     myParty.members.every((m: any) => m.isReady || m.characterId === myParty.leaderId)
+
+  // Heartbeat: send every 10s when in party view (must be AFTER isInParty declaration!)
+  const heartbeatMut = trpc.party.heartbeat.useMutation()
+  useEffect(() => {
+    if (view !== 'myParty' || !isInParty) return
+    const sendBeat = () => heartbeatMut.mutate({ characterId })
+    sendBeat()
+    const timer = setInterval(sendBeat, 10000)
+    return () => clearInterval(timer)
+  }, [view, isInParty, characterId])
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
