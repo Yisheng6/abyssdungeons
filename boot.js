@@ -38449,6 +38449,7 @@ var init_schema2 = __esm({
         classId: varchar("class_id", { length: 20 }).notNull(),
         level: int("level").default(1).notNull(),
         isReady: boolean("is_ready").default(false),
+        lastActiveAt: timestamp("last_active_at").defaultNow(),
         joinedAt: timestamp("joined_at").defaultNow()
       },
       (table) => [
@@ -38533,6 +38534,7 @@ __export(party_service_exports, {
   disbandParty: () => disbandParty,
   getPartyByCharacter: () => getPartyByCharacter,
   getPartyById: () => getPartyById,
+  heartbeat: () => heartbeat,
   joinParty: () => joinParty,
   kickMember: () => kickMember,
   leaveParty: () => leaveParty,
@@ -38561,6 +38563,17 @@ async function cleanupExpiredParties() {
     }
   }
 }
+function isMemberOnline(lastActiveAt) {
+  if (!lastActiveAt) return false;
+  return Date.now() - new Date(lastActiveAt).getTime() < 30 * 1e3;
+}
+async function heartbeat(characterId) {
+  const allMembers = await db.select().from(partyMembers);
+  const member = allMembers.find((m) => eqNum(m.characterId, characterId));
+  if (!member) return { success: false };
+  await db.update(partyMembers).set({ lastActiveAt: /* @__PURE__ */ new Date() }).where(eq(partyMembers.id, member.id));
+  return { success: true };
+}
 async function getLatestPartyByLeader(leaderId) {
   const rows = await db.select().from(parties).where(eq(parties.leaderId, leaderId)).orderBy(desc(parties.id)).limit(1);
   return num(rows[0]?.id) || 0;
@@ -38585,7 +38598,8 @@ async function createParty(params) {
     characterName: leaderName,
     classId: "warrior",
     level: 1,
-    isReady: true
+    isReady: true,
+    lastActiveAt: /* @__PURE__ */ new Date()
   });
   return await getPartyById(partyId);
 }
@@ -38615,7 +38629,8 @@ async function joinParty(params) {
     characterName,
     classId,
     level,
-    isReady: false
+    isReady: false,
+    lastActiveAt: /* @__PURE__ */ new Date()
   });
   await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
   const updated = await getPartyById(partyId);
@@ -38712,7 +38727,8 @@ async function getPartyById(id) {
       characterName: m.characterName,
       classId: m.classId,
       level: num(m.level),
-      isReady: !!m.isReady
+      isReady: !!m.isReady,
+      isOnline: isMemberOnline(m.lastActiveAt)
     })),
     createdAt: party.createdAt
   };
@@ -50417,6 +50433,11 @@ var partyRouter = createRouter({
     if (!instance2) return { instance: null };
     const roomData = buildRoomResponse(instance2);
     return { instance: { ...instance2, combatState: instance2.combatState }, roomData };
+  }),
+  // ─── Heartbeat (online status) ───
+  heartbeat: publicQuery.input(external_exports.object({ characterId: external_exports.number() })).mutation(async ({ input }) => {
+    const result = await heartbeat(input.characterId);
+    return result;
   }),
   // ─── Disband ───
   disband: publicQuery.input(external_exports.object({ partyId: external_exports.number() })).mutation(async ({ input }) => {

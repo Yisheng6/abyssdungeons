@@ -10,6 +10,7 @@ import {
   getPartyById,
   getPartyByCharacter,
   listAvailableParties,
+  heartbeat,
   type PartyInfo,
 } from "../services/party-service";
 import {
@@ -185,6 +186,14 @@ export const partyRouter = createRouter({
       if (!instance) return { instance: null };
       const roomData = buildRoomResponse(instance);
       return { instance: { ...instance, combatState: instance.combatState }, roomData };
+    }),
+
+  // ─── Heartbeat (online status) ───
+  heartbeat: publicQuery
+    .input(z.object({ characterId: z.number() }))
+    .mutation(async ({ input }) => {
+      const result = await heartbeat(input.characterId);
+      return result;
     }),
 
   // ─── Disband ───

@@ -191,6 +191,7 @@ export const partyMembers = mysqlTable(
     classId: varchar("class_id", { length: 20 }).notNull(),
     level: int("level").default(1).notNull(),
     isReady: boolean("is_ready").default(false),
+    lastActiveAt: timestamp("last_active_at").defaultNow(),
     joinedAt: timestamp("joined_at").defaultNow(),
   },
   (table) => [

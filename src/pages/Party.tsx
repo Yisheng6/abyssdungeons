@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowLeft, Users, Plus, LogOut, Crown, Check, User, X, Swords, Shield, Sparkles, Wind, Star, Heart, Zap } from 'lucide-react'
+import { ArrowLeft, Users, Plus, LogOut, Crown, Check, User, X, Swords, Shield, Sparkles, Wind, Star, Heart, Zap, Wifi, WifiOff } from 'lucide-react'
 import { trpc } from '@/providers/trpc'
 import { useGameStore } from '@/stores/gameStore'
 
@@ -125,6 +125,16 @@ export default function Party() {
       setView('myParty')
     }
   }, [myPartyQuery.data?.party, view])
+
+  // Heartbeat: send every 10s when in party view
+  const heartbeatMut = trpc.party.heartbeat.useMutation()
+  useEffect(() => {
+    if (view !== 'myParty' || !isInParty) return
+    const sendBeat = () => heartbeatMut.mutate({ characterId })
+    sendBeat() // send immediately
+    const timer = setInterval(sendBeat, 10000)
+    return () => clearInterval(timer)
+  }, [view, isInParty, characterId])
 
   // Mutations
   const createMut = trpc.party.create.useMutation({
@@ -368,6 +378,15 @@ export default function Party() {
                         <div className="flex items-center justify-center gap-1">
                           <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{member.characterName}</span>
                           {isLeader && <Crown size={12} style={{ color: '#C9A84C' }} />}
+                          {/* Online status dot */}
+                          <span
+                            className="ml-0.5 inline-block h-2 w-2 rounded-full"
+                            style={{
+                              backgroundColor: member.isOnline ? '#3FB950' : '#484F58',
+                              boxShadow: member.isOnline ? '0 0 4px #3FB950' : 'none',
+                            }}
+                            title={member.isOnline ? '在线' : '离线'}
+                          />
                         </div>
                         <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Lv.{member.level} {CLASS_NAMES[member.classId] || member.classId}</div>
                       </div>

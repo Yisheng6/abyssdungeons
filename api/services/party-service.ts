@@ -24,6 +24,7 @@ export interface PartyMemberInfo {
   classId: string;
   level: number;
   isReady: boolean;
+  isOnline: boolean;
 }
 
 // ─── Helper: safely compare numeric IDs that may be strings or BigInts ───
@@ -52,6 +53,26 @@ async function cleanupExpiredParties(): Promise<void> {
       await disbandParty(num(p.id));
     }
   }
+}
+
+// ─── Check if member is online (active within 30 seconds) ───
+function isMemberOnline(lastActiveAt: Date | null | undefined): boolean {
+  if (!lastActiveAt) return false;
+  return Date.now() - new Date(lastActiveAt).getTime() < 30 * 1000;
+}
+
+// ─── Heartbeat: update member's last active time ───
+export async function heartbeat(characterId: number): Promise<{ success: boolean }> {
+  const allMembers = await db.select().from(partyMembers);
+  const member = allMembers.find((m) => eqNum(m.characterId, characterId));
+  if (!member) return { success: false };
+
+  await db
+    .update(partyMembers)
+    .set({ lastActiveAt: new Date() })
+    .where(eq(partyMembers.id, member.id));
+
+  return { success: true };
 }
 
 // ─── Helper: get latest party by leader (reliable for MySQL) ───
@@ -89,7 +110,7 @@ export async function createParty(params: {
   // Query back the inserted party (MySQL doesn't support .returning())
   const partyId = await getLatestPartyByLeader(leaderId);
 
-  // Add leader as first member — leader is auto-ready
+  // Add leader as first member — leader is auto-ready and online
   await db.insert(partyMembers).values({
     partyId,
     characterId: leaderId,
@@ -97,6 +118,7 @@ export async function createParty(params: {
     classId: "warrior",
     level: 1,
     isReady: true,
+    lastActiveAt: new Date(),
   });
 
   return (await getPartyById(partyId))!;
@@ -142,7 +164,7 @@ export async function joinParty(params: {
     await leaveParty(characterId);
   }
 
-  // Insert new member
+  // Insert new member — mark as online
   await db.insert(partyMembers).values({
     partyId,
     characterId,
@@ -150,6 +172,7 @@ export async function joinParty(params: {
     classId,
     level,
     isReady: false,
+    lastActiveAt: new Date(),
   });
 
   // Reset expiration timer on member join
@@ -295,6 +318,7 @@ export async function getPartyById(id: number): Promise<PartyInfo | null> {
       classId: m.classId,
       level: num(m.level),
       isReady: !!m.isReady,
+      isOnline: isMemberOnline(m.lastActiveAt),
     })),
     createdAt: party.createdAt,
   };
