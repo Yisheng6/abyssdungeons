@@ -126,6 +126,13 @@ export default function Party() {
     }
   }, [myPartyQuery.data?.party, view])
 
+  // Auto-navigate to dungeon when party status becomes 'in_dungeon'
+  useEffect(() => {
+    if (myParty?.status === 'in_dungeon' && myParty?.dungeonParams) {
+      navigate('/party-dungeon', { state: { partyId: myParty.id, roomData: null } })
+    }
+  }, [myParty?.status, myParty?.dungeonParams, myParty?.id])
+
   // Mutations
   const createMut = trpc.party.create.useMutation({
     onSuccess: (data) => {
@@ -341,15 +348,7 @@ export default function Party() {
                 队长: {myParty.leaderName} | {myParty.members?.length || 0}/{myParty.maxMembers}人
               </div>
               {myParty.status === 'in_dungeon' && (
-                <div className="mt-1 text-xs font-bold" style={{ color: '#C9A84C' }}>地牢进行中</div>
-              )}
-              {myParty.status === 'in_dungeon' && myParty.dungeonParams && (
-                <button
-                  onClick={() => navigate('/party-dungeon', { state: { partyId: myParty.id, roomData: null } })}
-                  className="mt-2 w-full game-btn-primary py-2 text-sm"
-                >
-                  <Swords size={14} className="mr-1 inline" /> 进入地牢
-                </button>
+                <div className="mt-1 text-xs font-bold" style={{ color: '#C9A84C' }}>地牢进行中 — 正在进入...</div>
               )}
             </div>
 

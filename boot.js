@@ -50065,13 +50065,7 @@ function createPartyDungeon(params) {
   const dungeon = generateDungeon({ globalSeed: "default", layer, x, y });
   const memberStates = {};
   for (const m of members) {
-    memberStates[m.characterId] = {
-      ...m,
-      isAlive: true,
-      isDefending: false,
-      damageDealt: 0,
-      healingDone: 0
-    };
+    memberStates[m.characterId] = { ...m, isAlive: true, isDefending: false, damageDealt: 0, healingDone: 0 };
   }
   const instance2 = {
     instanceId: `pd_${partyId}_${Date.now()}`,
@@ -50083,10 +50077,12 @@ function createPartyDungeon(params) {
     enemies: [],
     combatState: {
       inCombat: false,
-      currentTurn: 0,
+      phase: "player_input",
+      currentRound: 0,
       turnOrder: members.map((m) => m.characterId),
       turnDeadline: 0,
-      whoseTurn: 0,
+      pendingActions: {},
+      submittedCount: 0,
       logs: [],
       ended: false,
       victory: false,
@@ -50101,118 +50097,86 @@ function createPartyDungeon(params) {
 function getPartyDungeon(partyId) {
   return instances.get(partyId);
 }
-function moveRoom(partyId, characterId, targetRoomId) {
+function moveRoom(partyId, _characterId, targetRoomId) {
   const inst = instances.get(partyId);
   if (!inst) return { success: false, message: "\u5730\u7262\u5B9E\u4F8B\u4E0D\u5B58\u5728" };
   const currentRoom = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
   if (!currentRoom) return { success: false, message: "\u5F53\u524D\u623F\u95F4\u65E0\u6548" };
-  if (!currentRoom.connections.includes(targetRoomId)) {
-    return { success: false, message: "\u8BE5\u65B9\u5411\u65E0\u6CD5\u901A\u884C" };
-  }
-  if (inst.combatState.inCombat) {
-    return { success: false, message: "\u6218\u6597\u4E2D\u65E0\u6CD5\u79FB\u52A8" };
-  }
+  if (!currentRoom.connections.includes(targetRoomId)) return { success: false, message: "\u8BE5\u65B9\u5411\u65E0\u6CD5\u901A\u884C" };
+  if (inst.combatState.inCombat) return { success: false, message: "\u6218\u6597\u4E2D\u65E0\u6CD5\u79FB\u52A8" };
   inst.currentRoomId = targetRoomId;
   inst.exploredRooms.add(targetRoomId);
   const targetRoom = inst.dungeon.rooms.find((r) => r.id === targetRoomId);
-  if (targetRoom) {
-    targetRoom.explored = true;
-  }
+  if (targetRoom) targetRoom.explored = true;
   const enemies = targetRoom?.enemies || [];
   if (enemies.length > 0 && targetRoom && !targetRoom.cleared) {
     inst.enemies = enemies.map((e) => ({ ...e, isAlive: e.hp > 0 }));
     inst.combatState.inCombat = true;
-    inst.combatState.currentTurn = 0;
+    inst.combatState.currentRound = 1;
+    inst.combatState.phase = "player_input";
     inst.combatState.ended = false;
     inst.combatState.victory = false;
     inst.combatState.fled = false;
+    inst.combatState.pendingActions = {};
+    inst.combatState.submittedCount = 0;
     inst.combatState.logs.push(`\u906D\u9047\u4E86 ${enemies.map((e) => e.name).join("\u3001")}\uFF01`);
-    startNewRound(inst);
+    startPlayerInputPhase(inst);
   }
-  const roomData = buildRoomResponse(inst);
-  return { success: true, message: "\u79FB\u52A8\u6210\u529F", roomData };
+  return { success: true, message: "\u79FB\u52A8\u6210\u529F", roomData: buildRoomResponse(inst) };
 }
-function startNewRound(inst) {
-  const aliveMembers = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (aliveMembers.length === 0) return;
-  inst.combatState.currentTurn = 0;
-  inst.combatState.whoseTurn = aliveMembers[0];
+function startPlayerInputPhase(inst) {
+  const aliveMembers = inst.combatState.turnOrder.filter((id) => inst.memberStates[id]?.isAlive);
+  inst.combatState.phase = "player_input";
   inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+  inst.combatState.pendingActions = {};
+  inst.combatState.submittedCount = 0;
+  inst.combatState.logs.push(`\u7B2C ${inst.combatState.currentRound} \u56DE\u5408\u5F00\u59CB \u2014 \u8BF7\u4E0B\u8FBE\u6307\u4EE4\uFF0810\u79D2\uFF09`);
 }
-function advanceTurn(inst) {
-  const aliveMembers = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (aliveMembers.length === 0) return;
-  inst.combatState.currentTurn = (inst.combatState.currentTurn + 1) % aliveMembers.length;
-  inst.combatState.whoseTurn = aliveMembers[inst.combatState.currentTurn];
-  inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+function checkAllSubmitted(inst) {
+  const aliveMembers = inst.combatState.turnOrder.filter((id) => inst.memberStates[id]?.isAlive);
+  return aliveMembers.every((id) => inst.combatState.pendingActions[id] !== void 0);
 }
-function checkTurnTimeout(inst) {
-  if (!inst.combatState.inCombat || inst.combatState.ended) return;
-  if (Date.now() < inst.combatState.turnDeadline) return;
-  const charId = inst.combatState.whoseTurn;
-  const member = inst.memberStates[charId];
-  if (!member || !member.isAlive) {
-    advanceTurn(inst);
-    return;
+function processTimeout(inst) {
+  const aliveMembers = inst.combatState.turnOrder.filter((id) => inst.memberStates[id]?.isAlive);
+  for (const charId of aliveMembers) {
+    if (!inst.combatState.pendingActions[charId]) {
+      inst.combatState.pendingActions[charId] = { type: "attack" };
+      inst.combatState.submittedCount++;
+      const member = inst.memberStates[charId];
+      inst.combatState.logs.push(`[\u8D85\u65F6] ${member?.name || "\u961F\u5458"} \u672A\u4E0B\u8FBE\u6307\u4EE4\uFF0C\u81EA\u52A8\u653B\u51FB`);
+    }
   }
-  const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
-  if (aliveEnemies.length === 0) {
-    endCombat(inst, true, false);
-    return;
+}
+function executePlayerActions(inst) {
+  inst.combatState.phase = "executing";
+  const aliveOrder = inst.combatState.turnOrder.filter((id) => inst.memberStates[id]?.isAlive);
+  for (const charId of aliveOrder) {
+    const action = inst.combatState.pendingActions[charId];
+    if (!action) continue;
+    if (inst.combatState.ended) break;
+    executeSingleAction(inst, charId, action);
+    if (inst.enemies.every((e) => !e.isAlive)) {
+      endCombat(inst, true, false);
+      const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
+      if (room) room.cleared = true;
+      return;
+    }
   }
-  const target = aliveEnemies[0];
-  const baseDmg = Math.max(1, member.atk - target.def);
-  const damage = Math.round(baseDmg * (0.9 + Math.random() * 0.2));
-  target.hp = Math.max(0, target.hp - damage);
-  target.isAlive = target.hp > 0;
-  member.damageDealt += damage;
-  inst.combatState.logs.push(
-    `[\u8D85\u65F6] ${member.name} \u81EA\u52A8\u653B\u51FB ${target.name} \u9020\u6210${damage}\u70B9\u4F24\u5BB3`
-  );
-  if (aliveEnemies.every((e) => !e.isAlive)) {
-    endCombat(inst, true, false);
-    const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
-    if (room) room.cleared = true;
-    return;
+  for (const m of Object.values(inst.memberStates)) {
+    m.isDefending = false;
   }
-  advanceTurn(inst);
-  const aliveOrder = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (inst.combatState.currentTurn === 0) {
+  if (!inst.combatState.ended) {
     enemyTurn(inst);
   }
 }
-function combatAction(partyId, characterId, action) {
-  const inst = instances.get(partyId);
-  if (!inst) return { success: false, message: "\u5730\u7262\u5B9E\u4F8B\u4E0D\u5B58\u5728" };
-  if (!inst.combatState.inCombat) return { success: false, message: "\u4E0D\u5728\u6218\u6597\u4E2D" };
-  if (inst.combatState.ended) return { success: false, message: "\u6218\u6597\u5DF2\u7ED3\u675F" };
-  checkTurnTimeout(inst);
-  if (inst.combatState.ended) {
-    return { success: true, message: "\u6218\u6597\u5DF2\u7ED3\u675F", combatUpdate: inst.combatState };
-  }
+function executeSingleAction(inst, characterId, action) {
   const member = inst.memberStates[characterId];
-  if (!member || !member.isAlive) return { success: false, message: "\u89D2\u8272\u5DF2\u9635\u4EA1" };
-  if (inst.combatState.whoseTurn !== characterId) {
-    return { success: false, message: "\u4E0D\u662F\u4F60\u7684\u56DE\u5408" };
-  }
-  if (Date.now() > inst.combatState.turnDeadline + 5e3) {
-    return { success: false, message: "\u56DE\u5408\u5DF2\u8D85\u65F6" };
-  }
-  const { type, targetIndex = 0 } = action;
+  if (!member || !member.isAlive) return;
   const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
-  if (aliveEnemies.length === 0) {
-    endCombat(inst, true, false);
-    return { success: true, message: "\u6240\u6709\u654C\u4EBA\u5DF2\u88AB\u51FB\u8D25\uFF01", combatUpdate: inst.combatState };
-  }
-  const target = aliveEnemies[Math.min(targetIndex, aliveEnemies.length - 1)];
+  if (aliveEnemies.length === 0) return;
+  const target = aliveEnemies[Math.min(action.targetIndex || 0, aliveEnemies.length - 1)];
   const rng = () => 0.9 + Math.random() * 0.2;
-  switch (type) {
+  switch (action.type) {
     case "attack": {
       const critChance = Math.min(member.luk * 2e-3, 0.3);
       const isCrit = Math.random() < critChance;
@@ -50221,9 +50185,7 @@ function combatAction(partyId, characterId, action) {
       target.hp = Math.max(0, target.hp - damage);
       target.isAlive = target.hp > 0;
       member.damageDealt += damage;
-      inst.combatState.logs.push(
-        `${member.name} \u5BF9 ${target.name} ${isCrit ? "\u66B4\u51FB\uFF01" : "\u9020\u6210"}${damage}\u70B9\u4F24\u5BB3`
-      );
+      inst.combatState.logs.push(`${member.name} \u5BF9 ${target.name} ${isCrit ? "\u66B4\u51FB\uFF01" : "\u9020\u6210"}${damage}\u70B9\u4F24\u5BB3`);
       break;
     }
     case "skill": {
@@ -50233,9 +50195,7 @@ function combatAction(partyId, characterId, action) {
       target.isAlive = target.hp > 0;
       member.damageDealt += damage;
       member.mp = Math.max(0, member.mp - 10);
-      inst.combatState.logs.push(
-        `${member.name} \u5BF9 ${target.name} \u91CA\u653E\u6280\u80FD\uFF0C\u9020\u6210${damage}\u70B9\u9B54\u6CD5\u4F24\u5BB3`
-      );
+      inst.combatState.logs.push(`${member.name} \u5BF9 ${target.name} \u91CA\u653E\u6280\u80FD\uFF0C\u9020\u6210${damage}\u70B9\u9B54\u6CD5\u4F24\u5BB3`);
       break;
     }
     case "defend": {
@@ -50247,34 +50207,16 @@ function combatAction(partyId, characterId, action) {
       const fleeChance = Math.min(0.3 + (member.agi - (aliveEnemies[0]?.agi || 0)) * 0.02, 0.8);
       if (Math.random() < fleeChance) {
         endCombat(inst, false, true);
-        inst.combatState.logs.push(`${member.name} \u6210\u529F\u9003\u8DD1\uFF01\u5168\u961F\u64A4\u9000\u5230\u4E0A\u4E00\u4E2A\u623F\u95F4`);
-        return { success: true, message: "\u9003\u8DD1\u6210\u529F", combatUpdate: inst.combatState };
+        inst.combatState.logs.push(`${member.name} \u5E26\u9886\u5168\u961F\u6210\u529F\u9003\u8DD1\uFF01`);
+        return;
       }
       inst.combatState.logs.push(`${member.name} \u9003\u8DD1\u5931\u8D25\uFF01`);
       break;
     }
   }
-  if (aliveEnemies.every((e) => !e.isAlive)) {
-    endCombat(inst, true, false);
-    const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
-    if (room) room.cleared = true;
-    return { success: true, message: "\u6218\u6597\u80DC\u5229\uFF01", combatUpdate: inst.combatState };
-  }
-  advanceTurn(inst);
-  const aliveOrder = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (inst.combatState.currentTurn === 0 && inst.combatState.inCombat) {
-    enemyTurn(inst);
-  }
-  for (const m of Object.values(inst.memberStates)) {
-    if (m.isAlive) {
-      m.mp = Math.min(m.maxMp, Math.floor(m.mp + m.maxMp * 0.05));
-    }
-  }
-  return { success: true, message: "\u884C\u52A8\u6267\u884C", combatUpdate: inst.combatState };
 }
 function enemyTurn(inst) {
+  inst.combatState.phase = "enemy";
   const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
   const aliveMembers = Object.values(inst.memberStates).filter((m) => m.isAlive);
   for (const enemy of aliveEnemies) {
@@ -50296,78 +50238,103 @@ function enemyTurn(inst) {
       inst.combatState.logs.push(`${enemy.name} \u5BF9 ${target.name} \u9020\u6210${damage}\u70B9\u4F24\u5BB3`);
     }
   }
-  for (const m of Object.values(inst.memberStates)) {
-    m.isDefending = false;
-  }
-  if (aliveMembers.every((m) => !m.isAlive)) {
+  if (Object.values(inst.memberStates).filter((m) => m.isAlive).length === 0) {
     endCombat(inst, false, false);
     inst.combatState.logs.push("\u5168\u961F\u9635\u4EA1...");
     return;
   }
-  startNewRound(inst);
+  for (const m of Object.values(inst.memberStates)) {
+    if (m.isAlive) m.mp = Math.min(m.maxMp, Math.floor(m.mp + m.maxMp * 0.05));
+  }
+  if (!inst.combatState.ended) {
+    inst.combatState.currentRound++;
+    startPlayerInputPhase(inst);
+  }
+}
+function combatAction(partyId, characterId, action) {
+  const inst = instances.get(partyId);
+  if (!inst) return { success: false, message: "\u5730\u7262\u5B9E\u4F8B\u4E0D\u5B58\u5728" };
+  if (!inst.combatState.inCombat) return { success: false, message: "\u4E0D\u5728\u6218\u6597\u4E2D" };
+  if (inst.combatState.ended) return { success: false, message: "\u6218\u6597\u5DF2\u7ED3\u675F" };
+  if (inst.combatState.phase === "player_input" && Date.now() > inst.combatState.turnDeadline) {
+    processTimeout(inst);
+    if (checkAllSubmitted(inst)) {
+      executePlayerActions(inst);
+    }
+    return { success: true, message: "\u56DE\u5408\u5DF2\u8D85\u65F6\uFF0C\u81EA\u52A8\u6267\u884C", combatUpdate: getCombatStateForClient(inst) };
+  }
+  const member = inst.memberStates[characterId];
+  if (!member || !member.isAlive) return { success: false, message: "\u89D2\u8272\u5DF2\u9635\u4EA1" };
+  if (inst.combatState.phase !== "player_input") {
+    return { success: false, message: "\u5F53\u524D\u4E0D\u662F\u6307\u4EE4\u8F93\u5165\u9636\u6BB5" };
+  }
+  if (inst.combatState.pendingActions[characterId]) {
+    return { success: false, message: "\u4F60\u5DF2\u7ECF\u4E0B\u8FBE\u4E86\u6307\u4EE4" };
+  }
+  inst.combatState.pendingActions[characterId] = action;
+  inst.combatState.submittedCount++;
+  inst.combatState.logs.push(`${member.name} \u5DF2\u4E0B\u8FBE\u6307\u4EE4\uFF1A${action.type === "attack" ? "\u653B\u51FB" : action.type === "skill" ? "\u6280\u80FD" : action.type === "defend" ? "\u9632\u5FA1" : "\u9003\u8DD1"}`);
+  if (checkAllSubmitted(inst)) {
+    inst.combatState.logs.push("\u5168\u5458\u6307\u4EE4\u5DF2\u4E0B\u8FBE\uFF0C\u5F00\u59CB\u6267\u884C\uFF01");
+    executePlayerActions(inst);
+  }
+  return { success: true, message: "\u6307\u4EE4\u5DF2\u4E0B\u8FBE", combatUpdate: getCombatStateForClient(inst) };
 }
 function endCombat(inst, victory, fled) {
   inst.combatState.inCombat = false;
   inst.combatState.ended = true;
   inst.combatState.victory = victory;
   inst.combatState.fled = fled;
+  inst.combatState.phase = "player_input";
   inst.combatState.turnDeadline = 0;
-  inst.combatState.whoseTurn = 0;
   if (victory) {
     const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
     if (room?.loot) {
       for (const l of room.loot) {
-        inst.loot.push({
-          itemId: l.itemId,
-          name: l.itemId,
-          quality: l.quality || "common"
-        });
+        inst.loot.push({ itemId: l.itemId, name: l.itemId, quality: l.quality || "common" });
       }
     }
     if (Math.random() < 0.5) {
       const qualities = ["common", "fine", "rare"];
-      inst.loot.push({
-        itemId: `random_${Date.now()}`,
-        name: "\u968F\u673A\u6389\u843D",
-        quality: qualities[Math.floor(Math.random() * qualities.length)]
-      });
+      inst.loot.push({ itemId: `random_${Date.now()}`, name: "\u968F\u673A\u6389\u843D", quality: qualities[Math.floor(Math.random() * qualities.length)] });
     }
   }
+}
+function getCombatStateForClient(inst) {
+  if (inst.combatState.phase === "player_input" && Date.now() > inst.combatState.turnDeadline) {
+    processTimeout(inst);
+    if (checkAllSubmitted(inst) && !inst.combatState.ended) {
+      executePlayerActions(inst);
+    }
+  }
+  return inst.combatState;
 }
 function buildRoomResponse(inst) {
   const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
   if (!room) return null;
   const directions = getRoomDirections(inst.dungeon.rooms, inst.currentRoomId);
   const aliveMembers = Object.values(inst.memberStates).filter((m) => m.isAlive);
-  if (inst.combatState.inCombat && !inst.combatState.ended) {
-    checkTurnTimeout(inst);
-  }
+  const combatState = getCombatStateForClient(inst);
   return {
     roomId: room.id,
     type: room.type,
     themeName: inst.dungeon.theme,
     directions,
-    enemies: inst.combatState.inCombat ? inst.enemies.map((e) => ({
-      id: e.id,
-      name: e.name,
-      hp: e.hp,
-      maxHp: e.maxHp,
-      isAlive: e.isAlive
-    })) : (room.enemies || []).map((e) => ({
-      id: e.id,
-      name: e.name,
-      hp: e.hp,
-      maxHp: e.maxHp,
-      isAlive: true
-    })),
+    enemies: combatState.inCombat ? inst.enemies.map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, isAlive: e.isAlive })) : (room.enemies || []).map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, isAlive: true })),
     loot: room.loot || [],
     isEntrance: room.isEntrance,
     isExit: room.isExit,
-    inCombat: inst.combatState.inCombat,
+    inCombat: combatState.inCombat,
     combatState: {
-      ...inst.combatState,
-      turnDeadline: inst.combatState.turnDeadline,
-      whoseTurn: inst.combatState.whoseTurn
+      phase: combatState.phase,
+      currentRound: combatState.currentRound,
+      turnDeadline: combatState.turnDeadline,
+      pendingActions: combatState.pendingActions,
+      submittedCount: combatState.submittedCount,
+      logs: combatState.logs,
+      ended: combatState.ended,
+      victory: combatState.victory,
+      fled: combatState.fled
     },
     memberStates: Object.values(inst.memberStates),
     aliveMemberCount: aliveMembers.length,
