@@ -38637,37 +38637,38 @@ async function joinParty(params) {
   return { success: true, party: updated || void 0, message: "\u52A0\u5165\u6210\u529F" };
 }
 async function leaveParty(characterId) {
-  const allParties = await db.select().from(parties);
-  const allMembers = await db.select().from(partyMembers);
-  const member = allMembers.find((m) => eqNum(m.characterId, characterId));
-  if (!member) return { success: false, message: "\u4E0D\u5728\u4EFB\u4F55\u961F\u4F0D\u4E2D" };
-  const party = allParties.find((p) => eqNum(p.id, member.partyId));
-  if (!party) {
-    await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
-    return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
-  }
-  const partyId = num(party.id);
-  if (eqNum(party.leaderId, characterId)) {
-    const otherMembers = allMembers.filter((m) => eqNum(m.partyId, partyId) && !eqNum(m.characterId, characterId));
-    if (otherMembers.length > 0) {
-      const newLeader = otherMembers[0];
-      const newLeaderId = num(newLeader.characterId);
-      const db2 = getDb();
-      await db2.execute(
-        `UPDATE parties SET leader_id = ?, leader_name = ? WHERE id = ?`,
-        [newLeaderId, newLeader.characterName, partyId]
-      );
+  try {
+    const allParties = await db.select().from(parties);
+    const allMembers = await db.select().from(partyMembers);
+    const member = allMembers.find((m) => eqNum(m.characterId, characterId));
+    if (!member) return { success: false, message: "\u4E0D\u5728\u4EFB\u4F55\u961F\u4F0D\u4E2D" };
+    const party = allParties.find((p) => eqNum(p.id, member.partyId));
+    if (!party) {
       await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
-      return { success: true, message: `\u961F\u957F\u5DF2\u79FB\u4EA4\u7ED9 ${newLeader.characterName}` };
+      return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
     }
-    await disbandParty(partyId);
-    return { success: true, message: "\u961F\u957F\u79BB\u5F00\uFF0C\u961F\u4F0D\u5DF2\u89E3\u6563", disbanded: true };
+    const partyId = num(party.id);
+    if (eqNum(party.leaderId, characterId)) {
+      const otherMembers = allMembers.filter((m) => eqNum(m.partyId, partyId) && !eqNum(m.characterId, characterId));
+      if (otherMembers.length > 0) {
+        const newLeader = otherMembers[0];
+        const newLeaderId = num(newLeader.characterId);
+        await db.update(parties).set({ leaderId: newLeaderId, leaderName: newLeader.characterName }).where(eq(parties.id, partyId));
+        await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+        return { success: true, message: `\u961F\u957F\u5DF2\u79FB\u4EA4\u7ED9 ${newLeader.characterName}` };
+      }
+      await disbandParty(partyId);
+      return { success: true, message: "\u961F\u957F\u79BB\u5F00\uFF0C\u961F\u4F0D\u5DF2\u89E3\u6563", disbanded: true };
+    }
+    await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+    if (party.status === "recruiting") {
+      await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
+    }
+    return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
+  } catch (err) {
+    console.error("[leaveParty] ERROR:", err?.message || String(err));
+    return { success: false, message: `\u670D\u52A1\u5668\u9519\u8BEF: ${err?.message || String(err)}` };
   }
-  await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
-  if (party.status === "recruiting") {
-    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
-  }
-  return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
 }
 async function kickMember(leaderId, memberId) {
   const allMembers = await db.select().from(partyMembers);
