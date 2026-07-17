@@ -197,17 +197,31 @@ export async function leaveParty(characterId: number): Promise<{ success: boolea
     return { success: true, message: "已离开队伍" };
   }
 
-  // If leader leaves, disband the party
+  const partyId = num(party.id);
+
+  // If leader leaves, transfer leadership to another member
   if (eqNum(party.leaderId, characterId)) {
-    await disbandParty(num(party.id));
+    const otherMembers = allMembers.filter((m) => eqNum(m.partyId, partyId) && !eqNum(m.characterId, characterId));
+    if (otherMembers.length > 0) {
+      // Transfer leadership to the first other member (by join order)
+      const newLeader = otherMembers[0];
+      await db.update(parties)
+        .set({ leaderId: num(newLeader.characterId), leaderName: newLeader.characterName })
+        .where(eq(parties.id, partyId));
+      await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+      return { success: true, message: `队长已移交给 ${newLeader.characterName}` };
+    }
+    // No other members — disband the party
+    await disbandParty(partyId);
     return { success: true, message: "队长离开，队伍已解散", disbanded: true };
   }
 
+  // Normal member leaves
   await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
 
   // Reset expiration timer on member leave
   if (party.status === "recruiting") {
-    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
   }
 
   return { success: true, message: "已离开队伍" };

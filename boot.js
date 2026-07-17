@@ -38646,13 +38646,21 @@ async function leaveParty(characterId) {
     await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
     return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
   }
+  const partyId = num(party.id);
   if (eqNum(party.leaderId, characterId)) {
-    await disbandParty(num(party.id));
+    const otherMembers = allMembers.filter((m) => eqNum(m.partyId, partyId) && !eqNum(m.characterId, characterId));
+    if (otherMembers.length > 0) {
+      const newLeader = otherMembers[0];
+      await db.update(parties).set({ leaderId: num(newLeader.characterId), leaderName: newLeader.characterName }).where(eq(parties.id, partyId));
+      await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
+      return { success: true, message: `\u961F\u957F\u5DF2\u79FB\u4EA4\u7ED9 ${newLeader.characterName}` };
+    }
+    await disbandParty(partyId);
     return { success: true, message: "\u961F\u957F\u79BB\u5F00\uFF0C\u961F\u4F0D\u5DF2\u89E3\u6563", disbanded: true };
   }
   await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
   if (party.status === "recruiting") {
-    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, party.id));
+    await db.update(parties).set({ expiresAt: getExpiresAt() }).where(eq(parties.id, partyId));
   }
   return { success: true, message: "\u5DF2\u79BB\u5F00\u961F\u4F0D" };
 }
