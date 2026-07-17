@@ -50470,9 +50470,38 @@ var partyRouter = createRouter({
     return result;
   }),
   // ─── Get Dungeon State ───
-  dungeonState: publicQuery.input(external_exports.object({ partyId: external_exports.number() })).query(({ input }) => {
-    const instance2 = getPartyDungeon(input.partyId);
-    if (!instance2) return { instance: null };
+  dungeonState: publicQuery.input(external_exports.object({ partyId: external_exports.number() })).query(async ({ input }) => {
+    let instance2 = getPartyDungeon(input.partyId);
+    if (!instance2) {
+      const party = await getPartyById(input.partyId);
+      if (party?.status === "in_dungeon" && party.dungeonParams) {
+        const params = party.dungeonParams;
+        const memberData = party.members.map((m) => ({
+          characterId: m.characterId,
+          name: m.characterName,
+          classId: m.classId,
+          level: m.level,
+          hp: 100,
+          maxHp: 100,
+          mp: 50,
+          maxMp: 50,
+          atk: 10,
+          def: 8,
+          mag: 5,
+          mdef: 5,
+          agi: 8,
+          luk: 5
+        }));
+        instance2 = createPartyDungeon({
+          partyId: party.id,
+          layer: params.layer,
+          x: params.x,
+          y: params.y,
+          members: memberData
+        });
+      }
+    }
+    if (!instance2) return { instance: null, roomData: null };
     const roomData = buildRoomResponse(instance2);
     return { instance: { ...instance2, combatState: instance2.combatState }, roomData };
   }),

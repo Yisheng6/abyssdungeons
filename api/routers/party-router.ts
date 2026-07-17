@@ -181,9 +181,31 @@ export const partyRouter = createRouter({
   // ─── Get Dungeon State ───
   dungeonState: publicQuery
     .input(z.object({ partyId: z.number() }))
-    .query(({ input }) => {
-      const instance = getPartyDungeon(input.partyId);
-      if (!instance) return { instance: null };
+    .query(async ({ input }) => {
+      let instance = getPartyDungeon(input.partyId);
+      // If instance lost in memory (server restart), restore from DB
+      if (!instance) {
+        const party = await getPartyById(input.partyId);
+        if (party?.status === "in_dungeon" && party.dungeonParams) {
+          const params = party.dungeonParams as { layer: number; x: number; y: number };
+          const memberData = party.members.map((m) => ({
+            characterId: m.characterId,
+            name: m.characterName,
+            classId: m.classId,
+            level: m.level,
+            hp: 100, maxHp: 100, mp: 50, maxMp: 50,
+            atk: 10, def: 8, mag: 5, mdef: 5, agi: 8, luk: 5,
+          }));
+          instance = createPartyDungeon({
+            partyId: party.id,
+            layer: params.layer,
+            x: params.x,
+            y: params.y,
+            members: memberData,
+          });
+        }
+      }
+      if (!instance) return { instance: null, roomData: null };
       const roomData = buildRoomResponse(instance);
       return { instance: { ...instance, combatState: instance.combatState }, roomData };
     }),

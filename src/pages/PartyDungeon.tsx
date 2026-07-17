@@ -107,12 +107,32 @@ export default function PartyDungeon() {
     combatMut.mutate({ partyId, characterId, action: { type } })
   }
 
+  if (!partyId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
+        <div className="text-center space-y-3">
+          <div className="mb-2">无法确定队伍ID</div>
+          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>请从队伍页面进入地牢</div>
+          <button onClick={() => navigate('/party')} className="game-btn-secondary text-xs px-4 py-2">
+            返回队伍页面
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!roomData) {
     return (
       <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <div className="mb-2">正在同步地牢数据...</div>
           <div className="text-xs" style={{ color: 'var(--text-muted)' }}>队伍ID: {partyId}</div>
+          {stateQuery.isError && (
+            <div className="text-xs" style={{ color: '#F85149' }}>同步失败，地牢数据已丢失</div>
+          )}
+          <button onClick={() => navigate('/party')} className="game-btn-secondary text-xs px-4 py-2">
+            返回队伍页面
+          </button>
         </div>
       </div>
     )
