@@ -138,8 +138,9 @@ export default function PartyDungeon() {
     )
   }
 
-  const { combatState, memberStates, directions, enemies, type, isEntrance, isExit } = roomData
+  const { combatState, memberStates, directions, enemies, type, isEntrance, isExit, leaderId } = roomData
   const inCombat = combatState?.inCombat
+  const isLeader = leaderId === characterId
   const isPlayerInput = combatState?.phase === 'player_input'
   const aliveMembers = memberStates?.filter((m: any) => m.isAlive) || []
   const pendingActions = combatState?.pendingActions || {}
@@ -259,22 +260,22 @@ export default function PartyDungeon() {
             })}
           </div>
 
-          {/* Directions — always show, disabled during combat */}
+          {/* Directions — only leader can move */}
           <div className="mb-4">
             <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
-              {inCombat ? '房间出口（战斗中无法移动）' : '可移动方向'}
+              {!isLeader ? '房间出口（仅队长可选择）' : inCombat ? '房间出口（战斗中无法移动）' : '可移动方向'}
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {directions?.map((dir: any) => (
                 <button
                   key={dir.roomId}
-                  onClick={() => !inCombat && handleMove(dir.roomId)}
+                  onClick={() => isLeader && !inCombat && handleMove(dir.roomId)}
                   className="game-card flex items-center justify-center gap-1 py-3 text-xs transition-all"
-                  disabled={inCombat}
-                  style={{ opacity: inCombat ? 0.4 : 1, cursor: inCombat ? 'not-allowed' : 'pointer' }}
+                  disabled={!isLeader || inCombat}
+                  style={{ opacity: (!isLeader || inCombat) ? 0.4 : 1, cursor: (!isLeader || inCombat) ? 'not-allowed' : 'pointer' }}
                 >
-                  <MapPin size={12} style={{ color: inCombat ? 'var(--text-muted)' : 'var(--accent)' }} />
-                  <span style={{ color: inCombat ? 'var(--text-muted)' : 'var(--text-primary)' }}>{dir.direction}</span>
+                  <MapPin size={12} style={{ color: (!isLeader || inCombat) ? 'var(--text-muted)' : 'var(--accent)' }} />
+                  <span style={{ color: (!isLeader || inCombat) ? 'var(--text-muted)' : 'var(--text-primary)' }}>{dir.direction}</span>
                 </button>
               ))}
               {(!directions || directions.length === 0) && (
@@ -312,20 +313,31 @@ export default function PartyDungeon() {
                 </span>
               </div>
 
-              {/* Enemies */}
-              <div className="space-y-1">
-                {enemies?.map((e: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                    <span className="text-xs font-bold" style={{ color: e.isAlive ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                      {e.name} {!e.isAlive && '(已击败)'}
-                    </span>
-                    {e.isAlive && (
-                      <span className="text-xs" style={{ color: '#F85149' }}>
-                        HP {e.hp}/{e.maxHp}
-                      </span>
-                    )}
-                  </div>
-                ))}
+              {/* Enemies with HP bar */}
+              <div className="space-y-2">
+                {enemies?.map((e: any, i: number) => {
+                  const hpPct = e.isAlive ? Math.round((e.hp / e.maxHp) * 100) : 0
+                  return (
+                    <div key={i} className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold" style={{ color: e.isAlive ? 'var(--danger)' : 'var(--text-muted)' }}>
+                          {e.isAlive && <Swords size={10} className="inline mr-1" style={{ color: '#F85149' }} />}
+                          {e.name} {!e.isAlive && '(已击败)'}
+                        </span>
+                        {e.isAlive && (
+                          <span className="text-xs font-bold" style={{ color: '#F85149' }}>
+                            {e.hp}/{e.maxHp}
+                          </span>
+                        )}
+                      </div>
+                      {e.isAlive && (
+                        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(248,81,73,0.15)' }}>
+                          <div className="h-full rounded-full transition-all" style={{ width: `${hpPct}%`, backgroundColor: hpPct <= 25 ? '#F85149' : hpPct <= 50 ? '#C9A84C' : '#3FB950' }} />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* My action buttons — only if I'm alive */}

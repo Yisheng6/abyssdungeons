@@ -50061,7 +50061,7 @@ init_party_service();
 var TURN_TIMEOUT_MS = 1e4;
 var instances = /* @__PURE__ */ new Map();
 function createPartyDungeon(params) {
-  const { partyId, layer, x, y, members } = params;
+  const { partyId, leaderId, layer, x, y, members } = params;
   const dungeon = generateDungeon({ globalSeed: "default", layer, x, y });
   const memberStates = {};
   for (const m of members) {
@@ -50070,6 +50070,7 @@ function createPartyDungeon(params) {
   const instance2 = {
     instanceId: `pd_${partyId}_${Date.now()}`,
     partyId,
+    leaderId,
     dungeon,
     currentRoomId: dungeon.entranceId,
     exploredRooms: /* @__PURE__ */ new Set([dungeon.entranceId]),
@@ -50097,9 +50098,10 @@ function createPartyDungeon(params) {
 function getPartyDungeon(partyId) {
   return instances.get(partyId);
 }
-function moveRoom(partyId, _characterId, targetRoomId) {
+function moveRoom(partyId, characterId, targetRoomId) {
   const inst = instances.get(partyId);
   if (!inst) return { success: false, message: "\u5730\u7262\u5B9E\u4F8B\u4E0D\u5B58\u5728" };
+  if (characterId !== inst.leaderId) return { success: false, message: "\u53EA\u6709\u961F\u957F\u53EF\u4EE5\u9009\u62E9\u9053\u8DEF" };
   const currentRoom = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
   if (!currentRoom) return { success: false, message: "\u5F53\u524D\u623F\u95F4\u65E0\u6548" };
   if (!currentRoom.connections.includes(targetRoomId)) return { success: false, message: "\u8BE5\u65B9\u5411\u65E0\u6CD5\u901A\u884C" };
@@ -50319,6 +50321,7 @@ function buildRoomResponse(inst) {
     roomId: room.id,
     type: room.type,
     themeName: inst.dungeon.theme,
+    leaderId: inst.leaderId,
     directions,
     enemies: combatState.inCombat ? inst.enemies.map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, isAlive: e.isAlive })) : (room.enemies || []).map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, isAlive: true })),
     loot: room.loot || [],
@@ -50435,6 +50438,7 @@ var partyRouter = createRouter({
     if (!startResult.success) return startResult;
     const instance2 = createPartyDungeon({
       partyId: startResult.party.id,
+      leaderId: input.leaderId,
       layer: input.layer,
       x: input.x,
       y: input.y,
@@ -50494,6 +50498,7 @@ var partyRouter = createRouter({
         }));
         instance2 = createPartyDungeon({
           partyId: party.id,
+          leaderId: party.leaderId,
           layer: params.layer,
           x: params.x,
           y: params.y,

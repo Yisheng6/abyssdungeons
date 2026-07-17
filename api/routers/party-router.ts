@@ -136,6 +136,7 @@ export const partyRouter = createRouter({
       // Create dungeon instance
       const instance = createPartyDungeon({
         partyId: startResult.party!.id,
+        leaderId: input.leaderId,
         layer: input.layer,
         x: input.x,
         y: input.y,
@@ -198,6 +199,7 @@ export const partyRouter = createRouter({
           }));
           instance = createPartyDungeon({
             partyId: party.id,
+            leaderId: party.leaderId,
             layer: params.layer,
             x: params.x,
             y: params.y,

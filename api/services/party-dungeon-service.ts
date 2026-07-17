@@ -31,6 +31,7 @@ interface PendingAction {
 export interface PartyDungeonInstance {
   instanceId: string;
   partyId: number;
+  leaderId: number;
   dungeon: DungeonMap;
   currentRoomId: number;
   exploredRooms: Set<number>;
@@ -65,6 +66,7 @@ const instances: Map<number, PartyDungeonInstance> = new Map();
 
 export function createPartyDungeon(params: {
   partyId: number;
+  leaderId: number;
   layer: number;
   x: number;
   y: number;
@@ -74,7 +76,7 @@ export function createPartyDungeon(params: {
     atk: number; def: number; mag: number; mdef: number; agi: number; luk: number;
   }>;
 }): PartyDungeonInstance {
-  const { partyId, layer, x, y, members } = params;
+  const { partyId, leaderId, layer, x, y, members } = params;
   const dungeon = generateDungeon({ globalSeed: "default", layer, x, y });
 
   const memberStates: Record<number, PartyMemberState> = {};
@@ -85,6 +87,7 @@ export function createPartyDungeon(params: {
   const instance: PartyDungeonInstance = {
     instanceId: `pd_${partyId}_${Date.now()}`,
     partyId,
+    leaderId,
     dungeon,
     currentRoomId: dungeon.entranceId,
     exploredRooms: new Set([dungeon.entranceId]),
@@ -115,11 +118,12 @@ export function getPartyDungeon(partyId: number): PartyDungeonInstance | undefin
   return instances.get(partyId);
 }
 
-export function moveRoom(partyId: number, _characterId: number, targetRoomId: number): {
+export function moveRoom(partyId: number, characterId: number, targetRoomId: number): {
   success: boolean; message: string; roomData?: ReturnType<typeof buildRoomResponse>;
 } {
   const inst = instances.get(partyId);
   if (!inst) return { success: false, message: "地牢实例不存在" };
+  if (characterId !== inst.leaderId) return { success: false, message: "只有队长可以选择道路" };
 
   const currentRoom = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
   if (!currentRoom) return { success: false, message: "当前房间无效" };
@@ -403,6 +407,7 @@ export function buildRoomResponse(inst: PartyDungeonInstance) {
     roomId: room.id,
     type: room.type,
     themeName: inst.dungeon.theme,
+    leaderId: inst.leaderId,
     directions,
     enemies: combatState.inCombat
       ? inst.enemies.map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, isAlive: e.isAlive }))
