@@ -50165,7 +50165,7 @@ function executePlayerActions(inst) {
     if (!action) continue;
     if (inst.combatState.ended) break;
     executeSingleAction(inst, charId, action);
-    if (inst.enemies.every((e) => !e.isAlive)) {
+    if (inst.enemies.length > 0 && inst.enemies.every((e) => !e.isAlive)) {
       endCombat(inst, true, false);
       const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
       if (room) room.cleared = true;
@@ -50311,7 +50311,7 @@ function endCombat(inst, victory, fled) {
   }
 }
 function getCombatStateForClient(inst) {
-  if (inst.combatState.phase === "player_input" && Date.now() > inst.combatState.turnDeadline) {
+  if (inst.combatState.inCombat && inst.enemies.length > 0 && inst.combatState.phase === "player_input" && Date.now() > inst.combatState.turnDeadline) {
     processTimeout(inst);
     if (checkAllSubmitted(inst) && !inst.combatState.ended) {
       executePlayerActions(inst);

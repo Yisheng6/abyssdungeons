@@ -298,8 +298,8 @@ export default function PartyDungeon() {
             </div>
           </div>
 
-          {/* Escape Dungeon — only outside combat */}
-          {!inCombat && !combatState?.ended && (
+          {/* Escape Dungeon — only when NOT in active combat */}
+          {!inCombat && (
             <div className="mb-4">
               <button
                 onClick={() => setShowEscapeConfirm(true)}
@@ -311,8 +311,8 @@ export default function PartyDungeon() {
             </div>
           )}
 
-          {/* Combat Result */}
-          {combatState?.ended && (
+          {/* Combat Result — only show right after combat ends */}
+          {inCombat && combatState?.ended && (
             <div className="game-card mb-4 text-center py-4" style={{
               borderColor: combatState.victory ? '#3FB950' : combatState.fled ? '#C9A84C' : '#F85149'
             }}>

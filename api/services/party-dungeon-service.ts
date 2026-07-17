@@ -195,8 +195,8 @@ function executePlayerActions(inst: PartyDungeonInstance): void {
 
     executeSingleAction(inst, charId, action);
 
-    // Check victory after each action
-    if (inst.enemies.every((e) => !e.isAlive)) {
+    // Check victory after each action (only if there are enemies)
+    if (inst.enemies.length > 0 && inst.enemies.every((e) => !e.isAlive)) {
       endCombat(inst, true, false);
       const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
       if (room) room.cleared = true;
@@ -382,8 +382,11 @@ function endCombat(inst: PartyDungeonInstance, victory: boolean, fled: boolean):
 
 // ─── Get combat state for client (check timeout) ───
 function getCombatStateForClient(inst: PartyDungeonInstance): PartyDungeonInstance["combatState"] {
-  // Auto-process timeout if in player_input phase
-  if (inst.combatState.phase === "player_input" && Date.now() > inst.combatState.turnDeadline) {
+  // Auto-process timeout if in player_input phase and there are actual enemies
+  if (inst.combatState.inCombat &&
+      inst.enemies.length > 0 &&
+      inst.combatState.phase === "player_input" &&
+      Date.now() > inst.combatState.turnDeadline) {
     processTimeout(inst);
     if (checkAllSubmitted(inst) && !inst.combatState.ended) {
       executePlayerActions(inst);
