@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router'
-import { ArrowLeft, Users, Swords, Shield, Heart, Droplets, Zap, MapPin, Wind, Clock, CheckCircle2, Circle, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Users, Swords, Shield, Heart, Droplets, Zap, MapPin, Wind, Clock, CheckCircle2, Circle, AlertTriangle, LogOut } from 'lucide-react'
 import { trpc } from '@/providers/trpc'
 
 const CLASS_NAMES: Record<string, string> = {
@@ -23,6 +23,7 @@ export default function PartyDungeon() {
   const [actionPending, setActionPending] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [mySubmittedAction, setMySubmittedAction] = useState<string | null>(null)
+  const [showEscapeConfirm, setShowEscapeConfirm] = useState(false)
 
   // Poll dungeon state frequently
   const stateQuery = trpc.party.dungeonState.useQuery(
@@ -80,6 +81,11 @@ export default function PartyDungeon() {
       }
     }
   })
+  const leaveMut = trpc.party.leave.useMutation({
+    onSuccess: () => {
+      navigate('/party')
+    }
+  })
   const combatMut = trpc.party.combatAction.useMutation({
     onSuccess: (data) => {
       if (data.success && data.combatUpdate) {
@@ -105,6 +111,12 @@ export default function PartyDungeon() {
     setActionPending(true)
     setMySubmittedAction(type)
     combatMut.mutate({ partyId, characterId, action: { type } })
+  }
+
+  const handleEscape = () => {
+    if (!partyId) return
+    leaveMut.mutate({ characterId })
+    setShowEscapeConfirm(false)
   }
 
   if (!partyId) {
@@ -286,6 +298,19 @@ export default function PartyDungeon() {
             </div>
           </div>
 
+          {/* Escape Dungeon — only outside combat */}
+          {!inCombat && !combatState?.ended && (
+            <div className="mb-4">
+              <button
+                onClick={() => setShowEscapeConfirm(true)}
+                className="game-card flex w-full items-center justify-center gap-2 py-3 text-xs transition-all hover:scale-[1.01]"
+                style={{ borderColor: '#F85149', borderStyle: 'dashed', color: '#F85149' }}
+              >
+                <LogOut size={14} /> 逃离地牢
+              </button>
+            </div>
+          )}
+
           {/* Combat Result */}
           {combatState?.ended && (
             <div className="game-card mb-4 text-center py-4" style={{
@@ -398,6 +423,29 @@ export default function PartyDungeon() {
             </div>
           )}
         </div>
+
+        {/* Escape Confirm Modal */}
+        {showEscapeConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+            <div className="game-card mx-4 w-full max-w-sm space-y-4 p-6" style={{ backgroundColor: 'var(--bg-card)' }}>
+              <div className="text-center">
+                <AlertTriangle size={32} style={{ color: '#F85149' }} className="mx-auto mb-2" />
+                <div className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>确认逃离地牢？</div>
+                <div className="mt-2 text-xs" style={{ color: '#F85149' }}>
+                  退出会退队，你将离开当前队伍！
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setShowEscapeConfirm(false)} className="game-btn-secondary flex-1 py-2 text-xs">
+                  取消
+                </button>
+                <button onClick={handleEscape} disabled={leaveMut.isPending} className="flex-1 rounded py-2 text-xs font-bold" style={{ backgroundColor: '#F85149', color: '#fff' }}>
+                  {leaveMut.isPending ? '退出中...' : '确认退出'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Right: Combat Log */}
         <div className="w-full border-t p-4 lg:w-[300px] lg:border-l lg:border-t-0" style={{ borderColor: 'var(--border-color)' }}>
