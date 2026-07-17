@@ -205,9 +205,13 @@ export async function leaveParty(characterId: number): Promise<{ success: boolea
     if (otherMembers.length > 0) {
       // Transfer leadership to the first other member (by join order)
       const newLeader = otherMembers[0];
-      await db.update(parties)
-        .set({ leaderId: num(newLeader.characterId), leaderName: newLeader.characterName })
-        .where(eq(parties.id, partyId));
+      const newLeaderId = num(newLeader.characterId);
+      // Use raw SQL for reliable bigint comparison
+      const db2 = getDb();
+      await db2.execute(
+        `UPDATE parties SET leader_id = ?, leader_name = ? WHERE id = ?`,
+        [newLeaderId, newLeader.characterName, partyId]
+      );
       await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
       return { success: true, message: `队长已移交给 ${newLeader.characterName}` };
     }

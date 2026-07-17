@@ -38651,7 +38651,12 @@ async function leaveParty(characterId) {
     const otherMembers = allMembers.filter((m) => eqNum(m.partyId, partyId) && !eqNum(m.characterId, characterId));
     if (otherMembers.length > 0) {
       const newLeader = otherMembers[0];
-      await db.update(parties).set({ leaderId: num(newLeader.characterId), leaderName: newLeader.characterName }).where(eq(parties.id, partyId));
+      const newLeaderId = num(newLeader.characterId);
+      const db2 = getDb();
+      await db2.execute(
+        `UPDATE parties SET leader_id = ?, leader_name = ? WHERE id = ?`,
+        [newLeaderId, newLeader.characterName, partyId]
+      );
       await db.delete(partyMembers).where(eq(partyMembers.id, member.id));
       return { success: true, message: `\u961F\u957F\u5DF2\u79FB\u4EA4\u7ED9 ${newLeader.characterName}` };
     }
