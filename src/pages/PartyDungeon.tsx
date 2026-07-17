@@ -239,20 +239,31 @@ export default function PartyDungeon() {
             })}
           </div>
 
-          {/* Directions */}
-          {!inCombat && (
-            <div className="mb-4">
-              <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>可移动方向</div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {directions?.map((dir: any) => (
-                  <button key={dir.roomId} onClick={() => handleMove(dir.roomId)} className="game-card flex items-center justify-center gap-1 py-3 text-xs transition-all hover:scale-[1.02]">
-                    <MapPin size={12} style={{ color: 'var(--accent)' }} />
-                    {dir.direction}
-                  </button>
-                ))}
-              </div>
+          {/* Directions — always show, disabled during combat */}
+          <div className="mb-4">
+            <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+              {inCombat ? '房间出口（战斗中无法移动）' : '可移动方向'}
             </div>
-          )}
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {directions?.map((dir: any) => (
+                <button
+                  key={dir.roomId}
+                  onClick={() => !inCombat && handleMove(dir.roomId)}
+                  className="game-card flex items-center justify-center gap-1 py-3 text-xs transition-all"
+                  disabled={inCombat}
+                  style={{ opacity: inCombat ? 0.4 : 1, cursor: inCombat ? 'not-allowed' : 'pointer' }}
+                >
+                  <MapPin size={12} style={{ color: inCombat ? 'var(--text-muted)' : 'var(--accent)' }} />
+                  <span style={{ color: inCombat ? 'var(--text-muted)' : 'var(--text-primary)' }}>{dir.direction}</span>
+                </button>
+              ))}
+              {(!directions || directions.length === 0) && (
+                <div className="col-span-full rounded p-3 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+                  死路
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Combat Result */}
           {combatState?.ended && (

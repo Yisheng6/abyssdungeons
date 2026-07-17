@@ -412,6 +412,7 @@ export function buildRoomResponse(inst: PartyDungeonInstance) {
     isExit: room.isExit,
     inCombat: combatState.inCombat,
     combatState: {
+      inCombat: combatState.inCombat,
       phase: combatState.phase,
       currentRound: combatState.currentRound,
       turnDeadline: combatState.turnDeadline,
