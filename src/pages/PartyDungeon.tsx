@@ -365,10 +365,13 @@ export default function PartyDungeon() {
                 })}
               </div>
 
-              {/* My action buttons — only if I'm alive */}
+              {/* My action buttons — only if I'm in party and alive */}
               {(() => {
                 const me = memberStates?.find((m: any) => m.characterId === characterId)
-                if (!me || !me.isAlive) {
+                if (!me) {
+                  return <div className="text-center text-xs py-2" style={{ color: 'var(--danger)' }}>你不是该队伍成员，无法行动</div>
+                }
+                if (!me.isAlive) {
                   return <div className="text-center text-xs py-2" style={{ color: 'var(--danger)' }}>你已阵亡，无法行动</div>
                 }
                 if (mySubmittedAction) {
