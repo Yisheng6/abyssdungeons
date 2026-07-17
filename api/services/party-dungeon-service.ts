@@ -42,6 +42,8 @@ export interface PartyDungeonInstance {
     inCombat: boolean;
     currentTurn: number; // whose turn: 0..members-1 then enemy turn
     turnOrder: number[]; // characterIds in turn order
+    turnDeadline: number; // timestamp when current turn expires
+    whoseTurn: number; // characterId whose turn it is, 0 = enemy
     logs: string[];
     ended: boolean;
     victory: boolean;
@@ -50,6 +52,9 @@ export interface PartyDungeonInstance {
   loot: Array<{ itemId: string; name: string; quality: string; claimedBy?: number }>;
   createdAt: number;
 }
+
+// ─── Constants ───
+const TURN_TIMEOUT_MS = 10000; // 10 seconds per turn
 
 // ─── In-Memory Store (partyId → instance) ───
 const instances: Map<number, PartyDungeonInstance> = new Map();
@@ -95,6 +100,8 @@ export function createPartyDungeon(params: {
       inCombat: false,
       currentTurn: 0,
       turnOrder: members.map((m) => m.characterId),
+      turnDeadline: 0,
+      whoseTurn: 0,
       logs: [],
       ended: false,
       victory: false,
@@ -120,7 +127,6 @@ export function moveRoom(partyId: number, characterId: number, targetRoomId: num
   const inst = instances.get(partyId);
   if (!inst) return { success: false, message: "地牢实例不存在" };
 
-  // Only leader can move (or any member if not in combat)
   const currentRoom = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
   if (!currentRoom) return { success: false, message: "当前房间无效" };
 
@@ -150,14 +156,91 @@ export function moveRoom(partyId: number, characterId: number, targetRoomId: num
     inst.enemies = enemies.map((e) => ({ ...e, isAlive: e.hp > 0 }));
     inst.combatState.inCombat = true;
     inst.combatState.currentTurn = 0;
-    inst.combatState.logs = [`遭遇了 ${enemies.map((e) => e.name).join("、")}！`];
     inst.combatState.ended = false;
     inst.combatState.victory = false;
     inst.combatState.fled = false;
+    inst.combatState.logs.push(`遭遇了 ${enemies.map((e) => e.name).join("、")}！`);
+
+    // Set first turn
+    startNewRound(inst);
   }
 
   const roomData = buildRoomResponse(inst);
   return { success: true, message: "移动成功", roomData };
+}
+
+// ─── Start New Round ───
+function startNewRound(inst: PartyDungeonInstance): void {
+  const aliveMembers = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (aliveMembers.length === 0) return;
+
+  inst.combatState.currentTurn = 0;
+  inst.combatState.whoseTurn = aliveMembers[0];
+  inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+}
+
+// ─── Advance Turn ───
+function advanceTurn(inst: PartyDungeonInstance): void {
+  const aliveMembers = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (aliveMembers.length === 0) return;
+
+  inst.combatState.currentTurn = (inst.combatState.currentTurn + 1) % aliveMembers.length;
+  inst.combatState.whoseTurn = aliveMembers[inst.combatState.currentTurn];
+  inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+}
+
+// ─── Check Turn Timeout ───
+function checkTurnTimeout(inst: PartyDungeonInstance): void {
+  if (!inst.combatState.inCombat || inst.combatState.ended) return;
+  if (Date.now() < inst.combatState.turnDeadline) return;
+
+  // Turn expired — auto-attack for the current player
+  const charId = inst.combatState.whoseTurn;
+  const member = inst.memberStates[charId];
+  if (!member || !member.isAlive) {
+    advanceTurn(inst);
+    return;
+  }
+
+  const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
+  if (aliveEnemies.length === 0) {
+    endCombat(inst, true, false);
+    return;
+  }
+
+  const target = aliveEnemies[0];
+  const baseDmg = Math.max(1, member.atk - target.def);
+  const damage = Math.round(baseDmg * (0.9 + Math.random() * 0.2));
+  target.hp = Math.max(0, target.hp - damage);
+  target.isAlive = target.hp > 0;
+  member.damageDealt += damage;
+
+  inst.combatState.logs.push(
+    `[超时] ${member.name} 自动攻击 ${target.name} 造成${damage}点伤害`
+  );
+
+  // Check if all enemies dead
+  if (aliveEnemies.every((e) => !e.isAlive)) {
+    endCombat(inst, true, false);
+    const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
+    if (room) room.cleared = true;
+    return;
+  }
+
+  // Advance to next turn
+  advanceTurn(inst);
+
+  // If next is enemy turn (turnOrder cycles back to 0)
+  const aliveOrder = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (inst.combatState.currentTurn === 0) {
+    enemyTurn(inst);
+  }
 }
 
 // ─── Combat Action ───
@@ -171,12 +254,24 @@ export function combatAction(partyId: number, characterId: number, action: {
   if (!inst.combatState.inCombat) return { success: false, message: "不在战斗中" };
   if (inst.combatState.ended) return { success: false, message: "战斗已结束" };
 
+  // Check turn timeout first (auto-process expired turns)
+  checkTurnTimeout(inst);
+  if (inst.combatState.ended) {
+    return { success: true, message: "战斗已结束", combatUpdate: inst.combatState };
+  }
+
   const member = inst.memberStates[characterId];
   if (!member || !member.isAlive) return { success: false, message: "角色已阵亡" };
 
   // Check if it's this character's turn
-  const turnCharId = inst.combatState.turnOrder[inst.combatState.currentTurn];
-  if (turnCharId !== characterId) return { success: false, message: "不是你的回合" };
+  if (inst.combatState.whoseTurn !== characterId) {
+    return { success: false, message: "不是你的回合" };
+  }
+
+  // Check if turn still valid (deadline passed during request)
+  if (Date.now() > inst.combatState.turnDeadline + 5000) {
+    return { success: false, message: "回合已超时" };
+  }
 
   const { type, targetIndex = 0 } = action;
   const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
@@ -205,7 +300,6 @@ export function combatAction(partyId: number, characterId: number, action: {
     }
 
     case "skill": {
-      // Simple skill handling
       const skillDmg = Math.round(member.mag * 1.5 - target.mdef);
       const damage = Math.max(1, skillDmg);
       target.hp = Math.max(0, target.hp - damage);
@@ -240,7 +334,6 @@ export function combatAction(partyId: number, characterId: number, action: {
   // Check if all enemies dead
   if (aliveEnemies.every((e) => !e.isAlive)) {
     endCombat(inst, true, false);
-    // Mark room as cleared
     const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
     if (room) room.cleared = true;
     return { success: true, message: "战斗胜利！", combatUpdate: inst.combatState };
@@ -249,7 +342,10 @@ export function combatAction(partyId: number, characterId: number, action: {
   // Advance turn
   advanceTurn(inst);
 
-  // Enemy turn if all players have acted
+  // Enemy turn if all players have acted (turnOrder cycles back)
+  const aliveOrder = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
   if (inst.combatState.currentTurn === 0 && inst.combatState.inCombat) {
     enemyTurn(inst);
   }
@@ -304,17 +400,11 @@ function enemyTurn(inst: PartyDungeonInstance): void {
   if (aliveMembers.every((m) => !m.isAlive)) {
     endCombat(inst, false, false);
     inst.combatState.logs.push("全队阵亡...");
+    return;
   }
-}
 
-// ─── Advance Turn ───
-function advanceTurn(inst: PartyDungeonInstance): void {
-  const aliveMembers = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (aliveMembers.length === 0) return;
-
-  inst.combatState.currentTurn = (inst.combatState.currentTurn + 1) % aliveMembers.length;
+  // Start new player round
+  startNewRound(inst);
 }
 
 // ─── End Combat ───
@@ -323,6 +413,8 @@ function endCombat(inst: PartyDungeonInstance, victory: boolean, fled: boolean):
   inst.combatState.ended = true;
   inst.combatState.victory = victory;
   inst.combatState.fled = fled;
+  inst.combatState.turnDeadline = 0;
+  inst.combatState.whoseTurn = 0;
 
   if (victory) {
     // Generate loot
@@ -357,6 +449,11 @@ export function buildRoomResponse(inst: PartyDungeonInstance) {
   const directions = getRoomDirections(inst.dungeon.rooms, inst.currentRoomId);
   const aliveMembers = Object.values(inst.memberStates).filter((m) => m.isAlive);
 
+  // Check turn timeout before returning state
+  if (inst.combatState.inCombat && !inst.combatState.ended) {
+    checkTurnTimeout(inst);
+  }
+
   return {
     roomId: room.id,
     type: room.type,
@@ -374,7 +471,11 @@ export function buildRoomResponse(inst: PartyDungeonInstance) {
     isEntrance: room.isEntrance,
     isExit: room.isExit,
     inCombat: inst.combatState.inCombat,
-    combatState: inst.combatState,
+    combatState: {
+      ...inst.combatState,
+      turnDeadline: inst.combatState.turnDeadline,
+      whoseTurn: inst.combatState.whoseTurn,
+    },
     memberStates: Object.values(inst.memberStates),
     aliveMemberCount: aliveMembers.length,
     exploredRoomCount: inst.exploredRooms.size,

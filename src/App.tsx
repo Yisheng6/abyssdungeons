@@ -19,6 +19,7 @@ export default function App() {
       <Route path="/character" element={<CharacterPanel />} />
       <Route path="/inventory" element={<Inventory />} />
       <Route path="/party" element={<Party />} />
+      <Route path="/party-dungeon" element={<PartyDungeon />} />
       <Route path="/party-dungeon/:instanceId" element={<PartyDungeon />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -50058,6 +50058,7 @@ var chatRouter = createRouter({
 init_party_service();
 
 // api/services/party-dungeon-service.ts
+var TURN_TIMEOUT_MS = 1e4;
 var instances = /* @__PURE__ */ new Map();
 function createPartyDungeon(params) {
   const { partyId, layer, x, y, members } = params;
@@ -50084,6 +50085,8 @@ function createPartyDungeon(params) {
       inCombat: false,
       currentTurn: 0,
       turnOrder: members.map((m) => m.characterId),
+      turnDeadline: 0,
+      whoseTurn: 0,
       logs: [],
       ended: false,
       victory: false,
@@ -50120,23 +50123,87 @@ function moveRoom(partyId, characterId, targetRoomId) {
     inst.enemies = enemies.map((e) => ({ ...e, isAlive: e.hp > 0 }));
     inst.combatState.inCombat = true;
     inst.combatState.currentTurn = 0;
-    inst.combatState.logs = [`\u906D\u9047\u4E86 ${enemies.map((e) => e.name).join("\u3001")}\uFF01`];
     inst.combatState.ended = false;
     inst.combatState.victory = false;
     inst.combatState.fled = false;
+    inst.combatState.logs.push(`\u906D\u9047\u4E86 ${enemies.map((e) => e.name).join("\u3001")}\uFF01`);
+    startNewRound(inst);
   }
   const roomData = buildRoomResponse(inst);
   return { success: true, message: "\u79FB\u52A8\u6210\u529F", roomData };
+}
+function startNewRound(inst) {
+  const aliveMembers = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (aliveMembers.length === 0) return;
+  inst.combatState.currentTurn = 0;
+  inst.combatState.whoseTurn = aliveMembers[0];
+  inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+}
+function advanceTurn(inst) {
+  const aliveMembers = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (aliveMembers.length === 0) return;
+  inst.combatState.currentTurn = (inst.combatState.currentTurn + 1) % aliveMembers.length;
+  inst.combatState.whoseTurn = aliveMembers[inst.combatState.currentTurn];
+  inst.combatState.turnDeadline = Date.now() + TURN_TIMEOUT_MS;
+}
+function checkTurnTimeout(inst) {
+  if (!inst.combatState.inCombat || inst.combatState.ended) return;
+  if (Date.now() < inst.combatState.turnDeadline) return;
+  const charId = inst.combatState.whoseTurn;
+  const member = inst.memberStates[charId];
+  if (!member || !member.isAlive) {
+    advanceTurn(inst);
+    return;
+  }
+  const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
+  if (aliveEnemies.length === 0) {
+    endCombat(inst, true, false);
+    return;
+  }
+  const target = aliveEnemies[0];
+  const baseDmg = Math.max(1, member.atk - target.def);
+  const damage = Math.round(baseDmg * (0.9 + Math.random() * 0.2));
+  target.hp = Math.max(0, target.hp - damage);
+  target.isAlive = target.hp > 0;
+  member.damageDealt += damage;
+  inst.combatState.logs.push(
+    `[\u8D85\u65F6] ${member.name} \u81EA\u52A8\u653B\u51FB ${target.name} \u9020\u6210${damage}\u70B9\u4F24\u5BB3`
+  );
+  if (aliveEnemies.every((e) => !e.isAlive)) {
+    endCombat(inst, true, false);
+    const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
+    if (room) room.cleared = true;
+    return;
+  }
+  advanceTurn(inst);
+  const aliveOrder = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
+  if (inst.combatState.currentTurn === 0) {
+    enemyTurn(inst);
+  }
 }
 function combatAction(partyId, characterId, action) {
   const inst = instances.get(partyId);
   if (!inst) return { success: false, message: "\u5730\u7262\u5B9E\u4F8B\u4E0D\u5B58\u5728" };
   if (!inst.combatState.inCombat) return { success: false, message: "\u4E0D\u5728\u6218\u6597\u4E2D" };
   if (inst.combatState.ended) return { success: false, message: "\u6218\u6597\u5DF2\u7ED3\u675F" };
+  checkTurnTimeout(inst);
+  if (inst.combatState.ended) {
+    return { success: true, message: "\u6218\u6597\u5DF2\u7ED3\u675F", combatUpdate: inst.combatState };
+  }
   const member = inst.memberStates[characterId];
   if (!member || !member.isAlive) return { success: false, message: "\u89D2\u8272\u5DF2\u9635\u4EA1" };
-  const turnCharId = inst.combatState.turnOrder[inst.combatState.currentTurn];
-  if (turnCharId !== characterId) return { success: false, message: "\u4E0D\u662F\u4F60\u7684\u56DE\u5408" };
+  if (inst.combatState.whoseTurn !== characterId) {
+    return { success: false, message: "\u4E0D\u662F\u4F60\u7684\u56DE\u5408" };
+  }
+  if (Date.now() > inst.combatState.turnDeadline + 5e3) {
+    return { success: false, message: "\u56DE\u5408\u5DF2\u8D85\u65F6" };
+  }
   const { type, targetIndex = 0 } = action;
   const aliveEnemies = inst.enemies.filter((e) => e.isAlive);
   if (aliveEnemies.length === 0) {
@@ -50194,6 +50261,9 @@ function combatAction(partyId, characterId, action) {
     return { success: true, message: "\u6218\u6597\u80DC\u5229\uFF01", combatUpdate: inst.combatState };
   }
   advanceTurn(inst);
+  const aliveOrder = inst.combatState.turnOrder.filter(
+    (id) => inst.memberStates[id]?.isAlive
+  );
   if (inst.combatState.currentTurn === 0 && inst.combatState.inCombat) {
     enemyTurn(inst);
   }
@@ -50232,20 +50302,17 @@ function enemyTurn(inst) {
   if (aliveMembers.every((m) => !m.isAlive)) {
     endCombat(inst, false, false);
     inst.combatState.logs.push("\u5168\u961F\u9635\u4EA1...");
+    return;
   }
-}
-function advanceTurn(inst) {
-  const aliveMembers = inst.combatState.turnOrder.filter(
-    (id) => inst.memberStates[id]?.isAlive
-  );
-  if (aliveMembers.length === 0) return;
-  inst.combatState.currentTurn = (inst.combatState.currentTurn + 1) % aliveMembers.length;
+  startNewRound(inst);
 }
 function endCombat(inst, victory, fled) {
   inst.combatState.inCombat = false;
   inst.combatState.ended = true;
   inst.combatState.victory = victory;
   inst.combatState.fled = fled;
+  inst.combatState.turnDeadline = 0;
+  inst.combatState.whoseTurn = 0;
   if (victory) {
     const room = inst.dungeon.rooms.find((r) => r.id === inst.currentRoomId);
     if (room?.loot) {
@@ -50272,6 +50339,9 @@ function buildRoomResponse(inst) {
   if (!room) return null;
   const directions = getRoomDirections(inst.dungeon.rooms, inst.currentRoomId);
   const aliveMembers = Object.values(inst.memberStates).filter((m) => m.isAlive);
+  if (inst.combatState.inCombat && !inst.combatState.ended) {
+    checkTurnTimeout(inst);
+  }
   return {
     roomId: room.id,
     type: room.type,
@@ -50294,7 +50364,11 @@ function buildRoomResponse(inst) {
     isEntrance: room.isEntrance,
     isExit: room.isExit,
     inCombat: inst.combatState.inCombat,
-    combatState: inst.combatState,
+    combatState: {
+      ...inst.combatState,
+      turnDeadline: inst.combatState.turnDeadline,
+      whoseTurn: inst.combatState.whoseTurn
+    },
     memberStates: Object.values(inst.memberStates),
     aliveMemberCount: aliveMembers.length,
     exploredRoomCount: inst.exploredRooms.size,
