@@ -126,13 +126,6 @@ export default function Party() {
     }
   }, [myPartyQuery.data?.party, view])
 
-  // Auto-navigate to dungeon when party status becomes 'in_dungeon'
-  useEffect(() => {
-    if (myParty?.status === 'in_dungeon' && myParty?.dungeonParams) {
-      navigate('/party-dungeon', { state: { partyId: myParty.id, roomData: null } })
-    }
-  }, [myParty?.status, myParty?.dungeonParams, myParty?.id])
-
   // Mutations
   const createMut = trpc.party.create.useMutation({
     onSuccess: (data) => {
@@ -243,6 +236,13 @@ export default function Party() {
     const timer = setInterval(sendBeat, 10000)
     return () => clearInterval(timer)
   }, [view, isInParty, characterId])
+
+  // Auto-navigate to dungeon when party status becomes 'in_dungeon' (must be AFTER myParty declaration!)
+  useEffect(() => {
+    if (myParty?.status === 'in_dungeon' && myParty?.dungeonParams) {
+      navigate('/party-dungeon', { state: { partyId: myParty.id, roomData: null } })
+    }
+  }, [myParty?.status, myParty?.dungeonParams, myParty?.id])
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
