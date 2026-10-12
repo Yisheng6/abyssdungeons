@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "roomTypes": [
     {
       "id": "normal",
@@ -229,6 +229,14 @@
             1,
             1
           ]
+        },
+        {
+          "item": "enhance_shard",
+          "weight": 18,
+          "qty": [
+            1,
+            3
+          ]
         }
       ]
     },
@@ -301,6 +309,22 @@
           "qty": [
             1,
             1
+          ]
+        },
+        {
+          "item": "enhance_shard",
+          "weight": 20,
+          "qty": [
+            2,
+            4
+          ]
+        },
+        {
+          "item": "enhance_stone_low",
+          "weight": 12,
+          "qty": [
+            1,
+            2
           ]
         }
       ]
@@ -376,6 +400,32 @@
             1,
             1
           ]
+        },
+        {
+          "item": "enhance_stone_mid",
+          "weight": 18,
+          "qty": [
+            1,
+            2
+          ]
+        },
+        {
+          "item": "enhance_stone_high",
+          "weight": 6,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 15
+        },
+        {
+          "item": "enhance_protect",
+          "weight": 5,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 10
         }
       ]
     },
@@ -460,6 +510,23 @@
             1,
             1
           ]
+        },
+        {
+          "item": "enhance_stone_low",
+          "weight": 15,
+          "qty": [
+            1,
+            3
+          ]
+        },
+        {
+          "item": "enhance_stone_mid",
+          "weight": 8,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 8
         }
       ]
     },
@@ -535,6 +602,15 @@
             1,
             1
           ]
+        },
+        {
+          "item": "enhance_lucky",
+          "weight": 6,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 10
         }
       ]
     },
@@ -588,6 +664,22 @@
         },
         {
           "item": "hp_full",
+          "weight": 8,
+          "qty": [
+            1,
+            1
+          ]
+        },
+        {
+          "item": "enhance_stone_high",
+          "weight": 12,
+          "qty": [
+            1,
+            2
+          ]
+        },
+        {
+          "item": "enhance_protect",
           "weight": 8,
           "qty": [
             1,

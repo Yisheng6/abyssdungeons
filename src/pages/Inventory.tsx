@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
-import { useGameStore, type Item } from '@/stores/gameStore'
+import { useGameStore, type Item, getEffectiveStats, getItemDisplayName } from '@/stores/gameStore'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -132,7 +132,7 @@ export default function Inventory() {
                   <div key={slot} className="game-card flex items-center gap-2 p-2">
                     <div style={{ color: qualityColors[item.quality] }}>{slotIcons[item.slot || 'weapon']}</div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-bold" style={{ color: qualityColors[item.quality] }}>{item.name}</div>
+                      <div className="truncate text-xs font-bold" style={{ color: qualityColors[item.quality] }}>{getItemDisplayName(item)}</div>
                       <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                         {slotNames[slot]}
                         {item.setId && getSetInfo(item.setId) ? ` · ${getSetInfo(item.setId)!.name}` : ''}
@@ -168,7 +168,7 @@ export default function Inventory() {
                     className="game-card relative flex flex-col items-center justify-center p-2 transition-all hover:scale-[1.05]"
                     style={{ borderColor: selectedItem?.uid === item.uid ? qualityColors[item.quality] : 'var(--border-color)' }}>
                     <IconComp size={22} style={{ color: qualityColors[item.quality] }} />
-                    <span className="mt-1 truncate text-[10px]" style={{ color: qualityColors[item.quality], maxWidth: '100%' }}>{item.name}</span>
+                    <span className="mt-1 truncate text-[10px]" style={{ color: qualityColors[item.quality], maxWidth: '100%' }}>{getItemDisplayName(item)}</span>
                     {item.quantity > 1 && (
                       <span className="absolute bottom-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold"
                         style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>
@@ -188,7 +188,7 @@ export default function Inventory() {
         {/* Detail Panel */}
         {selectedItem && (
           <div className="w-full border-t p-4 lg:w-[320px] lg:border-l lg:border-t-0" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-            <h3 className="text-lg font-bold" style={{ color: qualityColors[selectedItem.quality] }}>{selectedItem.name}</h3>
+            <h3 className="text-lg font-bold" style={{ color: qualityColors[selectedItem.quality] }}>{getItemDisplayName(selectedItem)}</h3>
             <div className="mb-2 flex flex-wrap gap-2">
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
                 {typeNames[selectedItem.type] || selectedItem.type}
@@ -206,7 +206,7 @@ export default function Inventory() {
               <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>部位: {slotNames[selectedItem.slot] || selectedItem.slot}</div>
             )}
             <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedItem.desc}</p>
-            {selectedItem.stats && Object.entries(selectedItem.stats).map(([stat, val]) => (
+            {selectedItem.type === 'equipment' && Object.entries(getEffectiveStats(selectedItem)).map(([stat, val]) => (
               <div key={stat} className="mb-1 text-sm" style={{ color: '#3FB950' }}>
                 {statNames[stat] || stat} +{val}
               </div>

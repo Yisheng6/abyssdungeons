@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "itemQualities": [
     {
       "id": "common",
@@ -2912,6 +2912,66 @@
       "desc": "使用后学会技能【恶魔冲击】（限术士）。释放恶魔之力，对所有敌人造成 MAG*1.8 暗影伤害",
       "value": 2000,
       "stackSize": 5
+    },
+    {
+      "id": "enhance_shard",
+      "name": "强化石碎片",
+      "type": "material",
+      "quality": "common",
+      "desc": "强化石的碎片，10 个可合成 1 个下级强化石。分解装备获得。",
+      "value": 5,
+      "stackSize": 999
+    },
+    {
+      "id": "enhance_stone_low",
+      "name": "下级强化石",
+      "type": "material",
+      "quality": "fine",
+      "desc": "用于装备强化 +1 ~ +5。",
+      "value": 50,
+      "stackSize": 999
+    },
+    {
+      "id": "enhance_stone_mid",
+      "name": "中级强化石",
+      "type": "material",
+      "quality": "rare",
+      "desc": "用于装备强化 +6 ~ +10。",
+      "value": 200,
+      "stackSize": 999
+    },
+    {
+      "id": "enhance_stone_high",
+      "name": "上级强化石",
+      "type": "material",
+      "quality": "epic",
+      "desc": "用于装备强化 +11 ~ +15。",
+      "value": 800,
+      "stackSize": 999
+    },
+    {
+      "id": "enhance_protect",
+      "name": "强化保护符",
+      "type": "consumable",
+      "quality": "rare",
+      "desc": "强化失败时防止等级下降，自动消耗。",
+      "effect": {
+        "protect": true
+      },
+      "value": 300,
+      "stackSize": 99
+    },
+    {
+      "id": "enhance_lucky",
+      "name": "幸运强化石",
+      "type": "consumable",
+      "quality": "epic",
+      "desc": "强化时成功率 +15%，自动消耗。",
+      "effect": {
+        "luckBonus": 0.15
+      },
+      "value": 500,
+      "stackSize": 99
     }
   ]
 }

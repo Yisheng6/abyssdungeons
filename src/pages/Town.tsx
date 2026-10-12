@@ -19,7 +19,7 @@ const features = [
   { icon: User, label: '角色面板', path: '/character', desc: '查看属性和技能' },
   { icon: Backpack, label: '背包', path: '/inventory', desc: '管理装备和道具' },
   { icon: Sparkles, label: '技能树', path: '/character', desc: '升级和学习技能' },
-  { icon: Shield, label: '铁匠铺', path: '/inventory', desc: '强化装备' },
+  { icon: Shield, label: '铁匠铺', path: '/blacksmith', desc: '强化 · 分解 · 合成' },
   { icon: Trophy, label: '排行榜', path: '#', desc: '查看全服排名' },
 ]
 

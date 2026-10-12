@@ -19,6 +19,43 @@ export interface Item {
   quantity: number; desc: string; stats?: Record<string, number>
   setId?: string; setTier?: number; value?: number
   effect?: Record<string, unknown>; learnSkillId?: string
+  enhanceLevel?: number
+}
+
+// ─── 装备强化规则 ───
+export const ENHANCE_MAX_LEVEL = 15
+/** 索引 = 当前强化等级，值 = 升到下一级的成功率(%) */
+export const ENHANCE_SUCCESS_RATES = [100, 100, 100, 90, 90, 80, 75, 70, 60, 50, 45, 40, 35, 30, 25]
+
+/** 强化等级对应的石头类型与数量 */
+export function getEnhanceCost(level: number): { stoneId: string; stoneName: string; count: number } {
+  if (level < 5) return { stoneId: 'enhance_stone_low', stoneName: '下级强化石', count: level + 1 }
+  if (level < 10) return { stoneId: 'enhance_stone_mid', stoneName: '中级强化石', count: level - 4 }
+  return { stoneId: 'enhance_stone_high', stoneName: '上级强化石', count: level - 9 }
+}
+
+/** 强化后的有效属性：每级 +10%（向上取整） */
+export function getEffectiveStats(item: Item): Record<string, number> {
+  const lv = item.enhanceLevel || 0
+  if (!item.stats) return {}
+  if (lv <= 0) return { ...item.stats }
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(item.stats)) {
+    out[k] = v + Math.ceil(v * 0.1 * lv)
+  }
+  return out
+}
+
+/** 装备显示名（带强化等级） */
+export function getItemDisplayName(item: Item): string {
+  const lv = item.enhanceLevel || 0
+  return lv > 0 ? `${item.name} +${lv}` : item.name
+}
+
+/** 分解装备可获得的碎片数 */
+export function getDisassembleYield(item: Item): number {
+  const base: Record<string, number> = { common: 1, fine: 2, rare: 4, epic: 8, legendary: 16, mythic: 32 }
+  return (base[item.quality] || 1) + (item.setTier || 0) * 2 + (item.enhanceLevel || 0)
 }
 
 export interface Equipment {
@@ -113,6 +150,12 @@ interface GameState {
   learnSkill: (skillId: string) => { success: boolean; message: string }
   learnSkillFromBook: (itemUid: string) => { success: boolean; message: string }
   useConsumable: (itemUid: string) => { success: boolean; message: string }
+
+  // Blacksmith (铁匠铺)
+  enhanceItem: (itemUid: string, options?: { useProtect?: boolean; useLucky?: boolean }) => { success: boolean; message: string }
+  disassembleItem: (itemUid: string) => { success: boolean; message: string }
+  craftStone: (recipe: 'low' | 'mid' | 'high') => { success: boolean; message: string }
+  countItemById: (itemId: string) => number
 
   // Dungeon
   setCurrentDungeon: (d: GameState['currentDungeon']) => void
@@ -389,16 +432,17 @@ export const useGameStore = create<GameState>()(
 
         const newEquip = { ...s.equipment, [slot]: item }
 
-        // Apply stat bonuses (item stats + set bonus delta)
+        // Apply stat bonuses (effective stats incl. enhance level + set bonus delta)
         let newPlayer = s.player ? { ...s.player } : null
-        if (newPlayer && item.stats) {
-          for (const [stat, val] of Object.entries(item.stats)) {
+        const effStats = getEffectiveStats(item)
+        if (newPlayer) {
+          for (const [stat, val] of Object.entries(effStats)) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] += val
           }
         }
         // Remove old equip stats
-        if (newPlayer && oldEquip?.stats) {
-          for (const [stat, val] of Object.entries(oldEquip.stats)) {
+        if (newPlayer && oldEquip) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(oldEquip))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }
@@ -425,10 +469,10 @@ export const useGameStore = create<GameState>()(
         const newEquip = { ...s.equipment, [slot]: null }
         const newInv = [...s.inventory, item]
 
-        // Remove stat bonuses
+        // Remove stat bonuses (effective stats)
         let newPlayer = s.player ? { ...s.player } : null
-        if (newPlayer && item.stats) {
-          for (const [stat, val] of Object.entries(item.stats)) {
+        if (newPlayer) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(item))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }
@@ -561,6 +605,179 @@ export const useGameStore = create<GameState>()(
           .filter((i) => i.quantity > 0)
         set({ inventory: newInv })
         return { success: true, message: msg }
+      },
+
+      // ─── 铁匠铺：装备强化 / 分解 / 合成 ───
+      countItemById: (itemId) => {
+        return get().inventory.filter((i) => i.id === itemId).reduce((sum, i) => sum + i.quantity, 0)
+      },
+
+      enhanceItem: (itemUid, options) => {
+        const s = get()
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+
+        // 找装备：背包 或 已装备
+        const invIdx = s.inventory.findIndex((i) => i.uid === itemUid)
+        let equipSlot: keyof Equipment | null = null
+        let item: Item | null = null
+        if (invIdx >= 0) {
+          item = s.inventory[invIdx]
+        } else {
+          for (const [slot, eq] of Object.entries(s.equipment)) {
+            if (eq && eq.uid === itemUid) {
+              equipSlot = slot as keyof Equipment
+              item = eq
+              break
+            }
+          }
+        }
+        if (!item) return { success: false, message: '装备不存在' }
+        if (item.type !== 'equipment') return { success: false, message: '只能强化装备' }
+
+        const curLevel = item.enhanceLevel || 0
+        if (curLevel >= ENHANCE_MAX_LEVEL) return { success: false, message: '已达最高强化等级' }
+
+        // 消耗核算
+        const cost = getEnhanceCost(curLevel)
+        const goldCost = Math.max(10, Math.floor((item.value || 50) * (curLevel + 1) * 0.5))
+        const haveStone = s.inventory.filter((i) => i.id === cost.stoneId).reduce((n, i) => n + i.quantity, 0)
+        if (haveStone < cost.count) return { success: false, message: `${cost.stoneName}不足（需要 ${cost.count}，现有 ${haveStone}）` }
+        if (p.gold < goldCost) return { success: false, message: `金币不足（需要 ${goldCost}）` }
+
+        // 保护符 / 幸运石
+        const useProtect = !!options?.useProtect
+        const useLucky = !!options?.useLucky
+        if (useProtect && s.inventory.filter((i) => i.id === 'enhance_protect').reduce((n, i) => n + i.quantity, 0) < 1) {
+          return { success: false, message: '没有强化保护符' }
+        }
+        if (useLucky && s.inventory.filter((i) => i.id === 'enhance_lucky').reduce((n, i) => n + i.quantity, 0) < 1) {
+          return { success: false, message: '没有幸运强化石' }
+        }
+
+        // 扣材料与金币
+        const removeById = (inv: Item[], id: string, n: number): Item[] => {
+          let left = n
+          return inv.map((i) => {
+            if (i.id !== id || left <= 0) return i
+            const take = Math.min(i.quantity, left)
+            left -= take
+            return { ...i, quantity: i.quantity - take }
+          }).filter((i) => i.quantity > 0)
+        }
+        let newInv = removeById([...s.inventory], cost.stoneId, cost.count)
+        if (useLucky) newInv = removeById(newInv, 'enhance_lucky', 1)
+
+        // 判定
+        const rate = Math.min(100, ENHANCE_SUCCESS_RATES[curLevel] + (useLucky ? 15 : 0))
+        const roll = Math.random() * 100
+        const success = roll < rate
+        let newLevel = curLevel
+        let protectedUsed = false
+        let message: string
+
+        if (success) {
+          newLevel = curLevel + 1
+          message = `强化成功！${item.name} +${newLevel}`
+        } else {
+          if (curLevel >= 5) {
+            if (useProtect) {
+              protectedUsed = true
+              newInv = removeById(newInv, 'enhance_protect', 1)
+              message = `强化失败，保护符生效，保持 +${curLevel}`
+            } else {
+              newLevel = curLevel >= 10 ? curLevel - 2 : curLevel - 1
+              message = `强化失败！${item.name} 降为 +${newLevel}`
+            }
+          } else {
+            message = `强化失败，等级保持 +${curLevel}`
+          }
+        }
+
+        // 应用新等级
+        const newItem: Item = { ...item, enhanceLevel: newLevel }
+        if (invIdx >= 0) {
+          newInv = newInv.map((i) => (i.uid === itemUid ? newItem : i))
+        }
+        const newEquip = equipSlot ? { ...s.equipment, [equipSlot]: newItem } : s.equipment
+
+        // 已装备：调整玩家属性（新旧有效属性差值）
+        let np: Player = { ...p, gold: p.gold - goldCost }
+        if (equipSlot) {
+          const delta: Record<string, number> = {}
+          const oldEff = getEffectiveStats(item)
+          const newEff = getEffectiveStats(newItem)
+          for (const k of new Set([...Object.keys(oldEff), ...Object.keys(newEff)])) {
+            delta[k] = (newEff[k] || 0) - (oldEff[k] || 0)
+          }
+          np = applyStatDelta(np, delta)
+        }
+
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { player: np, equipment: newEquip }
+        set({ inventory: newInv, equipment: newEquip, player: np, classSaves: ns })
+
+        return { success, message: `${message}（成功率 ${rate}%${protectedUsed ? '，消耗保护符×1' : ''}）` }
+      },
+
+      disassembleItem: (itemUid) => {
+        const s = get()
+        const item = s.inventory.find((i) => i.uid === itemUid)
+        if (!item) return { success: false, message: '物品不存在' }
+        if (item.type !== 'equipment') return { success: false, message: '只能分解装备' }
+
+        const yieldCount = getDisassembleYield(item)
+        const newInv = s.inventory.filter((i) => i.uid !== itemUid)
+        const existing = newInv.find((i) => i.id === 'enhance_shard')
+        if (existing) {
+          set({
+            inventory: newInv.map((i) => (i.id === 'enhance_shard' ? { ...i, quantity: i.quantity + yieldCount } : i)),
+          })
+        } else {
+          const cat = getItemInfo('enhance_shard')
+          set({
+            inventory: [...newInv, {
+              uid: `shard_${Date.now()}`, id: 'enhance_shard', name: '强化石碎片',
+              type: 'material', quality: 'common', quantity: yieldCount,
+              desc: cat?.desc || '强化石碎片', value: 5,
+            }],
+          })
+        }
+        return { success: true, message: `分解 ${item.name}，获得强化石碎片 ×${yieldCount}` }
+      },
+
+      craftStone: (recipe) => {
+        const s = get()
+        const recipes = {
+          low: { from: 'enhance_shard', fromName: '强化石碎片', need: 10, to: 'enhance_stone_low', toName: '下级强化石' },
+          mid: { from: 'enhance_stone_low', fromName: '下级强化石', need: 3, to: 'enhance_stone_mid', toName: '中级强化石' },
+          high: { from: 'enhance_stone_mid', fromName: '中级强化石', need: 3, to: 'enhance_stone_high', toName: '上级强化石' },
+        } as const
+        const r = recipes[recipe]
+        const have = s.inventory.filter((i) => i.id === r.from).reduce((n, i) => n + i.quantity, 0)
+        if (have < r.need) return { success: false, message: `${r.fromName}不足（需要 ${r.need}，现有 ${have}）` }
+
+        let left = r.need
+        let newInv = s.inventory.map((i) => {
+          if (i.id !== r.from || left <= 0) return i
+          const take = Math.min(i.quantity, left)
+          left -= take
+          return { ...i, quantity: i.quantity - take }
+        }).filter((i) => i.quantity > 0)
+
+        const cat = getItemInfo(r.to)
+        const existing = newInv.find((i) => i.id === r.to)
+        if (existing) {
+          newInv = newInv.map((i) => (i.id === r.to ? { ...i, quantity: i.quantity + 1 } : i))
+        } else {
+          newInv = [...newInv, {
+            uid: `stone_${Date.now()}`, id: r.to, name: r.toName,
+            type: 'material' as const, quality: (cat?.quality || 'fine') as Item['quality'],
+            quantity: 1, desc: cat?.desc || r.toName, value: cat?.value,
+          }]
+        }
+        set({ inventory: newInv })
+        return { success: true, message: `合成成功：${r.toName} ×1` }
       },
 
       // ─── Dungeon ───

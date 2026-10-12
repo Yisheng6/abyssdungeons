@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock } from 'lucide-react'
-import { useGameStore } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getItemDisplayName } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills } from '@/lib/catalog'
 
@@ -345,8 +345,8 @@ export default function CharacterPanel() {
                     <div className="mb-1 text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>
                     {item ? (
                       <>
-                        <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{item.name}</div>
-                        {item.stats && Object.entries(item.stats).map(([s, v]) => (
+                        <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{getItemDisplayName(item)}</div>
+                        {Object.entries(getEffectiveStats(item)).map(([s, v]) => (
                           <div key={s} className="text-[10px]" style={{ color: '#3FB950' }}>+{v} {statNames[s] || s}</div>
                         ))}
                       </>
