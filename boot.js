@@ -41937,7 +41937,7 @@ var gameRouter = createRouter({
     layer: external_exports.number().min(1).max(100),
     x: external_exports.number().default(0),
     y: external_exports.number().default(0)
-  })).query(({ input }) => {
+  })).mutation(({ input }) => {
     const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
     return {
       seed: dungeon.seed,
@@ -41965,7 +41965,7 @@ var gameRouter = createRouter({
     x: external_exports.number(),
     y: external_exports.number(),
     roomId: external_exports.number()
-  })).query(({ input }) => {
+  })).mutation(({ input }) => {
     const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
     const room = dungeon.rooms.find((r) => r.id === input.roomId);
     if (!room) return null;
