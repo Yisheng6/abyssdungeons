@@ -26,15 +26,10 @@ export default function Explore() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isRunningRef = useRef(false)
 
-  const generateDungeon = trpc.game.generateDungeon.useQuery(
-    { globalSeed: 'auto', layer: currentLayer, x: 0, y: 0 },
-    { enabled: false }
-  )
-  const enterRoom = trpc.game.enterRoom.useQuery(
-    { globalSeed: 'auto', layer: currentLayer, x: 0, y: 0, roomId: store.currentRoomId },
-    { enabled: false }
-  )
-  const combatTurn = trpc.game.combatTurn.useMutation()
+  // 使用 useMutation 避免 useQuery 参数不同步问题
+  const generateDungeonMut = trpc.game.generateDungeon.useMutation()
+  const enterRoomMut = trpc.game.enterRoom.useMutation()
+  const combatTurnMut = trpc.game.combatTurn.useMutation()
 
   const addLog = useCallback((msg: string) => {
     setLogs((prev) => [...prev.slice(-49), `[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`])
@@ -47,37 +42,48 @@ export default function Explore() {
     addLog(`═══ 进入第 ${layer} 层 ═══`)
 
     try {
-      const result = await generateDungeon.refetch()
-      if (result.data) {
+      const result = await generateDungeonMut.mutateAsync({
+        globalSeed: 'auto',
+        layer,
+        x: 0,
+        y: 0,
+      })
+      if (result) {
         store.setCurrentDungeon({
-          seed: result.data.seed,
-          layer: result.data.layer,
+          seed: result.seed,
+          layer: result.layer,
           x: 0, y: 0,
-          theme: result.data.theme,
-          roomCount: result.data.roomCount,
+          theme: result.theme,
+          roomCount: result.roomCount,
         })
-        store.setDungeonRooms(result.data.rooms)
-        store.setCurrentRoomId(result.data.entranceRoomId)
-        store.addExploredRoom(result.data.entranceRoomId)
-        addLog(`地牢生成完毕：${result.data.theme}，共 ${result.data.roomCount} 个房间`)
+        store.setDungeonRooms(result.rooms)
+        store.setCurrentRoomId(result.entranceRoomId)
+        store.addExploredRoom(result.entranceRoomId)
+        addLog(`地牢生成完毕：${result.theme}，共 ${result.roomCount} 个房间`)
 
         // 自动开始探索入口房间
-        await exploreRoom(result.data.entranceRoomId)
+        await exploreRoom(result.entranceRoomId)
       }
     } catch (err) {
       addLog(`生成地牢失败: ${err}`)
     }
-  }, [addLog, generateDungeon, store])
+  }, [addLog, generateDungeonMut, store])
 
   // 探索房间
   const exploreRoom = useCallback(async (roomId: number) => {
     if (!isRunningRef.current) return
 
     try {
-      const result = await enterRoom.refetch()
-      if (!result.data) return
+      const result = await enterRoomMut.mutateAsync({
+        globalSeed: 'auto',
+        layer: currentLayer,
+        x: 0,
+        y: 0,
+        roomId,
+      })
+      if (!result) return
 
-      const room = result.data
+      const room = result
       store.setRoomInfo(room)
       store.addExploredRoom(roomId)
       setStats((s) => ({ ...s, rooms: s.rooms + 1 }))
@@ -149,7 +155,7 @@ export default function Explore() {
       addLog(`探索出错: ${err}`)
       stopExploring()
     }
-  }, [addLog, enterRoom, store, currentLayer, enterNewFloor])
+  }, [addLog, enterRoomMut, store, currentLayer, enterNewFloor])
 
   // 自动战斗
   const autoBattle = useCallback(async (enemies: any[]) => {
@@ -193,7 +199,7 @@ export default function Explore() {
       }
 
       try {
-        const result = await combatTurn.mutateAsync({
+        const result = await combatTurnMut.mutateAsync({
           player: {
             id: player.id, name: player.name, hp: player.hp, maxHp: player.maxHp,
             mp: player.mp, maxMp: player.maxMp, atk: player.atk, def: player.def,
@@ -270,7 +276,7 @@ export default function Explore() {
       addLog(`探索结束，返回城镇`)
       stopExploring()
     }
-  }, [addLog, combatTurn, store, currentLayer])
+  }, [addLog, combatTurnMut, store, currentLayer])
 
   // 获取技能MP消耗
   const getSkillMpCost = (skillId: string): number => {
