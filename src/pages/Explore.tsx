@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Search, Swords, Package, MapPin, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield, AlertTriangle } from 'lucide-react'
+import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 
@@ -16,6 +16,21 @@ const ROOM_TYPE_COLORS: Record<string, string> = {
   merchant: '#58A6FF', hidden: '#D4BA6A',
 }
 
+const SKILL_MP_COSTS: Record<string, number> = {
+  fireball: 10, heal: 15, frostbolt: 12, lightning: 18,
+  mana_shield: 20, meteor: 40, arcane_power: 25,
+  shadow_step: 15, backstab: 10, poison_blade: 12,
+  smoke_bomb: 8, assassinate: 30, shadow_dance: 25,
+  shield_bash: 8, taunt: 5, heavy_strike: 12,
+  iron_will: 10, whirlwind: 20, last_stand: 15,
+  aimed_shot: 10, trap: 8, multishot: 18,
+  poison_arrow: 12, stampede: 25, eagle_eye: 15,
+  holy_light: 15, bless: 10, dispel: 12,
+  resurrection: 50, divine_shield: 20,
+  corruption: 12, summon_imp: 20, life_drain: 15,
+  curse: 10, demon_form: 35, soul_harvest: 25,
+}
+
 export default function Explore() {
   const navigate = useNavigate()
   const store = useGameStore()
@@ -23,8 +38,8 @@ export default function Explore() {
   const [isRunning, setIsRunning] = useState(false)
   const [currentLayer, setCurrentLayer] = useState(1)
   const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1 })
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isRunningRef = useRef(false)
+  const isBattlingRef = useRef(false)
 
   // 使用 useMutation 避免 useQuery 参数不同步问题
   const generateDungeonMut = trpc.game.generateDungeon.useMutation()
@@ -32,10 +47,10 @@ export default function Explore() {
   const combatTurnMut = trpc.game.combatTurn.useMutation()
 
   const addLog = useCallback((msg: string) => {
-    setLogs((prev) => [...prev.slice(-49), `[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`])
+    setLogs((prev) => [...prev.slice(-99), `[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`])
   }, [])
 
-  // 进入新一层地牢
+  // ─── 进入新一层地牢 ───
   const enterNewFloor = useCallback(async (layer: number) => {
     setCurrentLayer(layer)
     setStats((s) => ({ ...s, floor: layer }))
@@ -43,75 +58,70 @@ export default function Explore() {
 
     try {
       const result = await generateDungeonMut.mutateAsync({
-        globalSeed: 'auto',
-        layer,
-        x: 0,
-        y: 0,
+        globalSeed: 'auto', layer, x: 0, y: 0,
       })
       if (result) {
-        store.setCurrentDungeon({
-          seed: result.seed,
-          layer: result.layer,
-          x: 0, y: 0,
-          theme: result.theme,
-          roomCount: result.roomCount,
+        const gs = useGameStore.getState()
+        gs.setCurrentDungeon({
+          seed: result.seed, layer: result.layer, x: 0, y: 0,
+          theme: result.theme, roomCount: result.roomCount,
         })
-        store.setDungeonRooms(result.rooms)
-        store.setCurrentRoomId(result.entranceRoomId)
-        store.addExploredRoom(result.entranceRoomId)
+        gs.setDungeonRooms(result.rooms)
+        gs.setCurrentRoomId(result.entranceRoomId)
+        gs.resetExploredRooms()
+        gs.addExploredRoom(result.entranceRoomId)
         addLog(`地牢生成完毕：${result.theme}，共 ${result.roomCount} 个房间`)
-
-        // 自动开始探索入口房间
         await exploreRoom(result.entranceRoomId)
       }
     } catch (err) {
       addLog(`生成地牢失败: ${err}`)
+      stopExploring()
     }
-  }, [addLog, generateDungeonMut, store])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addLog, generateDungeonMut])
 
-  // 探索房间
+  // ─── 探索房间 ───
   const exploreRoom = useCallback(async (roomId: number) => {
     if (!isRunningRef.current) return
 
     try {
       const result = await enterRoomMut.mutateAsync({
-        globalSeed: 'auto',
-        layer: currentLayer,
-        x: 0,
-        y: 0,
-        roomId,
+        globalSeed: 'auto', layer: currentLayer, x: 0, y: 0, roomId,
       })
-      if (!result) return
+      if (!result) {
+        addLog('房间数据为空，跳过')
+        return
+      }
 
       const room = result
-      store.setRoomInfo(room)
-      store.addExploredRoom(roomId)
+      const gs = useGameStore.getState()
+      gs.setRoomInfo(room)
+      gs.setCurrentRoomId(roomId)
+      gs.addExploredRoom(roomId)
       setStats((s) => ({ ...s, rooms: s.rooms + 1 }))
 
       const roomName = ROOM_TYPE_NAMES[room.type] || room.type
-      const roomColor = ROOM_TYPE_COLORS[room.type] || '#8B949E'
-
-      // 播报房间信息
       addLog(`【${roomName}】${room.themeDescription}`)
 
-      // 播报敌人
+      // 遇敌 → 自动战斗
       if (room.enemies.length > 0) {
         addLog(`遭遇敌人：${room.enemies.map(e => `${e.name}(HP:${e.hp})`).join('、')}`)
-        await autoBattle(room.enemies)
+        const won = await autoBattle(room.enemies)
+        if (!won) return // 战败，autoBattle 内部已停止探索
       } else if (room.type === 'treasure') {
         addLog(`发现宝箱！获得了一些物品`)
         setStats((s) => ({ ...s, items: s.items + 1 }))
       } else if (room.type === 'trap') {
         const dmg = Math.floor(Math.random() * 20) + 10
         addLog(`触发陷阱！受到 ${dmg} 点伤害`)
-        if (store.player) {
-          store.updatePlayerHp(store.player.hp - dmg)
-        }
+        const gs2 = useGameStore.getState()
+        if (gs2.player) gs2.updatePlayerHp(gs2.player.hp - dmg)
       } else if (room.type === 'safe') {
         addLog(`安全区域，恢复了一些状态`)
-        if (store.player) {
-          store.updatePlayerHp(Math.min(store.player.maxHp, store.player.hp + 30))
-          store.updatePlayerMp(Math.min(store.player.maxMp, store.player.mp + 20))
+        const gs2 = useGameStore.getState()
+        if (gs2.player) {
+          gs2.updatePlayerHp(Math.min(gs2.player.maxHp, gs2.player.hp + 30))
+          gs2.updatePlayerMp(Math.min(gs2.player.maxMp, gs2.player.mp + 20))
         }
       } else {
         addLog(`这个房间很平静，没有发现敌人`)
@@ -123,47 +133,43 @@ export default function Explore() {
         setStats((s) => ({ ...s, items: s.items + room.loot.length }))
       }
 
-      // 检查是否是Boss房
+      // Boss房 → 进入下一层
       if (room.isExit) {
-        addLog(`═══ 击败Boss，进入下一层 ═══`)
-        setTimeout(() => enterNewFloor(currentLayer + 1), 1000)
+        addLog(`═══ 已通过本层，进入第 ${currentLayer + 1} 层 ═══`)
+        setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
         return
       }
 
-      // 继续探索下一个房间
+      // ─── 自动进入下一个房间 ───
       if (isRunningRef.current) {
-        const directions = room.directions.filter((d) => !store.exploredRooms.has(d.roomId))
-        if (directions.length > 0) {
-          // 随机选择一个未探索的方向
-          const nextDir = directions[Math.floor(Math.random() * directions.length)]
+        const gs3 = useGameStore.getState()
+        const unvisited = room.directions.filter((d) => !gs3.exploredRooms.has(d.roomId))
+        const candidates = unvisited.length > 0 ? unvisited : room.directions
+        if (candidates.length > 0) {
+          const nextDir = candidates[Math.floor(Math.random() * candidates.length)]
           addLog(`向${nextDir.direction}移动...`)
-          setTimeout(() => exploreRoom(nextDir.roomId), 800)
+          setTimeout(() => { if (isRunningRef.current) exploreRoom(nextDir.roomId) }, 600)
         } else {
-          // 所有方向都探索过了，随机选一个
-          const allDirs = room.directions
-          if (allDirs.length > 0) {
-            const nextDir = allDirs[Math.floor(Math.random() * allDirs.length)]
-            addLog(`向${nextDir.direction}移动...`)
-            setTimeout(() => exploreRoom(nextDir.roomId), 800)
-          } else {
-            addLog(`没有可移动的方向，探索结束`)
-            stopExploring()
-          }
+          addLog(`本层已无可走房间，进入下一层`)
+          setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
         }
       }
     } catch (err) {
       addLog(`探索出错: ${err}`)
       stopExploring()
     }
-  }, [addLog, enterRoomMut, store, currentLayer, enterNewFloor])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addLog, enterRoomMut, currentLayer, enterNewFloor])
 
-  // 自动战斗
-  const autoBattle = useCallback(async (enemies: any[]) => {
-    if (!isRunningRef.current) return
+  // ─── 自动战斗（返回是否胜利）───
+  const autoBattle = useCallback(async (enemies: any[]): Promise<boolean> => {
+    if (isBattlingRef.current) return true // 防止并发战斗
+    isBattlingRef.current = true
 
-    addLog(`战斗开始！`)
-    store.setInCombat(true)
-    store.setCombatEnemies(enemies.map((e) => ({
+    addLog(`── 战斗开始 ──`)
+    const gs = useGameStore.getState()
+    gs.setInCombat(true)
+    gs.setCombatEnemies(enemies.map((e) => ({
       id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
       mp: e.mp ?? 0, maxMp: e.maxMp ?? 0,
       atk: e.atk ?? 10, def: e.def ?? 5,
@@ -173,32 +179,30 @@ export default function Explore() {
       aiType: e.aiType,
     })))
 
-    let round = 1
-    let combatEnded = false
     let victory = false
+    const MAX_ROUNDS = 60
 
-    while (!combatEnded && isRunningRef.current) {
-      const aliveEnemies = store.combatEnemies.filter((e) => e.hp > 0)
-      if (aliveEnemies.length === 0) break
+    try {
+      for (let round = 1; round <= MAX_ROUNDS; round++) {
+        if (!isRunningRef.current) break
 
-      const player = store.player || {
-        id: 'player', name: '冒险者', hp: 100, maxHp: 100,
-        mp: 50, maxMp: 50, atk: 15, def: 10, mag: 10,
-        mdef: 8, agi: 10, luk: 5, skills: ['fireball'], element: 'none',
-      }
+        // 每轮读取最新状态（避免闭包旧值）
+        const cur = useGameStore.getState()
+        const aliveEnemies = cur.combatEnemies.filter((e) => e.hp > 0)
+        if (aliveEnemies.length === 0) { victory = true; break }
 
-      // 自动选择技能（按顺序）
-      let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
-      const skills = player.skills || []
-      for (const skillId of skills) {
-        const mpCost = getSkillMpCost(skillId)
-        if (player.mp >= mpCost) {
-          action = { type: 'skill', skillId }
-          break
+        const player = cur.player
+        if (!player || player.hp <= 0) { addLog('你被击败了...'); break }
+
+        // 按技能顺序释放：第一个 MP 足够的技能，否则普攻
+        let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
+        for (const skillId of player.skills || []) {
+          if (player.mp >= (SKILL_MP_COSTS[skillId] ?? 10)) {
+            action = { type: 'skill', skillId }
+            break
+          }
         }
-      }
 
-      try {
         const result = await combatTurnMut.mutateAsync({
           player: {
             id: player.id, name: player.name, hp: player.hp, maxHp: player.maxHp,
@@ -212,33 +216,27 @@ export default function Explore() {
             mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
             skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
           })),
-          action: {
-            type: action.type,
-            targetId: aliveEnemies[0]?.id,
-            skillId: action.skillId,
-          },
-          turnSeed: Date.now(),
+          action: { type: action.type, targetId: aliveEnemies[0].id, skillId: action.skillId },
+          turnSeed: Date.now() + round,
           layer: currentLayer,
           enemyDropTables: aliveEnemies.map((e) => ({ enemyId: e.id, dropTable: (e as any).dropTable })),
         })
 
-        // 播报战斗日志
-        result.logs.forEach((log) => {
-          store.addCombatLog(log)
-          addLog(log)
-        })
+        result.logs.forEach((log) => addLog(log))
 
-        store.setCombatEnemies(result.enemies)
+        // 每轮同步最新状态到 store（血量实时显示）
+        const after = useGameStore.getState()
+        after.setCombatEnemies(result.enemies)
+        after.updatePlayerHp(result.player.hp)
+        after.updatePlayerMp(result.player.mp)
 
         if (result.victory) {
-          combatEnded = true
           victory = true
-          addLog(`战斗胜利！`)
+          addLog(`── 战斗胜利！──`)
           setStats((s) => ({ ...s, kills: s.kills + 1 }))
-
           if (result.drops && result.drops.length > 0) {
             result.drops.forEach((drop) => {
-              store.addItem({
+              after.addItem({
                 uid: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
                 id: drop.itemId, name: drop.name,
                 type: drop.type === 'equipment' ? 'equipment' : 'consumable',
@@ -246,89 +244,62 @@ export default function Explore() {
                 desc: `${drop.name}`,
               })
             })
-            addLog(`获得掉落：${result.drops.map(d => d.name).join('、')}`)
+            addLog(`获得掉落：${result.drops.map(d => `${d.name}×${d.quantity}`).join('、')}`)
           }
-
-          // 更新玩家状态
-          if (result.player) {
-            store.updatePlayerHp(result.player.hp)
-            store.updatePlayerMp(result.player.mp)
-          }
-        } else if (result.ended) {
-          combatEnded = true
-          addLog(`你被击败了...`)
-          store.setCombatEnded(true)
+          break
+        }
+        if (result.ended) {
+          if (result.player.hp <= 0) addLog('你被击败了...')
+          break
         }
 
-        round++
-      } catch (err) {
-        addLog(`战斗出错: ${err}`)
-        combatEnded = true
+        await new Promise((r) => setTimeout(r, 600))
       }
-
-      // 战斗间隔
-      await new Promise((r) => setTimeout(r, 1000))
+    } catch (err) {
+      addLog(`战斗出错: ${err}`)
+    } finally {
+      isBattlingRef.current = false
+      useGameStore.getState().setInCombat(false)
     }
-
-    store.setInCombat(false)
 
     if (!victory) {
-      addLog(`探索结束，返回城镇`)
+      const cur = useGameStore.getState()
+      if (cur.player && cur.player.hp <= 0) {
+        addLog(`═══ 探索中止：角色阵亡 ═══`)
+      }
       stopExploring()
     }
-  }, [addLog, combatTurnMut, store, currentLayer])
+    return victory
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addLog, combatTurnMut, currentLayer])
 
-  // 获取技能MP消耗
-  const getSkillMpCost = (skillId: string): number => {
-    const costs: Record<string, number> = {
-      fireball: 10, heal: 15, frostbolt: 12, lightning: 18,
-      mana_shield: 20, meteor: 40, arcane_power: 25,
-      shadow_step: 15, backstab: 10, poison_blade: 12,
-      smoke_bomb: 8, assassinate: 30, shadow_dance: 25,
-      shield_bash: 8, taunt: 5, heavy_strike: 12,
-      iron_will: 10, whirlwind: 20, last_stand: 15,
-      aimed_shot: 10, trap: 8, multishot: 18,
-      poison_arrow: 12, stampede: 25, eagle_eye: 15,
-      holy_light: 15, bless: 10, dispel: 12,
-      resurrection: 50, divine_shield: 20,
-      corruption: 12, summon_imp: 20, life_drain: 15,
-      curse: 10, demon_form: 35, soul_harvest: 25,
-    }
-    return costs[skillId] || 10
-  }
-
-  // 开始自动探索
+  // ─── 开始 / 停止 ───
   const startExploring = useCallback(async () => {
-    if (!store.player) {
+    const gs = useGameStore.getState()
+    if (!gs.player) {
       addLog('请先创建角色')
       return
     }
+    // 若已有地牢进行中，先重置
+    gs.resetDungeon()
     setIsRunning(true)
     isRunningRef.current = true
-    store.setAutoExploring(true)
+    gs.setAutoExploring(true)
     setLogs([])
     setStats({ rooms: 0, kills: 0, items: 0, floor: 1 })
     addLog('═══ 自动探索开始 ═══')
-    addLog(`角色：${store.player.name} (Lv.${store.player.level})`)
-    addLog(`HP: ${store.player.hp}/${store.player.maxHp} MP: ${store.player.mp}/${store.player.maxMp}`)
+    addLog(`角色：${gs.player.name} (Lv.${gs.player.level})`)
+    addLog(`HP: ${gs.player.hp}/${gs.player.maxHp} MP: ${gs.player.mp}/${gs.player.maxMp}`)
     await enterNewFloor(1)
-  }, [store, addLog, enterNewFloor])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addLog, enterNewFloor])
 
-  // 停止探索
   const stopExploring = useCallback(() => {
     setIsRunning(false)
     isRunningRef.current = false
-    store.setAutoExploring(false)
-    if (timerRef.current) clearTimeout(timerRef.current)
+    useGameStore.getState().setAutoExploring(false)
     addLog('═══ 探索结束 ═══')
-  }, [addLog, store])
-
-  // 清理定时器
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
+  }, [addLog])
 
   const getRoomTypeName = (type: string) => ROOM_TYPE_NAMES[type] || type
   const getRoomTypeColor = (type: string) => ROOM_TYPE_COLORS[type] || '#8B949E'
@@ -372,6 +343,11 @@ export default function Explore() {
     )
   }
 
+  // 敌人显示：战斗中用 combatEnemies（实时血量），否则用 roomInfo.enemies
+  const displayEnemies = store.inCombat && store.combatEnemies.length > 0
+    ? store.combatEnemies
+    : (store.roomInfo?.enemies || [])
+
   // 主界面：未开始探索
   if (!isRunning && !store.currentDungeon) {
     return (
@@ -383,7 +359,6 @@ export default function Explore() {
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>自动探索 · 无限层数 · 离线挂机</p>
           </div>
 
-          {/* 角色状态 */}
           {store.player ? (
             <div className="rounded p-3" style={{ backgroundColor: 'var(--bg-hover)' }}>
               <div className="mb-2 flex items-center justify-between">
@@ -426,7 +401,6 @@ export default function Explore() {
           <div style={{ color: 'var(--text-muted)' }}>已探索 {stats.rooms} 个房间</div>
         </div>
 
-        {/* 玩家状态 */}
         <div className="mb-3 space-y-2">
           <div>
             <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -446,7 +420,6 @@ export default function Explore() {
           </div>
         </div>
 
-        {/* 统计 */}
         <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Skull size={12} /> 击杀: {stats.kills}
@@ -456,7 +429,6 @@ export default function Explore() {
           </div>
         </div>
 
-        {/* 控制按钮 */}
         <div className="space-y-2">
           {isRunning ? (
             <button className="game-btn-secondary w-full text-xs" onClick={stopExploring}>
@@ -475,7 +447,6 @@ export default function Explore() {
 
       {/* Center: Main Area */}
       <main className="flex flex-1 flex-col p-4">
-        {/* 当前房间信息 */}
         {store.roomInfo && (
           <div className="mb-4 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <div className="mb-2 flex items-center gap-2">
@@ -492,15 +463,24 @@ export default function Explore() {
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               {store.roomInfo.themeDescription}
             </p>
-            {store.roomInfo.enemies.length > 0 && (
+            {displayEnemies.length > 0 && (
               <div className="mt-2 rounded p-2" style={{ backgroundColor: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)' }}>
                 <div className="mb-1 text-xs font-bold" style={{ color: 'var(--danger)' }}>敌人</div>
-                {store.roomInfo.enemies.map((e) => (
-                  <div key={e.id} className="flex items-center justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    <span>{e.name}</span>
-                    <span>HP: {e.hp}/{e.maxHp}</span>
-                  </div>
-                ))}
+                {displayEnemies.map((e) => {
+                  const hpPct = e.maxHp > 0 ? Math.max(0, e.hp) / e.maxHp : 0
+                  return (
+                    <div key={e.id} className="mb-1.5 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)', opacity: e.hp <= 0 ? 0.4 : 1 }}>
+                      <span className="w-20 truncate">{e.name}</span>
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                        <div className="h-full rounded-full transition-all" style={{
+                          width: `${hpPct * 100}%`,
+                          background: hpPct > 0.5 ? '#3FB950' : hpPct > 0.2 ? '#C9A84C' : '#F85149',
+                        }} />
+                      </div>
+                      <span style={{ color: 'var(--text-muted)' }}>{Math.max(0, e.hp)}/{e.maxHp}</span>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -516,7 +496,7 @@ export default function Explore() {
             <div key={i} className="mb-1 text-xs" style={{
               color: log.includes('═══') ? 'var(--accent)'
                 : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
-                  : log.includes('击败') || log.includes('受到') ? 'var(--danger)'
+                  : log.includes('击败') || log.includes('受到') || log.includes('阵亡') ? 'var(--danger)'
                     : log.includes('战斗') || log.includes('遭遇') ? 'var(--warning)'
                       : 'var(--text-secondary)'
             }}>

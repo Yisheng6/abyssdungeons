@@ -107,6 +107,7 @@ interface GameState {
   setRoomInfo: (r: RoomInfo | null) => void
   setDungeonRooms: (r: GameState['dungeonRooms']) => void
   addExploredRoom: (id: number) => void
+  resetExploredRooms: () => void
 
   // Combat
   setInCombat: (v: boolean) => void
@@ -424,6 +425,7 @@ export const useGameStore = create<GameState>()(
       setRoomInfo: (r) => set({ roomInfo: r }),
       setDungeonRooms: (r) => set({ dungeonRooms: r }),
       addExploredRoom: (id) => set((s) => ({ exploredRooms: new Set([...s.exploredRooms, id]) })),
+      resetExploredRooms: () => set({ exploredRooms: new Set() }),
 
       // ─── Combat ───
       setInCombat: (v) => set({ inCombat: v }),
