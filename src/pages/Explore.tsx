@@ -37,7 +37,7 @@ export default function Explore() {
   const [logs, setLogs] = useState<string[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [currentLayer, setCurrentLayer] = useState(1)
-  const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1 })
+  const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
   const isRunningRef = useRef(false)
   const isBattlingRef = useRef(false)
 
@@ -103,11 +103,22 @@ export default function Explore() {
       const roomName = ROOM_TYPE_NAMES[room.type] || room.type
       addLog(`【${roomName}】${room.themeDescription}`)
 
+      let cleared = true
       // 遇敌 → 自动战斗
       if (room.enemies.length > 0) {
         addLog(`遭遇敌人：${room.enemies.map(e => `${e.name}(HP:${e.hp})`).join('、')}`)
         const won = await autoBattle(room.enemies)
-        if (!won) return // 战败，autoBattle 内部已停止探索
+        if (!won) {
+          cleared = false
+          // 战败惩罚：恢复50%状态，继续随机探索
+          setStats((s) => ({ ...s, defeats: s.defeats + 1 }))
+          const gsLose = useGameStore.getState()
+          if (gsLose.player) {
+            gsLose.updatePlayerHp(Math.max(1, Math.floor(gsLose.player.maxHp * 0.5)))
+            gsLose.updatePlayerMp(Math.floor(gsLose.player.maxMp * 0.5))
+          }
+          addLog(`战败！休整后恢复50%状态，继续探索...`)
+        }
       } else if (room.type === 'treasure') {
         addLog(`发现宝箱！获得了一些物品`)
         setStats((s) => ({ ...s, items: s.items + 1 }))
@@ -133,8 +144,8 @@ export default function Explore() {
         setStats((s) => ({ ...s, items: s.items + room.loot.length }))
       }
 
-      // Boss房 → 进入下一层
-      if (room.isExit) {
+      // Boss房 → 只有清场胜利才进入下一层
+      if (room.isExit && cleared) {
         addLog(`═══ 已通过本层，进入第 ${currentLayer + 1} 层 ═══`)
         setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
         return
@@ -265,9 +276,9 @@ export default function Explore() {
     if (!victory) {
       const cur = useGameStore.getState()
       if (cur.player && cur.player.hp <= 0) {
-        addLog(`═══ 探索中止：角色阵亡 ═══`)
+        addLog(`── 战败撤退 ──`)
       }
-      stopExploring()
+      // 不再停止探索，由调用方恢复状态后继续
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,7 +297,7 @@ export default function Explore() {
     isRunningRef.current = true
     gs.setAutoExploring(true)
     setLogs([])
-    setStats({ rooms: 0, kills: 0, items: 0, floor: 1 })
+    setStats({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
     addLog('═══ 自动探索开始 ═══')
     addLog(`角色：${gs.player.name} (Lv.${gs.player.level})`)
     addLog(`HP: ${gs.player.hp}/${gs.player.maxHp} MP: ${gs.player.mp}/${gs.player.maxMp}`)
@@ -424,8 +435,11 @@ export default function Explore() {
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Skull size={12} /> 击杀: {stats.kills}
           </div>
-          <div className="flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
+          <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Coins size={12} /> 物品: {stats.items}
+          </div>
+          <div className="flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
+            <Heart size={12} /> 战败: {stats.defeats}
           </div>
         </div>
 

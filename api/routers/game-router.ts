@@ -133,7 +133,7 @@ export const gameRouter = createRouter({
           itemId: z.string(), name: z.string(), type: z.string(),
           chance: z.number(), quantityMin: z.number(), quantityMax: z.number(),
           quality: z.string(), minLayer: z.number().optional(),
-        })).optional(),
+        })).nullish(),
       })).optional(),
     }))
     .mutation(({ input }) => {

@@ -42055,7 +42055,7 @@ var gameRouter = createRouter({
         quantityMax: external_exports.number(),
         quality: external_exports.string(),
         minLayer: external_exports.number().optional()
-      })).optional()
+      })).nullish()
     })).optional()
   })).mutation(({ input }) => {
     const { logs, player, enemies, ended, victory, fled, drops } = resolveCombat(
