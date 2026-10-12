@@ -47,7 +47,8 @@ export default function Explore() {
   const combatTurnMut = trpc.game.combatTurn.useMutation()
 
   const addLog = useCallback((msg: string) => {
-    setLogs((prev) => [...prev.slice(-99), `[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`])
+    // 最新日志排在最上面，最多保留100条
+    setLogs((prev) => [`[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`, ...prev].slice(0, 100))
   }, [])
 
   // ─── 进入新一层地牢 ───
@@ -110,14 +111,14 @@ export default function Explore() {
         const won = await autoBattle(room.enemies)
         if (!won) {
           cleared = false
-          // 战败惩罚：恢复50%状态，继续随机探索
+          // 战败复活：恢复全部状态，继续随机探索
           setStats((s) => ({ ...s, defeats: s.defeats + 1 }))
           const gsLose = useGameStore.getState()
           if (gsLose.player) {
-            gsLose.updatePlayerHp(Math.max(1, Math.floor(gsLose.player.maxHp * 0.5)))
-            gsLose.updatePlayerMp(Math.floor(gsLose.player.maxMp * 0.5))
+            gsLose.updatePlayerHp(gsLose.player.maxHp)
+            gsLose.updatePlayerMp(gsLose.player.maxMp)
           }
-          addLog(`战败！休整后恢复50%状态，继续探索...`)
+          addLog(`战败！已复活并恢复全部状态，继续探索...`)
         }
       } else if (room.type === 'treasure') {
         addLog(`发现宝箱！获得了一些物品`)
@@ -404,7 +405,7 @@ export default function Explore() {
 
   // 探索中界面
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Left: Player Status */}
       <aside className="hidden w-[240px] flex-shrink-0 border-r p-3 lg:block" style={{ borderColor: 'var(--border-color)' }}>
         <div className="mb-3 rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
@@ -460,9 +461,9 @@ export default function Explore() {
       </aside>
 
       {/* Center: Main Area */}
-      <main className="flex flex-1 flex-col p-4">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
         {store.roomInfo && (
-          <div className="mb-4 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <div className="mb-4 max-h-[45%] flex-shrink-0 overflow-y-auto rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <div className="mb-2 flex items-center gap-2">
               <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: getRoomTypeColor(store.roomInfo.type), color: '#0D1117' }}>
                 {getRoomTypeName(store.roomInfo.type)}
@@ -500,23 +501,25 @@ export default function Explore() {
           </div>
         )}
 
-        {/* 探索日志 */}
-        <div className="flex-1 overflow-auto rounded-lg border p-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>探索日志</span>
+        {/* 探索日志：独立滚动区域，最新在最上面 */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <div className="flex flex-shrink-0 items-center justify-between border-b px-3 py-2" style={{ borderColor: 'var(--border-color)' }}>
+            <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>探索日志（最新在上）</span>
             <button className="text-xs" style={{ color: 'var(--text-muted)' }} onClick={() => setLogs([])}>清空</button>
           </div>
-          {logs.map((log, i) => (
-            <div key={i} className="mb-1 text-xs" style={{
-              color: log.includes('═══') ? 'var(--accent)'
-                : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
-                  : log.includes('击败') || log.includes('受到') || log.includes('阵亡') ? 'var(--danger)'
-                    : log.includes('战斗') || log.includes('遭遇') ? 'var(--warning)'
-                      : 'var(--text-secondary)'
-            }}>
-              {log}
-            </div>
-          ))}
+          <div className="min-h-0 flex-1 overflow-y-auto p-3">
+            {logs.map((log, i) => (
+              <div key={logs.length - i} className="mb-1 text-xs" style={{
+                color: log.includes('═══') ? 'var(--accent)'
+                  : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
+                    : log.includes('击败') || log.includes('受到') || log.includes('阵亡') || log.includes('战败') ? 'var(--danger)'
+                      : log.includes('战斗') || log.includes('遭遇') ? 'var(--warning)'
+                        : 'var(--text-secondary)'
+              }}>
+                {log}
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 
