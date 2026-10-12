@@ -39,12 +39,12 @@ export const gameRouter = createRouter({
   generateDungeon: publicQuery
     .input(z.object({
       globalSeed: z.string().default("default"),
-      layer: z.number().min(1).max(100),
+      layer: z.number().min(1).max(999999),
       x: z.number().default(0),
       y: z.number().default(0),
     }))
     .mutation(({ input }) => {
-      const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
+      const dungeon = generateDungeon({ globalSeed: input.globalSeed, layer: input.layer, x: input.x, y: input.y });
       return {
         seed: dungeon.seed,
         layer: dungeon.layer,
@@ -61,7 +61,7 @@ export const gameRouter = createRouter({
           hasEnemies: !!r.enemies?.length,
           hasLoot: !!r.loot?.length,
         })),
-        entranceRoomId: dungeon.entranceRoomId,
+        entranceRoomId: dungeon.entranceId,
         bossRoomId: dungeon.bossRoomId,
       };
     }),
@@ -75,7 +75,7 @@ export const gameRouter = createRouter({
       roomId: z.number(),
     }))
     .mutation(({ input }) => {
-      const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
+      const dungeon = generateDungeon({ globalSeed: input.globalSeed, layer: input.layer, x: input.x, y: input.y });
       const room = dungeon.rooms.find((r) => r.id === input.roomId);
       if (!room) return null;
 
@@ -88,6 +88,7 @@ export const gameRouter = createRouter({
         mp: e.mp, maxMp: e.maxMp, atk: e.atk, def: e.def,
         mag: e.mag, mdef: e.mdef, agi: e.agi, luk: e.luk,
         skills: e.skills, element: e.element, aiType: e.aiType,
+        dropTable: e.dropTable,
       }));
 
       return {

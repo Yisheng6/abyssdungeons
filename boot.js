@@ -41934,11 +41934,11 @@ var gameRouter = createRouter({
   // ─── Dungeon APIs ───
   generateDungeon: publicQuery.input(external_exports.object({
     globalSeed: external_exports.string().default("default"),
-    layer: external_exports.number().min(1).max(100),
+    layer: external_exports.number().min(1).max(999999),
     x: external_exports.number().default(0),
     y: external_exports.number().default(0)
   })).mutation(({ input }) => {
-    const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
+    const dungeon = generateDungeon({ globalSeed: input.globalSeed, layer: input.layer, x: input.x, y: input.y });
     return {
       seed: dungeon.seed,
       layer: dungeon.layer,
@@ -41955,7 +41955,7 @@ var gameRouter = createRouter({
         hasEnemies: !!r.enemies?.length,
         hasLoot: !!r.loot?.length
       })),
-      entranceRoomId: dungeon.entranceRoomId,
+      entranceRoomId: dungeon.entranceId,
       bossRoomId: dungeon.bossRoomId
     };
   }),
@@ -41966,7 +41966,7 @@ var gameRouter = createRouter({
     y: external_exports.number(),
     roomId: external_exports.number()
   })).mutation(({ input }) => {
-    const dungeon = generateDungeon(input.globalSeed, input.layer, input.x, input.y);
+    const dungeon = generateDungeon({ globalSeed: input.globalSeed, layer: input.layer, x: input.x, y: input.y });
     const room = dungeon.rooms.find((r) => r.id === input.roomId);
     if (!room) return null;
     const theme = getThemeByLayer(input.layer);
@@ -41986,7 +41986,8 @@ var gameRouter = createRouter({
       luk: e.luk,
       skills: e.skills,
       element: e.element,
-      aiType: e.aiType
+      aiType: e.aiType,
+      dropTable: e.dropTable
     }));
     return {
       roomId: room.id,
