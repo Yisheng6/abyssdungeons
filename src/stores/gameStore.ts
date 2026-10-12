@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { computeSetBonuses, getSkillInfo, getItemInfo } from '@/lib/catalog'
 
 // ─── Types ───
 
@@ -11,10 +12,13 @@ export interface Player {
 }
 
 export interface Item {
-  uid: string; id: string; name: string; type: 'equipment' | 'consumable'
+  uid: string; id: string; name: string
+  type: 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
   slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring'
   quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
   quantity: number; desc: string; stats?: Record<string, number>
+  setId?: string; setTier?: number; value?: number
+  effect?: Record<string, unknown>; learnSkillId?: string
 }
 
 export interface Equipment {
@@ -40,7 +44,11 @@ interface RoomInfo {
   roomId: number; type: string; themeName: string; themeDescription: string
   directions: Array<{ direction: string; roomId: number }>
   enemies: Array<{ id: string; name: string; hp: number; maxHp: number }>
-  loot: Array<{ itemId: string; quality?: string; quantity: number }>
+  loot: Array<{
+    itemId: string; name?: string; type?: string; quality?: string; quantity: number
+    slot?: Item['slot']; stats?: Record<string, number>; desc?: string; value?: number
+    setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string
+  }>
   isEntrance: boolean; isExit: boolean
 }
 
@@ -101,6 +109,11 @@ interface GameState {
   addItem: (item: Item) => void
   removeItem: (itemUid: string) => void
 
+  // Skills & item usage
+  learnSkill: (skillId: string) => { success: boolean; message: string }
+  learnSkillFromBook: (itemUid: string) => { success: boolean; message: string }
+  useConsumable: (itemUid: string) => { success: boolean; message: string }
+
   // Dungeon
   setCurrentDungeon: (d: GameState['currentDungeon']) => void
   setCurrentRoomId: (id: number) => void
@@ -147,6 +160,43 @@ const DEFAULT_CLASS_STATS: Record<string, Record<string, number>> = {
 
 const STORAGE_KEY = 'abyss-game-save'
 
+// ─── 初始技能：每个职业创建/切换时自动学会前两个职业技能 ───
+const STARTER_SKILLS: Record<string, string[]> = {
+  warrior: ['shield_bash', 'heavy_strike'],
+  mage: ['fireball', 'frostbolt'],
+  assassin: ['shadow_step', 'backstab'],
+  ranger: ['aimed_shot', 'multishot'],
+  priest: ['heal', 'holy_light'],
+  warlock: ['corruption', 'life_drain'],
+}
+
+/** 套装加成：计算装备套装带来的属性增减（需目录已加载，否则返回空） */
+function setBonusDelta(oldEquip: Equipment, newEquip: Equipment): Record<string, number> {
+  const oldB = computeSetBonuses(Object.values(oldEquip))
+  const newB = computeSetBonuses(Object.values(newEquip))
+  const delta: Record<string, number> = {}
+  for (const k of new Set([...Object.keys(oldB), ...Object.keys(newB)])) {
+    const d = (newB[k] || 0) - (oldB[k] || 0)
+    if (d !== 0) delta[k] = d
+  }
+  return delta
+}
+
+/** 把玩家属性调整应用到 player 和 classSaves */
+function applyStatDelta(p: Player, delta: Record<string, number>): Player {
+  const np = { ...p }
+  for (const [stat, val] of Object.entries(delta)) {
+    if (stat === 'hp' || stat === 'maxHp') {
+      np.maxHp += val; np.hp = Math.min(np.maxHp, np.hp + Math.max(0, val))
+    } else if (stat === 'mp' || stat === 'maxMp') {
+      np.maxMp += val; np.mp = Math.min(np.maxMp, np.mp + Math.max(0, val))
+    } else if (stat in np) {
+      (np as unknown as Record<string, number>)[stat] += val
+    }
+  }
+  return np
+}
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
@@ -180,7 +230,7 @@ export const useGameStore = create<GameState>()(
           atk: stats.atk || 10, def: stats.def || 10,
           mag: stats.mag || 10, mdef: stats.mdef || 8,
           agi: stats.agi || 10, luk: stats.luk || 5,
-          skills: [], element: 'none', exp: 0, gold: 0,
+          skills: [...(STARTER_SKILLS[classId] || [])], element: 'none', exp: 0, gold: 0,
         }
 
         const classSave: ClassSave = { player: newPlayer, equipment: { ...defaultEquipment } }
@@ -245,7 +295,7 @@ export const useGameStore = create<GameState>()(
               atk: stats.atk || 10, def: stats.def || 10,
               mag: stats.mag || 10, mdef: stats.mdef || 8,
               agi: stats.agi || 10, luk: stats.luk || 5,
-              skills: [], element: 'none', exp: 0, gold: 0,
+              skills: [...(STARTER_SKILLS[targetClassId] || [])], element: 'none', exp: 0, gold: 0,
             },
             equipment: { ...defaultEquipment },
           }
@@ -339,7 +389,7 @@ export const useGameStore = create<GameState>()(
 
         const newEquip = { ...s.equipment, [slot]: item }
 
-        // Apply stat bonuses
+        // Apply stat bonuses (item stats + set bonus delta)
         let newPlayer = s.player ? { ...s.player } : null
         if (newPlayer && item.stats) {
           for (const [stat, val] of Object.entries(item.stats)) {
@@ -351,6 +401,11 @@ export const useGameStore = create<GameState>()(
           for (const [stat, val] of Object.entries(oldEquip.stats)) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
+        }
+        // Set bonus delta (hp/mp 走 maxHp/maxMp 通道)
+        if (newPlayer) {
+          const delta = setBonusDelta(s.equipment, newEquip)
+          newPlayer = applyStatDelta(newPlayer, delta)
         }
 
         // Sync to classSave
@@ -376,6 +431,11 @@ export const useGameStore = create<GameState>()(
           for (const [stat, val] of Object.entries(item.stats)) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
+        }
+        // Set bonus delta
+        if (newPlayer) {
+          const delta = setBonusDelta(s.equipment, newEquip)
+          newPlayer = applyStatDelta(newPlayer, delta)
         }
 
         const ns = { ...s.classSaves }
@@ -403,20 +463,104 @@ export const useGameStore = create<GameState>()(
       // ─── Shared Inventory ───
       addItem: (item) => {
         const s = get()
-        const existing = s.inventory.find((i) => i.id === item.id && i.type === 'consumable')
-        if (existing && item.type === 'consumable') {
-          set({
-            inventory: s.inventory.map((i) =>
-              i.uid === existing.uid ? { ...i, quantity: i.quantity + item.quantity } : i
-            )
-          })
-        } else {
-          set({ inventory: [...s.inventory, { ...item, uid: item.uid || `i_${Date.now()}_${Math.random().toString(36).slice(2)}` }] })
+        // 非装备类按 id 堆叠
+        if (item.type !== 'equipment') {
+          const existing = s.inventory.find((i) => i.id === item.id && i.type !== 'equipment')
+          if (existing) {
+            set({
+              inventory: s.inventory.map((i) =>
+                i.uid === existing.uid ? { ...i, quantity: i.quantity + item.quantity } : i
+              )
+            })
+            return
+          }
         }
+        set({ inventory: [...s.inventory, { ...item, uid: item.uid || `i_${Date.now()}_${Math.random().toString(36).slice(2)}` }] })
       },
 
       removeItem: (itemUid) => {
         set({ inventory: get().inventory.filter((i) => i.uid !== itemUid) })
+      },
+
+      // ─── 技能学习 ───
+      learnSkill: (skillId) => {
+        const s = get()
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        const skill = getSkillInfo(skillId)
+        if (!skill) return { success: false, message: '技能不存在（目录未加载）' }
+        if (skill.classId !== p.classId) return { success: false, message: '职业不符，无法学习' }
+        if (p.skills.includes(skillId)) return { success: false, message: '已掌握该技能' }
+        const reqLevel = skill.learnLevel || 1
+        if (p.level < reqLevel) return { success: false, message: `需要等级 ${reqLevel}` }
+        const cost = skill.learnCost || 0
+        if (p.gold < cost) return { success: false, message: `金币不足（需要 ${cost}）` }
+
+        const np = { ...p, skills: [...p.skills, skillId], gold: p.gold - cost }
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({ player: np, classSaves: ns })
+        return { success: true, message: `学会了【${skill.name}】！` }
+      },
+
+      learnSkillFromBook: (itemUid) => {
+        const s = get()
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        const item = s.inventory.find((i) => i.uid === itemUid)
+        if (!item || item.type !== 'skillbook' || !item.learnSkillId) {
+          return { success: false, message: '该物品无法学习' }
+        }
+        const skill = getSkillInfo(item.learnSkillId)
+        if (!skill) return { success: false, message: '技能不存在（目录未加载）' }
+        if (skill.classId !== p.classId) return { success: false, message: `职业不符，需要【${skill.classId}】职业` }
+        if (p.skills.includes(item.learnSkillId)) return { success: false, message: '已掌握该技能' }
+
+        const np = { ...p, skills: [...p.skills, item.learnSkillId] }
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        // 消耗技能书
+        const newInv = s.inventory
+          .map((i) => (i.uid === itemUid ? { ...i, quantity: i.quantity - 1 } : i))
+          .filter((i) => i.quantity > 0)
+        set({ player: np, classSaves: ns, inventory: newInv })
+        return { success: true, message: `学会了【${skill.name}】！` }
+      },
+
+      // ─── 使用消耗品 ───
+      useConsumable: (itemUid) => {
+        const s = get()
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        const item = s.inventory.find((i) => i.uid === itemUid)
+        if (!item || item.type !== 'consumable') return { success: false, message: '该物品无法使用' }
+        const effect = item.effect || getItemInfo(item.id)?.effect
+        if (!effect) return { success: false, message: '该物品无法在背包中使用' }
+
+        let msg = ''
+        if (typeof effect.heal === 'number') {
+          const before = p.hp
+          const np = { ...p, hp: Math.min(p.maxHp, p.hp + (effect.heal as number)) }
+          const ns = { ...s.classSaves }
+          if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+          set({ player: np, classSaves: ns })
+          msg = `恢复了 ${np.hp - before} 点生命`
+        } else if (typeof effect.restoreMp === 'number') {
+          const before = p.mp
+          const np = { ...p, mp: Math.min(p.maxMp, p.mp + (effect.restoreMp as number)) }
+          const ns = { ...s.classSaves }
+          if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+          set({ player: np, classSaves: ns })
+          msg = `恢复了 ${np.mp - before} 点法力`
+        } else {
+          return { success: false, message: '该物品需要在战斗中使用' }
+        }
+
+        const newInv = get().inventory
+          .map((i) => (i.uid === itemUid ? { ...i, quantity: i.quantity - 1 } : i))
+          .filter((i) => i.quantity > 0)
+        set({ inventory: newInv })
+        return { success: true, message: msg }
       },
 
       // ─── Dungeon ───
@@ -466,6 +610,14 @@ export const useGameStore = create<GameState>()(
           state.combatVictory = false
           state.isAutoExploring = false
           state.autoExploreLogs = []
+          // 旧存档迁移：没有技能的角色补发初始技能
+          const fixSkills = (p: Player | null | undefined) => {
+            if (p && p.skills.length === 0 && STARTER_SKILLS[p.classId]) {
+              p.skills = [...STARTER_SKILLS[p.classId]]
+            }
+          }
+          fixSkills(state.player)
+          Object.values(state.classSaves || {}).forEach((cs) => fixSkills(cs?.player))
         }
       },
     }

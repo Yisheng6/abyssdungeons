@@ -1,41 +1,835 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "skills": [
-    { "id": "shield_bash", "name": "盾击", "classId": "warrior", "type": "active", "element": "none", "mpCost": 8, "cooldown": 2, "description": "用盾牌猛击敌人，造成 ATK*1.5 伤害并有 30% 概率眩晕 1 回合", "effect": { "damage": "atk*1.5", "stunChance": 0.3, "stunDuration": 1 } },
-    { "id": "taunt", "name": "嘲讽", "classId": "warrior", "type": "active", "element": "none", "mpCost": 5, "cooldown": 3, "description": "强制敌人下回合攻击自己，自身 DEF+5 持续 2 回合", "effect": { "taunt": true, "defBuff": 5, "buffDuration": 2 } },
-    { "id": "heavy_strike", "name": "重击", "classId": "warrior", "type": "active", "element": "none", "mpCost": 12, "cooldown": 2, "description": "全力一击，造成 ATK*2.2 伤害", "effect": { "damage": "atk*2.2" } },
-    { "id": "iron_will", "name": "钢铁意志", "classId": "warrior", "type": "passive", "element": "none", "mpCost": 0, "cooldown": 0, "description": "被动：DEF+3，受到暴击伤害减少 20%", "effect": { "defBonus": 3, "critReduction": 0.2 } },
-    { "id": "whirlwind", "name": "旋风斩", "classId": "warrior", "type": "active", "element": "none", "mpCost": 20, "cooldown": 4, "description": "旋转攻击所有敌人，造成 ATK*1.2 伤害", "effect": { "aoe": true, "damage": "atk*1.2" } },
-    { "id": "last_stand", "name": "最后防线", "classId": "warrior", "type": "ultimate", "element": "none", "mpCost": 30, "cooldown": 8, "description": "HP 低于 30% 时可使用，恢复 30% HP，DEF*2 持续 3 回合", "effect": { "healPercent": 0.3, "defMultiplier": 2, "buffDuration": 3, "hpThreshold": 0.3 } },
-    { "id": "fireball", "name": "火球术", "classId": "mage", "type": "active", "element": "fire", "mpCost": 10, "cooldown": 1, "description": "发射火球，造成 MAG*1.8 火焰伤害", "effect": { "damage": "mag*1.8", "element": "fire" } },
-    { "id": "frostbolt", "name": "寒冰箭", "classId": "mage", "type": "active", "element": "water", "mpCost": 12, "cooldown": 2, "description": "造成 MAG*1.5 冰霜伤害，50% 概率冻结 1 回合", "effect": { "damage": "mag*1.5", "element": "water", "freezeChance": 0.5, "freezeDuration": 1 } },
-    { "id": "lightning", "name": "闪电链", "classId": "mage", "type": "active", "element": "wind", "mpCost": 18, "cooldown": 3, "description": "闪电弹跳最多 3 个敌人，每次造成 MAG*1.3 伤害", "effect": { "damage": "mag*1.3", "element": "wind", "bounceCount": 3 } },
-    { "id": "mana_shield", "name": "魔法护盾", "classId": "mage", "type": "active", "element": "none", "mpCost": 15, "cooldown": 4, "description": "消耗 MP 创建吸收 MAG 点伤害的护盾，持续 3 回合", "effect": { "shield": "mag", "duration": 3 } },
-    { "id": "meteor", "name": "陨石术", "classId": "mage", "type": "active", "element": "fire", "mpCost": 35, "cooldown": 5, "description": "召唤陨石轰击所有敌人，造成 MAG*2.5 火焰伤害", "effect": { "aoe": true, "damage": "mag*2.5", "element": "fire" } },
-    { "id": "arcane_power", "name": "奥术之力", "classId": "mage", "type": "ultimate", "element": "none", "mpCost": 50, "cooldown": 10, "description": "MAG*1.5 持续 4 回合，所有技能冷却 -1", "effect": { "magMultiplier": 1.5, "buffDuration": 4, "cooldownReduction": 1 } },
-    { "id": "shadow_step", "name": "暗影步", "classId": "assassin", "type": "active", "element": "dark", "mpCost": 8, "cooldown": 3, "description": "瞬移到敌人身后，下回合必定先手且暴击率+30%", "effect": { "guaranteeFirst": true, "critChanceBuff": 0.3, "buffDuration": 1 } },
-    { "id": "backstab", "name": "背刺", "classId": "assassin", "type": "active", "element": "dark", "mpCost": 12, "cooldown": 2, "description": "从背后攻击，造成 ATK*2.5 伤害，暴击伤害 200%", "effect": { "damage": "atk*2.5", "critDamage": 2.0 } },
-    { "id": "poison_blade", "name": "毒刃", "classId": "assassin", "type": "active", "element": "none", "mpCost": 10, "cooldown": 2, "description": "涂毒攻击，造成 ATK*1.2 伤害并使敌人中毒 3 回合", "effect": { "damage": "atk*1.2", "poisonDuration": 3, "poisonDamage": "atk*0.3" } },
-    { "id": "smoke_bomb", "name": "烟雾弹", "classId": "assassin", "type": "active", "element": "none", "mpCost": 15, "cooldown": 4, "description": "释放烟雾，闪避率+50% 持续 2 回合", "effect": { "dodgeBuff": 0.5, "buffDuration": 2 } },
-    { "id": "assassinate", "name": "暗杀", "classId": "assassin", "type": "ultimate", "element": "dark", "mpCost": 40, "cooldown": 8, "description": "对 HP 低于 30% 的敌人造成 ATK*5 伤害，无视防御", "effect": { "damage": "atk*5", "ignoreDef": true, "hpThreshold": 0.3 } },
-    { "id": "shadow_dance", "name": "影舞", "classId": "assassin", "type": "passive", "element": "dark", "mpCost": 0, "cooldown": 0, "description": "被动：暴击后恢复 10% MP", "effect": { "mpRegenOnCrit": 0.1 } },
-    { "id": "aimed_shot", "name": "瞄准射击", "classId": "ranger", "type": "active", "element": "none", "mpCost": 8, "cooldown": 1, "description": "精准射击，造成 ATK*2.0 伤害，无视 50% 防御", "effect": { "damage": "atk*2.0", "defPenetration": 0.5 } },
-    { "id": "trap", "name": "陷阱", "classId": "ranger", "type": "active", "element": "none", "mpCost": 10, "cooldown": 3, "description": "放置陷阱，下回合敌人进入时受到 ATK*1.5 伤害并定身", "effect": { "trapDamage": "atk*1.5", "root": true } },
-    { "id": "multishot", "name": "多重射击", "classId": "ranger", "type": "active", "element": "none", "mpCost": 20, "cooldown": 3, "description": "同时攻击所有敌人，造成 ATK*1.3 伤害", "effect": { "aoe": true, "damage": "atk*1.3" } },
-    { "id": "poison_arrow", "name": "毒箭", "classId": "ranger", "type": "active", "element": "none", "mpCost": 12, "cooldown": 2, "description": "射出毒箭，造成 ATK*1.2 伤害并使敌人中毒 4 回合", "effect": { "damage": "atk*1.2", "poisonDuration": 4, "poisonDamage": "atk*0.2" } },
-    { "id": "stampede", "name": "兽群奔腾", "classId": "ranger", "type": "ultimate", "element": "none", "mpCost": 35, "cooldown": 6, "description": "召唤野兽冲击所有敌人，造成 ATK*2.0 伤害并眩晕 1 回合", "effect": { "aoe": true, "damage": "atk*2.0", "stunDuration": 1 } },
-    { "id": "eagle_eye", "name": "鹰眼", "classId": "ranger", "type": "passive", "element": "none", "mpCost": 0, "cooldown": 0, "description": "被动：命中率+20%，暴击率+5%", "effect": { "hitBonus": 0.2, "critBonus": 0.05 } },
-    { "id": "heal", "name": "治疗术", "classId": "priest", "type": "active", "element": "light", "mpCost": 10, "cooldown": 1, "description": "恢复目标 MAG*2 HP", "effect": { "heal": "mag*2" } },
-    { "id": "holy_light", "name": "圣光", "classId": "priest", "type": "active", "element": "light", "mpCost": 15, "cooldown": 2, "description": "造成 MAG*1.5 光明伤害，对亡灵敌人伤害*2", "effect": { "damage": "mag*1.5", "element": "light", "undeadBonus": 2.0 } },
-    { "id": "bless", "name": "祝福", "classId": "priest", "type": "active", "element": "light", "mpCost": 12, "cooldown": 3, "description": "全队 ATK+3 DEF+3 持续 3 回合", "effect": { "atkBuff": 3, "defBuff": 3, "buffDuration": 3, "aoe": true } },
-    { "id": "dispel", "name": "驱散", "classId": "priest", "type": "active", "element": "light", "mpCost": 8, "cooldown": 2, "description": "移除目标一个负面状态", "effect": { "dispel": true } },
-    { "id": "resurrection", "name": "复活术", "classId": "priest", "type": "ultimate", "element": "light", "mpCost": 60, "cooldown": 10, "description": "复活一个倒下的队友并恢复 30% HP", "effect": { "revive": true, "healPercent": 0.3 } },
-    { "id": "divine_shield", "name": "神圣护盾", "classId": "priest", "type": "passive", "element": "light", "mpCost": 0, "cooldown": 0, "description": "被动：队友受到致命伤害时 20% 概率保留 1 HP", "effect": { "cheatDeathChance": 0.2 } },
-    { "id": "corruption", "name": "腐蚀术", "classId": "warlock", "type": "active", "element": "dark", "mpCost": 8, "cooldown": 1, "description": "使敌人腐蚀 4 回合，每回合造成 MAG*0.8 伤害", "effect": { "dotDuration": 4, "dotDamage": "mag*0.8", "element": "dark" } },
-    { "id": "summon_imp", "name": "召唤小鬼", "classId": "warlock", "type": "active", "element": "dark", "mpCost": 20, "cooldown": 5, "description": "召唤小鬼协助战斗，持续 3 回合", "effect": { "summon": "imp", "duration": 3 } },
-    { "id": "life_drain", "name": "生命吸取", "classId": "warlock", "type": "active", "element": "dark", "mpCost": 15, "cooldown": 2, "description": "造成 MAG*1.5 伤害并恢复等量 HP", "effect": { "damage": "mag*1.5", "lifesteal": 1.0, "element": "dark" } },
-    { "id": "curse", "name": "诅咒", "classId": "warlock", "type": "active", "element": "dark", "mpCost": 12, "cooldown": 3, "description": "诅咒敌人，ATK-3 DEF-3 持续 3 回合", "effect": { "atkDebuff": 3, "defDebuff": 3, "debuffDuration": 3 } },
-    { "id": "demon_form", "name": "恶魔形态", "classId": "warlock", "type": "ultimate", "element": "dark", "mpCost": 45, "cooldown": 8, "description": "变身为恶魔，MAG*2 持续 3 回合", "effect": { "magMultiplier": 2, "buffDuration": 3 } },
-    { "id": "soul_harvest", "name": "灵魂收割", "classId": "warlock", "type": "passive", "element": "dark", "mpCost": 0, "cooldown": 0, "description": "被动：击败敌人时恢复 10% MP", "effect": { "mpRegenOnKill": 0.1 } }
+    {
+      "id": "shield_bash",
+      "name": "盾击",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 8,
+      "cooldown": 2,
+      "description": "用盾牌猛击敌人，造成 ATK*1.5 伤害并有 30% 概率眩晕 1 回合",
+      "effect": {
+        "damage": "atk*1.5",
+        "stunChance": 0.3,
+        "stunDuration": 1
+      }
+    },
+    {
+      "id": "taunt",
+      "name": "嘲讽",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 5,
+      "cooldown": 3,
+      "description": "强制敌人下回合攻击自己，自身 DEF+5 持续 2 回合",
+      "effect": {
+        "taunt": true,
+        "defBuff": 5,
+        "buffDuration": 2
+      }
+    },
+    {
+      "id": "heavy_strike",
+      "name": "重击",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 12,
+      "cooldown": 2,
+      "description": "全力一击，造成 ATK*2.2 伤害",
+      "effect": {
+        "damage": "atk*2.2"
+      }
+    },
+    {
+      "id": "iron_will",
+      "name": "钢铁意志",
+      "classId": "warrior",
+      "type": "passive",
+      "element": "none",
+      "mpCost": 0,
+      "cooldown": 0,
+      "description": "被动：DEF+3，受到暴击伤害减少 20%",
+      "effect": {
+        "defBonus": 3,
+        "critReduction": 0.2
+      }
+    },
+    {
+      "id": "whirlwind",
+      "name": "旋风斩",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 20,
+      "cooldown": 4,
+      "description": "旋转攻击所有敌人，造成 ATK*1.2 伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "atk*1.2"
+      }
+    },
+    {
+      "id": "last_stand",
+      "name": "最后防线",
+      "classId": "warrior",
+      "type": "ultimate",
+      "element": "none",
+      "mpCost": 30,
+      "cooldown": 8,
+      "description": "HP 低于 30% 时可使用，恢复 30% HP，DEF*2 持续 3 回合",
+      "effect": {
+        "healPercent": 0.3,
+        "defMultiplier": 2,
+        "buffDuration": 3,
+        "hpThreshold": 0.3
+      }
+    },
+    {
+      "id": "fireball",
+      "name": "火球术",
+      "classId": "mage",
+      "type": "active",
+      "element": "fire",
+      "mpCost": 10,
+      "cooldown": 1,
+      "description": "发射火球，造成 MAG*1.8 火焰伤害",
+      "effect": {
+        "damage": "mag*1.8",
+        "element": "fire"
+      }
+    },
+    {
+      "id": "frostbolt",
+      "name": "寒冰箭",
+      "classId": "mage",
+      "type": "active",
+      "element": "water",
+      "mpCost": 12,
+      "cooldown": 2,
+      "description": "造成 MAG*1.5 冰霜伤害，50% 概率冻结 1 回合",
+      "effect": {
+        "damage": "mag*1.5",
+        "element": "water",
+        "freezeChance": 0.5,
+        "freezeDuration": 1
+      }
+    },
+    {
+      "id": "lightning",
+      "name": "闪电链",
+      "classId": "mage",
+      "type": "active",
+      "element": "wind",
+      "mpCost": 18,
+      "cooldown": 3,
+      "description": "闪电弹跳最多 3 个敌人，每次造成 MAG*1.3 伤害",
+      "effect": {
+        "damage": "mag*1.3",
+        "element": "wind",
+        "bounceCount": 3
+      }
+    },
+    {
+      "id": "mana_shield",
+      "name": "魔法护盾",
+      "classId": "mage",
+      "type": "active",
+      "element": "none",
+      "mpCost": 15,
+      "cooldown": 4,
+      "description": "消耗 MP 创建吸收 MAG 点伤害的护盾，持续 3 回合",
+      "effect": {
+        "shield": "mag",
+        "duration": 3
+      }
+    },
+    {
+      "id": "meteor",
+      "name": "陨石术",
+      "classId": "mage",
+      "type": "active",
+      "element": "fire",
+      "mpCost": 35,
+      "cooldown": 5,
+      "description": "召唤陨石轰击所有敌人，造成 MAG*2.5 火焰伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "mag*2.5",
+        "element": "fire"
+      }
+    },
+    {
+      "id": "arcane_power",
+      "name": "奥术之力",
+      "classId": "mage",
+      "type": "ultimate",
+      "element": "none",
+      "mpCost": 50,
+      "cooldown": 10,
+      "description": "MAG*1.5 持续 4 回合，所有技能冷却 -1",
+      "effect": {
+        "magMultiplier": 1.5,
+        "buffDuration": 4,
+        "cooldownReduction": 1
+      }
+    },
+    {
+      "id": "shadow_step",
+      "name": "暗影步",
+      "classId": "assassin",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 8,
+      "cooldown": 3,
+      "description": "瞬移到敌人身后，下回合必定先手且暴击率+30%",
+      "effect": {
+        "guaranteeFirst": true,
+        "critChanceBuff": 0.3,
+        "buffDuration": 1
+      }
+    },
+    {
+      "id": "backstab",
+      "name": "背刺",
+      "classId": "assassin",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 12,
+      "cooldown": 2,
+      "description": "从背后攻击，造成 ATK*2.5 伤害，暴击伤害 200%",
+      "effect": {
+        "damage": "atk*2.5",
+        "critDamage": 2.0
+      }
+    },
+    {
+      "id": "poison_blade",
+      "name": "毒刃",
+      "classId": "assassin",
+      "type": "active",
+      "element": "none",
+      "mpCost": 10,
+      "cooldown": 2,
+      "description": "涂毒攻击，造成 ATK*1.2 伤害并使敌人中毒 3 回合",
+      "effect": {
+        "damage": "atk*1.2",
+        "poisonDuration": 3,
+        "poisonDamage": "atk*0.3"
+      }
+    },
+    {
+      "id": "smoke_bomb",
+      "name": "烟雾弹",
+      "classId": "assassin",
+      "type": "active",
+      "element": "none",
+      "mpCost": 15,
+      "cooldown": 4,
+      "description": "释放烟雾，闪避率+50% 持续 2 回合",
+      "effect": {
+        "dodgeBuff": 0.5,
+        "buffDuration": 2
+      }
+    },
+    {
+      "id": "assassinate",
+      "name": "暗杀",
+      "classId": "assassin",
+      "type": "ultimate",
+      "element": "dark",
+      "mpCost": 40,
+      "cooldown": 8,
+      "description": "对 HP 低于 30% 的敌人造成 ATK*5 伤害，无视防御",
+      "effect": {
+        "damage": "atk*5",
+        "ignoreDef": true,
+        "hpThreshold": 0.3
+      }
+    },
+    {
+      "id": "shadow_dance",
+      "name": "影舞",
+      "classId": "assassin",
+      "type": "passive",
+      "element": "dark",
+      "mpCost": 0,
+      "cooldown": 0,
+      "description": "被动：暴击后恢复 10% MP",
+      "effect": {
+        "mpRegenOnCrit": 0.1
+      }
+    },
+    {
+      "id": "aimed_shot",
+      "name": "瞄准射击",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 8,
+      "cooldown": 1,
+      "description": "精准射击，造成 ATK*2.0 伤害，无视 50% 防御",
+      "effect": {
+        "damage": "atk*2.0",
+        "defPenetration": 0.5
+      }
+    },
+    {
+      "id": "trap",
+      "name": "陷阱",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 10,
+      "cooldown": 3,
+      "description": "放置陷阱，下回合敌人进入时受到 ATK*1.5 伤害并定身",
+      "effect": {
+        "trapDamage": "atk*1.5",
+        "root": true
+      }
+    },
+    {
+      "id": "multishot",
+      "name": "多重射击",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 20,
+      "cooldown": 3,
+      "description": "同时攻击所有敌人，造成 ATK*1.3 伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "atk*1.3"
+      }
+    },
+    {
+      "id": "poison_arrow",
+      "name": "毒箭",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 12,
+      "cooldown": 2,
+      "description": "射出毒箭，造成 ATK*1.2 伤害并使敌人中毒 4 回合",
+      "effect": {
+        "damage": "atk*1.2",
+        "poisonDuration": 4,
+        "poisonDamage": "atk*0.2"
+      }
+    },
+    {
+      "id": "stampede",
+      "name": "兽群奔腾",
+      "classId": "ranger",
+      "type": "ultimate",
+      "element": "none",
+      "mpCost": 35,
+      "cooldown": 6,
+      "description": "召唤野兽冲击所有敌人，造成 ATK*2.0 伤害并眩晕 1 回合",
+      "effect": {
+        "aoe": true,
+        "damage": "atk*2.0",
+        "stunDuration": 1
+      }
+    },
+    {
+      "id": "eagle_eye",
+      "name": "鹰眼",
+      "classId": "ranger",
+      "type": "passive",
+      "element": "none",
+      "mpCost": 0,
+      "cooldown": 0,
+      "description": "被动：命中率+20%，暴击率+5%",
+      "effect": {
+        "hitBonus": 0.2,
+        "critBonus": 0.05
+      }
+    },
+    {
+      "id": "heal",
+      "name": "治疗术",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 10,
+      "cooldown": 1,
+      "description": "恢复目标 MAG*2 HP",
+      "effect": {
+        "heal": "mag*2"
+      }
+    },
+    {
+      "id": "holy_light",
+      "name": "圣光",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 15,
+      "cooldown": 2,
+      "description": "造成 MAG*1.5 光明伤害，对亡灵敌人伤害*2",
+      "effect": {
+        "damage": "mag*1.5",
+        "element": "light",
+        "undeadBonus": 2.0
+      }
+    },
+    {
+      "id": "bless",
+      "name": "祝福",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 12,
+      "cooldown": 3,
+      "description": "全队 ATK+3 DEF+3 持续 3 回合",
+      "effect": {
+        "atkBuff": 3,
+        "defBuff": 3,
+        "buffDuration": 3,
+        "aoe": true
+      }
+    },
+    {
+      "id": "dispel",
+      "name": "驱散",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 8,
+      "cooldown": 2,
+      "description": "移除目标一个负面状态",
+      "effect": {
+        "dispel": true
+      }
+    },
+    {
+      "id": "resurrection",
+      "name": "复活术",
+      "classId": "priest",
+      "type": "ultimate",
+      "element": "light",
+      "mpCost": 60,
+      "cooldown": 10,
+      "description": "复活一个倒下的队友并恢复 30% HP",
+      "effect": {
+        "revive": true,
+        "healPercent": 0.3
+      }
+    },
+    {
+      "id": "divine_shield",
+      "name": "神圣护盾",
+      "classId": "priest",
+      "type": "passive",
+      "element": "light",
+      "mpCost": 0,
+      "cooldown": 0,
+      "description": "被动：队友受到致命伤害时 20% 概率保留 1 HP",
+      "effect": {
+        "cheatDeathChance": 0.2
+      }
+    },
+    {
+      "id": "corruption",
+      "name": "腐蚀术",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 8,
+      "cooldown": 1,
+      "description": "使敌人腐蚀 4 回合，每回合造成 MAG*0.8 伤害",
+      "effect": {
+        "dotDuration": 4,
+        "dotDamage": "mag*0.8",
+        "element": "dark"
+      }
+    },
+    {
+      "id": "summon_imp",
+      "name": "召唤小鬼",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 20,
+      "cooldown": 5,
+      "description": "召唤小鬼协助战斗，持续 3 回合",
+      "effect": {
+        "summon": "imp",
+        "duration": 3
+      }
+    },
+    {
+      "id": "life_drain",
+      "name": "生命吸取",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 15,
+      "cooldown": 2,
+      "description": "造成 MAG*1.5 伤害并恢复等量 HP",
+      "effect": {
+        "damage": "mag*1.5",
+        "lifesteal": 1.0,
+        "element": "dark"
+      }
+    },
+    {
+      "id": "curse",
+      "name": "诅咒",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 12,
+      "cooldown": 3,
+      "description": "诅咒敌人，ATK-3 DEF-3 持续 3 回合",
+      "effect": {
+        "atkDebuff": 3,
+        "defDebuff": 3,
+        "debuffDuration": 3
+      }
+    },
+    {
+      "id": "demon_form",
+      "name": "恶魔形态",
+      "classId": "warlock",
+      "type": "ultimate",
+      "element": "dark",
+      "mpCost": 45,
+      "cooldown": 8,
+      "description": "变身为恶魔，MAG*2 持续 3 回合",
+      "effect": {
+        "magMultiplier": 2,
+        "buffDuration": 3
+      }
+    },
+    {
+      "id": "soul_harvest",
+      "name": "灵魂收割",
+      "classId": "warlock",
+      "type": "passive",
+      "element": "dark",
+      "mpCost": 0,
+      "cooldown": 0,
+      "description": "被动：击败敌人时恢复 10% MP",
+      "effect": {
+        "mpRegenOnKill": 0.1
+      }
+    },
+    {
+      "id": "charge",
+      "name": "猛力冲锋",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 14,
+      "cooldown": 3,
+      "description": "冲锋撞击敌人，造成 ATK*1.8 伤害，25% 概率眩晕 1 回合",
+      "effect": {
+        "damage": "atk*1.8",
+        "stunChance": 0.25,
+        "stunDuration": 1
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "war_cry",
+      "name": "战吼",
+      "classId": "warrior",
+      "type": "active",
+      "element": "none",
+      "mpCost": 10,
+      "cooldown": 4,
+      "description": "发出震天战吼，自身 ATK+5 持续 3 回合",
+      "effect": {
+        "atkBuff": 5,
+        "buffDuration": 3
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "earth_splitter",
+      "name": "裂地斩",
+      "classId": "warrior",
+      "type": "active",
+      "element": "earth",
+      "mpCost": 25,
+      "cooldown": 5,
+      "description": "劈裂大地，对所有敌人造成 ATK*1.6 伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "atk*1.6",
+        "element": "earth"
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    },
+    {
+      "id": "flame_storm",
+      "name": "烈焰风暴",
+      "classId": "mage",
+      "type": "active",
+      "element": "fire",
+      "mpCost": 28,
+      "cooldown": 4,
+      "description": "召唤烈焰风暴，对所有敌人造成 MAG*1.6 火焰伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "mag*1.6",
+        "element": "fire"
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "magic_missile",
+      "name": "魔法飞弹",
+      "classId": "mage",
+      "type": "active",
+      "element": "none",
+      "mpCost": 16,
+      "cooldown": 2,
+      "description": "发射奥术飞弹，造成 MAG*2.2 无属性伤害",
+      "effect": {
+        "damage": "mag*2.2"
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "deep_freeze",
+      "name": "冰封术",
+      "classId": "mage",
+      "type": "active",
+      "element": "water",
+      "mpCost": 22,
+      "cooldown": 4,
+      "description": "造成 MAG*1.2 冰霜伤害，70% 概率冻结 2 回合",
+      "effect": {
+        "damage": "mag*1.2",
+        "element": "water",
+        "freezeChance": 0.7,
+        "freezeDuration": 2
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    },
+    {
+      "id": "twin_strike",
+      "name": "连击",
+      "classId": "assassin",
+      "type": "active",
+      "element": "none",
+      "mpCost": 14,
+      "cooldown": 2,
+      "description": "快速攻击两次，每次造成 ATK*1.0 伤害",
+      "effect": {
+        "damage": "atk*1.0",
+        "hits": 2
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "venom_coat",
+      "name": "淬毒",
+      "classId": "assassin",
+      "type": "active",
+      "element": "none",
+      "mpCost": 16,
+      "cooldown": 3,
+      "description": "造成 ATK*1.1 伤害并施加剧毒，每回合 ATK*0.4 持续 4 回合",
+      "effect": {
+        "damage": "atk*1.1",
+        "poisonDuration": 4,
+        "poisonDamage": "atk*0.4"
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "phantom_strike",
+      "name": "鬼影突袭",
+      "classId": "assassin",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 30,
+      "cooldown": 5,
+      "description": "如鬼魅般突袭，造成 ATK*3.2 暗影伤害",
+      "effect": {
+        "damage": "atk*3.2",
+        "element": "dark"
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    },
+    {
+      "id": "piercing_arrow",
+      "name": "穿透箭",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 14,
+      "cooldown": 2,
+      "description": "射出穿透之箭，造成 ATK*2.4 伤害并无视 30% 防御",
+      "effect": {
+        "damage": "atk*2.4",
+        "defPenetration": 0.3
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "nature_mend",
+      "name": "自然治愈",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 18,
+      "cooldown": 4,
+      "description": "汲取自然之力，恢复 ATK*1.5 点生命",
+      "effect": {
+        "heal": "atk*1.5"
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "arrow_rain",
+      "name": "箭雨",
+      "classId": "ranger",
+      "type": "active",
+      "element": "none",
+      "mpCost": 26,
+      "cooldown": 5,
+      "description": "向天空射出箭雨，对所有敌人造成 ATK*1.5 伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "atk*1.5"
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    },
+    {
+      "id": "holy_judgment",
+      "name": "圣光审判",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 20,
+      "cooldown": 3,
+      "description": "降下圣光审判，造成 MAG*2.2 光明伤害",
+      "effect": {
+        "damage": "mag*2.2",
+        "element": "light"
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "mass_heal",
+      "name": "圣疗术",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 30,
+      "cooldown": 5,
+      "description": "强大的治疗神术，恢复 MAG*3 点生命",
+      "effect": {
+        "heal": "mag*3"
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "divine_nova",
+      "name": "神圣新星",
+      "classId": "priest",
+      "type": "active",
+      "element": "light",
+      "mpCost": 28,
+      "cooldown": 4,
+      "description": "释放神圣新星，对所有敌人造成 MAG*1.6 光明伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "mag*1.6",
+        "element": "light"
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    },
+    {
+      "id": "shadow_bolt",
+      "name": "暗影箭",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 14,
+      "cooldown": 1,
+      "description": "发射暗影箭，造成 MAG*1.9 暗影伤害",
+      "effect": {
+        "damage": "mag*1.9",
+        "element": "dark"
+      },
+      "learnable": true,
+      "learnLevel": 5,
+      "learnCost": 500
+    },
+    {
+      "id": "agony_curse",
+      "name": "痛苦诅咒",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 18,
+      "cooldown": 3,
+      "description": "使敌人承受剧痛，每回合 MAG*1.0 伤害持续 3 回合",
+      "effect": {
+        "dotDuration": 3,
+        "dotDamage": "mag*1.0",
+        "element": "dark"
+      },
+      "learnable": true,
+      "learnLevel": 10,
+      "learnCost": 1500
+    },
+    {
+      "id": "demonic_blast",
+      "name": "恶魔冲击",
+      "classId": "warlock",
+      "type": "active",
+      "element": "dark",
+      "mpCost": 32,
+      "cooldown": 5,
+      "description": "释放恶魔之力，对所有敌人造成 MAG*1.8 暗影伤害",
+      "effect": {
+        "aoe": true,
+        "damage": "mag*1.8",
+        "element": "dark"
+      },
+      "learnable": true,
+      "learnLevel": 15,
+      "learnCost": 4000
+    }
   ]
 }

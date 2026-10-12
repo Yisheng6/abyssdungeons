@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
+import { loadCatalogs, getItemInfo, getSkillMpCost } from '@/lib/catalog'
 
 const ROOM_TYPE_NAMES: Record<string, string> = {
   entrance: '入口', normal: '普通房间', elite: '精英房间', boss: 'Boss房间',
@@ -46,10 +47,49 @@ export default function Explore() {
   const enterRoomMut = trpc.game.enterRoom.useMutation()
   const combatTurnMut = trpc.game.combatTurn.useMutation()
 
+  // 加载物品/技能目录（技能MP消耗、掉落解析用）
+  useEffect(() => { loadCatalogs() }, [])
+
   const addLog = useCallback((msg: string) => {
     // 最新日志排在最上面，最多保留100条
     setLogs((prev) => [`[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`, ...prev].slice(0, 100))
   }, [])
+
+  // ─── 拾取战利品（真实物品入包，货币自动兑换金币）───
+  const collectLoot = useCallback((loot: Array<{
+    itemId: string; name?: string; type?: string; quality?: string; quantity: number
+    slot?: string; stats?: Record<string, number>; desc?: string; value?: number
+    setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string
+  }>) => {
+    const gs = useGameStore.getState()
+    for (const l of loot) {
+      const cat = getItemInfo(l.itemId)
+      const type = (l.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
+      const name = l.name || cat?.name || l.itemId
+      if (type === 'currency') {
+        const value = l.value ?? cat?.value ?? 1
+        gs.addPlayerGold(l.quantity * value)
+        addLog(`拾取 ${name}×${l.quantity}（+${l.quantity * value} 金币）`)
+        continue
+      }
+      gs.addItem({
+        uid: `loot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        id: l.itemId, name, type,
+        slot: (l.slot || cat?.slot) as never,
+        quality: (l.quality || cat?.quality || 'common') as never,
+        quantity: l.quantity,
+        desc: l.desc || cat?.desc || name,
+        stats: l.stats || cat?.stats,
+        setId: l.setId || cat?.setId,
+        setTier: l.setTier || cat?.setTier,
+        value: l.value ?? cat?.value,
+        effect: l.effect || cat?.effect,
+        learnSkillId: l.learnSkillId || cat?.learnSkillId,
+      })
+      addLog(`拾取 ${name}×${l.quantity}`)
+    }
+    setStats((s) => ({ ...s, items: s.items + loot.length }))
+  }, [addLog])
 
   // ─── 进入新一层地牢 ───
   const enterNewFloor = useCallback(async (layer: number) => {
@@ -121,8 +161,7 @@ export default function Explore() {
           addLog(`战败！已复活并恢复全部状态，继续探索...`)
         }
       } else if (room.type === 'treasure') {
-        addLog(`发现宝箱！获得了一些物品`)
-        setStats((s) => ({ ...s, items: s.items + 1 }))
+        addLog(`发现宝箱！正在打开...`)
       } else if (room.type === 'trap') {
         const dmg = Math.floor(Math.random() * 20) + 10
         addLog(`触发陷阱！受到 ${dmg} 点伤害`)
@@ -139,10 +178,9 @@ export default function Explore() {
         addLog(`这个房间很平静，没有发现敌人`)
       }
 
-      // 自动拾取
+      // 自动拾取（真实物品）
       if (room.loot && room.loot.length > 0) {
-        addLog(`拾取了 ${room.loot.length} 件物品`)
-        setStats((s) => ({ ...s, items: s.items + room.loot.length }))
+        collectLoot(room.loot)
       }
 
       // Boss房 → 只有清场胜利才进入下一层
@@ -171,7 +209,7 @@ export default function Explore() {
       stopExploring()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, enterRoomMut, currentLayer, enterNewFloor])
+  }, [addLog, enterRoomMut, currentLayer, enterNewFloor, collectLoot])
 
   // ─── 自动战斗（返回是否胜利）───
   const autoBattle = useCallback(async (enemies: any[]): Promise<boolean> => {
@@ -209,7 +247,7 @@ export default function Explore() {
         // 按技能顺序释放：第一个 MP 足够的技能，否则普攻
         let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
         for (const skillId of player.skills || []) {
-          if (player.mp >= (SKILL_MP_COSTS[skillId] ?? 10)) {
+          if (player.mp >= getSkillMpCost(skillId, SKILL_MP_COSTS[skillId] ?? 10)) {
             action = { type: 'skill', skillId }
             break
           }
@@ -247,16 +285,31 @@ export default function Explore() {
           addLog(`── 战斗胜利！──`)
           setStats((s) => ({ ...s, kills: s.kills + 1 }))
           if (result.drops && result.drops.length > 0) {
-            result.drops.forEach((drop) => {
+            for (const drop of result.drops) {
+              const cat = getItemInfo(drop.itemId)
+              const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
+              if (type === 'currency') {
+                after.addPlayerGold(drop.quantity * (cat?.value ?? 1))
+                continue
+              }
               after.addItem({
                 uid: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-                id: drop.itemId, name: drop.name,
-                type: drop.type === 'equipment' ? 'equipment' : 'consumable',
-                quality: drop.quality as any, quantity: drop.quantity,
-                desc: `${drop.name}`,
+                id: drop.itemId, name: drop.name || cat?.name || drop.itemId,
+                type,
+                slot: cat?.slot as never,
+                quality: (drop.quality || cat?.quality || 'common') as never,
+                quantity: drop.quantity,
+                desc: cat?.desc || drop.name,
+                stats: cat?.stats,
+                setId: cat?.setId,
+                setTier: cat?.setTier,
+                value: cat?.value,
+                effect: cat?.effect,
+                learnSkillId: cat?.learnSkillId,
               })
-            })
+            }
             addLog(`获得掉落：${result.drops.map(d => `${d.name}×${d.quantity}`).join('、')}`)
+            setStats((s) => ({ ...s, items: s.items + result.drops.length }))
           }
           break
         }

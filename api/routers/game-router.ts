@@ -5,6 +5,7 @@ import {
   getEnemiesByFamily, getBossByFamily, getRoomTypes,
   getThemeByLayer, getConsumables, getQualities,
   getElementMultiplier, getEnemyById,
+  getItems, getEquipmentSets, getSkills,
 } from "../services/config-service";
 import { generateDungeon, getRoomDirections } from "../services/mapgen-service";
 import { resolveCombat } from "../services/combat-service";
@@ -34,6 +35,22 @@ export const gameRouter = createRouter({
   getRoomTypes: publicQuery.query(() => getRoomTypes()),
 
   getConsumables: publicQuery.query(() => getConsumables()),
+
+  // ─── 目录 API：总物品表 / 套装 / 技能表 ───
+  getItemCatalog: publicQuery.query(() => getItems()),
+
+  getEquipmentSets: publicQuery.query(() => getEquipmentSets()),
+
+  getSkillCatalog: publicQuery.query(() =>
+    getSkills().map((s) => ({
+      id: s.id, name: s.name, classId: s.classId, type: s.type,
+      element: s.element, mpCost: s.mpCost, cooldown: s.cooldown,
+      description: s.description,
+      learnable: !!s.learnable,
+      learnLevel: s.learnLevel ?? null,
+      learnCost: s.learnCost ?? null,
+    }))
+  ),
 
   // ─── Dungeon APIs ───
   generateDungeon: publicQuery

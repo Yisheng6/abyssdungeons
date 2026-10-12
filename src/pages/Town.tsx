@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
+import { loadCatalogs } from '@/lib/catalog'
 
 // 职业中文名映射
 const CLASS_NAMES: Record<string, string> = {
@@ -13,7 +15,7 @@ const STAT_NAMES: Record<string, string> = {
 }
 
 const features = [
-  { icon: Sword, label: '进入地牢', path: '/explore', desc: '选择层级坐标开始探险' },
+  { icon: Sword, label: '进入地牢', path: '/explore', desc: '自动探索 · 无限层数' },
   { icon: User, label: '角色面板', path: '/character', desc: '查看属性和技能' },
   { icon: Backpack, label: '背包', path: '/inventory', desc: '管理装备和道具' },
   { icon: Sparkles, label: '技能树', path: '/character', desc: '升级和学习技能' },
@@ -25,6 +27,9 @@ export default function Town() {
   const navigate = useNavigate()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const player = useGameStore((s) => s.player)
+
+  // 预加载物品/技能目录（套装加成计算等依赖）
+  useEffect(() => { loadCatalogs() }, [])
 
   const logout = () => {
     localStorage.removeItem('ad_token')

@@ -4,6 +4,11 @@ import {
   getBossByFamily,
   getRoomTypes,
   getThemeByLayer,
+  getItems,
+  getItemById,
+  getRoomLootTables,
+  type MasterItem,
+  type RoomLootEntry,
 } from "./config-service";
 
 // ─── Types ───
@@ -37,7 +42,11 @@ export interface DungeonRoom {
       quantityMin: number; quantityMax: number; quality: string; minLayer?: number;
     }>;
   }>;
-  loot?: Array<{ itemId: string; quality?: string; quantity: number }>;
+  loot?: Array<{
+    itemId: string; name: string; type: string; quality: string; quantity: number;
+    slot?: string; stats?: Record<string, number>; desc?: string; value?: number;
+    setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string;
+  }>;
   explored: boolean;
   cleared: boolean;
   isEntrance: boolean;
@@ -298,6 +307,73 @@ function getRoomDistance(
 }
 
 /**
+ * Roll loot for a room from its room-type loot table.
+ * Entry item can be a concrete item id, "equipment:{tier}" (random equipment of that tier),
+ * or "skillbook:any" (random skill book).
+ */
+function rollRoomLoot(roomType: string, layer: number, rng: SeededRNG): DungeonRoom["loot"] {
+  const tables = getRoomLootTables();
+  const table = tables[roomType];
+  if (!table || table.entries.length === 0) return undefined;
+
+  const rollCount = rng.nextInt(table.rolls[0], table.rolls[1]);
+  if (rollCount <= 0) return undefined;
+
+  const available = table.entries.filter((e) => !e.minLayer || layer >= e.minLayer);
+  if (available.length === 0) return undefined;
+
+  const loot: NonNullable<DungeonRoom["loot"]> = [];
+
+  const pickWeighted = (entries: RoomLootEntry[]): RoomLootEntry | undefined => {
+    const total = entries.reduce((s, e) => s + e.weight, 0);
+    if (total <= 0) return undefined;
+    let r = rng.next() * total;
+    for (const e of entries) {
+      r -= e.weight;
+      if (r <= 0) return e;
+    }
+    return entries[entries.length - 1];
+  };
+
+  const resolveToken = (token: string): MasterItem | undefined => {
+    if (token.startsWith("equipment:")) {
+      const tier = Number(token.split(":")[1]);
+      const pool = getItems().filter((i) => i.type === "equipment" && i.setTier === tier);
+      return pool.length > 0 ? rng.pickOne(pool) : undefined;
+    }
+    if (token === "skillbook:any") {
+      const pool = getItems().filter((i) => i.type === "skillbook");
+      return pool.length > 0 ? rng.pickOne(pool) : undefined;
+    }
+    return getItemById(token);
+  };
+
+  for (let i = 0; i < rollCount; i++) {
+    const entry = pickWeighted(available);
+    if (!entry) continue;
+    const item = resolveToken(entry.item);
+    if (!item) continue;
+    loot.push({
+      itemId: item.id,
+      name: item.name,
+      type: item.type,
+      quality: item.quality,
+      quantity: rng.nextInt(entry.qty[0], entry.qty[1]),
+      slot: item.slot,
+      stats: item.stats,
+      desc: item.desc,
+      value: item.value,
+      setId: item.setId,
+      setTier: item.setTier,
+      effect: item.effect,
+      learnSkillId: item.learnSkillId,
+    });
+  }
+
+  return loot.length > 0 ? loot : undefined;
+}
+
+/**
  * Populate rooms with enemies and loot
  */
 function populateRooms(
@@ -345,26 +421,9 @@ function populateRooms(
       }
     }
 
-    // Add loot based on room type
-    if (room.type === "treasure" || room.type === "boss") {
-      const lootCount = room.type === "boss" ? rng.nextInt(2, 4) : 1;
-      room.loot = [];
-      for (let i = 0; i < lootCount; i++) {
-        room.loot.push({
-          itemId: `loot_${family}_${rng.nextInt(1, 5)}`,
-          quality: rng.pickOne(["common", "fine", "rare"]),
-          quantity: rng.nextInt(1, 3),
-        });
-      }
-    } else if (rng.next() < 0.3) {
-      // 30% chance for random loot in normal rooms
-      room.loot = [
-        {
-          itemId: `consumable_${rng.nextInt(1, 3)}`,
-          quantity: rng.nextInt(1, 2),
-        },
-      ];
-    }
+    // Roll loot from room-type loot table (总物品表 + 房间掉落随机表)
+    const loot = rollRoomLoot(room.type, layer, rng);
+    if (loot) room.loot = loot;
   }
 }
 

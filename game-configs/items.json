@@ -1,31 +1,2917 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "itemQualities": [
-    { "id": "common", "name": "普通", "color": "#FFFFFF", "extraStatsMin": 0, "extraStatsMax": 0, "dropWeight": 5000 },
-    { "id": "fine", "name": "精良", "color": "#3FB950", "extraStatsMin": 1, "extraStatsMax": 2, "dropWeight": 3000 },
-    { "id": "rare", "name": "稀有", "color": "#58A6FF", "extraStatsMin": 2, "extraStatsMax": 3, "dropWeight": 1500 },
-    { "id": "epic", "name": "史诗", "color": "#A371F7", "extraStatsMin": 3, "extraStatsMax": 4, "dropWeight": 400 },
-    { "id": "legendary", "name": "传说", "color": "#C9A84C", "extraStatsMin": 4, "extraStatsMax": 5, "dropWeight": 90 },
-    { "id": "mythic", "name": "神话", "color": "#F85149", "extraStatsMin": 5, "extraStatsMax": 6, "dropWeight": 10 }
+    {
+      "id": "common",
+      "name": "普通",
+      "color": "#FFFFFF",
+      "extraStatsMin": 0,
+      "extraStatsMax": 0,
+      "dropWeight": 5000
+    },
+    {
+      "id": "fine",
+      "name": "精良",
+      "color": "#3FB950",
+      "extraStatsMin": 1,
+      "extraStatsMax": 2,
+      "dropWeight": 3000
+    },
+    {
+      "id": "rare",
+      "name": "稀有",
+      "color": "#58A6FF",
+      "extraStatsMin": 2,
+      "extraStatsMax": 3,
+      "dropWeight": 1500
+    },
+    {
+      "id": "epic",
+      "name": "史诗",
+      "color": "#A371F7",
+      "extraStatsMin": 3,
+      "extraStatsMax": 4,
+      "dropWeight": 400
+    },
+    {
+      "id": "legendary",
+      "name": "传说",
+      "color": "#C9A84C",
+      "extraStatsMin": 4,
+      "extraStatsMax": 5,
+      "dropWeight": 90
+    },
+    {
+      "id": "mythic",
+      "name": "神话",
+      "color": "#F85149",
+      "extraStatsMin": 5,
+      "extraStatsMax": 6,
+      "dropWeight": 10
+    }
   ],
-  "itemSlots": ["weapon", "helmet", "armor", "legs", "boots", "necklace", "ring1", "ring2"],
+  "itemSlots": [
+    "weapon",
+    "helmet",
+    "armor",
+    "legs",
+    "boots",
+    "necklace",
+    "ring1",
+    "ring2"
+  ],
   "consumables": [
-    { "id": "hp_potion_small", "name": "小型生命药水", "type": "consumable", "effect": { "heal": 50 }, "target": "self", "stackSize": 99 },
-    { "id": "hp_potion_medium", "name": "中型生命药水", "type": "consumable", "effect": { "heal": 150 }, "target": "self", "stackSize": 99 },
-    { "id": "hp_potion_large", "name": "大型生命药水", "type": "consumable", "effect": { "heal": 400 }, "target": "self", "stackSize": 99 },
-    { "id": "mp_potion_small", "name": "小型法力药水", "type": "consumable", "effect": { "restoreMp": 30 }, "target": "self", "stackSize": 99 },
-    { "id": "mp_potion_medium", "name": "中型法力药水", "type": "consumable", "effect": { "restoreMp": 80 }, "target": "self", "stackSize": 99 },
-    { "id": "scroll_town", "name": "回城卷轴", "type": "consumable", "effect": { "teleport": "town" }, "target": "self", "stackSize": 20 },
-    { "id": "bomb_fire", "name": "火焰炸弹", "type": "consumable", "effect": { "damage": 100, "element": "fire", "aoe": true }, "target": "enemy", "stackSize": 20 }
+    {
+      "id": "hp_potion_small",
+      "name": "小型生命药水",
+      "type": "consumable",
+      "effect": {
+        "heal": 50
+      },
+      "target": "self",
+      "stackSize": 99
+    },
+    {
+      "id": "hp_potion_medium",
+      "name": "中型生命药水",
+      "type": "consumable",
+      "effect": {
+        "heal": 150
+      },
+      "target": "self",
+      "stackSize": 99
+    },
+    {
+      "id": "hp_potion_large",
+      "name": "大型生命药水",
+      "type": "consumable",
+      "effect": {
+        "heal": 400
+      },
+      "target": "self",
+      "stackSize": 99
+    },
+    {
+      "id": "mp_potion_small",
+      "name": "小型法力药水",
+      "type": "consumable",
+      "effect": {
+        "restoreMp": 30
+      },
+      "target": "self",
+      "stackSize": 99
+    },
+    {
+      "id": "mp_potion_medium",
+      "name": "中型法力药水",
+      "type": "consumable",
+      "effect": {
+        "restoreMp": 80
+      },
+      "target": "self",
+      "stackSize": 99
+    },
+    {
+      "id": "scroll_town",
+      "name": "回城卷轴",
+      "type": "consumable",
+      "effect": {
+        "teleport": "town"
+      },
+      "target": "self",
+      "stackSize": 20
+    },
+    {
+      "id": "bomb_fire",
+      "name": "火焰炸弹",
+      "type": "consumable",
+      "effect": {
+        "damage": 100,
+        "element": "fire",
+        "aoe": true
+      },
+      "target": "enemy",
+      "stackSize": 20
+    }
   ],
   "equipmentPrefixes": [
-    { "id": "sharp", "name": "锋利的", "statModifiers": { "atk": 3 }, "qualityMin": "fine" },
-    { "id": "sturdy", "name": "坚固的", "statModifiers": { "def": 3 }, "qualityMin": "fine" },
-    { "id": "mystic", "name": "神秘的", "statModifiers": { "mag": 3 }, "qualityMin": "fine" },
-    { "id": "swift", "name": "迅捷的", "statModifiers": { "agi": 3 }, "qualityMin": "fine" },
-    { "id": "lucky", "name": "幸运的", "statModifiers": { "luk": 3 }, "qualityMin": "rare" },
-    { "id": "vampiric", "name": "吸血的", "specialEffect": "lifesteal_0.05", "qualityMin": "epic" },
-    { "id": "flaming", "name": "燃烧的", "specialEffect": "fire_damage_10", "qualityMin": "epic" },
-    { "id": "divine", "name": "神圣的", "statModifiers": { "atk": 5, "mag": 5, "luk": 5 }, "qualityMin": "legendary" }
+    {
+      "id": "sharp",
+      "name": "锋利的",
+      "statModifiers": {
+        "atk": 3
+      },
+      "qualityMin": "fine"
+    },
+    {
+      "id": "sturdy",
+      "name": "坚固的",
+      "statModifiers": {
+        "def": 3
+      },
+      "qualityMin": "fine"
+    },
+    {
+      "id": "mystic",
+      "name": "神秘的",
+      "statModifiers": {
+        "mag": 3
+      },
+      "qualityMin": "fine"
+    },
+    {
+      "id": "swift",
+      "name": "迅捷的",
+      "statModifiers": {
+        "agi": 3
+      },
+      "qualityMin": "fine"
+    },
+    {
+      "id": "lucky",
+      "name": "幸运的",
+      "statModifiers": {
+        "luk": 3
+      },
+      "qualityMin": "rare"
+    },
+    {
+      "id": "vampiric",
+      "name": "吸血的",
+      "specialEffect": "lifesteal_0.05",
+      "qualityMin": "epic"
+    },
+    {
+      "id": "flaming",
+      "name": "燃烧的",
+      "specialEffect": "fire_damage_10",
+      "qualityMin": "epic"
+    },
+    {
+      "id": "divine",
+      "name": "神圣的",
+      "statModifiers": {
+        "atk": 5,
+        "mag": 5,
+        "luk": 5
+      },
+      "qualityMin": "legendary"
+    }
+  ],
+  "equipmentSets": [
+    {
+      "id": "set_warrior_1",
+      "name": "精铁套装",
+      "classId": "warrior",
+      "tier": 1,
+      "pieces": [
+        "eq_warrior_1_weapon",
+        "eq_warrior_1_helmet",
+        "eq_warrior_1_armor",
+        "eq_warrior_1_leggings",
+        "eq_warrior_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 4,
+            "hp": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_warrior_2",
+      "name": "黑钢套装",
+      "classId": "warrior",
+      "tier": 2,
+      "pieces": [
+        "eq_warrior_2_weapon",
+        "eq_warrior_2_helmet",
+        "eq_warrior_2_armor",
+        "eq_warrior_2_leggings",
+        "eq_warrior_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 10,
+            "hp": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_warrior_3",
+      "name": "龙血套装",
+      "classId": "warrior",
+      "tier": 3,
+      "pieces": [
+        "eq_warrior_3_weapon",
+        "eq_warrior_3_helmet",
+        "eq_warrior_3_armor",
+        "eq_warrior_3_leggings",
+        "eq_warrior_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 20,
+            "hp": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 40,
+            "luk": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_mage_1",
+      "name": "青藤套装",
+      "classId": "mage",
+      "tier": 1,
+      "pieces": [
+        "eq_mage_1_weapon",
+        "eq_mage_1_helmet",
+        "eq_mage_1_armor",
+        "eq_mage_1_leggings",
+        "eq_mage_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 4,
+            "mp": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_mage_2",
+      "name": "星辉套装",
+      "classId": "mage",
+      "tier": 2,
+      "pieces": [
+        "eq_mage_2_weapon",
+        "eq_mage_2_helmet",
+        "eq_mage_2_armor",
+        "eq_mage_2_leggings",
+        "eq_mage_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 10,
+            "mp": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_mage_3",
+      "name": "奥术套装",
+      "classId": "mage",
+      "tier": 3,
+      "pieces": [
+        "eq_mage_3_weapon",
+        "eq_mage_3_helmet",
+        "eq_mage_3_armor",
+        "eq_mage_3_leggings",
+        "eq_mage_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 20,
+            "mp": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 40,
+            "luk": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_assassin_1",
+      "name": "影行套装",
+      "classId": "assassin",
+      "tier": 1,
+      "pieces": [
+        "eq_assassin_1_weapon",
+        "eq_assassin_1_helmet",
+        "eq_assassin_1_armor",
+        "eq_assassin_1_leggings",
+        "eq_assassin_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 4,
+            "agi": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_assassin_2",
+      "name": "夜刃套装",
+      "classId": "assassin",
+      "tier": 2,
+      "pieces": [
+        "eq_assassin_2_weapon",
+        "eq_assassin_2_helmet",
+        "eq_assassin_2_armor",
+        "eq_assassin_2_leggings",
+        "eq_assassin_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 10,
+            "agi": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_assassin_3",
+      "name": "幽冥套装",
+      "classId": "assassin",
+      "tier": 3,
+      "pieces": [
+        "eq_assassin_3_weapon",
+        "eq_assassin_3_helmet",
+        "eq_assassin_3_armor",
+        "eq_assassin_3_leggings",
+        "eq_assassin_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 20,
+            "agi": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 40,
+            "luk": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_ranger_1",
+      "name": "猎手套装",
+      "classId": "ranger",
+      "tier": 1,
+      "pieces": [
+        "eq_ranger_1_weapon",
+        "eq_ranger_1_helmet",
+        "eq_ranger_1_armor",
+        "eq_ranger_1_leggings",
+        "eq_ranger_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 4,
+            "agi": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_ranger_2",
+      "name": "苍鹰套装",
+      "classId": "ranger",
+      "tier": 2,
+      "pieces": [
+        "eq_ranger_2_weapon",
+        "eq_ranger_2_helmet",
+        "eq_ranger_2_armor",
+        "eq_ranger_2_leggings",
+        "eq_ranger_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 10,
+            "agi": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_ranger_3",
+      "name": "风暴套装",
+      "classId": "ranger",
+      "tier": 3,
+      "pieces": [
+        "eq_ranger_3_weapon",
+        "eq_ranger_3_helmet",
+        "eq_ranger_3_armor",
+        "eq_ranger_3_leggings",
+        "eq_ranger_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "atk": 20,
+            "agi": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "atk": 40,
+            "luk": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_priest_1",
+      "name": "圣职套装",
+      "classId": "priest",
+      "tier": 1,
+      "pieces": [
+        "eq_priest_1_weapon",
+        "eq_priest_1_helmet",
+        "eq_priest_1_armor",
+        "eq_priest_1_leggings",
+        "eq_priest_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 4,
+            "hp": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_priest_2",
+      "name": "光明套装",
+      "classId": "priest",
+      "tier": 2,
+      "pieces": [
+        "eq_priest_2_weapon",
+        "eq_priest_2_helmet",
+        "eq_priest_2_armor",
+        "eq_priest_2_leggings",
+        "eq_priest_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 10,
+            "hp": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_priest_3",
+      "name": "审判套装",
+      "classId": "priest",
+      "tier": 3,
+      "pieces": [
+        "eq_priest_3_weapon",
+        "eq_priest_3_helmet",
+        "eq_priest_3_armor",
+        "eq_priest_3_leggings",
+        "eq_priest_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 20,
+            "hp": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 40,
+            "luk": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_warlock_1",
+      "name": "咒术套装",
+      "classId": "warlock",
+      "tier": 1,
+      "pieces": [
+        "eq_warlock_1_weapon",
+        "eq_warlock_1_helmet",
+        "eq_warlock_1_armor",
+        "eq_warlock_1_leggings",
+        "eq_warlock_1_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 4,
+            "mp": 20
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 8,
+            "luk": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_warlock_2",
+      "name": "深渊套装",
+      "classId": "warlock",
+      "tier": 2,
+      "pieces": [
+        "eq_warlock_2_weapon",
+        "eq_warlock_2_helmet",
+        "eq_warlock_2_armor",
+        "eq_warlock_2_leggings",
+        "eq_warlock_2_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 10,
+            "mp": 50
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 20,
+            "luk": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "set_warlock_3",
+      "name": "恶魔套装",
+      "classId": "warlock",
+      "tier": 3,
+      "pieces": [
+        "eq_warlock_3_weapon",
+        "eq_warlock_3_helmet",
+        "eq_warlock_3_armor",
+        "eq_warlock_3_leggings",
+        "eq_warlock_3_boots"
+      ],
+      "bonus": [
+        {
+          "pieces": 2,
+          "stats": {
+            "mag": 20,
+            "mp": 100
+          }
+        },
+        {
+          "pieces": 5,
+          "stats": {
+            "mag": 40,
+            "luk": 15
+          }
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "eq_warrior_1_weapon",
+      "name": "精铁长剑",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warrior",
+      "setId": "set_warrior_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "atk": 10,
+        "def": 3
+      },
+      "desc": "精铁套装部件，战士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warrior_1_helmet",
+      "name": "精铁头盔",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warrior",
+      "setId": "set_warrior_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 4,
+        "hp": 10
+      },
+      "desc": "精铁套装部件，战士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warrior_1_armor",
+      "name": "精铁胸甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warrior",
+      "setId": "set_warrior_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 7,
+        "hp": 20
+      },
+      "desc": "精铁套装部件，战士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warrior_1_leggings",
+      "name": "精铁护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warrior",
+      "setId": "set_warrior_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 5,
+        "hp": 15
+      },
+      "desc": "精铁套装部件，战士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warrior_1_boots",
+      "name": "精铁战靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warrior",
+      "setId": "set_warrior_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 3,
+        "agi": 2
+      },
+      "desc": "精铁套装部件，战士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warrior_2_weapon",
+      "name": "黑钢长剑",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warrior",
+      "setId": "set_warrior_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "atk": 25,
+        "def": 8
+      },
+      "desc": "黑钢套装部件，战士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warrior_2_helmet",
+      "name": "黑钢头盔",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warrior",
+      "setId": "set_warrior_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 10,
+        "hp": 25
+      },
+      "desc": "黑钢套装部件，战士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warrior_2_armor",
+      "name": "黑钢胸甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warrior",
+      "setId": "set_warrior_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 18,
+        "hp": 50
+      },
+      "desc": "黑钢套装部件，战士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warrior_2_leggings",
+      "name": "黑钢护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warrior",
+      "setId": "set_warrior_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 12,
+        "hp": 38
+      },
+      "desc": "黑钢套装部件，战士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warrior_2_boots",
+      "name": "黑钢战靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warrior",
+      "setId": "set_warrior_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 8,
+        "agi": 5
+      },
+      "desc": "黑钢套装部件，战士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warrior_3_weapon",
+      "name": "龙血长剑",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warrior",
+      "setId": "set_warrior_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "atk": 50,
+        "def": 15
+      },
+      "desc": "龙血套装部件，战士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warrior_3_helmet",
+      "name": "龙血头盔",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warrior",
+      "setId": "set_warrior_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 20,
+        "hp": 50
+      },
+      "desc": "龙血套装部件，战士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warrior_3_armor",
+      "name": "龙血胸甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warrior",
+      "setId": "set_warrior_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 35,
+        "hp": 100
+      },
+      "desc": "龙血套装部件，战士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warrior_3_leggings",
+      "name": "龙血护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warrior",
+      "setId": "set_warrior_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 25,
+        "hp": 75
+      },
+      "desc": "龙血套装部件，战士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warrior_3_boots",
+      "name": "龙血战靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warrior",
+      "setId": "set_warrior_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 15,
+        "agi": 10
+      },
+      "desc": "龙血套装部件，战士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_mage_1_weapon",
+      "name": "青藤法杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "mage",
+      "setId": "set_mage_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mag": 10,
+        "mp": 15
+      },
+      "desc": "青藤套装部件，法师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_mage_1_helmet",
+      "name": "青藤法帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "mage",
+      "setId": "set_mage_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 4,
+        "mp": 10
+      },
+      "desc": "青藤套装部件，法师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_mage_1_armor",
+      "name": "青藤法袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "mage",
+      "setId": "set_mage_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 7,
+        "mp": 20
+      },
+      "desc": "青藤套装部件，法师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_mage_1_leggings",
+      "name": "青藤护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "mage",
+      "setId": "set_mage_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 5,
+        "mp": 15
+      },
+      "desc": "青藤套装部件，法师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_mage_1_boots",
+      "name": "青藤法靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "mage",
+      "setId": "set_mage_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 3,
+        "agi": 2
+      },
+      "desc": "青藤套装部件，法师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_mage_2_weapon",
+      "name": "星辉法杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "mage",
+      "setId": "set_mage_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mag": 25,
+        "mp": 38
+      },
+      "desc": "星辉套装部件，法师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_mage_2_helmet",
+      "name": "星辉法帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "mage",
+      "setId": "set_mage_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 10,
+        "mp": 25
+      },
+      "desc": "星辉套装部件，法师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_mage_2_armor",
+      "name": "星辉法袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "mage",
+      "setId": "set_mage_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 18,
+        "mp": 50
+      },
+      "desc": "星辉套装部件，法师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_mage_2_leggings",
+      "name": "星辉护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "mage",
+      "setId": "set_mage_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 12,
+        "mp": 38
+      },
+      "desc": "星辉套装部件，法师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_mage_2_boots",
+      "name": "星辉法靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "mage",
+      "setId": "set_mage_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 8,
+        "agi": 5
+      },
+      "desc": "星辉套装部件，法师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_mage_3_weapon",
+      "name": "奥术法杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "mage",
+      "setId": "set_mage_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mag": 50,
+        "mp": 75
+      },
+      "desc": "奥术套装部件，法师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_mage_3_helmet",
+      "name": "奥术法帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "mage",
+      "setId": "set_mage_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 20,
+        "mp": 50
+      },
+      "desc": "奥术套装部件，法师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_mage_3_armor",
+      "name": "奥术法袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "mage",
+      "setId": "set_mage_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 35,
+        "mp": 100
+      },
+      "desc": "奥术套装部件，法师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_mage_3_leggings",
+      "name": "奥术护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "mage",
+      "setId": "set_mage_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 25,
+        "mp": 75
+      },
+      "desc": "奥术套装部件，法师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_mage_3_boots",
+      "name": "奥术法靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "mage",
+      "setId": "set_mage_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 15,
+        "agi": 10
+      },
+      "desc": "奥术套装部件，法师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_assassin_1_weapon",
+      "name": "影行匕首",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "assassin",
+      "setId": "set_assassin_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "atk": 10,
+        "agi": 4
+      },
+      "desc": "影行套装部件，刺客专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_assassin_1_helmet",
+      "name": "影行面甲",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "assassin",
+      "setId": "set_assassin_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 3,
+        "agi": 2
+      },
+      "desc": "影行套装部件，刺客专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_assassin_1_armor",
+      "name": "影行皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "assassin",
+      "setId": "set_assassin_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 6,
+        "hp": 12
+      },
+      "desc": "影行套装部件，刺客专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_assassin_1_leggings",
+      "name": "影行护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "assassin",
+      "setId": "set_assassin_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 4,
+        "agi": 2
+      },
+      "desc": "影行套装部件，刺客专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_assassin_1_boots",
+      "name": "影行轻靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "assassin",
+      "setId": "set_assassin_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "agi": 4,
+        "def": 1
+      },
+      "desc": "影行套装部件，刺客专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_assassin_2_weapon",
+      "name": "夜刃匕首",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "assassin",
+      "setId": "set_assassin_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "atk": 25,
+        "agi": 10
+      },
+      "desc": "夜刃套装部件，刺客专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_assassin_2_helmet",
+      "name": "夜刃面甲",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "assassin",
+      "setId": "set_assassin_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 8,
+        "agi": 5
+      },
+      "desc": "夜刃套装部件，刺客专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_assassin_2_armor",
+      "name": "夜刃皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "assassin",
+      "setId": "set_assassin_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 15,
+        "hp": 30
+      },
+      "desc": "夜刃套装部件，刺客专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_assassin_2_leggings",
+      "name": "夜刃护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "assassin",
+      "setId": "set_assassin_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 10,
+        "agi": 5
+      },
+      "desc": "夜刃套装部件，刺客专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_assassin_2_boots",
+      "name": "夜刃轻靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "assassin",
+      "setId": "set_assassin_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "agi": 10,
+        "def": 2
+      },
+      "desc": "夜刃套装部件，刺客专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_assassin_3_weapon",
+      "name": "幽冥匕首",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "assassin",
+      "setId": "set_assassin_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "atk": 50,
+        "agi": 20
+      },
+      "desc": "幽冥套装部件，刺客专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_assassin_3_helmet",
+      "name": "幽冥面甲",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "assassin",
+      "setId": "set_assassin_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 15,
+        "agi": 10
+      },
+      "desc": "幽冥套装部件，刺客专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_assassin_3_armor",
+      "name": "幽冥皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "assassin",
+      "setId": "set_assassin_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 30,
+        "hp": 60
+      },
+      "desc": "幽冥套装部件，刺客专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_assassin_3_leggings",
+      "name": "幽冥护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "assassin",
+      "setId": "set_assassin_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 20,
+        "agi": 10
+      },
+      "desc": "幽冥套装部件，刺客专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_assassin_3_boots",
+      "name": "幽冥轻靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "assassin",
+      "setId": "set_assassin_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "agi": 20,
+        "def": 5
+      },
+      "desc": "幽冥套装部件，刺客专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_ranger_1_weapon",
+      "name": "猎手长弓",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "ranger",
+      "setId": "set_ranger_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "atk": 10,
+        "agi": 3
+      },
+      "desc": "猎手套装部件，游侠专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_ranger_1_helmet",
+      "name": "猎手羽帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "ranger",
+      "setId": "set_ranger_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 3,
+        "agi": 2
+      },
+      "desc": "猎手套装部件，游侠专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_ranger_1_armor",
+      "name": "猎手皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "ranger",
+      "setId": "set_ranger_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 6,
+        "hp": 15
+      },
+      "desc": "猎手套装部件，游侠专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_ranger_1_leggings",
+      "name": "猎手护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "ranger",
+      "setId": "set_ranger_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "def": 4,
+        "agi": 2
+      },
+      "desc": "猎手套装部件，游侠专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_ranger_1_boots",
+      "name": "猎手疾风靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "ranger",
+      "setId": "set_ranger_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "agi": 3,
+        "def": 1
+      },
+      "desc": "猎手套装部件，游侠专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_ranger_2_weapon",
+      "name": "苍鹰长弓",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "ranger",
+      "setId": "set_ranger_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "atk": 25,
+        "agi": 8
+      },
+      "desc": "苍鹰套装部件，游侠专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_ranger_2_helmet",
+      "name": "苍鹰羽帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "ranger",
+      "setId": "set_ranger_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 8,
+        "agi": 5
+      },
+      "desc": "苍鹰套装部件，游侠专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_ranger_2_armor",
+      "name": "苍鹰皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "ranger",
+      "setId": "set_ranger_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 15,
+        "hp": 38
+      },
+      "desc": "苍鹰套装部件，游侠专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_ranger_2_leggings",
+      "name": "苍鹰护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "ranger",
+      "setId": "set_ranger_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 10,
+        "agi": 5
+      },
+      "desc": "苍鹰套装部件，游侠专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_ranger_2_boots",
+      "name": "苍鹰疾风靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "ranger",
+      "setId": "set_ranger_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "agi": 8,
+        "def": 2
+      },
+      "desc": "苍鹰套装部件，游侠专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_ranger_3_weapon",
+      "name": "风暴长弓",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "ranger",
+      "setId": "set_ranger_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "atk": 50,
+        "agi": 15
+      },
+      "desc": "风暴套装部件，游侠专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_ranger_3_helmet",
+      "name": "风暴羽帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "ranger",
+      "setId": "set_ranger_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 15,
+        "agi": 10
+      },
+      "desc": "风暴套装部件，游侠专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_ranger_3_armor",
+      "name": "风暴皮甲",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "ranger",
+      "setId": "set_ranger_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 30,
+        "hp": 75
+      },
+      "desc": "风暴套装部件，游侠专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_ranger_3_leggings",
+      "name": "风暴护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "ranger",
+      "setId": "set_ranger_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "def": 20,
+        "agi": 10
+      },
+      "desc": "风暴套装部件，游侠专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_ranger_3_boots",
+      "name": "风暴疾风靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "ranger",
+      "setId": "set_ranger_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "agi": 15,
+        "def": 5
+      },
+      "desc": "风暴套装部件，游侠专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_priest_1_weapon",
+      "name": "圣职权杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "priest",
+      "setId": "set_priest_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mag": 9,
+        "mdef": 4
+      },
+      "desc": "圣职套装部件，牧师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_priest_1_helmet",
+      "name": "圣职头冠",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "priest",
+      "setId": "set_priest_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 4,
+        "hp": 10
+      },
+      "desc": "圣职套装部件，牧师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_priest_1_armor",
+      "name": "圣职圣袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "priest",
+      "setId": "set_priest_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 7,
+        "hp": 20
+      },
+      "desc": "圣职套装部件，牧师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_priest_1_leggings",
+      "name": "圣职护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "priest",
+      "setId": "set_priest_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 5,
+        "hp": 15
+      },
+      "desc": "圣职套装部件，牧师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_priest_1_boots",
+      "name": "圣职圣靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "priest",
+      "setId": "set_priest_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 3,
+        "agi": 1
+      },
+      "desc": "圣职套装部件，牧师专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_priest_2_weapon",
+      "name": "光明权杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "priest",
+      "setId": "set_priest_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mag": 22,
+        "mdef": 10
+      },
+      "desc": "光明套装部件，牧师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_priest_2_helmet",
+      "name": "光明头冠",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "priest",
+      "setId": "set_priest_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 10,
+        "hp": 25
+      },
+      "desc": "光明套装部件，牧师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_priest_2_armor",
+      "name": "光明圣袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "priest",
+      "setId": "set_priest_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 18,
+        "hp": 50
+      },
+      "desc": "光明套装部件，牧师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_priest_2_leggings",
+      "name": "光明护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "priest",
+      "setId": "set_priest_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 12,
+        "hp": 38
+      },
+      "desc": "光明套装部件，牧师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_priest_2_boots",
+      "name": "光明圣靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "priest",
+      "setId": "set_priest_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 8,
+        "agi": 2
+      },
+      "desc": "光明套装部件，牧师专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_priest_3_weapon",
+      "name": "审判权杖",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "priest",
+      "setId": "set_priest_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mag": 45,
+        "mdef": 20
+      },
+      "desc": "审判套装部件，牧师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_priest_3_helmet",
+      "name": "审判头冠",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "priest",
+      "setId": "set_priest_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 20,
+        "hp": 50
+      },
+      "desc": "审判套装部件，牧师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_priest_3_armor",
+      "name": "审判圣袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "priest",
+      "setId": "set_priest_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 35,
+        "hp": 100
+      },
+      "desc": "审判套装部件，牧师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_priest_3_leggings",
+      "name": "审判护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "priest",
+      "setId": "set_priest_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 25,
+        "hp": 75
+      },
+      "desc": "审判套装部件，牧师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_priest_3_boots",
+      "name": "审判圣靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "priest",
+      "setId": "set_priest_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 15,
+        "agi": 5
+      },
+      "desc": "审判套装部件，牧师专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warlock_1_weapon",
+      "name": "咒术法器",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warlock",
+      "setId": "set_warlock_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mag": 10,
+        "luk": 3
+      },
+      "desc": "咒术套装部件，术士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warlock_1_helmet",
+      "name": "咒术兜帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warlock",
+      "setId": "set_warlock_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 4,
+        "mp": 8
+      },
+      "desc": "咒术套装部件，术士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warlock_1_armor",
+      "name": "咒术咒袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warlock",
+      "setId": "set_warlock_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 6,
+        "mp": 18
+      },
+      "desc": "咒术套装部件，术士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warlock_1_leggings",
+      "name": "咒术护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warlock",
+      "setId": "set_warlock_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 5,
+        "mp": 12
+      },
+      "desc": "咒术套装部件，术士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warlock_1_boots",
+      "name": "咒术咒靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warlock",
+      "setId": "set_warlock_1",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "mdef": 3,
+        "agi": 1
+      },
+      "desc": "咒术套装部件，术士专属。",
+      "value": 50
+    },
+    {
+      "id": "eq_warlock_2_weapon",
+      "name": "深渊法器",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warlock",
+      "setId": "set_warlock_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mag": 25,
+        "luk": 8
+      },
+      "desc": "深渊套装部件，术士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warlock_2_helmet",
+      "name": "深渊兜帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warlock",
+      "setId": "set_warlock_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 10,
+        "mp": 20
+      },
+      "desc": "深渊套装部件，术士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warlock_2_armor",
+      "name": "深渊咒袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warlock",
+      "setId": "set_warlock_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 15,
+        "mp": 45
+      },
+      "desc": "深渊套装部件，术士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warlock_2_leggings",
+      "name": "深渊护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warlock",
+      "setId": "set_warlock_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 12,
+        "mp": 30
+      },
+      "desc": "深渊套装部件，术士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warlock_2_boots",
+      "name": "深渊咒靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warlock",
+      "setId": "set_warlock_2",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "mdef": 8,
+        "agi": 2
+      },
+      "desc": "深渊套装部件，术士专属。",
+      "value": 200
+    },
+    {
+      "id": "eq_warlock_3_weapon",
+      "name": "恶魔法器",
+      "type": "equipment",
+      "slot": "weapon",
+      "classId": "warlock",
+      "setId": "set_warlock_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mag": 50,
+        "luk": 15
+      },
+      "desc": "恶魔套装部件，术士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warlock_3_helmet",
+      "name": "恶魔兜帽",
+      "type": "equipment",
+      "slot": "helmet",
+      "classId": "warlock",
+      "setId": "set_warlock_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 20,
+        "mp": 40
+      },
+      "desc": "恶魔套装部件，术士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warlock_3_armor",
+      "name": "恶魔咒袍",
+      "type": "equipment",
+      "slot": "armor",
+      "classId": "warlock",
+      "setId": "set_warlock_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 30,
+        "mp": 90
+      },
+      "desc": "恶魔套装部件，术士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warlock_3_leggings",
+      "name": "恶魔护腿",
+      "type": "equipment",
+      "slot": "leggings",
+      "classId": "warlock",
+      "setId": "set_warlock_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 25,
+        "mp": 60
+      },
+      "desc": "恶魔套装部件，术士专属。",
+      "value": 450
+    },
+    {
+      "id": "eq_warlock_3_boots",
+      "name": "恶魔咒靴",
+      "type": "equipment",
+      "slot": "boots",
+      "classId": "warlock",
+      "setId": "set_warlock_3",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mdef": 15,
+        "agi": 5
+      },
+      "desc": "恶魔套装部件，术士专属。",
+      "value": 450
+    },
+    {
+      "id": "acc_neck_1",
+      "name": "铜项链",
+      "slot": "necklace",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "hp": 25
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 40
+    },
+    {
+      "id": "acc_neck_2",
+      "name": "银项链",
+      "slot": "necklace",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "hp": 60,
+        "mdef": 6
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 160
+    },
+    {
+      "id": "acc_neck_3",
+      "name": "金项链",
+      "slot": "necklace",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "hp": 130,
+        "mdef": 14
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 360
+    },
+    {
+      "id": "acc_ring_1",
+      "name": "铁戒指",
+      "slot": "ring",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "atk": 4
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 40
+    },
+    {
+      "id": "acc_ring_2",
+      "name": "秘银戒指",
+      "slot": "ring",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "atk": 9,
+        "agi": 4
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 160
+    },
+    {
+      "id": "acc_ring_3",
+      "name": "龙晶戒指",
+      "slot": "ring",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "atk": 18,
+        "luk": 9
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 360
+    },
+    {
+      "id": "acc_ringb_1",
+      "name": "风之戒指",
+      "slot": "ring",
+      "setTier": 1,
+      "quality": "fine",
+      "stats": {
+        "agi": 5
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 40
+    },
+    {
+      "id": "acc_ringb_2",
+      "name": "幸运戒指",
+      "slot": "ring",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "luk": 10
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 160
+    },
+    {
+      "id": "acc_ringb_3",
+      "name": "贤者戒指",
+      "slot": "ring",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "mag": 12,
+        "mp": 40
+      },
+      "type": "equipment",
+      "desc": "通用饰品，所有职业均可装备。",
+      "value": 360
+    },
+    {
+      "id": "sword_rusty",
+      "name": "生锈的剑",
+      "type": "equipment",
+      "slot": "weapon",
+      "setTier": 1,
+      "quality": "common",
+      "stats": {
+        "atk": 3
+      },
+      "desc": "锈迹斑斑的旧剑，勉强能用。",
+      "value": 5
+    },
+    {
+      "id": "armor_stone",
+      "name": "石甲",
+      "type": "equipment",
+      "slot": "armor",
+      "setTier": 2,
+      "quality": "rare",
+      "stats": {
+        "def": 14,
+        "hp": 40
+      },
+      "desc": "矿脉巨像身上的岩石护甲，沉重而坚固。",
+      "value": 180
+    },
+    {
+      "id": "weapon_earth",
+      "name": "大地之锤",
+      "type": "equipment",
+      "slot": "weapon",
+      "setTier": 3,
+      "quality": "epic",
+      "stats": {
+        "atk": 28,
+        "def": 8
+      },
+      "desc": "蕴含大地之力的战锤，挥舞时地动山摇。",
+      "value": 500
+    },
+    {
+      "id": "bat_wing",
+      "name": "蝙蝠翅膀",
+      "type": "material",
+      "quality": "common",
+      "desc": "矿洞蝙蝠的翅膀，可用于炼金。",
+      "value": 3,
+      "stackSize": 99
+    },
+    {
+      "id": "pickaxe_broken",
+      "name": "破旧的镐头",
+      "type": "material",
+      "quality": "common",
+      "desc": "腐化矿工遗留的工具。",
+      "value": 2,
+      "stackSize": 99
+    },
+    {
+      "id": "ore_iron",
+      "name": "铁矿石",
+      "type": "material",
+      "quality": "common",
+      "desc": "锻造装备的基础材料。",
+      "value": 5,
+      "stackSize": 99
+    },
+    {
+      "id": "spider_silk",
+      "name": "蜘蛛丝",
+      "type": "material",
+      "quality": "fine",
+      "desc": "韧性极强的丝线。",
+      "value": 8,
+      "stackSize": 99
+    },
+    {
+      "id": "venom_sac",
+      "name": "毒囊",
+      "type": "material",
+      "quality": "fine",
+      "desc": "巨型蜘蛛的毒囊，危险材料。",
+      "value": 12,
+      "stackSize": 99
+    },
+    {
+      "id": "slime_gel",
+      "name": "史莱姆凝胶",
+      "type": "material",
+      "quality": "common",
+      "desc": "黏糊糊的凝胶。",
+      "value": 3,
+      "stackSize": 99
+    },
+    {
+      "id": "bone_fragment",
+      "name": "碎骨片",
+      "type": "material",
+      "quality": "common",
+      "desc": "骷髅兵的残骸。",
+      "value": 4,
+      "stackSize": 99
+    },
+    {
+      "id": "ectoplasm",
+      "name": "灵质",
+      "type": "material",
+      "quality": "fine",
+      "desc": "幽灵消散后残留的物质。",
+      "value": 15,
+      "stackSize": 99
+    },
+    {
+      "id": "soul_shard",
+      "name": "灵魂碎片",
+      "type": "material",
+      "quality": "rare",
+      "desc": "凝聚着灵魂之力的碎片。",
+      "value": 40,
+      "stackSize": 99
+    },
+    {
+      "id": "rotten_flesh",
+      "name": "腐肉",
+      "type": "material",
+      "quality": "common",
+      "desc": "散发着恶臭的腐肉。",
+      "value": 2,
+      "stackSize": 99
+    },
+    {
+      "id": "golem_core",
+      "name": "巨像核心",
+      "type": "material",
+      "quality": "epic",
+      "desc": "矿脉巨像的能量核心。",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "ore_mithril",
+      "name": "秘银矿石",
+      "type": "material",
+      "quality": "rare",
+      "desc": "珍稀的锻造材料。",
+      "value": 60,
+      "stackSize": 99
+    },
+    {
+      "id": "herb_glow",
+      "name": "荧光草",
+      "type": "material",
+      "quality": "common",
+      "desc": "在黑暗中发出微光的草药。",
+      "value": 3,
+      "stackSize": 99
+    },
+    {
+      "id": "antidote_herb",
+      "name": "解毒草",
+      "type": "material",
+      "quality": "common",
+      "desc": "可解百毒的草药。",
+      "value": 5,
+      "stackSize": 99
+    },
+    {
+      "id": "crystal_fire",
+      "name": "火焰水晶",
+      "type": "material",
+      "quality": "rare",
+      "desc": "燃烧着永恒火焰的水晶。",
+      "value": 70,
+      "stackSize": 99
+    },
+    {
+      "id": "crystal_ice",
+      "name": "冰霜水晶",
+      "type": "material",
+      "quality": "rare",
+      "desc": "散发着刺骨寒气的水晶。",
+      "value": 70,
+      "stackSize": 99
+    },
+    {
+      "id": "void_dust",
+      "name": "虚空之尘",
+      "type": "material",
+      "quality": "epic",
+      "desc": "来自虚空裂隙的神秘尘埃。",
+      "value": 150,
+      "stackSize": 99
+    },
+    {
+      "id": "dragon_scale",
+      "name": "龙鳞",
+      "type": "material",
+      "quality": "epic",
+      "desc": "巨龙的鳞片，坚不可摧。",
+      "value": 180,
+      "stackSize": 99
+    },
+    {
+      "id": "ancient_rune",
+      "name": "远古符文",
+      "type": "material",
+      "quality": "rare",
+      "desc": "刻有失落文字的符文石。",
+      "value": 90,
+      "stackSize": 99
+    },
+    {
+      "id": "gem_ruby",
+      "name": "红宝石",
+      "type": "material",
+      "quality": "rare",
+      "desc": "璀璨的红色宝石。",
+      "value": 100,
+      "stackSize": 99
+    },
+    {
+      "id": "gem_sapphire",
+      "name": "蓝宝石",
+      "type": "material",
+      "quality": "rare",
+      "desc": "深邃的蓝色宝石。",
+      "value": 100,
+      "stackSize": 99
+    },
+    {
+      "id": "coin_copper",
+      "name": "铜币",
+      "type": "currency",
+      "quality": "common",
+      "desc": "地牢中流通的货币，拾取时自动兑换 1 金币。",
+      "value": 1,
+      "stackSize": 999
+    },
+    {
+      "id": "coin_silver",
+      "name": "银币",
+      "type": "currency",
+      "quality": "common",
+      "desc": "地牢中流通的货币，拾取时自动兑换 10 金币。",
+      "value": 10,
+      "stackSize": 999
+    },
+    {
+      "id": "coin_gold",
+      "name": "金币",
+      "type": "currency",
+      "quality": "common",
+      "desc": "地牢中流通的货币，拾取时自动兑换 100 金币。",
+      "value": 100,
+      "stackSize": 999
+    },
+    {
+      "id": "hp_small",
+      "name": "小型生命药水",
+      "type": "consumable",
+      "quality": "common",
+      "effect": {
+        "heal": 50
+      },
+      "desc": "恢复 50 点生命。",
+      "value": 10,
+      "stackSize": 99
+    },
+    {
+      "id": "hp_medium",
+      "name": "中型生命药水",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "heal": 150
+      },
+      "desc": "恢复 150 点生命。",
+      "value": 30,
+      "stackSize": 99
+    },
+    {
+      "id": "hp_large",
+      "name": "大型生命药水",
+      "type": "consumable",
+      "quality": "rare",
+      "effect": {
+        "heal": 400
+      },
+      "desc": "恢复 400 点生命。",
+      "value": 80,
+      "stackSize": 99
+    },
+    {
+      "id": "hp_full",
+      "name": "特效生命药水",
+      "type": "consumable",
+      "quality": "epic",
+      "effect": {
+        "heal": 99999
+      },
+      "desc": "完全恢复生命。",
+      "value": 300,
+      "stackSize": 99
+    },
+    {
+      "id": "mp_small",
+      "name": "小型法力药水",
+      "type": "consumable",
+      "quality": "common",
+      "effect": {
+        "restoreMp": 30
+      },
+      "desc": "恢复 30 点法力。",
+      "value": 10,
+      "stackSize": 99
+    },
+    {
+      "id": "mp_medium",
+      "name": "中型法力药水",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "restoreMp": 80
+      },
+      "desc": "恢复 80 点法力。",
+      "value": 30,
+      "stackSize": 99
+    },
+    {
+      "id": "mp_large",
+      "name": "大型法力药水",
+      "type": "consumable",
+      "quality": "rare",
+      "effect": {
+        "restoreMp": 200
+      },
+      "desc": "恢复 200 点法力。",
+      "value": 80,
+      "stackSize": 99
+    },
+    {
+      "id": "scroll_town",
+      "name": "回城卷轴",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "teleport": "town"
+      },
+      "desc": "传送回城镇。",
+      "value": 50,
+      "stackSize": 99
+    },
+    {
+      "id": "antidote",
+      "name": "解毒剂",
+      "type": "consumable",
+      "quality": "common",
+      "effect": {
+        "cure": "poison"
+      },
+      "desc": "解除中毒状态。",
+      "value": 15,
+      "stackSize": 99
+    },
+    {
+      "id": "elixir_power",
+      "name": "力量药剂",
+      "type": "consumable",
+      "quality": "rare",
+      "effect": {
+        "buffAtk": 10,
+        "duration": 3
+      },
+      "desc": "3 场战斗内攻击力 +10。",
+      "value": 120,
+      "stackSize": 99
+    },
+    {
+      "id": "elixir_wisdom",
+      "name": "智慧药剂",
+      "type": "consumable",
+      "quality": "rare",
+      "effect": {
+        "buffMag": 10,
+        "duration": 3
+      },
+      "desc": "3 场战斗内魔法力 +10。",
+      "value": 120,
+      "stackSize": 99
+    },
+    {
+      "id": "bomb_fire",
+      "name": "火焰炸弹",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "damage": 100,
+        "element": "fire"
+      },
+      "desc": "对敌人造成 100 点火焰伤害。",
+      "value": 40,
+      "stackSize": 99
+    },
+    {
+      "id": "bomb_frost",
+      "name": "冰霜炸弹",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "damage": 100,
+        "element": "water"
+      },
+      "desc": "对敌人造成 100 点冰霜伤害。",
+      "value": 40,
+      "stackSize": 99
+    },
+    {
+      "id": "bomb_thunder",
+      "name": "雷电炸弹",
+      "type": "consumable",
+      "quality": "fine",
+      "effect": {
+        "damage": 100,
+        "element": "wind"
+      },
+      "desc": "对敌人造成 100 点雷电伤害。",
+      "value": 40,
+      "stackSize": 99
+    },
+    {
+      "id": "book_charge",
+      "name": "技能书：猛力冲锋",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "warrior",
+      "learnSkillId": "charge",
+      "desc": "使用后学会技能【猛力冲锋】（限战士）。冲锋撞击敌人，造成 ATK*1.8 伤害，25% 概率眩晕 1 回合",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_war_cry",
+      "name": "技能书：战吼",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "warrior",
+      "learnSkillId": "war_cry",
+      "desc": "使用后学会技能【战吼】（限战士）。发出震天战吼，自身 ATK+5 持续 3 回合",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_earth_splitter",
+      "name": "技能书：裂地斩",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "warrior",
+      "learnSkillId": "earth_splitter",
+      "desc": "使用后学会技能【裂地斩】（限战士）。劈裂大地，对所有敌人造成 ATK*1.6 伤害",
+      "value": 2000,
+      "stackSize": 5
+    },
+    {
+      "id": "book_flame_storm",
+      "name": "技能书：烈焰风暴",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "mage",
+      "learnSkillId": "flame_storm",
+      "desc": "使用后学会技能【烈焰风暴】（限法师）。召唤烈焰风暴，对所有敌人造成 MAG*1.6 火焰伤害",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_magic_missile",
+      "name": "技能书：魔法飞弹",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "mage",
+      "learnSkillId": "magic_missile",
+      "desc": "使用后学会技能【魔法飞弹】（限法师）。发射奥术飞弹，造成 MAG*2.2 无属性伤害",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_deep_freeze",
+      "name": "技能书：冰封术",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "mage",
+      "learnSkillId": "deep_freeze",
+      "desc": "使用后学会技能【冰封术】（限法师）。造成 MAG*1.2 冰霜伤害，70% 概率冻结 2 回合",
+      "value": 2000,
+      "stackSize": 5
+    },
+    {
+      "id": "book_twin_strike",
+      "name": "技能书：连击",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "assassin",
+      "learnSkillId": "twin_strike",
+      "desc": "使用后学会技能【连击】（限刺客）。快速攻击两次，每次造成 ATK*1.0 伤害",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_venom_coat",
+      "name": "技能书：淬毒",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "assassin",
+      "learnSkillId": "venom_coat",
+      "desc": "使用后学会技能【淬毒】（限刺客）。造成 ATK*1.1 伤害并施加剧毒，每回合 ATK*0.4 持续 4 回合",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_phantom_strike",
+      "name": "技能书：鬼影突袭",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "assassin",
+      "learnSkillId": "phantom_strike",
+      "desc": "使用后学会技能【鬼影突袭】（限刺客）。如鬼魅般突袭，造成 ATK*3.2 暗影伤害",
+      "value": 2000,
+      "stackSize": 5
+    },
+    {
+      "id": "book_piercing_arrow",
+      "name": "技能书：穿透箭",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "ranger",
+      "learnSkillId": "piercing_arrow",
+      "desc": "使用后学会技能【穿透箭】（限游侠）。射出穿透之箭，造成 ATK*2.4 伤害并无视 30% 防御",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_nature_mend",
+      "name": "技能书：自然治愈",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "ranger",
+      "learnSkillId": "nature_mend",
+      "desc": "使用后学会技能【自然治愈】（限游侠）。汲取自然之力，恢复 ATK*1.5 点生命",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_arrow_rain",
+      "name": "技能书：箭雨",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "ranger",
+      "learnSkillId": "arrow_rain",
+      "desc": "使用后学会技能【箭雨】（限游侠）。向天空射出箭雨，对所有敌人造成 ATK*1.5 伤害",
+      "value": 2000,
+      "stackSize": 5
+    },
+    {
+      "id": "book_holy_judgment",
+      "name": "技能书：圣光审判",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "priest",
+      "learnSkillId": "holy_judgment",
+      "desc": "使用后学会技能【圣光审判】（限牧师）。降下圣光审判，造成 MAG*2.2 光明伤害",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_mass_heal",
+      "name": "技能书：圣疗术",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "priest",
+      "learnSkillId": "mass_heal",
+      "desc": "使用后学会技能【圣疗术】（限牧师）。强大的治疗神术，恢复 MAG*3 点生命",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_divine_nova",
+      "name": "技能书：神圣新星",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "priest",
+      "learnSkillId": "divine_nova",
+      "desc": "使用后学会技能【神圣新星】（限牧师）。释放神圣新星，对所有敌人造成 MAG*1.6 光明伤害",
+      "value": 2000,
+      "stackSize": 5
+    },
+    {
+      "id": "book_shadow_bolt",
+      "name": "技能书：暗影箭",
+      "type": "skillbook",
+      "quality": "rare",
+      "classId": "warlock",
+      "learnSkillId": "shadow_bolt",
+      "desc": "使用后学会技能【暗影箭】（限术士）。发射暗影箭，造成 MAG*1.9 暗影伤害",
+      "value": 250,
+      "stackSize": 5
+    },
+    {
+      "id": "book_agony_curse",
+      "name": "技能书：痛苦诅咒",
+      "type": "skillbook",
+      "quality": "epic",
+      "classId": "warlock",
+      "learnSkillId": "agony_curse",
+      "desc": "使用后学会技能【痛苦诅咒】（限术士）。使敌人承受剧痛，每回合 MAG*1.0 伤害持续 3 回合",
+      "value": 750,
+      "stackSize": 5
+    },
+    {
+      "id": "book_demonic_blast",
+      "name": "技能书：恶魔冲击",
+      "type": "skillbook",
+      "quality": "legendary",
+      "classId": "warlock",
+      "learnSkillId": "demonic_blast",
+      "desc": "使用后学会技能【恶魔冲击】（限术士）。释放恶魔之力，对所有敌人造成 MAG*1.8 暗影伤害",
+      "value": 2000,
+      "stackSize": 5
+    }
   ]
 }

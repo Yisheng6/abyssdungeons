@@ -158,12 +158,15 @@ export function getClassById(id: string) {
 }
 
 // ─── Skills ───
-export function getSkills() {
-  const data = getConfigSync("skills") as { skills: Array<{
-    id: string; name: string; classId: string; type: string;
-    element: string; mpCost: number; cooldown: number;
-    description: string; effect: Record<string, unknown>;
-  }>};
+export interface SkillDef {
+  id: string; name: string; classId: string; type: string;
+  element: string; mpCost: number; cooldown: number;
+  description: string; effect: Record<string, unknown>;
+  learnable?: boolean; learnLevel?: number; learnCost?: number;
+}
+
+export function getSkills(): SkillDef[] {
+  const data = getConfigSync("skills") as { skills: SkillDef[] };
   return data.skills;
 }
 
@@ -189,6 +192,61 @@ export function getConsumables() {
 export function getEquipmentPrefixes() {
   const data = getConfigSync("items") as { equipmentPrefixes: Array<{ id: string; name: string; statModifiers?: Record<string, number>; specialEffect?: string; qualityMin: string }> };
   return data.equipmentPrefixes;
+}
+
+// ─── Master Item Table (总物品表) ───
+export interface MasterItem {
+  id: string; name: string;
+  type: "equipment" | "consumable" | "material" | "currency" | "skillbook";
+  slot?: string; classId?: string;
+  setId?: string; setTier?: number;
+  quality: string;
+  stats?: Record<string, number>;
+  effect?: Record<string, unknown>;
+  desc?: string; value?: number; stackSize?: number;
+  learnSkillId?: string;
+}
+
+export interface EquipmentSet {
+  id: string; name: string; classId: string; tier: number;
+  pieces: string[];
+  bonus: Array<{ pieces: number; stats: Record<string, number> }>;
+}
+
+export function getItems(): MasterItem[] {
+  const data = getConfigSync("items") as { items?: MasterItem[] };
+  return data.items || [];
+}
+
+export function getItemById(id: string): MasterItem | undefined {
+  return getItems().find((i) => i.id === id);
+}
+
+export function getEquipmentSets(): EquipmentSet[] {
+  const data = getConfigSync("items") as { equipmentSets?: EquipmentSet[] };
+  return data.equipmentSets || [];
+}
+
+export function getEquipmentSetById(id: string): EquipmentSet | undefined {
+  return getEquipmentSets().find((s) => s.id === id);
+}
+
+// ─── Room Loot Tables (房间掉落随机表) ───
+export interface RoomLootEntry {
+  item: string; // 物品ID，或令牌 "equipment:{tier}" / "skillbook:any"
+  weight: number;
+  qty: [number, number];
+  minLayer?: number;
+}
+
+export interface RoomLootTable {
+  rolls: [number, number];
+  entries: RoomLootEntry[];
+}
+
+export function getRoomLootTables(): Record<string, RoomLootTable> {
+  const data = getConfigSync("dungeons") as { roomLootTables?: Record<string, RoomLootTable> };
+  return data.roomLootTables || {};
 }
 
 // ─── Monsters ───

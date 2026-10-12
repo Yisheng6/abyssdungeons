@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Swords, Shield, Footprints, Sparkles, Zap, Play, Pause } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
+import { loadCatalogs, getSkillInfo, getSkillName, getItemInfo } from '@/lib/catalog'
 
 // Skill name mapping - loaded from config
 const SKILL_NAMES: Record<string, string> = {
@@ -91,48 +92,11 @@ export default function Combat() {
     return { type: 'attack' as const }
   }, [store.player])
 
-  // 获取技能配置（简化版，实际应该从API获取）
+  // 获取技能配置（优先目录缓存，回退静态表）
   const getSkillConfig = (skillId: string) => {
-    // 这里使用默认配置，实际应该从后端获取
-    const configs: Record<string, { mpCost: number; name: string }> = {
-      fireball: { mpCost: 10, name: '火球术' },
-      heal: { mpCost: 15, name: '治疗术' },
-      frostbolt: { mpCost: 12, name: '寒冰箭' },
-      lightning: { mpCost: 18, name: '闪电链' },
-      mana_shield: { mpCost: 20, name: '魔法护盾' },
-      meteor: { mpCost: 40, name: '陨石术' },
-      arcane_power: { mpCost: 25, name: '奥术之力' },
-      shadow_step: { mpCost: 15, name: '暗影步' },
-      backstab: { mpCost: 10, name: '背刺' },
-      poison_blade: { mpCost: 12, name: '毒刃' },
-      smoke_bomb: { mpCost: 8, name: '烟雾弹' },
-      assassinate: { mpCost: 30, name: '暗杀' },
-      shadow_dance: { mpCost: 25, name: '影舞' },
-      shield_bash: { mpCost: 8, name: '盾击' },
-      taunt: { mpCost: 5, name: '嘲讽' },
-      heavy_strike: { mpCost: 12, name: '重击' },
-      iron_will: { mpCost: 10, name: '钢铁意志' },
-      whirlwind: { mpCost: 20, name: '旋风斩' },
-      last_stand: { mpCost: 15, name: '最后防线' },
-      aimed_shot: { mpCost: 10, name: '瞄准射击' },
-      trap: { mpCost: 8, name: '陷阱' },
-      multishot: { mpCost: 18, name: '多重射击' },
-      poison_arrow: { mpCost: 12, name: '毒箭' },
-      stampede: { mpCost: 25, name: '兽群奔腾' },
-      eagle_eye: { mpCost: 15, name: '鹰眼' },
-      holy_light: { mpCost: 15, name: '圣光' },
-      bless: { mpCost: 10, name: '祝福' },
-      dispel: { mpCost: 12, name: '驱散' },
-      resurrection: { mpCost: 50, name: '复活术' },
-      divine_shield: { mpCost: 20, name: '神圣护盾' },
-      corruption: { mpCost: 12, name: '腐蚀术' },
-      summon_imp: { mpCost: 20, name: '召唤小鬼' },
-      life_drain: { mpCost: 15, name: '生命吸取' },
-      curse: { mpCost: 10, name: '诅咒' },
-      demon_form: { mpCost: 35, name: '恶魔形态' },
-      soul_harvest: { mpCost: 25, name: '灵魂收割' },
-    }
-    return configs[skillId] || { mpCost: 10, name: SKILL_NAMES[skillId] || skillId }
+    const cat = getSkillInfo(skillId)
+    if (cat) return { mpCost: cat.mpCost, name: cat.name }
+    return { mpCost: 10, name: SKILL_NAMES[skillId] || skillId }
   }
 
   const executeAction = useCallback(async (action: { type: 'attack' | 'skill' | 'defend' | 'flee'; targetId?: string; skillId?: string }) => {
@@ -173,14 +137,27 @@ export default function Combat() {
         if (result.drops && result.drops.length > 0) {
           setLastDrops(result.drops)
           for (const drop of result.drops) {
+            const cat = getItemInfo(drop.itemId)
+            const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
+            if (type === 'currency') {
+              store.addPlayerGold(drop.quantity * (cat?.value ?? 1))
+              continue
+            }
             store.addItem({
               uid: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
               id: drop.itemId,
-              name: drop.name,
-              type: drop.type === 'equipment' ? 'equipment' : 'consumable',
-              quality: drop.quality as any,
+              name: drop.name || cat?.name || drop.itemId,
+              type,
+              slot: cat?.slot,
+              quality: (drop.quality || cat?.quality || 'common') as never,
               quantity: drop.quantity,
-              desc: `${drop.quality === 'common' ? '普通' : drop.quality === 'fine' ? '精致' : drop.quality === 'rare' ? '稀有' : drop.quality === 'epic' ? '史诗' : drop.quality === 'legendary' ? '传说' : '神话'}品质的${drop.name}`,
+              desc: cat?.desc || drop.name,
+              stats: cat?.stats,
+              setId: cat?.setId,
+              setTier: cat?.setTier,
+              value: cat?.value,
+              effect: cat?.effect,
+              learnSkillId: cat?.learnSkillId,
             })
           }
         }
@@ -197,6 +174,9 @@ export default function Combat() {
       store.addCombatLog(`战斗出错: ${msg}`)
     }
   }, [store, combatTurn, buildPlayerForApi, buildEnemiesForApi])
+
+  // 加载物品/技能目录
+  useEffect(() => { loadCatalogs() }, [])
 
   // 自动战斗循环
   useEffect(() => {
@@ -347,7 +327,7 @@ export default function Combat() {
             {playerSkills.map((skillId, idx) => (
               <span key={skillId} className="rounded px-1.5 py-0.5 text-[10px]"
                 style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
-                {idx + 1}.{SKILL_NAMES[skillId] || skillId}
+                {idx + 1}.{getSkillName(skillId)}
               </span>
             ))}
           </div>

@@ -1,0 +1,250 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
+import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
+import { useGameStore, type Item } from '@/stores/gameStore'
+import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
+
+const qualityColors: Record<string, string> = {
+  common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149',
+}
+
+const qualityNames: Record<string, string> = {
+  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说', mythic: '神话',
+}
+
+const slotIcons: Record<string, React.ReactNode> = {
+  weapon: <Swords size={14} />, helmet: <Shield size={14} />, armor: <Shield size={14} />,
+  leggings: <Shield size={14} />, boots: <Wind size={14} />, necklace: <Star size={14} />,
+  ring: <Sparkles size={14} />,
+}
+
+const slotNames: Record<string, string> = {
+  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指',
+}
+
+const statNames: Record<string, string> = {
+  hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运',
+}
+
+const typeNames: Record<string, string> = {
+  equipment: '装备', consumable: '消耗品', material: '材料', skillbook: '技能书', currency: '货币',
+}
+
+const filters = ['全部', '装备', '消耗品', '材料', '技能书'] as const
+const filterTypeMap: Record<string, string> = { '装备': 'equipment', '消耗品': 'consumable', '材料': 'material', '技能书': 'skillbook' }
+
+export default function Inventory() {
+  const navigate = useNavigate()
+  const store = useGameStore()
+  const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>('全部')
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
+  const [useMsg, setUseMsg] = useState('')
+
+  // 加载目录（套装名、技能名解析）
+  const [, setCatalogReady] = useState(false)
+  useEffect(() => {
+    loadCatalogs()
+    return onCatalogLoaded(() => setCatalogReady(true))
+  }, [])
+
+  useEffect(() => {
+    if (!useMsg) return
+    const t = setTimeout(() => setUseMsg(''), 2500)
+    return () => clearTimeout(t)
+  }, [useMsg])
+
+  const inventory = store.inventory
+  const equipment = store.equipment
+
+  const filtered = activeFilter === '全部' ? inventory
+    : inventory.filter((i) => i.type === filterTypeMap[activeFilter])
+
+  // Equipped items list
+  const equippedItems = Object.entries(equipment)
+    .filter(([, item]) => item !== null)
+    .map(([slot, item]) => ({ slot, item: item! }))
+
+  const handleEquip = (item: Item) => {
+    if (item.type !== 'equipment') return
+    store.equipItem(item.uid)
+    setSelectedItem(null)
+  }
+
+  const handleUnequip = (slot: string) => {
+    store.unequipItem(slot as keyof typeof equipment)
+  }
+
+  const handleUse = (item: Item) => {
+    if (item.type === 'consumable') {
+      const r = store.useConsumable(item.uid)
+      setUseMsg(r.message)
+      if (r.success) {
+        setSelectedItem((prev) => {
+          if (!prev) return prev
+          const still = store.inventory.find((i) => i.uid === prev.uid)
+          return still || null
+        })
+      }
+    } else if (item.type === 'skillbook') {
+      const r = store.learnSkillFromBook(item.uid)
+      setUseMsg(r.message)
+      if (r.success) setSelectedItem(null)
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      {/* Header */}
+      <header className="flex h-12 items-center gap-3 border-b px-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+        <button onClick={() => navigate('/')} style={{ color: 'var(--text-muted)' }}><ArrowLeft size={20} /></button>
+        <span className="font-bold" style={{ color: 'var(--text-primary)' }}>背包</span>
+        <span className="ml-auto text-xs" style={{ color: 'var(--text-muted)' }}>{inventory.length} / 40</span>
+      </header>
+
+      {useMsg && (
+        <div className="px-4 py-2 text-center text-sm font-medium"
+          style={{ backgroundColor: 'rgba(63,185,80,0.15)', color: '#3FB950' }}>
+          {useMsg}
+        </div>
+      )}
+
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Main Area */}
+        <div className="flex-1 p-4">
+          {/* Filters */}
+          <div className="mb-3 flex flex-wrap gap-2">
+            {filters.map((f) => (
+              <button key={f} onClick={() => setActiveFilter(f)}
+                className="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: activeFilter === f ? 'var(--accent)' : 'var(--bg-hover)',
+                  color: activeFilter === f ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                }}>{f}</button>
+            ))}
+          </div>
+
+          {/* Equipped Section */}
+          {equippedItems.length > 0 && (
+            <div className="mb-4">
+              <div className="mb-2 text-xs font-bold" style={{ color: 'var(--accent)' }}>已装备</div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {equippedItems.map(({ slot, item }) => (
+                  <div key={slot} className="game-card flex items-center gap-2 p-2">
+                    <div style={{ color: qualityColors[item.quality] }}>{slotIcons[item.slot || 'weapon']}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-bold" style={{ color: qualityColors[item.quality] }}>{item.name}</div>
+                      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                        {slotNames[slot]}
+                        {item.setId && getSetInfo(item.setId) ? ` · ${getSetInfo(item.setId)!.name}` : ''}
+                      </div>
+                    </div>
+                    <button onClick={() => handleUnequip(slot)} className="ml-1" style={{ color: 'var(--danger)' }}>
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Inventory Grid */}
+          <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>背包物品</div>
+          {filtered.length === 0 ? (
+            <div className="rounded-lg p-8 text-center text-sm" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+              背包空空如也
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
+              {filtered.map((item) => {
+                const IconComp = item.type === 'equipment' ? Swords
+                  : item.type === 'skillbook' ? BookOpen
+                  : item.type === 'material' ? Hammer
+                  : item.id.includes('hp') ? Heart
+                  : item.id.includes('mp') ? Droplets
+                  : item.type === 'consumable' ? Beaker
+                  : Package
+                return (
+                  <button key={item.uid} onClick={() => setSelectedItem(item)}
+                    className="game-card relative flex flex-col items-center justify-center p-2 transition-all hover:scale-[1.05]"
+                    style={{ borderColor: selectedItem?.uid === item.uid ? qualityColors[item.quality] : 'var(--border-color)' }}>
+                    <IconComp size={22} style={{ color: qualityColors[item.quality] }} />
+                    <span className="mt-1 truncate text-[10px]" style={{ color: qualityColors[item.quality], maxWidth: '100%' }}>{item.name}</span>
+                    {item.quantity > 1 && (
+                      <span className="absolute bottom-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold"
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>
+                        {item.quantity}
+                      </span>
+                    )}
+                    {item.type === 'equipment' && item.stats && (
+                      <div className="absolute left-1 top-1 h-1.5 w-1.5 rounded-full" style={{ backgroundColor: '#3FB950' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Detail Panel */}
+        {selectedItem && (
+          <div className="w-full border-t p-4 lg:w-[320px] lg:border-l lg:border-t-0" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <h3 className="text-lg font-bold" style={{ color: qualityColors[selectedItem.quality] }}>{selectedItem.name}</h3>
+            <div className="mb-2 flex flex-wrap gap-2">
+              <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+                {typeNames[selectedItem.type] || selectedItem.type}
+              </span>
+              <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--bg-hover)', color: qualityColors[selectedItem.quality] }}>
+                {qualityNames[selectedItem.quality]}
+              </span>
+              {selectedItem.setId && getSetInfo(selectedItem.setId) && (
+                <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'rgba(201,168,76,0.15)', color: '#C9A84C' }}>
+                  {getSetInfo(selectedItem.setId)!.name}
+                </span>
+              )}
+            </div>
+            {selectedItem.slot && (
+              <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>部位: {slotNames[selectedItem.slot] || selectedItem.slot}</div>
+            )}
+            <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedItem.desc}</p>
+            {selectedItem.stats && Object.entries(selectedItem.stats).map(([stat, val]) => (
+              <div key={stat} className="mb-1 text-sm" style={{ color: '#3FB950' }}>
+                {statNames[stat] || stat} +{val}
+              </div>
+            ))}
+            {selectedItem.type === 'skillbook' && selectedItem.learnSkillId && (
+              <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                可学习：{getSkillInfo(selectedItem.learnSkillId)?.name || selectedItem.learnSkillId}
+              </div>
+            )}
+            {selectedItem.value !== undefined && (
+              <div className="mb-2 text-xs" style={{ color: '#C9A84C' }}>价值: {selectedItem.value} 金币</div>
+            )}
+            {/* 套装加成说明 */}
+            {selectedItem.setId && getSetInfo(selectedItem.setId) && (
+              <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                <div className="mb-1 font-bold" style={{ color: '#C9A84C' }}>{getSetInfo(selectedItem.setId)!.name} 套装效果</div>
+                {getSetInfo(selectedItem.setId)!.bonus.map((b) => (
+                  <div key={b.pieces} style={{ color: 'var(--text-muted)' }}>
+                    {b.pieces}件：{Object.entries(b.stats).map(([k, v]) => `${statNames[k] || k}+${v}`).join('、')}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 flex gap-2">
+              {selectedItem.type === 'equipment' && (
+                <button onClick={() => handleEquip(selectedItem)} className="game-btn-primary flex-1 text-xs">装备</button>
+              )}
+              {selectedItem.type === 'consumable' && (
+                <button onClick={() => handleUse(selectedItem)} className="game-btn-primary flex-1 text-xs">使用</button>
+              )}
+              {selectedItem.type === 'skillbook' && (
+                <button onClick={() => handleUse(selectedItem)} className="game-btn-primary flex-1 text-xs">学习</button>
+              )}
+              <button onClick={() => { store.removeItem(selectedItem.uid); setSelectedItem(null); }} className="game-btn-secondary text-xs" style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}>丢弃</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
