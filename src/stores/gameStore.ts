@@ -71,6 +71,11 @@ interface GameState {
   inCombat: boolean; combatEnemies: Enemy[]; combatLogs: string[]
   combatEnded: boolean; combatVictory: boolean
 
+  // ─── Auto Explore (挂机) ───
+  isAutoExploring: boolean
+  autoExploreLogs: string[]
+  autoExploreStats: { roomsExplored: number; enemiesKilled: number; itemsFound: number; currentLayer: number }
+
   // ─── Actions ───
   setLoggedIn: (v: boolean) => void
   setPlayerName: (v: string) => void
@@ -111,6 +116,12 @@ interface GameState {
   setCombatVictory: (v: boolean) => void
   resetCombat: () => void
   resetDungeon: () => void
+
+  // Auto Explore
+  setAutoExploring: (v: boolean) => void
+  addAutoLog: (log: string) => void
+  updateAutoStats: (stats: Partial<GameState['autoExploreStats']>) => void
+  clearAutoLogs: () => void
 }
 
 const defaultEquipment: Equipment = {
@@ -148,6 +159,8 @@ export const useGameStore = create<GameState>()(
       roomInfo: null, dungeonRooms: [],
       inCombat: false, combatEnemies: [], combatLogs: [],
       combatEnded: false, combatVictory: false,
+      isAutoExploring: false, autoExploreLogs: [],
+      autoExploreStats: { roomsExplored: 0, enemiesKilled: 0, itemsFound: 0, currentLayer: 0 },
 
       // ─── Auth ───
       setLoggedIn: (v) => set({ isLoggedIn: v }),
@@ -420,6 +433,12 @@ export const useGameStore = create<GameState>()(
       setCombatVictory: (v) => set({ combatVictory: v }),
       resetCombat: () => set({ inCombat: false, combatEnemies: [], combatLogs: [], combatEnded: false, combatVictory: false }),
       resetDungeon: () => set({ currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(), roomInfo: null, dungeonRooms: [] }),
+
+      // Auto Explore
+      setAutoExploring: (v) => set({ isAutoExploring: v }),
+      addAutoLog: (log) => set((s) => ({ autoExploreLogs: [...s.autoExploreLogs.slice(-49), `[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}] ${log}`] })),
+      updateAutoStats: (stats) => set((s) => ({ autoExploreStats: { ...s.autoExploreStats, ...stats } })),
+      clearAutoLogs: () => set({ autoExploreLogs: [] }),
     }),
     {
       name: STORAGE_KEY,
@@ -443,6 +462,8 @@ export const useGameStore = create<GameState>()(
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false
+          state.isAutoExploring = false
+          state.autoExploreLogs = []
         }
       },
     }
