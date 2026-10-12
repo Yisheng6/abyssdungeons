@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User, Users } from 'lucide-react'
+import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 
 // 职业中文名映射
@@ -18,7 +18,6 @@ const features = [
   { icon: Backpack, label: '背包', path: '/inventory', desc: '管理装备和道具' },
   { icon: Sparkles, label: '技能树', path: '/character', desc: '升级和学习技能' },
   { icon: Shield, label: '铁匠铺', path: '/inventory', desc: '强化装备' },
-  { icon: Users, label: '组队地牢', path: '/party', desc: '与其他玩家组队挑战' },
   { icon: Trophy, label: '排行榜', path: '#', desc: '查看全服排名' },
 ]
 

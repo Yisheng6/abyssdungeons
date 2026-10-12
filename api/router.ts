@@ -2,7 +2,6 @@ import { authRouter } from "./auth-router";
 import { gameRouter } from "./routers/game-router";
 import { leaderboardRouter } from "./routers/leaderboard-router";
 import { chatRouter } from "./routers/chat-router";
-import { partyRouter } from "./routers/party-router";
 import { createRouter, publicQuery } from "./middleware";
 
 export const appRouter = createRouter({
@@ -11,7 +10,6 @@ export const appRouter = createRouter({
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,
-  party: partyRouter,
 });
 
 export type AppRouter = typeof appRouter;
