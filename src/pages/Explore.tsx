@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Search, Swords, Package, MapPin, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, AlertTriangle } from 'lucide-react'
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Search, Swords, Package, MapPin, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield, AlertTriangle } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 
