@@ -440,6 +440,14 @@ export default function Explore() {
                 <div className="flex items-center gap-1"><Swords size={12} /> 攻击 {store.player.atk}</div>
                 <div className="flex items-center gap-1"><Shield size={12} /> 防御 {store.player.def}</div>
               </div>
+              <div className="mt-2">
+                <div className="mb-1 flex justify-between text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                </div>
+              </div>
             </div>
           ) : (
             <div className="rounded p-3 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
@@ -487,6 +495,16 @@ export default function Explore() {
               <div className="h-full rounded-full transition-all" style={{ width: `${store.player ? (store.player.mp / store.player.maxMp) * 100 : 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
             </div>
           </div>
+          {store.player && (
+            <div>
+              <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>

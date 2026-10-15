@@ -416,9 +416,10 @@ export const useGameStore = create<GameState>()(
         const s = get()
         if (!s.player) return
         const np = { ...s.player, exp: s.player.exp + amount }
-        const need = np.level * 100
-        if (np.exp >= need) {
-          np.level += 1; np.exp -= need
+        // 支持连升多级
+        while (np.exp >= np.level * 100) {
+          np.exp -= np.level * 100
+          np.level += 1
           np.maxHp += 10; np.hp = np.maxHp
           np.maxMp += 5; np.mp = np.maxMp
           np.atk += 2; np.def += 1

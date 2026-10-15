@@ -119,7 +119,7 @@ export default function CharacterPanel() {
             </div>
             {player && (
               <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                经验: {player.exp} / {player.level * 100} | 金币: {player.gold}
+                金币: {player.gold}
               </div>
             )}
 
@@ -140,6 +140,14 @@ export default function CharacterPanel() {
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
                     <div className="h-full rounded-full transition-all" style={{ width: `${(player.mp / player.maxMp) * 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <span>EXP</span><span>{player.exp}/{player.level * 100}</span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
                   </div>
                 </div>
               </div>
@@ -185,9 +193,24 @@ export default function CharacterPanel() {
                         ✓
                       </div>
                     )}
-                    {hasSave && !isActive && (
-                      <div className="mt-1 text-[10px]" style={{ color: '#3FB950' }}>Lv.{store.classSaves[cls.id]?.player?.level || 1}</div>
-                    )}
+                    {hasSave && (() => {
+                      const sp = store.classSaves[cls.id]?.player
+                      const lv = sp?.level || 1
+                      const exp = sp?.exp || 0
+                      const need = lv * 100
+                      const tierName = getTierName(cls.id, sp?.tier || 1)
+                      return (
+                        <div className="mt-1">
+                          <div className="text-[10px]" style={{ color: isActive ? (CLASS_COLORS[cls.id] || 'var(--accent)') : '#3FB950' }}>
+                            Lv.{lv} · {tierName}
+                          </div>
+                          <div className="mx-auto mt-0.5 h-1 w-4/5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--border-color)' }}>
+                            <div className="h-full rounded-full" style={{ width: `${Math.min(100, (exp / need) * 100)}%`, backgroundColor: '#C9A84C' }} />
+                          </div>
+                          <div className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{exp}/{need}</div>
+                        </div>
+                      )
+                    })()}
                     {!hasSave && (
                       <div className="mt-1 text-[10px]" style={{ color: 'var(--accent)' }}>+ 创建</div>
                     )}

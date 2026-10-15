@@ -69,6 +69,16 @@ export default function Town() {
               <div className="h-full rounded-full transition-all" style={{ width: `${player ? (player.mp / player.maxMp) * 100 : 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
             </div>
           </div>
+          {player && (
+            <div>
+              <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <span>EXP</span><span>{player.exp}/{player.level * 100}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
