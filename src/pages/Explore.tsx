@@ -32,6 +32,11 @@ const SKILL_MP_COSTS: Record<string, number> = {
   curse: 10, demon_form: 35, soul_harvest: 25,
 }
 
+const LOOT_QUALITY_COLORS: Record<string, string> = {
+  common: '#9DA7B3', fine: '#3FB950', rare: '#58A6FF',
+  epic: '#A371F7', legendary: '#F0A832', mythic: '#FF7B72',
+}
+
 export default function Explore() {
   const navigate = useNavigate()
   const store = useGameStore()
@@ -39,6 +44,10 @@ export default function Explore() {
   const [isRunning, setIsRunning] = useState(false)
   const [currentLayer, setCurrentLayer] = useState(1)
   const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
+  const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string }>>([])
+  const recordLoot = useCallback((entries: Array<{ name: string; quantity: number; quality?: string }>) => {
+    setLootHistory((prev) => [...entries.map((e) => ({ name: e.name, quantity: e.quantity, quality: e.quality || 'common' })), ...prev].slice(0, 200))
+  }, [])
   const isRunningRef = useRef(false)
   const isBattlingRef = useRef(false)
 
@@ -70,6 +79,7 @@ export default function Explore() {
         const value = l.value ?? cat?.value ?? 1
         gs.addPlayerGold(l.quantity * value)
         addLog(`拾取 ${name}×${l.quantity}（+${l.quantity * value} 金币）`)
+        recordLoot([{ name, quantity: l.quantity, quality: l.quality || cat?.quality }])
         continue
       }
       gs.addItem({
@@ -87,9 +97,10 @@ export default function Explore() {
         learnSkillId: l.learnSkillId || cat?.learnSkillId,
       })
       addLog(`拾取 ${name}×${l.quantity}`)
+      recordLoot([{ name, quantity: l.quantity, quality: (l.quality || cat?.quality) as string }])
     }
     setStats((s) => ({ ...s, items: s.items + loot.length }))
-  }, [addLog])
+  }, [addLog, recordLoot])
 
   // ─── 进入新一层地牢 ───
   const enterNewFloor = useCallback(async (layer: number) => {
@@ -288,7 +299,19 @@ export default function Explore() {
           victory = true
           addLog(`── 战斗胜利！──`)
           setStats((s) => ({ ...s, kills: s.kills + 1 }))
+          // 经验奖励：基础 10 + 层数×3 + 敌人强度（血/20 + 攻），boss（HP≥500）双倍
+          const expGain = enemies.reduce((sum, e) => {
+            const base = 10 + currentLayer * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5)
+            return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base)
+          }, 0)
+          after.addPlayerExp(expGain)
+          addLog(`获得经验 ${expGain}（当前 Lv.${useGameStore.getState().player?.level}）`)
           if (result.drops && result.drops.length > 0) {
+            recordLoot(result.drops.map((d) => ({
+              name: d.name || getItemInfo(d.itemId)?.name || d.itemId,
+              quantity: d.quantity,
+              quality: d.quality || getItemInfo(d.itemId)?.quality,
+            })))
             for (const drop of result.drops) {
               const cat = getItemInfo(drop.itemId)
               const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
@@ -340,7 +363,7 @@ export default function Explore() {
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, combatTurnMut, currentLayer])
+  }, [addLog, combatTurnMut, currentLayer, recordLoot])
 
   // ─── 开始 / 停止 ───
   const startExploring = useCallback(async () => {
@@ -598,16 +621,27 @@ export default function Explore() {
         </div>
       </main>
 
-      {/* Right: Minimap */}
-      <aside className="hidden w-[200px] flex-shrink-0 border-l p-3 xl:block" style={{ borderColor: 'var(--border-color)' }}>
-        <div className="mb-2 text-center text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>地牢地图</div>
-        <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
-          {renderMinimap()}
+      {/* Right: 获得物品 */}
+      <aside className="hidden w-[220px] flex-shrink-0 flex-col border-l p-3 xl:flex" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="mb-2 flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+          <span>获得物品（最新在上）</span>
+          <span style={{ color: 'var(--text-muted)' }}>{lootHistory.length} 件</span>
         </div>
-        <div className="mt-2 space-y-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-          <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-sm" style={{ backgroundColor: 'var(--accent)' }} /> 当前位置</div>
-          <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-sm" style={{ backgroundColor: '#8B949E' }} /> 已探索</div>
-          <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-sm" style={{ backgroundColor: '#1C2128' }} /> 未探索</div>
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
+          {lootHistory.length === 0 && (
+            <div className="rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+              探索中获得的物品会显示在这里
+            </div>
+          )}
+          {lootHistory.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between rounded px-2 py-1 text-xs"
+              style={{ backgroundColor: 'var(--bg-hover)' }}>
+              <span className="truncate" style={{ color: LOOT_QUALITY_COLORS[item.quality] || 'var(--text-secondary)' }}>
+                {item.name}
+              </span>
+              <span className="ml-1 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>×{item.quantity}</span>
+            </div>
+          ))}
         </div>
       </aside>
     </div>
