@@ -445,8 +445,8 @@
           ]
         },
         {
-          "item": "ancient_rune",
-          "weight": 12,
+          "item": "classmat:low",
+          "weight": 14,
           "qty": [
             1,
             2
@@ -454,11 +454,11 @@
           "minLayer": 30
         },
         {
-          "item": "dragon_scale",
-          "weight": 8,
+          "item": "classmat:high",
+          "weight": 9,
           "qty": [
             1,
-            2
+            1
           ],
           "minLayer": 46
         }
@@ -605,15 +605,6 @@
           ]
         },
         {
-          "item": "ancient_rune",
-          "weight": 10,
-          "qty": [
-            1,
-            1
-          ],
-          "minLayer": 12
-        },
-        {
           "item": "equipment:2",
           "weight": 10,
           "qty": [
@@ -646,6 +637,15 @@
             1
           ],
           "minLayer": 10
+        },
+        {
+          "item": "classmat:low",
+          "weight": 10,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 30
         }
       ]
     },
@@ -681,7 +681,7 @@
           ]
         },
         {
-          "item": "dragon_scale",
+          "item": "classmat:high",
           "weight": 10,
           "qty": [
             1,

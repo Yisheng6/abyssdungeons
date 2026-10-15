@@ -345,6 +345,16 @@ function rollRoomLoot(roomType: string, layer: number, rng: SeededRNG): DungeonR
       const pool = getItems().filter((i) => i.type === "skillbook");
       return pool.length > 0 ? rng.pickOne(pool) : undefined;
     }
+    if (token.startsWith("classmat:")) {
+      // 职业专属晋升材料：low = 6-7阶材料（epic），high = 8-9阶圣物（legendary）
+      const grade = token.split(":")[1];
+      const pool = getItems().filter((i) =>
+        i.type === "material" &&
+        (grade === "low" ? i.quality === "epic" : i.quality === "legendary") &&
+        /晋升材料/.test(i.desc || "")
+      );
+      return pool.length > 0 ? rng.pickOne(pool) : undefined;
+    }
     return getItemById(token);
   };
 

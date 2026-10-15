@@ -408,7 +408,7 @@ export default function CharacterPanel() {
             const reqLv = lvReq[idx] ?? 1
             const reqLayer = layerReq[idx] ?? 1
             const reqGold = goldCost[idx] ?? 0
-            const reqMat = matReq[idx]
+            const reqMat = rules?.classMaterialReq?.[player.classId]?.[idx] ?? matReq[idx]
             const matHave = reqMat ? store.countItemById(reqMat.id) : 0
             const okLv = player.level >= reqLv
             const okLayer = (player.maxLayer || 1) >= reqLayer

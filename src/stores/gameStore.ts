@@ -33,6 +33,16 @@ export const TIER_RULES = {
   })] as Array<Record<string, number> | null>,
 }
 
+/** 职业专属晋升材料（6-7阶用 A，8-9阶用 B），下标 = 目标阶 - 1 */
+export const CLASS_TIER_MATS: Record<string, Array<{ id: string; name: string; count: number } | null>> = {
+  warrior:  [null, null, null, null, null, { id: 'war_blood', name: '战神之血', count: 3 }, { id: 'war_blood', name: '战神之血', count: 6 }, { id: 'war_soul', name: '不灭战魂', count: 3 }, { id: 'war_soul', name: '不灭战魂', count: 6 }],
+  mage:     [null, null, null, null, null, { id: 'elemental_crystal', name: '元素魔晶', count: 3 }, { id: 'elemental_crystal', name: '元素魔晶', count: 6 }, { id: 'arcane_essence', name: '奥术之源', count: 3 }, { id: 'arcane_essence', name: '奥术之源', count: 6 }],
+  assassin: [null, null, null, null, null, { id: 'shadow_fang', name: '暗影之牙', count: 3 }, { id: 'shadow_fang', name: '暗影之牙', count: 6 }, { id: 'void_soul', name: '虚无之魂', count: 3 }, { id: 'void_soul', name: '虚无之魂', count: 6 }],
+  ranger:   [null, null, null, null, null, { id: 'storm_feather', name: '风暴翎羽', count: 3 }, { id: 'storm_feather', name: '风暴翎羽', count: 6 }, { id: 'beast_spirit', name: '万兽之魄', count: 3 }, { id: 'beast_spirit', name: '万兽之魄', count: 6 }],
+  priest:   [null, null, null, null, null, { id: 'holy_crystal', name: '圣光结晶', count: 3 }, { id: 'holy_crystal', name: '圣光结晶', count: 6 }, { id: 'divine_grace', name: '神恩之露', count: 3 }, { id: 'divine_grace', name: '神恩之露', count: 6 }],
+  warlock:  [null, null, null, null, null, { id: 'demon_horn', name: '恶魔之角', count: 3 }, { id: 'demon_horn', name: '恶魔之角', count: 6 }, { id: 'abyss_core', name: '深渊之核', count: 3 }, { id: 'abyss_core', name: '深渊之核', count: 6 }],
+}
+
 export interface Item {
   uid: string; id: string; name: string
   type: 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
@@ -461,7 +471,7 @@ export const useGameStore = create<GameState>()(
         const lvReq = TIER_RULES.levelReq[idx] ?? 1
         const layerReq = TIER_RULES.layerReq[idx] ?? 1
         const goldCost = TIER_RULES.goldCost[idx] ?? 0
-        const matReq = TIER_RULES.materialReq[idx]
+        const matReq = CLASS_TIER_MATS[p.classId]?.[idx] ?? TIER_RULES.materialReq[idx]
         if (p.level < lvReq) return { success: false, message: `等级不足（需要 Lv.${lvReq}）` }
         if ((p.maxLayer || 1) < layerReq) return { success: false, message: `探索层数不足（需要到达第 ${layerReq} 层）` }
         if (p.gold < goldCost) return { success: false, message: `金币不足（需要 ${goldCost}）` }

@@ -41710,6 +41710,13 @@ function rollRoomLoot(roomType, layer, rng) {
       const pool = getItems().filter((i) => i.type === "skillbook");
       return pool.length > 0 ? rng.pickOne(pool) : void 0;
     }
+    if (token.startsWith("classmat:")) {
+      const grade = token.split(":")[1];
+      const pool = getItems().filter(
+        (i) => i.type === "material" && (grade === "low" ? i.quality === "epic" : i.quality === "legendary") && /晋升材料/.test(i.desc || "")
+      );
+      return pool.length > 0 ? rng.pickOne(pool) : void 0;
+    }
     return getItemById(token);
   };
   for (let i = 0; i < rollCount; i++) {

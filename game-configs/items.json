@@ -2972,6 +2972,114 @@
       },
       "value": 500,
       "stackSize": 99
+    },
+    {
+      "id": "war_blood",
+      "name": "战神之血",
+      "type": "material",
+      "quality": "epic",
+      "desc": "战士晋升材料：传说中战神留下的滚烫血液",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "war_soul",
+      "name": "不灭战魂",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "战士终极晋升材料：历经百战而不灭的战意之魂",
+      "value": 500,
+      "stackSize": 99
+    },
+    {
+      "id": "elemental_crystal",
+      "name": "元素魔晶",
+      "type": "material",
+      "quality": "epic",
+      "desc": "法师晋升材料：凝聚了纯粹元素之力的魔晶",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "arcane_essence",
+      "name": "奥术之源",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "法师终极晋升材料：奥术洪流的源头精粹",
+      "value": 500,
+      "stackSize": 99
+    },
+    {
+      "id": "shadow_fang",
+      "name": "暗影之牙",
+      "type": "material",
+      "quality": "epic",
+      "desc": "刺客晋升材料：从暗影巨兽口中取下的利齿",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "void_soul",
+      "name": "虚无之魂",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "刺客终极晋升材料：游荡于虚实之间的灵魂残片",
+      "value": 500,
+      "stackSize": 99
+    },
+    {
+      "id": "storm_feather",
+      "name": "风暴翎羽",
+      "type": "material",
+      "quality": "epic",
+      "desc": "游侠晋升材料：风暴巨鹰身上最锋利的一根翎羽",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "beast_spirit",
+      "name": "万兽之魄",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "游侠终极晋升材料：万兽之王臣服后留下的魂魄",
+      "value": 500,
+      "stackSize": 99
+    },
+    {
+      "id": "holy_crystal",
+      "name": "圣光结晶",
+      "type": "material",
+      "quality": "epic",
+      "desc": "牧师晋升材料：圣光经年累月凝成的结晶",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "divine_grace",
+      "name": "神恩之露",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "牧师终极晋升材料：神明垂怜世人时落下的一滴甘露",
+      "value": 500,
+      "stackSize": 99
+    },
+    {
+      "id": "demon_horn",
+      "name": "恶魔之角",
+      "type": "material",
+      "quality": "epic",
+      "desc": "术士晋升材料：深渊恶魔被折断的弯角",
+      "value": 200,
+      "stackSize": 99
+    },
+    {
+      "id": "abyss_core",
+      "name": "深渊之核",
+      "type": "material",
+      "quality": "legendary",
+      "desc": "术士终极晋升材料：深渊最深处跳动的黑暗核心",
+      "value": 500,
+      "stackSize": 99
     }
   ]
 }

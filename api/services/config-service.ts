@@ -150,6 +150,7 @@ export interface ClassTierRules {
   layerReq: number[];
   goldCost: number[];
   materialReq: Array<{ id: string; name: string; count: number } | null>;
+  classMaterialReq?: Record<string, Array<{ id: string; name: string; count: number } | null>>;
   rewards: Array<Record<string, number> | null>;
 }
 
