@@ -16,7 +16,7 @@ export interface Player {
 /** 等阶规则（与 game-configs/classes.json 的 tierRules 保持一致，作为离线兜底） */
 export const TIER_RULES = {
   maxTier: 9,
-  levelReq: [1, 10, 20, 30, 40, 50, 60, 70, 80],
+  levelReq: [10, 25, 45, 70, 100, 135, 175, 220, 270],
   layerReq: [1, 5, 10, 16, 22, 30, 38, 46, 55],
   goldCost: [0, 800, 1600, 3000, 5000, 8000, 12000, 18000, 26000],
   materialReq: [null, null, null,

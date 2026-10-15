@@ -388,7 +388,7 @@ export default function CharacterPanel() {
             const rules = getTierRules()
             const maxTier = rules?.maxTier ?? 9
             const tierNames = FALLBACK_TIER_NAMES[player.classId] || []
-            const lvReq = rules?.levelReq ?? [1, 10, 20, 30, 40, 50, 60, 70, 80]
+            const lvReq = rules?.levelReq ?? [10, 25, 45, 70, 100, 135, 175, 220, 270]
             const layerReq = rules?.layerReq ?? [1, 5, 10, 16, 22, 30, 38, 46, 55]
             const goldCost = rules?.goldCost ?? [0, 800, 1600, 3000, 5000, 8000, 12000, 18000, 26000]
             const matReq = rules?.materialReq ?? [null, null, null,
