@@ -152,6 +152,7 @@ export default function Explore() {
 
       const room = result
       const gs = useGameStore.getState()
+      gs.setCombatEnemies([]) // 清空上一场战斗的敌人显示，避免残留
       gs.setRoomInfo(room)
       gs.setCurrentRoomId(roomId)
       gs.addExploredRoom(roomId)
@@ -223,7 +224,7 @@ export default function Explore() {
               addLog(`向${nextDir.direction}移动...`)
               exploreRoom(nextDir.roomId)
             }
-          }, hadBattle ? 1800 : 1000)
+          }, hadBattle ? 1800 : 1500)
         } else {
           addLog(`本层已无可走房间，进入下一层`)
           setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
@@ -348,10 +349,14 @@ export default function Explore() {
             addLog(`获得掉落：${result.drops.map(d => `${d.name}×${d.quantity}`).join('、')}`)
             setStats((s) => ({ ...s, items: s.items + result.drops.length }))
           }
+          // 谢幕停顿：让最后一击的血条清空/怪物倒下动画播完再离开
+          await new Promise((r) => setTimeout(r, 1600))
           break
         }
         if (result.ended) {
           if (result.player.hp <= 0) addLog('你被击败了...')
+          // 战败同样停留，展示角色倒下的最终画面
+          await new Promise((r) => setTimeout(r, 1600))
           break
         }
 
@@ -446,7 +451,7 @@ export default function Explore() {
   }
 
   // 敌人显示：战斗中用 combatEnemies（实时血量），否则用 roomInfo.enemies
-  const displayEnemies = store.inCombat && store.combatEnemies.length > 0
+  const displayEnemies = store.combatEnemies.length > 0
     ? store.combatEnemies
     : (store.roomInfo?.enemies || [])
 
