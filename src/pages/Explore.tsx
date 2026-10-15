@@ -42,6 +42,7 @@ export default function Explore() {
   const store = useGameStore()
   const [logs, setLogs] = useState<string[]>([])
   const [isRunning, setIsRunning] = useState(false)
+  const [moving, setMoving] = useState(false)
   const [currentLayer, setCurrentLayer] = useState(1)
   const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
   const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string }>>([])
@@ -160,6 +161,7 @@ export default function Explore() {
       addLog(`【${roomName}】${room.themeDescription}`)
 
       let cleared = true
+      const hadBattle = room.enemies.length > 0
       // 遇敌 → 自动战斗
       if (room.enemies.length > 0) {
         addLog(`遭遇敌人：${room.enemies.map(e => `${e.name}(HP:${e.hp})`).join('、')}`)
@@ -205,15 +207,23 @@ export default function Explore() {
         return
       }
 
-      // ─── 自动进入下一个房间 ───
+      // ─── 自动进入下一个房间（战斗结束显示移动过渡）───
       if (isRunningRef.current) {
         const gs3 = useGameStore.getState()
         const unvisited = room.directions.filter((d) => !gs3.exploredRooms.has(d.roomId))
         const candidates = unvisited.length > 0 ? unvisited : room.directions
         if (candidates.length > 0) {
           const nextDir = candidates[Math.floor(Math.random() * candidates.length)]
-          addLog(`向${nextDir.direction}移动...`)
-          setTimeout(() => { if (isRunningRef.current) exploreRoom(nextDir.roomId) }, 600)
+          if (hadBattle) addLog(`── 战斗结束 ──`)
+          addLog(`── 移动中 ──`)
+          setMoving(true)
+          setTimeout(() => {
+            setMoving(false)
+            if (isRunningRef.current) {
+              addLog(`向${nextDir.direction}移动...`)
+              exploreRoom(nextDir.roomId)
+            }
+          }, hadBattle ? 1800 : 1000)
         } else {
           addLog(`本层已无可走房间，进入下一层`)
           setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
@@ -345,7 +355,7 @@ export default function Explore() {
           break
         }
 
-        await new Promise((r) => setTimeout(r, 600))
+        await new Promise((r) => setTimeout(r, 1200))
       }
     } catch (err) {
       addLog(`战斗出错: ${err}`)
@@ -468,7 +478,7 @@ export default function Explore() {
                   <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                  <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
                 </div>
               </div>
             </div>
@@ -507,7 +517,7 @@ export default function Explore() {
               <span>HP</span><span>{store.player?.hp ?? 100}/{store.player?.maxHp ?? 100}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${store.player ? (store.player.hp / store.player.maxHp) * 100 : 100}%`, background: 'linear-gradient(90deg, #F85149, #3FB950)' }} />
+              <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${store.player ? (store.player.hp / store.player.maxHp) * 100 : 100}%`, background: 'linear-gradient(90deg, #F85149, #3FB950)' }} />
             </div>
           </div>
           <div>
@@ -515,7 +525,7 @@ export default function Explore() {
               <span>MP</span><span>{store.player?.mp ?? 50}/{store.player?.maxMp ?? 50}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${store.player ? (store.player.mp / store.player.maxMp) * 100 : 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
+              <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${store.player ? (store.player.mp / store.player.maxMp) * 100 : 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
             </div>
           </div>
           {store.player && (
@@ -524,7 +534,7 @@ export default function Explore() {
                 <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
               </div>
             </div>
           )}
@@ -572,6 +582,11 @@ export default function Explore() {
                   战斗中
                 </span>
               )}
+              {moving && !store.inCombat && (
+                <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: '#0D1117' }}>
+                  移动中...
+                </span>
+              )}
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               {store.roomInfo.themeDescription}
@@ -585,7 +600,7 @@ export default function Explore() {
                     <div key={e.id} className="mb-1.5 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)', opacity: e.hp <= 0 ? 0.4 : 1 }}>
                       <span className="w-20 truncate">{e.name}</span>
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                        <div className="h-full rounded-full transition-all" style={{
+                        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
                           width: `${hpPct * 100}%`,
                           background: hpPct > 0.5 ? '#3FB950' : hpPct > 0.2 ? '#C9A84C' : '#F85149',
                         }} />
