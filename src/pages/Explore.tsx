@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
-import { loadCatalogs, getItemInfo, getSkillMpCost } from '@/lib/catalog'
+import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
 
 const ROOM_TYPE_NAMES: Record<string, string> = {
   entrance: '入口', normal: '普通房间', elite: '精英房间', boss: 'Boss房间',
@@ -95,7 +95,11 @@ export default function Explore() {
   const enterNewFloor = useCallback(async (layer: number) => {
     setCurrentLayer(layer)
     setStats((s) => ({ ...s, floor: layer }))
+    const gsFloor = useGameStore.getState()
+    const prevMax = gsFloor.player?.maxLayer || 1
+    gsFloor.updateMaxLayer(layer)
     addLog(`═══ 进入第 ${layer} 层 ═══`)
+    if (layer > prevMax) addLog(`新纪录！最深到达第 ${layer} 层`)
 
     try {
       const result = await generateDungeonMut.mutateAsync({
@@ -428,7 +432,7 @@ export default function Explore() {
             <div className="rounded p-3" style={{ backgroundColor: 'var(--bg-hover)' }}>
               <div className="mb-2 flex items-center justify-between">
                 <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{store.player.name}</span>
-                <span className="text-xs" style={{ color: 'var(--accent)' }}>Lv.{store.player.level}</span>
+                <span className="text-xs" style={{ color: 'var(--accent)' }}>Lv.{store.player.level} · {getTierName(store.player.classId, store.player.tier || 1)}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                 <div className="flex items-center gap-1"><Heart size={12} style={{ color: '#F85149' }} /> {store.player.hp}/{store.player.maxHp}</div>

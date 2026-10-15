@@ -144,13 +144,30 @@ export function getGlobalConfig() {
 }
 
 // ─── Classes ───
-export function getClasses() {
-  const data = getConfigSync("classes") as { classes: Array<{
-    id: string; name: string; role: string; difficulty: string;
-    description: string; baseStats: Record<string, number>;
-    growthStats: Record<string, number>; skillTree: string[];
-  }>};
+export interface ClassTierRules {
+  maxTier: number;
+  levelReq: number[];
+  layerReq: number[];
+  goldCost: number[];
+  materialReq: Array<{ id: string; name: string; count: number } | null>;
+  rewards: Array<Record<string, number> | null>;
+}
+
+export interface ClassDef {
+  id: string; name: string; role: string; difficulty: string;
+  description: string; baseStats: Record<string, number>;
+  growthStats: Record<string, number>; skillTree: string[];
+  tiers?: string[];
+}
+
+export function getClasses(): ClassDef[] {
+  const data = getConfigSync("classes") as { classes: ClassDef[] };
   return data.classes;
+}
+
+export function getTierRules(): ClassTierRules | null {
+  const data = getConfigSync("classes") as { tierRules?: ClassTierRules };
+  return data.tierRules ?? null;
 }
 
 export function getClassById(id: string) {

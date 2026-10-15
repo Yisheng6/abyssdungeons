@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock } from 'lucide-react'
+import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
 import { useGameStore, getEffectiveStats, getItemDisplayName } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
-import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills } from '@/lib/catalog'
+import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
 // 职业中文名映射
 const CLASS_NAMES: Record<string, string> = {
@@ -19,7 +19,7 @@ const CLASS_COLORS: Record<string, string> = {
 export default function CharacterPanel() {
   const navigate = useNavigate()
   const store = useGameStore()
-  const [activeTab, setActiveTab] = useState<'stats' | 'skills' | 'equipment'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'skills' | 'equipment' | 'tier'>('stats')
   const [cooldownLeft, setCooldownLeft] = useState(0)
   const [switchMsg, setSwitchMsg] = useState('')
 
@@ -115,7 +115,7 @@ export default function CharacterPanel() {
               {player?.name || '冒险者'}
             </h3>
             <div className="mt-1 text-sm" style={{ color: store.activeClassId ? CLASS_COLORS[store.activeClassId] || 'var(--accent)' : 'var(--accent)' }}>
-              {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || player.classId}` : '未选择职业'}
+              {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || player.classId} · ${getTierName(player.classId, player.tier || 1)}` : '未选择职业'}
             </div>
             {player && (
               <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -205,11 +205,11 @@ export default function CharacterPanel() {
         <div className="flex-1 p-4">
           {/* Tabs */}
           <div className="mb-3 flex border-b" style={{ borderColor: 'var(--border-color)' }}>
-            {(['stats', 'skills', 'equipment'] as const).map((tab) => (
+            {(['stats', 'skills', 'equipment', 'tier'] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="px-4 pb-2 text-sm font-medium transition-colors"
                 style={{ color: activeTab === tab ? 'var(--accent)' : 'var(--text-muted)', borderBottom: activeTab === tab ? '2px solid var(--accent)' : '2px solid transparent' }}>
-                {tab === 'stats' ? '属性' : tab === 'skills' ? '技能' : '装备'}
+                {tab === 'stats' ? '属性' : tab === 'skills' ? '技能' : tab === 'equipment' ? '装备' : '等阶'}
               </button>
             ))}
           </div>
@@ -358,6 +358,135 @@ export default function CharacterPanel() {
               })}
             </div>
           )}
+
+          {/* Tier Tab (等阶) */}
+          {activeTab === 'tier' && player && (() => {
+            const cur = player.tier || 1
+            const rules = getTierRules()
+            const maxTier = rules?.maxTier ?? 9
+            const tierNames = FALLBACK_TIER_NAMES[player.classId] || []
+            const lvReq = rules?.levelReq ?? [1, 10, 20, 30, 40, 50, 60, 70, 80]
+            const layerReq = rules?.layerReq ?? [1, 5, 10, 16, 22, 30, 38, 46, 55]
+            const goldCost = rules?.goldCost ?? [0, 800, 1600, 3000, 5000, 8000, 12000, 18000, 26000]
+            const matReq = rules?.materialReq ?? [null, null, null,
+              { id: 'soul_shard', name: '灵魂碎片', count: 3 },
+              { id: 'soul_shard', name: '灵魂碎片', count: 6 },
+              { id: 'ancient_rune', name: '远古符文', count: 3 },
+              { id: 'ancient_rune', name: '远古符文', count: 6 },
+              { id: 'dragon_scale', name: '龙鳞', count: 3 },
+              { id: 'dragon_scale', name: '龙鳞', count: 6 }]
+            const rewards = rules?.rewards ?? [null, ...Array.from({ length: 8 }, (_, t) => {
+              const n = t + 2
+              return { hp: 20 * n, mp: 12 * n, atk: 3 * n, def: 2 * n, mag: 3 * n, mdef: 2 * n, agi: n, luk: n }
+            })]
+            const next = cur + 1
+            const isMax = cur >= maxTier
+            const idx = cur // 下一阶规则下标
+            const reqLv = lvReq[idx] ?? 1
+            const reqLayer = layerReq[idx] ?? 1
+            const reqGold = goldCost[idx] ?? 0
+            const reqMat = matReq[idx]
+            const matHave = reqMat ? store.countItemById(reqMat.id) : 0
+            const okLv = player.level >= reqLv
+            const okLayer = (player.maxLayer || 1) >= reqLayer
+            const okGold = player.gold >= reqGold
+            const okMat = !reqMat || matHave >= reqMat.count
+            const canAdvance = !isMax && okLv && okLayer && okGold && okMat
+            const nextReward = rewards[idx]
+
+            return (
+              <div className="space-y-4">
+                {/* 当前等阶 */}
+                <div className="game-card flex items-center gap-3 p-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full"
+                    style={{ backgroundColor: 'var(--bg-hover)', border: '2px solid #C9A84C' }}>
+                    <Crown size={22} style={{ color: '#C9A84C' }} />
+                  </div>
+                  <div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>当前等阶</div>
+                    <div className="text-lg font-bold" style={{ color: '#C9A84C' }}>
+                      {cur}阶 · {getTierName(player.classId, cur)}
+                    </div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      最深到达：第 {player.maxLayer || 1} 层
+                    </div>
+                  </div>
+                </div>
+
+                {/* 进阶条件 */}
+                {!isMax ? (
+                  <div className="game-card p-4">
+                    <div className="mb-3 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                      进阶至 {next}阶 · {getTierName(player.classId, next)}
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      {[
+                        { ok: okLv, label: `等级达到 Lv.${reqLv}`, cur: `当前 Lv.${player.level}` },
+                        { ok: okLayer, label: `探索到达第 ${reqLayer} 层`, cur: `当前第 ${player.maxLayer || 1} 层` },
+                        { ok: okGold, label: `金币 ×${reqGold}`, cur: `当前 ${player.gold}` },
+                        ...(reqMat ? [{ ok: okMat, label: `${reqMat.name} ×${reqMat.count}`, cur: `当前 ${matHave}` }] : []),
+                      ].map((c, i2) => (
+                        <div key={i2} className="flex items-center justify-between">
+                          <span style={{ color: c.ok ? '#3FB950' : 'var(--text-secondary)' }}>
+                            {c.ok ? '✓' : '✗'} {c.label}
+                          </span>
+                          <span style={{ color: 'var(--text-muted)' }}>{c.cur}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 奖励预览 */}
+                    {nextReward && (
+                      <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border-color)' }}>
+                        <div className="mb-1 text-xs" style={{ color: 'var(--text-muted)' }}>进阶奖励（永久属性）</div>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(nextReward).map(([s, v]) => (
+                            <span key={s} className="rounded px-2 py-0.5 text-[10px]"
+                              style={{ backgroundColor: 'var(--bg-hover)', color: '#3FB950' }}>
+                              +{v} {statNames[s] || s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        const r = store.advanceTier()
+                        setSwitchMsg(r.message)
+                      }}
+                      disabled={!canAdvance}
+                      className="mt-4 w-full rounded py-2 text-sm font-bold transition-opacity"
+                      style={{
+                        backgroundColor: canAdvance ? '#C9A84C' : 'var(--bg-hover)',
+                        color: canAdvance ? '#000' : 'var(--text-muted)',
+                        opacity: canAdvance ? 1 : 0.6, cursor: canAdvance ? 'pointer' : 'not-allowed',
+                      }}>
+                      {canAdvance ? '进 阶' : '条件未满足'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="game-card p-4 text-center text-sm" style={{ color: '#C9A84C' }}>
+                    已达最高等阶 · {getTierName(player.classId, cur)}
+                  </div>
+                )}
+
+                {/* 等阶之路 */}
+                <div className="game-card p-4">
+                  <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>等阶之路</div>
+                  <div className="space-y-1">
+                    {Array.from({ length: maxTier }, (_, t) => t + 1).map((t) => (
+                      <div key={t} className="flex items-center justify-between text-xs"
+                        style={{ color: t === cur ? '#C9A84C' : t < cur ? '#3FB950' : 'var(--text-muted)' }}>
+                        <span>{t}阶 · {tierNames[t - 1] || getTierName(player.classId, t)}</span>
+                        <span>{t < cur ? '已达成' : t === cur ? '当前' : `Lv.${lvReq[t - 1]} / 第${layerReq[t - 1]}层`}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>

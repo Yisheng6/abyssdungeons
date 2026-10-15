@@ -326,6 +326,15 @@
             1,
             2
           ]
+        },
+        {
+          "item": "soul_shard",
+          "weight": 8,
+          "qty": [
+            1,
+            1
+          ],
+          "minLayer": 10
         }
       ]
     },
@@ -426,6 +435,32 @@
             1
           ],
           "minLayer": 10
+        },
+        {
+          "item": "soul_shard",
+          "weight": 20,
+          "qty": [
+            1,
+            2
+          ]
+        },
+        {
+          "item": "ancient_rune",
+          "weight": 12,
+          "qty": [
+            1,
+            2
+          ],
+          "minLayer": 30
+        },
+        {
+          "item": "dragon_scale",
+          "weight": 8,
+          "qty": [
+            1,
+            2
+          ],
+          "minLayer": 46
         }
       ]
     },

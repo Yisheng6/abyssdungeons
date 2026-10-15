@@ -9,6 +9,28 @@ export interface Player {
   hp: number; maxHp: number; mp: number; maxMp: number
   atk: number; def: number; mag: number; mdef: number; agi: number; luk: number
   skills: string[]; element: string; exp: number; gold: number
+  /** 职业等阶 1-9 */ tier: number
+  /** 地牢最深到达层数 */ maxLayer: number
+}
+
+/** 等阶规则（与 game-configs/classes.json 的 tierRules 保持一致，作为离线兜底） */
+export const TIER_RULES = {
+  maxTier: 9,
+  levelReq: [1, 10, 20, 30, 40, 50, 60, 70, 80],
+  layerReq: [1, 5, 10, 16, 22, 30, 38, 46, 55],
+  goldCost: [0, 800, 1600, 3000, 5000, 8000, 12000, 18000, 26000],
+  materialReq: [null, null, null,
+    { id: 'soul_shard', name: '灵魂碎片', count: 3 },
+    { id: 'soul_shard', name: '灵魂碎片', count: 6 },
+    { id: 'ancient_rune', name: '远古符文', count: 3 },
+    { id: 'ancient_rune', name: '远古符文', count: 6 },
+    { id: 'dragon_scale', name: '龙鳞', count: 3 },
+    { id: 'dragon_scale', name: '龙鳞', count: 6 },
+  ] as Array<{ id: string; name: string; count: number } | null>,
+  rewards: [null, ...Array.from({ length: 8 }, (_, i) => {
+    const t = i + 2
+    return { hp: 20 * t, mp: 12 * t, atk: 3 * t, def: 2 * t, mag: 3 * t, mdef: 2 * t, agi: 1 * t, luk: 1 * t }
+  })] as Array<Record<string, number> | null>,
 }
 
 export interface Item {
@@ -135,6 +157,10 @@ interface GameState {
   updatePlayerMp: (mp: number) => void
   addPlayerExp: (amount: number) => void
   addPlayerGold: (amount: number) => void
+
+  // Class tier (等阶)
+  advanceTier: () => { success: boolean; message: string }
+  updateMaxLayer: (layer: number) => void
 
   // Equipment (affects current class save)
   equipItem: (itemUid: string) => void
@@ -274,6 +300,7 @@ export const useGameStore = create<GameState>()(
           mag: stats.mag || 10, mdef: stats.mdef || 8,
           agi: stats.agi || 10, luk: stats.luk || 5,
           skills: [...(STARTER_SKILLS[classId] || [])], element: 'none', exp: 0, gold: 0,
+          tier: 1, maxLayer: 1,
         }
 
         const classSave: ClassSave = { player: newPlayer, equipment: { ...defaultEquipment } }
@@ -339,6 +366,7 @@ export const useGameStore = create<GameState>()(
               mag: stats.mag || 10, mdef: stats.mdef || 8,
               agi: stats.agi || 10, luk: stats.luk || 5,
               skills: [...(STARTER_SKILLS[targetClassId] || [])], element: 'none', exp: 0, gold: 0,
+              tier: 1, maxLayer: 1,
             },
             equipment: { ...defaultEquipment },
           }
@@ -409,6 +437,56 @@ export const useGameStore = create<GameState>()(
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
         set({ player: np, classSaves: ns })
+      },
+
+      // ─── Class tier (等阶) ───
+      updateMaxLayer: (layer) => {
+        const s = get()
+        if (!s.player) return
+        if (layer <= (s.player.maxLayer || 1)) return
+        const np = { ...s.player, maxLayer: layer }
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({ player: np, classSaves: ns })
+      },
+
+      advanceTier: () => {
+        const s = get()
+        const p = s.player
+        if (!p) return { success: false, message: '尚未创建角色' }
+        const cur = p.tier || 1
+        if (cur >= TIER_RULES.maxTier) return { success: false, message: '已达最高等阶' }
+        const idx = cur // 目标等阶 = cur+1，规则数组下标 = 目标-1
+        const lvReq = TIER_RULES.levelReq[idx] ?? 1
+        const layerReq = TIER_RULES.layerReq[idx] ?? 1
+        const goldCost = TIER_RULES.goldCost[idx] ?? 0
+        const matReq = TIER_RULES.materialReq[idx]
+        if (p.level < lvReq) return { success: false, message: `等级不足（需要 Lv.${lvReq}）` }
+        if ((p.maxLayer || 1) < layerReq) return { success: false, message: `探索层数不足（需要到达第 ${layerReq} 层）` }
+        if (p.gold < goldCost) return { success: false, message: `金币不足（需要 ${goldCost}）` }
+        if (matReq) {
+          const have = s.countItemById(matReq.id)
+          if (have < matReq.count) {
+            return { success: false, message: `材料不足：${matReq.name} ${have}/${matReq.count}` }
+          }
+        }
+        // 消耗金币 + 材料
+        let inventory = [...s.inventory]
+        if (matReq) {
+          let need = matReq.count
+          inventory = inventory.map((it) => {
+            if (it.id !== matReq.id || need <= 0) return it
+            const take = Math.min(it.quantity, need)
+            need -= take
+            return { ...it, quantity: it.quantity - take }
+          }).filter((it) => it.quantity > 0)
+        }
+        const reward = TIER_RULES.rewards[idx] || {}
+        const np: Player = applyStatDelta({ ...p, tier: cur + 1, gold: p.gold - goldCost }, reward)
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({ player: np, classSaves: ns, inventory })
+        return { success: true, message: `进阶成功！当前等阶：${cur + 1}` }
       },
 
       // ─── Equipment ───
@@ -831,6 +909,10 @@ export const useGameStore = create<GameState>()(
           const fixSkills = (p: Player | null | undefined) => {
             if (p && p.skills.length === 0 && STARTER_SKILLS[p.classId]) {
               p.skills = [...STARTER_SKILLS[p.classId]]
+            }
+            if (p) {
+              if (!p.tier || p.tier < 1) p.tier = 1
+              if (!p.maxLayer || p.maxLayer < 1) p.maxLayer = 1
             }
           }
           fixSkills(state.player)

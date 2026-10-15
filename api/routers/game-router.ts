@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createRouter, publicQuery } from "../middleware";
 import {
-  getClasses, getClassById, getSkillsByClass,
+  getClasses, getClassById, getTierRules, getSkillsByClass,
   getEnemiesByFamily, getBossByFamily, getRoomTypes,
   getThemeByLayer, getConsumables, getQualities,
   getElementMultiplier, getEnemyById,
@@ -20,7 +20,12 @@ export const gameRouter = createRouter({
       difficulty: (c as unknown as Record<string, string>).difficulty || "中等",
       description: c.description,
       baseStats: c.baseStats,
+      tiers: c.tiers ?? [],
     }));
+  }),
+
+  getTierRules: publicQuery.query(() => {
+    return getTierRules();
   }),
 
   getClassDetail: publicQuery

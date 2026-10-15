@@ -11254,6 +11254,7 @@ __export(config_service_exports, {
   getSkills: () => getSkills,
   getSkillsByClass: () => getSkillsByClass,
   getThemeByLayer: () => getThemeByLayer,
+  getTierRules: () => getTierRules,
   isFeatureEnabled: () => isFeatureEnabled,
   reloadConfig: () => reloadConfig,
   renderTemplate: () => renderTemplate,
@@ -11307,6 +11308,10 @@ function getGlobalConfig() {
 function getClasses() {
   const data = getConfigSync("classes");
   return data.classes;
+}
+function getTierRules() {
+  const data = getConfigSync("classes");
+  return data.tierRules ?? null;
 }
 function getClassById(id) {
   return getClasses().find((c) => c.id === id);
@@ -41981,8 +41986,12 @@ var gameRouter = createRouter({
       role: c.role,
       difficulty: c.difficulty || "\u4E2D\u7B49",
       description: c.description,
-      baseStats: c.baseStats
+      baseStats: c.baseStats,
+      tiers: c.tiers ?? []
     }));
+  }),
+  getTierRules: publicQuery.query(() => {
+    return getTierRules();
   }),
   getClassDetail: publicQuery.input(external_exports.object({ classId: external_exports.string() })).query(({ input }) => {
     const cls = getClassById(input.classId);

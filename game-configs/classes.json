@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "classes": [
     {
       "id": "warrior",
@@ -8,9 +8,45 @@
       "role": "近战坦克",
       "difficulty": "简单",
       "description": "高生命高防御，前排承伤",
-      "baseStats": { "hp": 150, "mp": 30, "atk": 12, "def": 10, "mag": 2, "mdef": 5, "agi": 6, "luk": 5 },
-      "growthStats": { "hp": 15, "mp": 2, "atk": 2, "def": 2, "mag": 0, "mdef": 1, "agi": 1, "luk": 1 },
-      "skillTree": ["shield_bash", "taunt", "heavy_strike", "iron_will", "whirlwind", "last_stand"]
+      "baseStats": {
+        "hp": 150,
+        "mp": 30,
+        "atk": 12,
+        "def": 10,
+        "mag": 2,
+        "mdef": 5,
+        "agi": 6,
+        "luk": 5
+      },
+      "growthStats": {
+        "hp": 15,
+        "mp": 2,
+        "atk": 2,
+        "def": 2,
+        "mag": 0,
+        "mdef": 1,
+        "agi": 1,
+        "luk": 1
+      },
+      "skillTree": [
+        "shield_bash",
+        "taunt",
+        "heavy_strike",
+        "iron_will",
+        "whirlwind",
+        "last_stand"
+      ],
+      "tiers": [
+        "战徒",
+        "武者",
+        "战士",
+        "大战士",
+        "战尊",
+        "战王",
+        "战帝",
+        "圣战者",
+        "战神"
+      ]
     },
     {
       "id": "mage",
@@ -19,9 +55,45 @@
       "role": "远程魔法",
       "difficulty": "中等",
       "description": "高魔法伤害，群体输出",
-      "baseStats": { "hp": 80, "mp": 80, "atk": 4, "def": 3, "mag": 15, "mdef": 10, "agi": 7, "luk": 6 },
-      "growthStats": { "hp": 6, "mp": 8, "atk": 0, "def": 0, "mag": 3, "mdef": 2, "agi": 1, "luk": 1 },
-      "skillTree": ["fireball", "frostbolt", "lightning", "mana_shield", "meteor", "arcane_power"]
+      "baseStats": {
+        "hp": 80,
+        "mp": 80,
+        "atk": 4,
+        "def": 3,
+        "mag": 15,
+        "mdef": 10,
+        "agi": 7,
+        "luk": 6
+      },
+      "growthStats": {
+        "hp": 6,
+        "mp": 8,
+        "atk": 0,
+        "def": 0,
+        "mag": 3,
+        "mdef": 2,
+        "agi": 1,
+        "luk": 1
+      },
+      "skillTree": [
+        "fireball",
+        "frostbolt",
+        "lightning",
+        "mana_shield",
+        "meteor",
+        "arcane_power"
+      ],
+      "tiers": [
+        "魔法侍从",
+        "魔法学徒",
+        "魔法师",
+        "大魔法师",
+        "魔导士",
+        "大魔导士",
+        "大魔导师",
+        "圣魔导师",
+        "法神"
+      ]
     },
     {
       "id": "assassin",
@@ -30,9 +102,45 @@
       "role": "近战爆发",
       "difficulty": "困难",
       "description": "高敏捷高暴击，秒杀敌人",
-      "baseStats": { "hp": 90, "mp": 40, "atk": 15, "def": 4, "mag": 3, "mdef": 4, "agi": 15, "luk": 12 },
-      "growthStats": { "hp": 8, "mp": 3, "atk": 3, "def": 0, "mag": 0, "mdef": 1, "agi": 3, "luk": 2 },
-      "skillTree": ["shadow_step", "backstab", "poison_blade", "smoke_bomb", "assassinate", "shadow_dance"]
+      "baseStats": {
+        "hp": 90,
+        "mp": 40,
+        "atk": 15,
+        "def": 4,
+        "mag": 3,
+        "mdef": 4,
+        "agi": 15,
+        "luk": 12
+      },
+      "growthStats": {
+        "hp": 8,
+        "mp": 3,
+        "atk": 3,
+        "def": 0,
+        "mag": 0,
+        "mdef": 1,
+        "agi": 3,
+        "luk": 2
+      },
+      "skillTree": [
+        "shadow_step",
+        "backstab",
+        "poison_blade",
+        "smoke_bomb",
+        "assassinate",
+        "shadow_dance"
+      ],
+      "tiers": [
+        "潜徒",
+        "潜行者",
+        "刺客",
+        "大刺客",
+        "影刺",
+        "王刺",
+        "帝刺",
+        "圣影刺客",
+        "暗影主宰"
+      ]
     },
     {
       "id": "ranger",
@@ -41,9 +149,45 @@
       "role": "远程物理",
       "difficulty": "中等",
       "description": "持续输出，陷阱与控制",
-      "baseStats": { "hp": 100, "mp": 45, "atk": 13, "def": 5, "mag": 4, "mdef": 5, "agi": 12, "luk": 8 },
-      "growthStats": { "hp": 9, "mp": 3, "atk": 2, "def": 1, "mag": 0, "mdef": 1, "agi": 2, "luk": 1 },
-      "skillTree": ["aimed_shot", "trap", "multishot", "poison_arrow", "stampede", "eagle_eye"]
+      "baseStats": {
+        "hp": 100,
+        "mp": 45,
+        "atk": 13,
+        "def": 5,
+        "mag": 4,
+        "mdef": 5,
+        "agi": 12,
+        "luk": 8
+      },
+      "growthStats": {
+        "hp": 9,
+        "mp": 3,
+        "atk": 2,
+        "def": 1,
+        "mag": 0,
+        "mdef": 1,
+        "agi": 2,
+        "luk": 1
+      },
+      "skillTree": [
+        "aimed_shot",
+        "trap",
+        "multishot",
+        "poison_arrow",
+        "stampede",
+        "eagle_eye"
+      ],
+      "tiers": [
+        "巡猎学徒",
+        "巡猎者",
+        "游侠",
+        "大游侠",
+        "风狩猎手",
+        "辉耀箭师",
+        "圣殿猎尊",
+        "圣羽射手",
+        "万猎之主"
+      ]
     },
     {
       "id": "priest",
@@ -52,9 +196,45 @@
       "role": "辅助治疗",
       "difficulty": "简单",
       "description": "团队续航，驱散负面状态",
-      "baseStats": { "hp": 110, "mp": 70, "atk": 5, "def": 6, "mag": 12, "mdef": 12, "agi": 5, "luk": 7 },
-      "growthStats": { "hp": 10, "mp": 6, "atk": 0, "def": 1, "mag": 2, "mdef": 2, "agi": 1, "luk": 1 },
-      "skillTree": ["heal", "holy_light", "bless", "dispel", "resurrection", "divine_shield"]
+      "baseStats": {
+        "hp": 110,
+        "mp": 70,
+        "atk": 5,
+        "def": 6,
+        "mag": 12,
+        "mdef": 12,
+        "agi": 5,
+        "luk": 7
+      },
+      "growthStats": {
+        "hp": 10,
+        "mp": 6,
+        "atk": 0,
+        "def": 1,
+        "mag": 2,
+        "mdef": 2,
+        "agi": 1,
+        "luk": 1
+      },
+      "skillTree": [
+        "heal",
+        "holy_light",
+        "bless",
+        "dispel",
+        "resurrection",
+        "divine_shield"
+      ],
+      "tiers": [
+        "侍僧",
+        "神官",
+        "祭祀",
+        "大祭祀",
+        "主教",
+        "大主教",
+        "红衣主教",
+        "枢机主教",
+        "圣者"
+      ]
     },
     {
       "id": "warlock",
@@ -63,9 +243,199 @@
       "role": "持续伤害",
       "difficulty": "困难",
       "description": "DOT 与召唤，资源管理",
-      "baseStats": { "hp": 95, "mp": 65, "atk": 6, "def": 4, "mag": 14, "mdef": 8, "agi": 6, "luk": 9 },
-      "growthStats": { "hp": 8, "mp": 5, "atk": 0, "def": 0, "mag": 3, "mdef": 1, "agi": 1, "luk": 1 },
-      "skillTree": ["corruption", "summon_imp", "life_drain", "curse", "demon_form", "soul_harvest"]
+      "baseStats": {
+        "hp": 95,
+        "mp": 65,
+        "atk": 6,
+        "def": 4,
+        "mag": 14,
+        "mdef": 8,
+        "agi": 6,
+        "luk": 9
+      },
+      "growthStats": {
+        "hp": 8,
+        "mp": 5,
+        "atk": 0,
+        "def": 0,
+        "mag": 3,
+        "mdef": 1,
+        "agi": 1,
+        "luk": 1
+      },
+      "skillTree": [
+        "corruption",
+        "summon_imp",
+        "life_drain",
+        "curse",
+        "demon_form",
+        "soul_harvest"
+      ],
+      "tiers": [
+        "暗影侍徒",
+        "咒术学徒",
+        "术士",
+        "大术士",
+        "咒魔导士",
+        "灾厄大魔导",
+        "魂引师",
+        "暗影圣者",
+        "万咒之主"
+      ]
     }
-  ]
+  ],
+  "tierRules": {
+    "maxTier": 9,
+    "levelReq": [
+      1,
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80
+    ],
+    "layerReq": [
+      1,
+      5,
+      10,
+      16,
+      22,
+      30,
+      38,
+      46,
+      55
+    ],
+    "goldCost": [
+      0,
+      800,
+      1600,
+      3000,
+      5000,
+      8000,
+      12000,
+      18000,
+      26000
+    ],
+    "materialReq": [
+      null,
+      null,
+      null,
+      {
+        "id": "soul_shard",
+        "name": "灵魂碎片",
+        "count": 3
+      },
+      {
+        "id": "soul_shard",
+        "name": "灵魂碎片",
+        "count": 6
+      },
+      {
+        "id": "ancient_rune",
+        "name": "远古符文",
+        "count": 3
+      },
+      {
+        "id": "ancient_rune",
+        "name": "远古符文",
+        "count": 6
+      },
+      {
+        "id": "dragon_scale",
+        "name": "龙鳞",
+        "count": 3
+      },
+      {
+        "id": "dragon_scale",
+        "name": "龙鳞",
+        "count": 6
+      }
+    ],
+    "rewards": [
+      null,
+      {
+        "hp": 40,
+        "mp": 24,
+        "atk": 6,
+        "def": 4,
+        "mag": 6,
+        "mdef": 4,
+        "agi": 2,
+        "luk": 2
+      },
+      {
+        "hp": 60,
+        "mp": 36,
+        "atk": 9,
+        "def": 6,
+        "mag": 9,
+        "mdef": 6,
+        "agi": 3,
+        "luk": 3
+      },
+      {
+        "hp": 80,
+        "mp": 48,
+        "atk": 12,
+        "def": 8,
+        "mag": 12,
+        "mdef": 8,
+        "agi": 4,
+        "luk": 4
+      },
+      {
+        "hp": 100,
+        "mp": 60,
+        "atk": 15,
+        "def": 10,
+        "mag": 15,
+        "mdef": 10,
+        "agi": 5,
+        "luk": 5
+      },
+      {
+        "hp": 120,
+        "mp": 72,
+        "atk": 18,
+        "def": 12,
+        "mag": 18,
+        "mdef": 12,
+        "agi": 6,
+        "luk": 6
+      },
+      {
+        "hp": 140,
+        "mp": 84,
+        "atk": 21,
+        "def": 14,
+        "mag": 21,
+        "mdef": 14,
+        "agi": 7,
+        "luk": 7
+      },
+      {
+        "hp": 160,
+        "mp": 96,
+        "atk": 24,
+        "def": 16,
+        "mag": 24,
+        "mdef": 16,
+        "agi": 8,
+        "luk": 8
+      },
+      {
+        "hp": 180,
+        "mp": 108,
+        "atk": 27,
+        "def": 18,
+        "mag": 27,
+        "mdef": 18,
+        "agi": 9,
+        "luk": 9
+      }
+    ]
+  }
 }

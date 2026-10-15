@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
-import { loadCatalogs } from '@/lib/catalog'
+import { loadCatalogs, getTierName } from '@/lib/catalog'
 
 // 职业中文名映射
 const CLASS_NAMES: Record<string, string> = {
@@ -47,7 +47,7 @@ export default function Town() {
           </div>
           <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{playerName}</h3>
           <span className="inline-block rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--accent)' }}>
-            {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || player.classId}` : '点击角色面板创建角色'}
+            {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || player.classId} · ${getTierName(player.classId, player.tier || 1)}` : '点击角色面板创建角色'}
           </span>
         </div>
 
