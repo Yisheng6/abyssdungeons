@@ -121,7 +121,7 @@ export default function CharacterPanel() {
             </div>
             {player && (
               <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                金币: {player.gold}
+                金币: {player.gold} | 钻石: {player.diamonds || 0}
               </div>
             )}
 

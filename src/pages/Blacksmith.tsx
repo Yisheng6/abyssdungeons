@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { ArrowLeft, Hammer, Sparkles, Recycle, FlaskConical, Shield, Star } from 'lucide-react'
 import {
   useGameStore, type Item,
-  getEffectiveStats, getItemDisplayName, getEnhanceCost, getDisassembleYield,
+  getEffectiveStats, getItemDisplayName, getEnhanceCost, getDisassembleGold,
   ENHANCE_MAX_LEVEL, ENHANCE_SUCCESS_RATES,
 } from '@/stores/gameStore'
 import { loadCatalogs } from '@/lib/catalog'
@@ -235,7 +235,7 @@ export default function Blacksmith() {
         {tab === 'disassemble' && (
           <div className="flex-1 p-4">
             <div className="mb-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-              分解背包中的装备获得强化石碎片（已装备的物品不会被分解）
+              分解背包中的装备获得金币（已装备的物品不会被分解）
             </div>
             {bagEquipment.length === 0 ? (
               <div className="rounded-lg p-8 text-center text-sm" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
@@ -247,7 +247,7 @@ export default function Blacksmith() {
                   <div key={item.uid} className="game-card p-2">
                     <div className="text-xs font-bold" style={{ color: qualityColors[item.quality] }}>{getItemDisplayName(item)}</div>
                     <div className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                      可得碎片 ×{getDisassembleYield(item)}
+                      可得金币 ×{getDisassembleGold(item)}
                     </div>
                     <button onClick={() => doDisassemble(item)}
                       className="mt-2 w-full rounded px-2 py-1 text-[10px] font-bold"

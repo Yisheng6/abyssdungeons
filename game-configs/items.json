@@ -2516,30 +2516,12 @@
       "stackSize": 99
     },
     {
-      "id": "coin_copper",
-      "name": "铜币",
-      "type": "currency",
-      "quality": "common",
-      "desc": "地牢中流通的货币，拾取时自动兑换 1 金币。",
-      "value": 1,
-      "stackSize": 999
-    },
-    {
-      "id": "coin_silver",
-      "name": "银币",
-      "type": "currency",
-      "quality": "common",
-      "desc": "地牢中流通的货币，拾取时自动兑换 10 金币。",
-      "value": 10,
-      "stackSize": 999
-    },
-    {
       "id": "coin_gold",
       "name": "金币",
       "type": "currency",
       "quality": "common",
-      "desc": "地牢中流通的货币，拾取时自动兑换 100 金币。",
-      "value": 100,
+      "desc": "通用货币，可用于学习技能、进阶、强化装备",
+      "value": 1,
       "stackSize": 999
     },
     {
@@ -3080,6 +3062,15 @@
       "desc": "术士终极晋升材料：深渊最深处跳动的黑暗核心",
       "value": 500,
       "stackSize": 99
+    },
+    {
+      "id": "gem_diamond",
+      "name": "钻石",
+      "type": "currency",
+      "quality": "legendary",
+      "desc": "珍贵的付费货币，价值连城",
+      "value": 1,
+      "stackSize": 9999
     }
   ]
 }

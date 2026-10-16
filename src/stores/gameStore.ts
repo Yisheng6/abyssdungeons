@@ -11,6 +11,7 @@ export interface Player {
   /** 体质：生命上限/少量物防/生命回复/物理异常抵抗 */ con: number
   /** 意志：精神抗性/少量魔防/魔力回复 */ wil: number
   skills: string[]; element: string; exp: number; gold: number
+  /** 钻石：付费货币 */ diamonds: number
   /** 职业等阶 1-9 */ tier: number
   /** 地牢最深到达层数 */ maxLayer: number
 }
@@ -86,10 +87,10 @@ export function getItemDisplayName(item: Item): string {
   return lv > 0 ? `${item.name} +${lv}` : item.name
 }
 
-/** 分解装备可获得的碎片数 */
-export function getDisassembleYield(item: Item): number {
-  const base: Record<string, number> = { common: 1, fine: 2, rare: 4, epic: 8, legendary: 16, mythic: 32 }
-  return (base[item.quality] || 1) + (item.setTier || 0) * 2 + (item.enhanceLevel || 0)
+/** 分解装备可获得的金币（品质 + 套装阶级 + 强化等级） */
+export function getDisassembleGold(item: Item): number {
+  const base: Record<string, number> = { common: 20, fine: 50, rare: 120, epic: 300, legendary: 800, mythic: 2000 }
+  return (base[item.quality] || 20) + (item.setTier || 0) * 100 + (item.enhanceLevel || 0) * 50
 }
 
 export interface Equipment {
@@ -146,6 +147,9 @@ interface GameState {
   roomInfo: RoomInfo | null
   dungeonRooms: Array<{ id: number; type: string; x: number; y: number; connections: number[]; explored: boolean }>
 
+  // ─── 探索临时物品栏（结束探索后自动转入背包）───
+  tempBag: Item[]
+
   // ─── Combat ───
   inCombat: boolean; combatEnemies: Enemy[]; combatLogs: string[]
   combatEnded: boolean; combatVictory: boolean
@@ -185,6 +189,12 @@ interface GameState {
   // Shared inventory
   addItem: (item: Item) => void
   removeItem: (itemUid: string) => void
+  addPlayerDiamonds: (amount: number) => void
+
+  // 探索临时物品栏
+  addTempItem: (item: Item) => void
+  disassembleTempItem: (itemUid: string) => { success: boolean; message: string }
+  transferTempBag: () => number
 
   // Skills & item usage
   learnSkill: (skillId: string) => { success: boolean; message: string }
@@ -315,6 +325,7 @@ export const useGameStore = create<GameState>()(
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
+      tempBag: [],
       inCombat: false, combatEnemies: [], combatLogs: [],
       combatEnded: false, combatVictory: false,
       playerStatuses: [],
@@ -339,7 +350,7 @@ export const useGameStore = create<GameState>()(
           mag: stats.mag || 10, mdef: stats.mdef || 8,
           agi: stats.agi || 10, luk: stats.luk || 5,
           con: stats.con ?? 6, wil: stats.wil ?? 6,
-          skills: [...(STARTER_SKILLS[classId] || [])], element: 'none', exp: 0, gold: 0,
+          skills: [...(STARTER_SKILLS[classId] || [])], element: 'none', exp: 0, gold: 0, diamonds: 0,
           tier: 1, maxLayer: 1,
         }
 
@@ -406,7 +417,7 @@ export const useGameStore = create<GameState>()(
               mag: stats.mag || 10, mdef: stats.mdef || 8,
               agi: stats.agi || 10, luk: stats.luk || 5,
               con: stats.con ?? 6, wil: stats.wil ?? 6,
-              skills: [...(STARTER_SKILLS[targetClassId] || [])], element: 'none', exp: 0, gold: 0,
+              skills: [...(STARTER_SKILLS[targetClassId] || [])], element: 'none', exp: 0, gold: 0, diamonds: 0,
               tier: 1, maxLayer: 1,
             },
             equipment: { ...defaultEquipment },
@@ -849,24 +860,63 @@ export const useGameStore = create<GameState>()(
         if (!item) return { success: false, message: '物品不存在' }
         if (item.type !== 'equipment') return { success: false, message: '只能分解装备' }
 
-        const yieldCount = getDisassembleYield(item)
+        const gold = getDisassembleGold(item)
         const newInv = s.inventory.filter((i) => i.uid !== itemUid)
-        const existing = newInv.find((i) => i.id === 'enhance_shard')
-        if (existing) {
-          set({
-            inventory: newInv.map((i) => (i.id === 'enhance_shard' ? { ...i, quantity: i.quantity + yieldCount } : i)),
-          })
-        } else {
-          const cat = getItemInfo('enhance_shard')
-          set({
-            inventory: [...newInv, {
-              uid: `shard_${Date.now()}`, id: 'enhance_shard', name: '强化石碎片',
-              type: 'material', quality: 'common', quantity: yieldCount,
-              desc: cat?.desc || '强化石碎片', value: 5,
-            }],
-          })
+        set({ inventory: newInv })
+        get().addPlayerGold(gold)
+        return { success: true, message: `分解 ${getItemDisplayName(item)}，获得金币 ×${gold}` }
+      },
+
+      disassembleTempItem: (itemUid) => {
+        const s = get()
+        const item = s.tempBag.find((i) => i.uid === itemUid)
+        if (!item) return { success: false, message: '物品不存在' }
+        if (item.type !== 'equipment') return { success: false, message: '只能分解装备' }
+        const gold = getDisassembleGold(item)
+        set({ tempBag: s.tempBag.filter((i) => i.uid !== itemUid) })
+        get().addPlayerGold(gold)
+        return { success: true, message: `分解 ${getItemDisplayName(item)}，获得金币 ×${gold}` }
+      },
+
+      addTempItem: (item) => {
+        const s = get()
+        // 非装备类可堆叠
+        if (item.type !== 'equipment') {
+          const existing = s.tempBag.find((i) => i.id === item.id)
+          if (existing) {
+            set({ tempBag: s.tempBag.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i)) })
+            return
+          }
         }
-        return { success: true, message: `分解 ${item.name}，获得强化石碎片 ×${yieldCount}` }
+        set({ tempBag: [...s.tempBag, item] })
+      },
+
+      transferTempBag: () => {
+        const s = get()
+        const count = s.tempBag.length
+        if (count === 0) return 0
+        let inventory = [...s.inventory]
+        for (const item of s.tempBag) {
+          if (item.type !== 'equipment') {
+            const existing = inventory.find((i) => i.id === item.id)
+            if (existing) {
+              inventory = inventory.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i))
+              continue
+            }
+          }
+          inventory.push(item)
+        }
+        set({ tempBag: [], inventory })
+        return count
+      },
+
+      addPlayerDiamonds: (amount) => {
+        const s = get()
+        if (!s.player) return
+        const np = { ...s.player, diamonds: (s.player.diamonds || 0) + amount }
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({ player: np, classSaves: ns })
       },
 
       craftStone: (recipe) => {
@@ -940,6 +990,7 @@ export const useGameStore = create<GameState>()(
         inventory: state.inventory,        // SHARED — persisted once
         player: state.player,
         equipment: state.equipment,
+        tempBag: state.tempBag,          // 未结算的探索战利品
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -947,6 +998,7 @@ export const useGameStore = create<GameState>()(
           state.combatLogs = []
           state.inCombat = false
           state.playerStatuses = []
+          state.tempBag = state.tempBag || []
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false
@@ -958,6 +1010,7 @@ export const useGameStore = create<GameState>()(
               p.skills = [...STARTER_SKILLS[p.classId]]
             }
             if (p) {
+              if (p.diamonds == null) p.diamonds = 0
               if (!p.tier || p.tier < 1) p.tier = 1
               if (!p.maxLayer || p.maxLayer < 1) p.maxLayer = 1
               // 体质/意志迁移：基础值 + (等级-1)×成长，并一次性补体质生命
@@ -974,6 +1027,17 @@ export const useGameStore = create<GameState>()(
           }
           fixSkills(state.player)
           Object.values(state.classSaves || {}).forEach((cs) => fixSkills(cs?.player))
+          // 旧货币（铜币/银币/旧金币）折合金币
+          const LEGACY: Record<string, number> = { coin_copper: 1, coin_silver: 10 }
+          let goldFromLegacy = 0
+          state.inventory = (state.inventory || []).filter((it) => {
+            if (LEGACY[it.id]) { goldFromLegacy += it.quantity * LEGACY[it.id]; return false }
+            if (it.id === 'coin_gold' && it.type === 'currency') { goldFromLegacy += it.quantity * 100; return false }
+            return true
+          })
+          if (goldFromLegacy > 0 && state.player) {
+            state.player.gold += goldFromLegacy
+          }
         }
       },
     }

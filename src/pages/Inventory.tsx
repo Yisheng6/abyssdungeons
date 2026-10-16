@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
-import { useGameStore, type Item, getEffectiveStats, getItemDisplayName } from '@/stores/gameStore'
+import { useGameStore, type Item, getEffectiveStats, getItemDisplayName, getDisassembleGold } from '@/stores/gameStore'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -37,6 +37,7 @@ export default function Inventory() {
   const navigate = useNavigate()
   const store = useGameStore()
   const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>('全部')
+  const [qualityFilter, setQualityFilter] = useState<string>('全部品质')
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [useMsg, setUseMsg] = useState('')
 
@@ -56,8 +57,9 @@ export default function Inventory() {
   const inventory = store.inventory
   const equipment = store.equipment
 
-  const filtered = activeFilter === '全部' ? inventory
-    : inventory.filter((i) => i.type === filterTypeMap[activeFilter])
+  const filtered = (activeFilter === '全部' ? inventory
+    : inventory.filter((i) => i.type === filterTypeMap[activeFilter]))
+    .filter((i) => qualityFilter === '全部品质' || i.quality === qualityFilter)
 
   // Equipped items list
   const equippedItems = Object.entries(equipment)
@@ -120,6 +122,22 @@ export default function Inventory() {
                   backgroundColor: activeFilter === f ? 'var(--accent)' : 'var(--bg-hover)',
                   color: activeFilter === f ? 'var(--bg-primary)' : 'var(--text-secondary)',
                 }}>{f}</button>
+            ))}
+          </div>
+
+          {/* Quality Filter */}
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {([
+              ['全部品质', null], ['普通', 'common'], ['精良', 'fine'], ['稀有', 'rare'],
+              ['史诗', 'epic'], ['传说', 'legendary'], ['神话', 'mythic'],
+            ] as const).map(([label, q]) => (
+              <button key={label} onClick={() => setQualityFilter(label)}
+                className="rounded-full px-2.5 py-0.5 text-[10px] transition-colors"
+                style={{
+                  backgroundColor: qualityFilter === label ? 'rgba(163,113,247,0.3)' : 'var(--bg-hover)',
+                  color: qualityFilter === label ? '#A371F7' : 'var(--text-muted)',
+                  border: qualityFilter === label ? '1px solid #A371F7' : '1px solid transparent',
+                }}>{label}</button>
             ))}
           </div>
 
@@ -233,6 +251,16 @@ export default function Inventory() {
             <div className="mt-4 flex gap-2">
               {selectedItem.type === 'equipment' && (
                 <button onClick={() => handleEquip(selectedItem)} className="game-btn-primary flex-1 text-xs">装备</button>
+              )}
+              {selectedItem.type === 'equipment' && (
+                <button onClick={() => {
+                  const r = store.disassembleItem(selectedItem.uid)
+                  setUseMsg(r.message)
+                  if (r.success) setSelectedItem(null)
+                }} className="game-btn-secondary flex-1 text-xs"
+                  style={{ borderColor: '#C9A84C', color: '#C9A84C' }}>
+                  分解（+{getDisassembleGold(selectedItem)} 金币）
+                </button>
               )}
               {selectedItem.type === 'consumable' && (
                 <button onClick={() => handleUse(selectedItem)} className="game-btn-primary flex-1 text-xs">使用</button>

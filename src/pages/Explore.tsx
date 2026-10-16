@@ -560,6 +560,38 @@ export default function Explore() {
           )}
         </div>
 
+        {/* 临时物品栏（结束探索后自动转入背包） */}
+        <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
+          <div className="mb-1.5 flex items-center justify-between" style={{ color: 'var(--text-secondary)' }}>
+            <span className="font-bold">临时物品栏</span>
+            <span style={{ color: 'var(--text-muted)' }}>{store.tempBag.length} 件</span>
+          </div>
+          {store.tempBag.length === 0 ? (
+            <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>探索中获得的物品暂存于此</div>
+          ) : (
+            <div className="max-h-40 space-y-1 overflow-y-auto">
+              {store.tempBag.map((item) => (
+                <div key={item.uid} className="flex items-center justify-between gap-1">
+                  <span className="truncate" style={{ color: LOOT_QUALITY_COLORS[item.quality] || 'var(--text-secondary)' }}>
+                    {item.name}{item.quantity > 1 ? `×${item.quantity}` : ''}
+                  </span>
+                  {item.type === 'equipment' && (
+                    <button
+                      onClick={() => {
+                        const r = store.disassembleTempItem(item.uid)
+                        addLog(r.message)
+                      }}
+                      className="flex-shrink-0 rounded px-1 text-[9px]"
+                      style={{ backgroundColor: 'rgba(201,168,76,0.2)', color: '#C9A84C' }}>
+                      分解
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Skull size={12} /> 击杀: {stats.kills}
