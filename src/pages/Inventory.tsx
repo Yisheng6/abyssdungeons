@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
-import { useGameStore, type Item, getEffectiveStats, getItemDisplayName, getDisassembleGold } from '@/stores/gameStore'
+import { useGameStore, type Item, getEffectiveStats, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -24,6 +24,15 @@ const slotNames: Record<string, string> = {
 
 const statNames: Record<string, string> = {
   hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运', con: '体质', wil: '意志',
+  atkPct: '攻击力%', defPct: '防御力%', magPct: '魔法力%', mdefPct: '魔防%',
+  critRate: '暴击率', critDmg: '暴击伤害', lifesteal: '吸血', reflect: '反伤', elemDmg: '附加元素伤害',
+  expGain: '经验获取', goldGain: '金币获取', killHeal: '击杀回血', killMp: '击杀回蓝',
+  physRes: '物理异常抗性', magRes: '精神异常抗性',
+}
+
+/** 词条数值格式化：百分比类显示 +N% */
+function formatAffixValue(stat: string, val: number): string {
+  return PCT_AFFIX_KEYS.has(stat) ? `+${val}%` : `+${val}`
 }
 
 const typeNames: Record<string, string> = {
@@ -326,7 +335,7 @@ export default function Inventory() {
                       <div className="mb-1 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>随机词条</div>
                       {affixStats.map(([stat, val]) => (
                         <div key={stat} className="mb-1 text-sm" style={{ color: '#79C0FF' }}>
-                          {statNames[stat] || stat} +{val}
+                          {statNames[stat] || stat} {formatAffixValue(stat, val)}
                         </div>
                       ))}
                     </div>

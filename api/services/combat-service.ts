@@ -42,6 +42,12 @@ export interface Combatant {
   luk: number;
   con?: number; // 体质：生命/物防/回血/物理异常抵抗
   wil?: number; // 意志：魔防/回魔/精神异常抵抗
+  /** 装备词条提供的战斗修正（仅玩家携带，数值为百分比点数或固定值） */
+  mods?: {
+    atkPct?: number; defPct?: number; magPct?: number; mdefPct?: number;
+    critRate?: number; critDmg?: number; lifesteal?: number; reflect?: number;
+    elemDmg?: number; physRes?: number; magRes?: number;
+  };
   skills: string[];
   isPlayer: boolean;
   element: string;
@@ -96,10 +102,13 @@ function checkDodge(agi: number, rng: SimpleRNG): boolean {
 }
 
 // ═══ 派生数值（体质/意志） ═══
-const physResist = (c: Combatant) => Math.min((c.con || 0) * 0.006, 0.6);
-const magResist = (c: Combatant) => Math.min((c.wil || 0) * 0.006, 0.6);
-const effDef = (c: Combatant) => c.def + Math.floor((c.con || 0) * 0.2);
-const effMdef = (c: Combatant) => c.mdef + Math.floor((c.wil || 0) * 0.2);
+// 装备词条修正工具（仅玩家会携带 mods）
+const modsOf = (c: Combatant) => c.mods || {};
+const pctOf = (c: Combatant, k: "atkPct" | "defPct" | "magPct" | "mdefPct") => (modsOf(c)[k] || 0) / 100;
+const physResist = (c: Combatant) => Math.min((c.con || 0) * 0.006 + (modsOf(c).physRes || 0) / 100, 0.6);
+const magResist = (c: Combatant) => Math.min((c.wil || 0) * 0.006 + (modsOf(c).magRes || 0) / 100, 0.6);
+const effDef = (c: Combatant) => Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
+const effMdef = (c: Combatant) => Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
 const hpRegen = (c: Combatant) => Math.floor((c.con || 0) * 0.3);
 const mpRegen = (c: Combatant) => Math.floor((c.wil || 0) * 0.5);
 
@@ -167,12 +176,16 @@ function processStatuses(c: Combatant, rng: SimpleRNG, logs: string[], isPlayerS
 
 // 受异常影响的实际属性
 const effAtk = (c: Combatant) => {
-  let v = c.atk;
+  let v = Math.floor(c.atk * (1 + pctOf(c, "atkPct")));
   if (hasStatus(c, "cripple")) v = Math.floor(v * 0.7);
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
   return v;
 };
-const effMag = (c: Combatant) => (hasStatus(c, "curse") ? Math.floor(c.mag * 0.8) : c.mag);
+const effMag = (c: Combatant) => {
+  let v = Math.floor(c.mag * (1 + pctOf(c, "magPct")));
+  if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
+  return v;
+};
 const effAgi = (c: Combatant) => (hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi);
 
 export interface DropResult {
@@ -257,14 +270,25 @@ export function resolveCombat(
 
           let damage = effAtk(player) - effDef(target);
           damage = Math.max(1, damage);
-          const isCrit = checkCrit(player.luk, rng);
+          const m = modsOf(player);
+          if (m.elemDmg) damage += Math.floor(m.elemDmg); // 附加元素伤害词条
+          const affixCrit = (m.critRate || 0) > 0 && rng.next() < (m.critRate as number) / 100;
+          const isCrit = checkCrit(player.luk, rng) || affixCrit;
           if (isCrit) {
-            damage = Math.floor(damage * 1.5);
+            damage = Math.floor(damage * (1.5 + (m.critDmg || 0) / 100));
             logs.push(`暴击！你对 ${target.name} 造成了 ${damage} 点伤害！`);
           } else {
             logs.push(`你对 ${target.name} 造成了 ${damage} 点伤害。`);
           }
           target.hp = Math.max(0, target.hp - damage);
+          // 吸血词条
+          if (m.lifesteal) {
+            const heal = Math.floor(damage * (m.lifesteal as number) / 100);
+            if (heal > 0) {
+              player.hp = Math.min(player.maxHp, player.hp + heal);
+              logs.push(`吸血效果恢复了你 ${heal} 点生命。`);
+            }
+          }
           if (target.hp <= 0) logs.push(`${target.name} 被击败了！`);
           break;
         }
@@ -307,8 +331,18 @@ export function resolveCombat(
                   damage = Math.floor(damage * elMult);
                   logs.push(elMult > 1 ? `属性克制！` : `属性被克制...`);
                 }
+                const sm = modsOf(player);
+                if (sm.elemDmg) damage += Math.floor(sm.elemDmg); // 附加元素伤害词条
                 target.hp = Math.max(0, target.hp - damage);
                 logs.push(`你施放了 ${skillConfig.name}，对 ${target.name} 造成 ${damage} 点伤害。`);
+                // 吸血词条（技能伤害同样生效）
+                if (sm.lifesteal) {
+                  const heal = Math.floor(damage * (sm.lifesteal as number) / 100);
+                  if (heal > 0) {
+                    player.hp = Math.min(player.maxHp, player.hp + heal);
+                    logs.push(`吸血效果恢复了你 ${heal} 点生命。`);
+                  }
+                }
                 if (target.hp <= 0) logs.push(`${target.name} 被击败了！`);
               }
               if (effect.heal) {
@@ -432,6 +466,16 @@ export function resolveCombat(
         damage = Math.max(1, rollDamage(damage, rng));
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} 使用了 ${skill.name}，对你造成 ${damage} 点伤害！`);
+        // 反伤词条
+        const rm1 = modsOf(player);
+        if (rm1.reflect) {
+          const refl = Math.floor(damage * (rm1.reflect as number) / 100);
+          if (refl > 0) {
+            enemy.hp = Math.max(0, enemy.hp - refl);
+            logs.push(`荆棘反伤：${enemy.name} 受到 ${refl} 点反弹伤害！`);
+            if (enemy.hp <= 0) logs.push(`${enemy.name} 被反弹击败了！`);
+          }
+        }
         // 技能附带异常
         if (skill.status && player.hp > 0) {
           tryApplyStatus(player, skill.status.id, skill.status.chance, skill.status.turns ?? 2, rng, logs, enemy.name);
@@ -445,6 +489,16 @@ export function resolveCombat(
         damage = Math.max(1, rollDamage(damage, rng));
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} 对你造成了 ${damage} 点伤害。`);
+        // 反伤词条
+        const rm2 = modsOf(player);
+        if (rm2.reflect) {
+          const refl = Math.floor(damage * (rm2.reflect as number) / 100);
+          if (refl > 0) {
+            enemy.hp = Math.max(0, enemy.hp - refl);
+            logs.push(`荆棘反伤：${enemy.name} 受到 ${refl} 点反弹伤害！`);
+            if (enemy.hp <= 0) logs.push(`${enemy.name} 被反弹击败了！`);
+          }
+        }
       }
 
       if (player.hp <= 0) {

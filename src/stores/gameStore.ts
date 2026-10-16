@@ -89,6 +89,33 @@ export function getItemDisplayName(item: Item): string {
   return lv > 0 ? `${item.name} +${lv}` : item.name
 }
 
+/** 词条是否为百分比类型（显示 +N%） */
+export const PCT_AFFIX_KEYS = new Set([
+  'atkPct', 'defPct', 'magPct', 'mdefPct', 'critRate', 'critDmg',
+  'lifesteal', 'reflect', 'expGain', 'goldGain', 'physRes', 'magRes',
+])
+
+/** 战斗修正类词条键（传入 combatTurn 的 player.mods） */
+const COMBAT_MOD_KEYS = ['atkPct', 'defPct', 'magPct', 'mdefPct', 'critRate', 'critDmg', 'lifesteal', 'reflect', 'elemDmg', 'physRes', 'magRes']
+/** 收益类词条键（经验/金币/击杀回复） */
+const UTILITY_MOD_KEYS = ['expGain', 'goldGain', 'killHeal', 'killMp']
+
+/** 聚合全身装备的词条（含强化加成） */
+export function getEquipmentAffixMods(equipment: Equipment): { combat: Record<string, number>; utility: Record<string, number> } {
+  const combat: Record<string, number> = {}
+  const utility: Record<string, number> = {}
+  for (const item of Object.values(equipment)) {
+    if (!item?.affixes) continue
+    const lv = item.enhanceLevel || 0
+    for (const [k, v] of Object.entries(item.affixes)) {
+      const eff = v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0)
+      if (COMBAT_MOD_KEYS.includes(k)) combat[k] = (combat[k] || 0) + eff
+      else if (UTILITY_MOD_KEYS.includes(k)) utility[k] = (utility[k] || 0) + eff
+    }
+  }
+  return { combat, utility }
+}
+
 /** 分解装备可获得的金币（品质 + 套装阶级 + 强化等级） */
 export function getDisassembleGold(item: Item): number {
   const base: Record<string, number> = { common: 20, fine: 50, rare: 120, epic: 300, legendary: 800, mythic: 2000 }

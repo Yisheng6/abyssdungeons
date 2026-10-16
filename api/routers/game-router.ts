@@ -147,6 +147,13 @@ export const gameRouter = createRouter({
         con: z.number().optional(), wil: z.number().optional(),
         skills: z.array(z.string()), element: z.string().default("none"),
         statuses: z.array(z.object({ id: z.string(), name: z.string(), kind: z.string(), turns: z.number() })).optional(),
+        mods: z.object({
+          atkPct: z.number().optional(), defPct: z.number().optional(),
+          magPct: z.number().optional(), mdefPct: z.number().optional(),
+          critRate: z.number().optional(), critDmg: z.number().optional(),
+          lifesteal: z.number().optional(), reflect: z.number().optional(),
+          elemDmg: z.number().optional(), physRes: z.number().optional(), magRes: z.number().optional(),
+        }).optional(),
       }),
       enemies: z.array(z.object({
         id: z.string(), name: z.string(), hp: z.number(), maxHp: z.number(),

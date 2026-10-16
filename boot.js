@@ -41407,16 +41407,46 @@ import crypto2 from "crypto";
 
 // api/services/equipgen-service.ts
 var AFFIX_POOL = [
-  { stat: "atk", min: 2, max: 4 },
-  { stat: "def", min: 2, max: 4 },
-  { stat: "mag", min: 2, max: 4 },
-  { stat: "mdef", min: 2, max: 4 },
-  { stat: "agi", min: 1, max: 3 },
-  { stat: "luk", min: 1, max: 3 },
-  { stat: "con", min: 1, max: 3 },
-  { stat: "wil", min: 1, max: 3 },
-  { stat: "hp", min: 8, max: 15 },
-  { stat: "mp", min: 6, max: 12 }
+  // ─── 基础属性（固定值，随阶级成长）───
+  { stat: "atk", min: 2, max: 4, scaleTier: true },
+  { stat: "def", min: 2, max: 4, scaleTier: true },
+  { stat: "mag", min: 2, max: 4, scaleTier: true },
+  { stat: "mdef", min: 2, max: 4, scaleTier: true },
+  { stat: "agi", min: 1, max: 3, scaleTier: true },
+  { stat: "luk", min: 1, max: 3, scaleTier: true },
+  { stat: "con", min: 1, max: 3, scaleTier: true },
+  { stat: "wil", min: 1, max: 3, scaleTier: true },
+  { stat: "hp", min: 8, max: 15, scaleTier: true },
+  { stat: "mp", min: 6, max: 12, scaleTier: true },
+  // ─── A. 百分比属性（战斗中按比例放大，不吃阶级缩放）───
+  { stat: "atkPct", min: 3, max: 8 },
+  { stat: "defPct", min: 3, max: 8 },
+  { stat: "magPct", min: 3, max: 8 },
+  { stat: "mdefPct", min: 3, max: 8 },
+  // ─── B. 战斗特效 ───
+  { stat: "critRate", min: 2, max: 5 },
+  // 暴击率 +%
+  { stat: "critDmg", min: 10, max: 25 },
+  // 暴击伤害 +%
+  { stat: "lifesteal", min: 3, max: 8 },
+  // 吸血：伤害 %
+  { stat: "reflect", min: 4, max: 10 },
+  // 反伤：承伤 %
+  { stat: "elemDmg", min: 4, max: 10, scaleTier: true },
+  // 附加元素伤害（固定）
+  // ─── C. 功能/收益 ───
+  { stat: "expGain", min: 5, max: 12 },
+  // 经验获取 +%
+  { stat: "goldGain", min: 5, max: 12 },
+  // 金币获取 +%
+  { stat: "killHeal", min: 8, max: 20, scaleTier: true },
+  // 击杀回血（固定）
+  { stat: "killMp", min: 5, max: 12, scaleTier: true },
+  // 击杀回蓝（固定）
+  { stat: "physRes", min: 3, max: 8 },
+  // 物理异常抗性 +%
+  { stat: "magRes", min: 3, max: 8 }
+  // 精神异常抗性 +%
 ];
 var PREFIX_BY_STAT = {
   atk: "\u950B\u5229\u7684",
@@ -41428,7 +41458,22 @@ var PREFIX_BY_STAT = {
   con: "\u575A\u97E7\u7684",
   wil: "\u575A\u6BC5\u7684",
   hp: "\u751F\u547D\u7684",
-  mp: "\u9B54\u529B\u7684"
+  mp: "\u9B54\u529B\u7684",
+  atkPct: "\u5F3A\u529B\u7684",
+  defPct: "\u94C1\u58C1\u7684",
+  magPct: "\u79D8\u6CD5\u7684",
+  mdefPct: "\u7ED3\u754C\u7684",
+  critRate: "\u81F4\u547D\u7684",
+  critDmg: "\u6B8B\u66B4\u7684",
+  lifesteal: "\u5438\u8840\u7684",
+  reflect: "\u8346\u68D8\u7684",
+  elemDmg: "\u5143\u7D20\u7684",
+  expGain: "\u777F\u667A\u7684",
+  goldGain: "\u8D2A\u5A6A\u7684",
+  killHeal: "\u55DC\u8840\u7684",
+  killMp: "\u98DF\u9B42\u7684",
+  physRes: "\u78D0\u77F3\u7684",
+  magRes: "\u51C0\u5FC3\u7684"
 };
 function getQualities() {
   const data = getConfigSync("items");
@@ -41461,7 +41506,7 @@ function rollEquipmentInstance(base, rng = Math.random) {
       const idx = Math.floor(rng() * pool.length);
       const a = pool.splice(idx, 1)[0];
       const raw2 = a.min + rng() * (a.max - a.min);
-      affixes[a.stat] = Math.max(1, Math.round(raw2 * tier));
+      affixes[a.stat] = Math.max(1, Math.round(raw2 * (a.scaleTier ? tier : 1)));
     }
   }
   const stats = { ...main };
@@ -41804,10 +41849,12 @@ function checkDodge(agi, rng) {
   const dodgeRate = Math.min(agi * 3e-3, 0.3);
   return rng.next() < dodgeRate;
 }
-var physResist = (c) => Math.min((c.con || 0) * 6e-3, 0.6);
-var magResist = (c) => Math.min((c.wil || 0) * 6e-3, 0.6);
-var effDef = (c) => c.def + Math.floor((c.con || 0) * 0.2);
-var effMdef = (c) => c.mdef + Math.floor((c.wil || 0) * 0.2);
+var modsOf = (c) => c.mods || {};
+var pctOf = (c, k) => (modsOf(c)[k] || 0) / 100;
+var physResist = (c) => Math.min((c.con || 0) * 6e-3 + (modsOf(c).physRes || 0) / 100, 0.6);
+var magResist = (c) => Math.min((c.wil || 0) * 6e-3 + (modsOf(c).magRes || 0) / 100, 0.6);
+var effDef = (c) => Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
+var effMdef = (c) => Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
 var hpRegen = (c) => Math.floor((c.con || 0) * 0.3);
 var mpRegen = (c) => Math.floor((c.wil || 0) * 0.5);
 var hasStatus = (c, id) => (c.statuses || []).some((s) => s.id === id);
@@ -41876,12 +41923,16 @@ function processStatuses(c, rng, logs, isPlayerSide) {
   return skip;
 }
 var effAtk = (c) => {
-  let v = c.atk;
+  let v = Math.floor(c.atk * (1 + pctOf(c, "atkPct")));
   if (hasStatus(c, "cripple")) v = Math.floor(v * 0.7);
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
   return v;
 };
-var effMag = (c) => hasStatus(c, "curse") ? Math.floor(c.mag * 0.8) : c.mag;
+var effMag = (c) => {
+  let v = Math.floor(c.mag * (1 + pctOf(c, "magPct")));
+  if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
+  return v;
+};
 var effAgi = (c) => hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi;
 function rollEquipmentDrop(drop, rng) {
   if (drop.type !== "equipment") return drop;
@@ -41933,14 +41984,24 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
           }
           let damage = effAtk(player) - effDef(target);
           damage = Math.max(1, damage);
-          const isCrit = checkCrit(player.luk, rng);
+          const m = modsOf(player);
+          if (m.elemDmg) damage += Math.floor(m.elemDmg);
+          const affixCrit = (m.critRate || 0) > 0 && rng.next() < m.critRate / 100;
+          const isCrit = checkCrit(player.luk, rng) || affixCrit;
           if (isCrit) {
-            damage = Math.floor(damage * 1.5);
+            damage = Math.floor(damage * (1.5 + (m.critDmg || 0) / 100));
             logs.push(`\u66B4\u51FB\uFF01\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
           } else {
             logs.push(`\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
           }
           target.hp = Math.max(0, target.hp - damage);
+          if (m.lifesteal) {
+            const heal = Math.floor(damage * m.lifesteal / 100);
+            if (heal > 0) {
+              player.hp = Math.min(player.maxHp, player.hp + heal);
+              logs.push(`\u5438\u8840\u6548\u679C\u6062\u590D\u4E86\u4F60 ${heal} \u70B9\u751F\u547D\u3002`);
+            }
+          }
           if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
           break;
         }
@@ -41983,8 +42044,17 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
                   damage = Math.floor(damage * elMult);
                   logs.push(elMult > 1 ? `\u5C5E\u6027\u514B\u5236\uFF01` : `\u5C5E\u6027\u88AB\u514B\u5236...`);
                 }
+                const sm = modsOf(player);
+                if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
                 target.hp = Math.max(0, target.hp - damage);
                 logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${target.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+                if (sm.lifesteal) {
+                  const heal = Math.floor(damage * sm.lifesteal / 100);
+                  if (heal > 0) {
+                    player.hp = Math.min(player.maxHp, player.hp + heal);
+                    logs.push(`\u5438\u8840\u6548\u679C\u6062\u590D\u4E86\u4F60 ${heal} \u70B9\u751F\u547D\u3002`);
+                  }
+                }
                 if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
               }
               if (effect.heal) {
@@ -42091,6 +42161,15 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         damage = Math.max(1, rollDamage(damage, rng));
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} \u4F7F\u7528\u4E86 ${skill.name}\uFF0C\u5BF9\u4F60\u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
+        const rm1 = modsOf(player);
+        if (rm1.reflect) {
+          const refl = Math.floor(damage * rm1.reflect / 100);
+          if (refl > 0) {
+            enemy.hp = Math.max(0, enemy.hp - refl);
+            logs.push(`\u8346\u68D8\u53CD\u4F24\uFF1A${enemy.name} \u53D7\u5230 ${refl} \u70B9\u53CD\u5F39\u4F24\u5BB3\uFF01`);
+            if (enemy.hp <= 0) logs.push(`${enemy.name} \u88AB\u53CD\u5F39\u51FB\u8D25\u4E86\uFF01`);
+          }
+        }
         if (skill.status && player.hp > 0) {
           tryApplyStatus(player, skill.status.id, skill.status.chance, skill.status.turns ?? 2, rng, logs, enemy.name);
         }
@@ -42103,6 +42182,15 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         damage = Math.max(1, rollDamage(damage, rng));
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} \u5BF9\u4F60\u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+        const rm2 = modsOf(player);
+        if (rm2.reflect) {
+          const refl = Math.floor(damage * rm2.reflect / 100);
+          if (refl > 0) {
+            enemy.hp = Math.max(0, enemy.hp - refl);
+            logs.push(`\u8346\u68D8\u53CD\u4F24\uFF1A${enemy.name} \u53D7\u5230 ${refl} \u70B9\u53CD\u5F39\u4F24\u5BB3\uFF01`);
+            if (enemy.hp <= 0) logs.push(`${enemy.name} \u88AB\u53CD\u5F39\u51FB\u8D25\u4E86\uFF01`);
+          }
+        }
       }
       if (player.hp <= 0) {
         logs.push("\u4F60\u88AB\u51FB\u8D25\u4E86...");
@@ -42496,7 +42584,20 @@ var gameRouter = createRouter({
       wil: external_exports.number().optional(),
       skills: external_exports.array(external_exports.string()),
       element: external_exports.string().default("none"),
-      statuses: external_exports.array(external_exports.object({ id: external_exports.string(), name: external_exports.string(), kind: external_exports.string(), turns: external_exports.number() })).optional()
+      statuses: external_exports.array(external_exports.object({ id: external_exports.string(), name: external_exports.string(), kind: external_exports.string(), turns: external_exports.number() })).optional(),
+      mods: external_exports.object({
+        atkPct: external_exports.number().optional(),
+        defPct: external_exports.number().optional(),
+        magPct: external_exports.number().optional(),
+        mdefPct: external_exports.number().optional(),
+        critRate: external_exports.number().optional(),
+        critDmg: external_exports.number().optional(),
+        lifesteal: external_exports.number().optional(),
+        reflect: external_exports.number().optional(),
+        elemDmg: external_exports.number().optional(),
+        physRes: external_exports.number().optional(),
+        magRes: external_exports.number().optional()
+      }).optional()
     }),
     enemies: external_exports.array(external_exports.object({
       id: external_exports.string(),

@@ -26,18 +26,40 @@ export interface RolledEquipment {
   displayName: string;
 }
 
-/** 词条池：按属性类型分组，value = [min, max]（× 套装阶级缩放） */
-const AFFIX_POOL: Array<{ stat: string; min: number; max: number }> = [
-  { stat: "atk", min: 2, max: 4 },
-  { stat: "def", min: 2, max: 4 },
-  { stat: "mag", min: 2, max: 4 },
-  { stat: "mdef", min: 2, max: 4 },
-  { stat: "agi", min: 1, max: 3 },
-  { stat: "luk", min: 1, max: 3 },
-  { stat: "con", min: 1, max: 3 },
-  { stat: "wil", min: 1, max: 3 },
-  { stat: "hp", min: 8, max: 15 },
-  { stat: "mp", min: 6, max: 12 },
+/**
+ * 词条池：min/max 为数值范围；scaleTier=true 时 × 套装阶级缩放。
+ * pct 类词条存的是百分比点数（如 6 = +6%）。
+ */
+const AFFIX_POOL: Array<{ stat: string; min: number; max: number; scaleTier?: boolean }> = [
+  // ─── 基础属性（固定值，随阶级成长）───
+  { stat: "atk", min: 2, max: 4, scaleTier: true },
+  { stat: "def", min: 2, max: 4, scaleTier: true },
+  { stat: "mag", min: 2, max: 4, scaleTier: true },
+  { stat: "mdef", min: 2, max: 4, scaleTier: true },
+  { stat: "agi", min: 1, max: 3, scaleTier: true },
+  { stat: "luk", min: 1, max: 3, scaleTier: true },
+  { stat: "con", min: 1, max: 3, scaleTier: true },
+  { stat: "wil", min: 1, max: 3, scaleTier: true },
+  { stat: "hp", min: 8, max: 15, scaleTier: true },
+  { stat: "mp", min: 6, max: 12, scaleTier: true },
+  // ─── A. 百分比属性（战斗中按比例放大，不吃阶级缩放）───
+  { stat: "atkPct", min: 3, max: 8 },
+  { stat: "defPct", min: 3, max: 8 },
+  { stat: "magPct", min: 3, max: 8 },
+  { stat: "mdefPct", min: 3, max: 8 },
+  // ─── B. 战斗特效 ───
+  { stat: "critRate", min: 2, max: 5 },     // 暴击率 +%
+  { stat: "critDmg", min: 10, max: 25 },    // 暴击伤害 +%
+  { stat: "lifesteal", min: 3, max: 8 },    // 吸血：伤害 %
+  { stat: "reflect", min: 4, max: 10 },     // 反伤：承伤 %
+  { stat: "elemDmg", min: 4, max: 10, scaleTier: true }, // 附加元素伤害（固定）
+  // ─── C. 功能/收益 ───
+  { stat: "expGain", min: 5, max: 12 },     // 经验获取 +%
+  { stat: "goldGain", min: 5, max: 12 },    // 金币获取 +%
+  { stat: "killHeal", min: 8, max: 20, scaleTier: true },  // 击杀回血（固定）
+  { stat: "killMp", min: 5, max: 12, scaleTier: true },    // 击杀回蓝（固定）
+  { stat: "physRes", min: 3, max: 8 },      // 物理异常抗性 +%
+  { stat: "magRes", min: 3, max: 8 },       // 精神异常抗性 +%
 ];
 
 /** 词条 → 装备前缀名 */
@@ -45,6 +67,10 @@ const PREFIX_BY_STAT: Record<string, string> = {
   atk: "锋利的", def: "坚固的", mag: "神秘的", mdef: "护佑的",
   agi: "迅捷的", luk: "幸运的", con: "坚韧的", wil: "坚毅的",
   hp: "生命的", mp: "魔力的",
+  atkPct: "强力的", defPct: "铁壁的", magPct: "秘法的", mdefPct: "结界的",
+  critRate: "致命的", critDmg: "残暴的", lifesteal: "吸血的", reflect: "荆棘的",
+  elemDmg: "元素的", expGain: "睿智的", goldGain: "贪婪的",
+  killHeal: "嗜血的", killMp: "食魂的", physRes: "磐石的", magRes: "净心的",
 };
 
 function getQualities(): QualityDef[] {
@@ -91,7 +117,7 @@ export function rollEquipmentInstance(
       const idx = Math.floor(rng() * pool.length);
       const a = pool.splice(idx, 1)[0];
       const raw = a.min + rng() * (a.max - a.min);
-      affixes[a.stat] = Math.max(1, Math.round(raw * tier));
+      affixes[a.stat] = Math.max(1, Math.round(raw * (a.scaleTier ? tier : 1)));
     }
   }
 
