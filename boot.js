@@ -41404,6 +41404,81 @@ function getElementMultiplier(attackerEl, defenderEl) {
 
 // api/services/mapgen-service.ts
 import crypto2 from "crypto";
+
+// api/services/equipgen-service.ts
+var AFFIX_POOL = [
+  { stat: "atk", min: 2, max: 4 },
+  { stat: "def", min: 2, max: 4 },
+  { stat: "mag", min: 2, max: 4 },
+  { stat: "mdef", min: 2, max: 4 },
+  { stat: "agi", min: 1, max: 3 },
+  { stat: "luk", min: 1, max: 3 },
+  { stat: "con", min: 1, max: 3 },
+  { stat: "wil", min: 1, max: 3 },
+  { stat: "hp", min: 8, max: 15 },
+  { stat: "mp", min: 6, max: 12 }
+];
+var PREFIX_BY_STAT = {
+  atk: "\u950B\u5229\u7684",
+  def: "\u575A\u56FA\u7684",
+  mag: "\u795E\u79D8\u7684",
+  mdef: "\u62A4\u4F51\u7684",
+  agi: "\u8FC5\u6377\u7684",
+  luk: "\u5E78\u8FD0\u7684",
+  con: "\u575A\u97E7\u7684",
+  wil: "\u575A\u6BC5\u7684",
+  hp: "\u751F\u547D\u7684",
+  mp: "\u9B54\u529B\u7684"
+};
+function getQualities() {
+  const data = getConfigSync("items");
+  return data.itemQualities || [];
+}
+function rollEquipmentInstance(base, rng = Math.random) {
+  const qualities = getQualities();
+  const totalWeight = qualities.reduce((s, q) => s + q.dropWeight, 0);
+  let r = rng() * totalWeight;
+  let quality = qualities[0]?.id || "common";
+  for (const q of qualities) {
+    if (r < q.dropWeight) {
+      quality = q.id;
+      break;
+    }
+    r -= q.dropWeight;
+  }
+  const qDef = qualities.find((q) => q.id === quality);
+  const main = {};
+  for (const [k, v] of Object.entries(base.stats || {})) {
+    main[k] = Math.max(1, Math.round(v * (0.9 + rng() * 0.2)));
+  }
+  const affixes = {};
+  const maxAffixes = qDef?.extraStatsMax ?? 0;
+  const tier = base.setTier || 1;
+  if (maxAffixes > 0) {
+    const count = 1 + Math.floor(rng() * maxAffixes);
+    const pool = AFFIX_POOL.filter((a) => !(a.stat in main));
+    for (let i = 0; i < count && pool.length > 0; i++) {
+      const idx = Math.floor(rng() * pool.length);
+      const a = pool.splice(idx, 1)[0];
+      const raw2 = a.min + rng() * (a.max - a.min);
+      affixes[a.stat] = Math.max(1, Math.round(raw2 * tier));
+    }
+  }
+  const stats = { ...main };
+  for (const [k, v] of Object.entries(affixes)) {
+    stats[k] = (stats[k] || 0) + v;
+  }
+  let displayName = base.name;
+  const entries = Object.entries(affixes);
+  if (entries.length > 0) {
+    entries.sort((a, b) => b[1] - a[1]);
+    const prefix = PREFIX_BY_STAT[entries[0][0]];
+    if (prefix) displayName = `${prefix}${base.name}`;
+  }
+  return { quality, stats, affixes, displayName };
+}
+
+// api/services/mapgen-service.ts
 var SeededRNG = class {
   seed;
   constructor(seed) {
@@ -41597,14 +41672,16 @@ function rollRoomLoot(roomType, layer, rng) {
     if (!entry) continue;
     const item = resolveToken(entry.item);
     if (!item) continue;
+    const rolled = item.type === "equipment" ? rollEquipmentInstance(item, () => rng.next()) : null;
     loot.push({
       itemId: item.id,
-      name: item.name,
+      name: rolled ? rolled.displayName : item.name,
       type: item.type,
-      quality: item.quality,
+      quality: rolled ? rolled.quality : item.quality,
       quantity: rng.nextInt(entry.qty[0], entry.qty[1]),
       slot: item.slot,
-      stats: item.stats,
+      stats: rolled ? rolled.stats : item.stats,
+      affixes: rolled ? rolled.affixes : void 0,
       desc: item.desc,
       value: item.value,
       setId: item.setId,
@@ -41806,6 +41883,19 @@ var effAtk = (c) => {
 };
 var effMag = (c) => hasStatus(c, "curse") ? Math.floor(c.mag * 0.8) : c.mag;
 var effAgi = (c) => hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi;
+function rollEquipmentDrop(drop, rng) {
+  if (drop.type !== "equipment") return drop;
+  const base = getItemById(drop.itemId);
+  if (!base) return drop;
+  const rolled = rollEquipmentInstance(base, rng);
+  return {
+    ...drop,
+    name: rolled.displayName,
+    quality: rolled.quality,
+    stats: rolled.stats,
+    affixes: rolled.affixes
+  };
+}
 function resolveCombat(player, enemies, action, turnSeed, options) {
   const rng = new SimpleRNG(turnSeed);
   const logs = [];
@@ -41954,18 +42044,18 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
             if (rng.next() * 100 < drop.chance * luckDropBoost) {
               let qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
               if (drop.type === "currency") qty = Math.floor(qty * luckGoldBoost);
-              drops.push({
+              drops.push(rollEquipmentDrop({
                 itemId: drop.itemId,
                 name: drop.name,
                 type: drop.type,
                 quantity: qty,
                 quality: drop.quality
-              });
+              }, () => rng.next()));
             }
           }
         }
         const globalDrops = rollDrops(enemy.id, layer, () => rng.next());
-        drops.push(...globalDrops);
+        drops.push(...globalDrops.map((d) => rollEquipmentDrop(d, () => rng.next())));
       }
     }
     if (drops.length > 0) {
@@ -42108,6 +42198,23 @@ function simulateBattle(player, enemies, layer, rng, st) {
       if (type === "currency") {
         if (d.itemId === "gem_diamond") st.diamonds += d.quantity;
         else st.gold += d.quantity * (cat?.value ?? 1);
+        continue;
+      }
+      if (type === "equipment" && cat) {
+        const rolled = rollEquipmentInstance(cat, rng);
+        st.itemMap.set(`${d.itemId}#${st.itemMap.size}_${Math.floor(rng() * 1e9)}`, {
+          itemId: d.itemId,
+          name: rolled.displayName,
+          type,
+          quality: rolled.quality,
+          quantity: 1,
+          stats: rolled.stats,
+          affixes: rolled.affixes,
+          slot: cat.slot,
+          setId: cat.setId,
+          setTier: cat.setTier,
+          value: cat.value
+        });
         continue;
       }
       const key = d.itemId;

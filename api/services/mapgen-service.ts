@@ -10,6 +10,7 @@ import {
   type MasterItem,
   type RoomLootEntry,
 } from "./config-service";
+import { rollEquipmentInstance } from "./equipgen-service";
 
 // ─── Types ───
 export interface DungeonMap {
@@ -44,7 +45,8 @@ export interface DungeonRoom {
   }>;
   loot?: Array<{
     itemId: string; name: string; type: string; quality: string; quantity: number;
-    slot?: string; stats?: Record<string, number>; desc?: string; value?: number;
+    slot?: string; stats?: Record<string, number>; affixes?: Record<string, number>;
+    desc?: string; value?: number;
     setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string;
   }>;
   explored: boolean;
@@ -363,14 +365,19 @@ function rollRoomLoot(roomType: string, layer: number, rng: SeededRNG): DungeonR
     if (!entry) continue;
     const item = resolveToken(entry.item);
     if (!item) continue;
+    // 装备掉落：随机品质 + 主属性浮动 + 随机词条
+    const rolled = item.type === "equipment"
+      ? rollEquipmentInstance(item, () => rng.next())
+      : null;
     loot.push({
       itemId: item.id,
-      name: item.name,
+      name: rolled ? rolled.displayName : item.name,
       type: item.type,
-      quality: item.quality,
+      quality: rolled ? rolled.quality : item.quality,
       quantity: rng.nextInt(entry.qty[0], entry.qty[1]),
       slot: item.slot,
-      stats: item.stats,
+      stats: rolled ? rolled.stats : item.stats,
+      affixes: rolled ? rolled.affixes : undefined,
       desc: item.desc,
       value: item.value,
       setId: item.setId,

@@ -52,6 +52,8 @@ export interface Item {
   slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring'
   quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
   quantity: number; desc: string; stats?: Record<string, number>
+  /** 装备副词条（随机生成，已合并进 stats，此字段用于展示区分） */
+  affixes?: Record<string, number>
   setId?: string; setTier?: number; value?: number
   effect?: Record<string, unknown>; learnSkillId?: string
   enhanceLevel?: number
@@ -136,7 +138,8 @@ interface RoomInfo {
   enemies: Array<{ id: string; name: string; hp: number; maxHp: number }>
   loot: Array<{
     itemId: string; name?: string; type?: string; quality?: string; quantity: number
-    slot?: Item['slot']; stats?: Record<string, number>; desc?: string; value?: number
+    slot?: Item['slot']; stats?: Record<string, number>; affixes?: Record<string, number>
+    desc?: string; value?: number
     setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string
   }>
   isEntrance: boolean; isExit: boolean

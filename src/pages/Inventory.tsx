@@ -306,11 +306,34 @@ export default function Inventory() {
               <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>部位: {slotNames[selectedItem.slot] || selectedItem.slot}</div>
             )}
             <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedItem.desc}</p>
-            {selectedItem.type === 'equipment' && Object.entries(getEffectiveStats(selectedItem)).map(([stat, val]) => (
-              <div key={stat} className="mb-1 text-sm" style={{ color: '#3FB950' }}>
-                {statNames[stat] || stat} +{val}
-              </div>
-            ))}
+            {selectedItem.type === 'equipment' && (() => {
+              const eff = getEffectiveStats(selectedItem)
+              const affixes = selectedItem.affixes || {}
+              const mainStats = Object.entries(eff).filter(([s]) => !(s in affixes))
+              const affixStats = Object.entries(affixes).map(([s, v]) => {
+                const lv = selectedItem.enhanceLevel || 0
+                return [s, v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0)] as const
+              })
+              return (
+                <>
+                  {mainStats.map(([stat, val]) => (
+                    <div key={stat} className="mb-1 text-sm" style={{ color: '#3FB950' }}>
+                      {statNames[stat] || stat} +{val}
+                    </div>
+                  ))}
+                  {affixStats.length > 0 && (
+                    <div className="mt-2 border-t pt-2" style={{ borderColor: 'var(--border-color)' }}>
+                      <div className="mb-1 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>随机词条</div>
+                      {affixStats.map(([stat, val]) => (
+                        <div key={stat} className="mb-1 text-sm" style={{ color: '#79C0FF' }}>
+                          {statNames[stat] || stat} +{val}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
             {selectedItem.type === 'skillbook' && selectedItem.learnSkillId && (
               <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>
                 可学习：{getSkillInfo(selectedItem.learnSkillId)?.name || selectedItem.learnSkillId}

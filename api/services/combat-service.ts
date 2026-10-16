@@ -1,7 +1,8 @@
 // Turn-based Combat Service
 // All formulas and data loaded from config - NO hardcoding
 
-import { getElementMultiplier, rollDrops, getSkillById, getMonsterSkillById } from "./config-service";
+import { getElementMultiplier, rollDrops, getSkillById, getMonsterSkillById, getItemById } from "./config-service";
+import { rollEquipmentInstance } from "./equipgen-service";
 
 // ═══ 异常状态 ═══
 // physical → 体质抵抗（流血/中毒/眩晕/减速/致残）
@@ -176,6 +177,25 @@ const effAgi = (c: Combatant) => (hasStatus(c, "slow") ? Math.floor(c.agi * 0.5)
 
 export interface DropResult {
   itemId: string; name: string; type: string; quantity: number; quality: string;
+  /** 装备随机实例：浮动后主属性+词条合并值 */
+  stats?: Record<string, number>;
+  /** 装备随机实例：仅副词条 */
+  affixes?: Record<string, number>;
+}
+
+/** 装备类掉落生成随机实例（品质重roll、主属性浮动、随机词条） */
+function rollEquipmentDrop(drop: DropResult, rng: () => number): DropResult {
+  if (drop.type !== "equipment") return drop;
+  const base = getItemById(drop.itemId);
+  if (!base) return drop;
+  const rolled = rollEquipmentInstance(base, rng);
+  return {
+    ...drop,
+    name: rolled.displayName,
+    quality: rolled.quality,
+    stats: rolled.stats,
+    affixes: rolled.affixes,
+  };
 }
 
 export function resolveCombat(
@@ -353,15 +373,15 @@ export function resolveCombat(
             if (rng.next() * 100 < drop.chance * luckDropBoost) {
               let qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
               if (drop.type === "currency") qty = Math.floor(qty * luckGoldBoost);
-              drops.push({
+              drops.push(rollEquipmentDrop({
                 itemId: drop.itemId, name: drop.name, type: drop.type,
                 quantity: qty, quality: drop.quality,
-              });
+              }, () => rng.next()));
             }
           }
         }
         const globalDrops = rollDrops(enemy.id, layer, () => rng.next());
-        drops.push(...globalDrops);
+        drops.push(...globalDrops.map((d) => rollEquipmentDrop(d, () => rng.next())));
       }
     }
 

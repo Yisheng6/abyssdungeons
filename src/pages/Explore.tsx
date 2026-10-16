@@ -100,7 +100,8 @@ export default function Explore() {
   // ─── 拾取战利品（真实物品入包，货币自动兑换金币）───
   const collectLoot = useCallback((loot: Array<{
     itemId: string; name?: string; type?: string; quality?: string; quantity: number
-    slot?: string; stats?: Record<string, number>; desc?: string; value?: number
+    slot?: string; stats?: Record<string, number>; affixes?: Record<string, number>
+    desc?: string; value?: number
     setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string
   }>) => {
     const gs = useGameStore.getState()
@@ -123,6 +124,7 @@ export default function Explore() {
         quantity: l.quantity,
         desc: l.desc || cat?.desc || name,
         stats: l.stats || cat?.stats,
+        affixes: l.affixes,
         setId: l.setId || cat?.setId,
         setTier: l.setTier || cat?.setTier,
         value: l.value ?? cat?.value,
@@ -389,7 +391,8 @@ export default function Explore() {
                 quality: dQuality as never,
                 quantity: drop.quantity,
                 desc: cat?.desc || drop.name,
-                stats: cat?.stats,
+                stats: (drop as { stats?: Record<string, number> }).stats || cat?.stats,
+                affixes: (drop as { affixes?: Record<string, number> }).affixes,
                 setId: cat?.setId,
                 setTier: cat?.setTier,
                 value: cat?.value,

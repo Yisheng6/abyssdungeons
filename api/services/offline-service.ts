@@ -18,6 +18,7 @@ import {
   rollDrops,
   getItemById,
 } from "./config-service";
+import { rollEquipmentInstance } from "./equipgen-service";
 
 // ─── 常量 ───
 export const OFFLINE_BASE_HOURS = 12;
@@ -47,6 +48,8 @@ interface OfflineSession {
 
 export interface OfflineSettleItem {
   itemId: string; name: string; type: string; quality: string; quantity: number;
+  stats?: Record<string, number>; affixes?: Record<string, number>; slot?: string;
+  setId?: string; setTier?: number; value?: number;
 }
 
 export interface OfflineSettleResult {
@@ -170,6 +173,24 @@ function simulateBattle(
       if (type === "currency") {
         if (d.itemId === "gem_diamond") st.diamonds += d.quantity;
         else st.gold += d.quantity * (cat?.value ?? 1);
+        continue;
+      }
+      // 装备：每件单独随机实例（品质重roll、主属性浮动、随机词条），不叠加
+      if (type === "equipment" && cat) {
+        const rolled = rollEquipmentInstance(cat, rng);
+        st.itemMap.set(`${d.itemId}#${st.itemMap.size}_${Math.floor(rng() * 1e9)}`, {
+          itemId: d.itemId,
+          name: rolled.displayName,
+          type,
+          quality: rolled.quality,
+          quantity: 1,
+          stats: rolled.stats,
+          affixes: rolled.affixes,
+          slot: cat.slot,
+          setId: cat.setId,
+          setTier: cat.setTier,
+          value: cat.value,
+        });
         continue;
       }
       const key = d.itemId;

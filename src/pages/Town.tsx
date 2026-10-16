@@ -23,7 +23,11 @@ interface OfflineSummary {
   settled: boolean; seconds: number; capped: boolean; rooms: number; kills: number
   defeats: number; bossKills: number; exp: number; gold: number; diamonds: number
   startLayer: number; finalLayer: number
-  items: Array<{ itemId: string; name: string; type: string; quality: string; quantity: number }>
+  items: Array<{
+    itemId: string; name: string; type: string; quality: string; quantity: number
+    stats?: Record<string, number>; affixes?: Record<string, number>; slot?: string
+    setId?: string; setTier?: number; value?: number
+  }>
   disassembledGold: number; keptCount: number
 }
 
@@ -76,6 +80,12 @@ export default function Town() {
           type: it.type as never,
           quality: it.quality as never,
           quantity: it.quantity,
+          slot: it.slot as never,
+          stats: it.stats,
+          affixes: it.affixes,
+          setId: it.setId,
+          setTier: it.setTier,
+          value: it.value,
         }
         if (shouldAutoDisassemble(item, gs.settings)) {
           disassembledGold += getDisassembleGold(item) * it.quantity
