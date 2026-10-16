@@ -2722,7 +2722,7 @@
       "quality": "rare",
       "classId": "warrior",
       "learnSkillId": "charge",
-      "desc": "使用后学会技能【猛力冲锋】（限战士）。冲锋撞击敌人，造成 ATK*1.8 伤害，25% 概率眩晕 1 回合",
+      "desc": "使用后学会技能【猛力冲锋】（限战士）。冲锋撞击敌人，造成 180% 攻击力的伤害，25% 概率眩晕 1 回合",
       "value": 250,
       "stackSize": 5
     },
@@ -2733,7 +2733,7 @@
       "quality": "epic",
       "classId": "warrior",
       "learnSkillId": "war_cry",
-      "desc": "使用后学会技能【战吼】（限战士）。发出震天战吼，自身 ATK+5 持续 3 回合",
+      "desc": "使用后学会技能【战吼】（限战士）。发出震天战吼，自身攻击力 +5，持续 3 回合",
       "value": 750,
       "stackSize": 5
     },
@@ -2744,7 +2744,7 @@
       "quality": "legendary",
       "classId": "warrior",
       "learnSkillId": "earth_splitter",
-      "desc": "使用后学会技能【裂地斩】（限战士）。劈裂大地，对所有敌人造成 ATK*1.6 伤害",
+      "desc": "使用后学会技能【裂地斩】（限战士）。劈裂大地，对所有敌人造成 160% 攻击力的伤害",
       "value": 2000,
       "stackSize": 5
     },
@@ -2755,7 +2755,7 @@
       "quality": "rare",
       "classId": "mage",
       "learnSkillId": "flame_storm",
-      "desc": "使用后学会技能【烈焰风暴】（限法师）。召唤烈焰风暴，对所有敌人造成 MAG*1.6 火焰伤害",
+      "desc": "使用后学会技能【烈焰风暴】（限法师）。召唤烈焰风暴，对所有敌人造成 160% 魔法力的火焰伤害",
       "value": 250,
       "stackSize": 5
     },
@@ -2766,7 +2766,7 @@
       "quality": "epic",
       "classId": "mage",
       "learnSkillId": "magic_missile",
-      "desc": "使用后学会技能【魔法飞弹】（限法师）。发射奥术飞弹，造成 MAG*2.2 无属性伤害",
+      "desc": "使用后学会技能【魔法飞弹】（限法师）。发射奥术飞弹，造成 220% 魔法力的无属性伤害",
       "value": 750,
       "stackSize": 5
     },
@@ -2777,7 +2777,7 @@
       "quality": "legendary",
       "classId": "mage",
       "learnSkillId": "deep_freeze",
-      "desc": "使用后学会技能【冰封术】（限法师）。造成 MAG*1.2 冰霜伤害，70% 概率冻结 2 回合",
+      "desc": "使用后学会技能【冰封术】（限法师）。造成 120% 魔法力的冰霜伤害，70% 概率冻结 2 回合",
       "value": 2000,
       "stackSize": 5
     },
@@ -2788,7 +2788,7 @@
       "quality": "rare",
       "classId": "assassin",
       "learnSkillId": "twin_strike",
-      "desc": "使用后学会技能【连击】（限刺客）。快速攻击两次，每次造成 ATK*1.0 伤害",
+      "desc": "使用后学会技能【连击】（限刺客）。快速攻击两次，每次造成 100% 攻击力的伤害",
       "value": 250,
       "stackSize": 5
     },
@@ -2799,7 +2799,7 @@
       "quality": "epic",
       "classId": "assassin",
       "learnSkillId": "venom_coat",
-      "desc": "使用后学会技能【淬毒】（限刺客）。造成 ATK*1.1 伤害并施加剧毒，每回合 ATK*0.4 持续 4 回合",
+      "desc": "使用后学会技能【淬毒】（限刺客）。造成 110% 攻击力的伤害并施加剧毒：每回合 40% 攻击力的伤害，持续 4 回合",
       "value": 750,
       "stackSize": 5
     },
@@ -2810,7 +2810,7 @@
       "quality": "legendary",
       "classId": "assassin",
       "learnSkillId": "phantom_strike",
-      "desc": "使用后学会技能【鬼影突袭】（限刺客）。如鬼魅般突袭，造成 ATK*3.2 暗影伤害",
+      "desc": "使用后学会技能【鬼影突袭】（限刺客）。如鬼魅般突袭，造成 320% 攻击力的暗影伤害",
       "value": 2000,
       "stackSize": 5
     },
@@ -2821,7 +2821,7 @@
       "quality": "rare",
       "classId": "ranger",
       "learnSkillId": "piercing_arrow",
-      "desc": "使用后学会技能【穿透箭】（限游侠）。射出穿透之箭，造成 ATK*2.4 伤害并无视 30% 防御",
+      "desc": "使用后学会技能【穿透箭】（限游侠）。射出穿透之箭，造成 240% 攻击力的伤害并无视 30% 防御",
       "value": 250,
       "stackSize": 5
     },
@@ -2832,7 +2832,7 @@
       "quality": "epic",
       "classId": "ranger",
       "learnSkillId": "nature_mend",
-      "desc": "使用后学会技能【自然治愈】（限游侠）。汲取自然之力，恢复 ATK*1.5 点生命",
+      "desc": "使用后学会技能【自然治愈】（限游侠）。汲取自然之力，恢复 150% 攻击力的生命",
       "value": 750,
       "stackSize": 5
     },
@@ -2843,7 +2843,7 @@
       "quality": "legendary",
       "classId": "ranger",
       "learnSkillId": "arrow_rain",
-      "desc": "使用后学会技能【箭雨】（限游侠）。向天空射出箭雨，对所有敌人造成 ATK*1.5 伤害",
+      "desc": "使用后学会技能【箭雨】（限游侠）。向天空射出箭雨，对所有敌人造成 150% 攻击力的伤害",
       "value": 2000,
       "stackSize": 5
     },
@@ -2854,7 +2854,7 @@
       "quality": "rare",
       "classId": "priest",
       "learnSkillId": "holy_judgment",
-      "desc": "使用后学会技能【圣光审判】（限牧师）。降下圣光审判，造成 MAG*2.2 光明伤害",
+      "desc": "使用后学会技能【圣光审判】（限牧师）。降下圣光审判，造成 220% 魔法力的光明伤害",
       "value": 250,
       "stackSize": 5
     },
@@ -2865,7 +2865,7 @@
       "quality": "epic",
       "classId": "priest",
       "learnSkillId": "mass_heal",
-      "desc": "使用后学会技能【圣疗术】（限牧师）。强大的治疗神术，恢复 MAG*3 点生命",
+      "desc": "使用后学会技能【圣疗术】（限牧师）。强大的治疗神术，恢复 300% 魔法力的生命",
       "value": 750,
       "stackSize": 5
     },
@@ -2876,7 +2876,7 @@
       "quality": "legendary",
       "classId": "priest",
       "learnSkillId": "divine_nova",
-      "desc": "使用后学会技能【神圣新星】（限牧师）。释放神圣新星，对所有敌人造成 MAG*1.6 光明伤害",
+      "desc": "使用后学会技能【神圣新星】（限牧师）。释放神圣新星，对所有敌人造成 160% 魔法力的光明伤害",
       "value": 2000,
       "stackSize": 5
     },
@@ -2887,7 +2887,7 @@
       "quality": "rare",
       "classId": "warlock",
       "learnSkillId": "shadow_bolt",
-      "desc": "使用后学会技能【暗影箭】（限术士）。发射暗影箭，造成 MAG*1.9 暗影伤害",
+      "desc": "使用后学会技能【暗影箭】（限术士）。发射暗影箭，造成 190% 魔法力的暗影伤害",
       "value": 250,
       "stackSize": 5
     },
@@ -2898,7 +2898,7 @@
       "quality": "epic",
       "classId": "warlock",
       "learnSkillId": "agony_curse",
-      "desc": "使用后学会技能【痛苦诅咒】（限术士）。使敌人承受剧痛，每回合 MAG*1.0 伤害持续 3 回合",
+      "desc": "使用后学会技能【痛苦诅咒】（限术士）。使敌人承受剧痛，每回合受到 100% 魔法力的伤害，持续 3 回合",
       "value": 750,
       "stackSize": 5
     },
@@ -2909,7 +2909,7 @@
       "quality": "legendary",
       "classId": "warlock",
       "learnSkillId": "demonic_blast",
-      "desc": "使用后学会技能【恶魔冲击】（限术士）。释放恶魔之力，对所有敌人造成 MAG*1.8 暗影伤害",
+      "desc": "使用后学会技能【恶魔冲击】（限术士）。释放恶魔之力，对所有敌人造成 180% 魔法力的暗影伤害",
       "value": 2000,
       "stackSize": 5
     },
