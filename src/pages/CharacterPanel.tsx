@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -255,12 +255,16 @@ export default function CharacterPanel() {
                   </div>
                 ))}
               </div>
-              {/* 体质/意志派生效果 */}
+              {/* 体质/意志派生效果（含抗性词条） */}
               {(() => {
                 const d = getDerivedStats(player)
+                const affixMods = getEquipmentAffixMods(useGameStore.getState().equipment)
+                const cm = affixMods.combat
+                const physResTotal = Math.min(d.physResist + (cm.physRes || 0), 60)
+                const magResTotal = Math.min(d.magResist + (cm.magRes || 0), 60)
                 const rows = [
-                  { label: '物理异常抵抗', value: `${d.physResist.toFixed(1)}%`, hint: '抵抗流血/中毒/眩晕/减速/致残（体质）' },
-                  { label: '精神异常抵抗', value: `${d.magResist.toFixed(1)}%`, hint: '抵抗沉默/恐惧/魅惑/诅咒/混乱（意志）' },
+                  { label: '物理异常抵抗', value: `${physResTotal.toFixed(1)}%`, hint: '抵抗流血/中毒/眩晕/减速/致残（体质+词条）' },
+                  { label: '精神异常抵抗', value: `${magResTotal.toFixed(1)}%`, hint: '抵抗沉默/恐惧/魅惑/诅咒/混乱（意志+词条）' },
                   { label: '战斗回复', value: `+${d.hpRegen} HP / +${d.mpRegen} MP 每回合`, hint: '体质回血 · 意志回蓝' },
                   { label: '附加防御', value: `+${d.bonusDef} 物防 / +${d.bonusMdef} 魔防`, hint: '体质加物防 · 意志加魔防' },
                 ]
@@ -278,6 +282,43 @@ export default function CharacterPanel() {
                     <div className="mt-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
                       体质：生命上限/物防/回血/物理抗性（战士主加）· 意志：魔防/回蓝/精神抗性（法师、牧师主加）
                     </div>
+                  </div>
+                )
+              })()}
+              {/* 装备词条汇总 */}
+              {(() => {
+                const { combat: cm, utility: um } = getEquipmentAffixMods(useGameStore.getState().equipment)
+                if (Object.keys(cm).length + Object.keys(um).length === 0) return null
+                const pctRows = ([['atkPct', '攻击力', player.atk], ['defPct', '防御力', player.def], ['magPct', '魔法力', player.mag], ['mdefPct', '魔防', player.mdef]] as const)
+                  .filter(([k]) => (cm[k] || 0) > 0)
+                  .map(([k, name, base]) => ({ key: k, label: `${name}（词条 +${cm[k]}%）`, value: `${base} → ${Math.floor(base * (1 + (cm[k] || 0) / 100))}` }))
+                const combatNames: Record<string, string> = { critRate: '暴击率', critDmg: '暴击伤害', lifesteal: '吸血', reflect: '反伤', elemDmg: '附加元素伤害', physRes: '物理异常抗性（词条）', magRes: '精神异常抗性（词条）' }
+                const utilNames: Record<string, string> = { expGain: '经验获取', goldGain: '金币获取', killHeal: '击杀回血', killMp: '击杀回蓝' }
+                const combatRows = Object.entries(combatNames).filter(([k]) => (cm[k] || 0) > 0)
+                  .map(([k, name]) => ({ key: k, label: name, value: PCT_AFFIX_KEYS.has(k) ? `+${cm[k]}%` : `+${cm[k]}` }))
+                const utilRows = Object.entries(utilNames).filter(([k]) => (um[k] || 0) > 0)
+                  .map(([k, name]) => ({ key: k, label: name, value: PCT_AFFIX_KEYS.has(k) ? `+${um[k]}%` : `+${um[k]}` }))
+                const Section = ({ title, rows, color }: { title: string; rows: Array<{ key: string; label: string; value: string }>; color: string }) => (
+                  rows.length === 0 ? null : (
+                    <div className="mb-3">
+                      <div className="mb-1.5 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{title}</div>
+                      <div className="space-y-1.5">
+                        {rows.map((r) => (
+                          <div key={r.key} className="flex items-center justify-between text-xs">
+                            <span style={{ color: 'var(--text-secondary)' }}>{r.label}</span>
+                            <span className="font-bold" style={{ color }}>{r.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )
+                return (
+                  <div className="game-card mt-3 p-3">
+                    <div className="mb-2 text-xs font-bold" style={{ color: '#79C0FF' }}>装备词条汇总（全身已装备）</div>
+                    <Section title="百分比属性（战斗中生效的实际值）" rows={pctRows} color="#3FB950" />
+                    <Section title="战斗特效" rows={combatRows} color="#79C0FF" />
+                    <Section title="收益加成" rows={utilRows} color="#C9A84C" />
                   </div>
                 )
               })()}
