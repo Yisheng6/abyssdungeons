@@ -119,8 +119,7 @@
         "dotElement": "fire"
       },
       "enemyFamilies": [
-        "cave",
-        "tomb"
+        "magma"
       ]
     },
     {
@@ -133,8 +132,7 @@
         "agiDebuff": 3
       },
       "enemyFamilies": [
-        "cave",
-        "tomb"
+        "ice"
       ]
     },
     {
@@ -147,8 +145,7 @@
         "statShuffle": true
       },
       "enemyFamilies": [
-        "cave",
-        "tomb"
+        "void"
       ]
     }
   ],

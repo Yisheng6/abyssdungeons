@@ -245,6 +245,7 @@ export default function Explore() {
     addLog(`── 战斗开始 ──`)
     const gs = useGameStore.getState()
     gs.setInCombat(true)
+    gs.setPlayerStatuses([])
     gs.setCombatEnemies(enemies.map((e) => ({
       id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
       mp: e.mp ?? 0, maxMp: e.maxMp ?? 0,
@@ -284,13 +285,16 @@ export default function Explore() {
             id: player.id, name: player.name, hp: player.hp, maxHp: player.maxHp,
             mp: player.mp, maxMp: player.maxMp, atk: player.atk, def: player.def,
             mag: player.mag, mdef: player.mdef, agi: player.agi, luk: player.luk,
+            con: player.con || 0, wil: player.wil || 0,
             skills: player.skills, element: player.element || 'none',
+            statuses: cur.playerStatuses || [],
           },
           enemies: aliveEnemies.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
             mp: e.mp || 0, maxMp: e.maxMp || 0, atk: e.atk, def: e.def,
             mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
             skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
+            statuses: (e as any).statuses || [],
           })),
           action: { type: action.type, targetId: aliveEnemies[0].id, skillId: action.skillId },
           turnSeed: Date.now() + round,
@@ -305,6 +309,7 @@ export default function Explore() {
         after.setCombatEnemies(result.enemies)
         after.updatePlayerHp(result.player.hp)
         after.updatePlayerMp(result.player.mp)
+        after.setPlayerStatuses((result.player as any).statuses || [])
 
         if (result.victory) {
           victory = true
@@ -533,6 +538,16 @@ export default function Explore() {
               <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${store.player ? (store.player.mp / store.player.maxMp) * 100 : 100}%`, background: 'linear-gradient(90deg, #58A6FF, #79C0FF)' }} />
             </div>
           </div>
+          {store.player && store.playerStatuses.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {store.playerStatuses.map((st) => (
+                <span key={st.id} className="rounded px-1.5 py-0.5 text-[10px]"
+                  style={{ backgroundColor: 'rgba(248,81,73,0.15)', color: 'var(--danger)' }}>
+                  {st.name} {st.turns}回合
+                </span>
+              ))}
+            </div>
+          )}
           {store.player && (
             <div>
               <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -604,6 +619,12 @@ export default function Explore() {
                   return (
                     <div key={e.id} className="mb-1.5 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)', opacity: e.hp <= 0 ? 0.4 : 1 }}>
                       <span className="w-20 truncate">{e.name}</span>
+                      {((e as any).statuses || []).map((st: any) => (
+                        <span key={st.id} className="flex-shrink-0 rounded px-1 text-[9px]"
+                          style={{ backgroundColor: 'rgba(163,113,247,0.2)', color: '#A371F7' }}>
+                          {st.name}{st.turns > 1 ? st.turns : ''}
+                        </span>
+                      ))}
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
                         <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
                           width: `${hpPct * 100}%`,

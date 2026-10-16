@@ -409,6 +409,7 @@ function populateRooms(
           id: boss.id, name: boss.name,
           ...scaled,
           skills: boss.skills, element: boss.element, aiType: boss.aiType,
+          dropTable: boss.dropTable,
         }];
       }
     } else {

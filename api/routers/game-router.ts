@@ -133,13 +133,17 @@ export const gameRouter = createRouter({
         id: z.string(), name: z.string(), hp: z.number(), maxHp: z.number(),
         mp: z.number(), maxMp: z.number(), atk: z.number(), def: z.number(),
         mag: z.number(), mdef: z.number(), agi: z.number(), luk: z.number(),
+        con: z.number().optional(), wil: z.number().optional(),
         skills: z.array(z.string()), element: z.string().default("none"),
+        statuses: z.array(z.object({ id: z.string(), name: z.string(), kind: z.string(), turns: z.number() })).optional(),
       }),
       enemies: z.array(z.object({
         id: z.string(), name: z.string(), hp: z.number(), maxHp: z.number(),
         mp: z.number(), maxMp: z.number(), atk: z.number(), def: z.number(),
         mag: z.number(), mdef: z.number(), agi: z.number(), luk: z.number(),
+        con: z.number().optional(), wil: z.number().optional(),
         skills: z.array(z.string()), element: z.string(), aiType: z.string().optional(),
+        statuses: z.array(z.object({ id: z.string(), name: z.string(), kind: z.string(), turns: z.number() })).optional(),
       })),
       action: z.object({
         type: z.enum(["attack", "skill", "item", "defend", "flee"]),
@@ -159,9 +163,11 @@ export const gameRouter = createRouter({
       })).optional(),
     }))
     .mutation(({ input }) => {
+      const castStatuses = (list?: Array<{ id: string; name: string; kind: string; turns: number }>) =>
+        list?.map((s) => ({ ...s, kind: s.kind as "physical" | "mental" }));
       const { logs, player, enemies, ended, victory, fled, drops } = resolveCombat(
-        { ...input.player, isPlayer: true },
-        input.enemies.map((e) => ({ ...e, isPlayer: false })),
+        { ...input.player, statuses: castStatuses(input.player.statuses), isPlayer: true },
+        input.enemies.map((e) => ({ ...e, statuses: castStatuses(e.statuses), isPlayer: false })),
         input.action,
         input.turnSeed,
         {
@@ -172,12 +178,13 @@ export const gameRouter = createRouter({
 
       return {
         logs,
-        player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp },
+        player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp, statuses: player.statuses || [] },
         enemies: enemies.map((e) => ({
           id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
           mp: e.mp, maxMp: e.maxMp, atk: e.atk, def: e.def,
           mag: e.mag, mdef: e.mdef, agi: e.agi, luk: e.luk,
           skills: e.skills, element: e.element, aiType: e.aiType,
+          statuses: e.statuses || [],
           dead: e.hp <= 0,
         })),
         ended,

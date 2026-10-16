@@ -48,10 +48,12 @@ export default function Combat() {
       id: p.id, name: p.name, hp: p.hp, maxHp: p.maxHp,
       mp: p.mp, maxMp: p.maxMp, atk: p.atk, def: p.def,
       mag: p.mag, mdef: p.mdef, agi: p.agi, luk: p.luk,
+      con: p.con || 0, wil: p.wil || 0,
       skills: p.skills.length > 0 ? p.skills : ['fireball', 'heal'],
       element: p.element || 'none',
+      statuses: store.playerStatuses || [],
     }
-  }, [store.player])
+  }, [store.player, store.playerStatuses])
 
   // Build clean enemies array for API
   const buildEnemiesForApi = useCallback(() => {
@@ -71,6 +73,7 @@ export default function Combat() {
       skills: e.skills || [],
       element: e.element || 'none',
       aiType: e.aiType,
+      statuses: (e as any).statuses || [],
     }))
   }, [store.combatEnemies])
 
@@ -130,6 +133,7 @@ export default function Combat() {
 
       result.logs.forEach((log) => store.addCombatLog(log))
       store.setCombatEnemies(result.enemies)
+      store.setPlayerStatuses((result.player as any).statuses || [])
 
       if (result.victory) {
         store.setCombatVictory(true)

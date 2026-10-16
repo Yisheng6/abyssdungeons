@@ -37,7 +37,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // node_modules/cookie/dist/index.js
 var require_dist = __commonJS({
@@ -11100,376 +11099,6 @@ var require_built3 = __commonJS({
       }
     }
     exports.print = print;
-  }
-});
-
-// api/services/redis-service.ts
-function getRedis() {
-  if (!redis) {
-    const host = process.env.REDIS_HOST || "localhost";
-    const port = parseInt(process.env.REDIS_PORT || "6379");
-    const password = process.env.REDIS_PASSWORD || void 0;
-    redis = new import_ioredis.default({ host, port, password, retryStrategy: (times) => Math.min(times * 50, 2e3) });
-    redis.on("error", (err) => console.error("[Redis] error:", err.message));
-    redis.on("connect", () => console.log("[Redis] connected"));
-  }
-  return redis;
-}
-async function getCachedConfig(key) {
-  try {
-    const r = getRedis();
-    const cached = await r.get(`config:${key}`);
-    if (cached) return JSON.parse(cached);
-    return null;
-  } catch {
-    return null;
-  }
-}
-async function setCachedConfig(key, value) {
-  try {
-    const r = getRedis();
-    await r.setex(`config:${key}`, CONFIG_CACHE_TTL, JSON.stringify(value));
-  } catch {
-  }
-}
-async function addLeaderboardScore(category, playerId, score, metadata) {
-  try {
-    const r = getRedis();
-    const member = JSON.stringify({ id: playerId, meta: metadata || {} });
-    await r.zadd(`lb:${category}`, score, member);
-    await r.zremrangebyrank(`lb:${category}`, 0, -1001);
-  } catch {
-  }
-}
-async function getLeaderboardTop(category, count = 20) {
-  try {
-    const r = getRedis();
-    const results = await r.zrevrange(`lb:${category}`, 0, count - 1, "WITHSCORES");
-    const list = [];
-    for (let i = 0; i < results.length; i += 2) {
-      try {
-        const parsed = JSON.parse(results[i]);
-        list.push({ player: parsed.id, score: parseFloat(results[i + 1]), rank: Math.floor(i / 2) + 1, meta: parsed.meta });
-      } catch {
-      }
-    }
-    return list;
-  } catch {
-    return [];
-  }
-}
-async function getPlayerRank(category, playerId) {
-  try {
-    const r = getRedis();
-    const members = await r.zrevrange(`lb:${category}`, 0, -1);
-    for (let i = 0; i < members.length; i++) {
-      try {
-        if (JSON.parse(members[i]).id === playerId) return i + 1;
-      } catch {
-      }
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-async function getOnlinePlayers() {
-  try {
-    const r = getRedis();
-    const data = await r.hgetall("online");
-    const now = Date.now();
-    const list = [];
-    for (const [id, val] of Object.entries(data)) {
-      try {
-        const parsed = JSON.parse(val);
-        if (now - parsed.ts < 3e5) list.push({ id, name: parsed.name, status: parsed.status });
-        else await r.hdel("online", id);
-      } catch {
-      }
-    }
-    return list;
-  } catch {
-    return [];
-  }
-}
-async function addChatMessage(channel, senderId, senderName, content) {
-  try {
-    const r = getRedis();
-    const msg = JSON.stringify({ senderId, senderName, content, ts: Date.now() });
-    await r.lpush(`chat:${channel}`, msg);
-    await r.ltrim(`chat:${channel}`, 0, 99);
-    await r.expire(`chat:${channel}`, 86400);
-  } catch {
-  }
-}
-async function getChatMessages(channel, count = 50) {
-  try {
-    const r = getRedis();
-    const msgs = await r.lrange(`chat:${channel}`, 0, count - 1);
-    return msgs.reverse().map((m) => {
-      const p = JSON.parse(m);
-      return { senderId: p.senderId, senderName: p.senderName, content: p.content, time: p.ts };
-    });
-  } catch {
-    return [];
-  }
-}
-var import_ioredis, redis, CONFIG_CACHE_TTL;
-var init_redis_service = __esm({
-  "api/services/redis-service.ts"() {
-    import_ioredis = __toESM(require_built3(), 1);
-    redis = null;
-    CONFIG_CACHE_TTL = 3600;
-  }
-});
-
-// api/services/config-service.ts
-var config_service_exports = {};
-__export(config_service_exports, {
-  getAIType: () => getAIType,
-  getBossByFamily: () => getBossByFamily,
-  getClassById: () => getClassById,
-  getClasses: () => getClasses,
-  getConfig: () => getConfig,
-  getConfigSync: () => getConfigSync,
-  getConsumables: () => getConsumables,
-  getElementMultiplier: () => getElementMultiplier,
-  getEnemies: () => getEnemies,
-  getEnemiesByFamily: () => getEnemiesByFamily,
-  getEnemyById: () => getEnemyById,
-  getEquipmentPrefixes: () => getEquipmentPrefixes,
-  getEquipmentSetById: () => getEquipmentSetById,
-  getEquipmentSets: () => getEquipmentSets,
-  getExpForLevel: () => getExpForLevel,
-  getGlobalConfig: () => getGlobalConfig,
-  getGlobalDropPool: () => getGlobalDropPool,
-  getItemById: () => getItemById,
-  getItems: () => getItems,
-  getMapGenConfig: () => getMapGenConfig,
-  getQualities: () => getQualities,
-  getRefs: () => getRefs,
-  getRoomLootTables: () => getRoomLootTables,
-  getRoomTypes: () => getRoomTypes,
-  getSkillById: () => getSkillById,
-  getSkills: () => getSkills,
-  getSkillsByClass: () => getSkillsByClass,
-  getThemeByLayer: () => getThemeByLayer,
-  getTierRules: () => getTierRules,
-  isFeatureEnabled: () => isFeatureEnabled,
-  reloadConfig: () => reloadConfig,
-  renderTemplate: () => renderTemplate,
-  rollDrops: () => rollDrops,
-  warmAllConfigs: () => warmAllConfigs
-});
-import { readFileSync } from "fs";
-import { join } from "path";
-function loadRaw(filename) {
-  const path2 = join(CONFIG_DIR, filename);
-  return JSON.parse(readFileSync(path2, "utf-8"));
-}
-async function getConfig(key) {
-  if (memoryCache.has(key)) return memoryCache.get(key);
-  const redisCached = await getCachedConfig(key);
-  if (redisCached) {
-    memoryCache.set(key, redisCached);
-    return redisCached;
-  }
-  const data = loadRaw(CONFIG_FILES[key]);
-  memoryCache.set(key, data);
-  await setCachedConfig(key, data);
-  return data;
-}
-function getConfigSync(key) {
-  if (memoryCache.has(key)) return memoryCache.get(key);
-  const data = loadRaw(CONFIG_FILES[key]);
-  memoryCache.set(key, data);
-  return data;
-}
-async function reloadConfig(key) {
-  memoryCache.delete(key);
-  const data = loadRaw(CONFIG_FILES[key]);
-  memoryCache.set(key, data);
-  await setCachedConfig(key, data);
-  return data;
-}
-function warmAllConfigs() {
-  console.log("[Config] Warming all configs...");
-  for (const key of Object.keys(CONFIG_FILES)) {
-    getConfigSync(key);
-  }
-  console.log("[Config] All configs loaded into memory cache");
-}
-function getRefs() {
-  return getConfigSync("refs");
-}
-function getGlobalConfig() {
-  return getConfigSync("global");
-}
-function getClasses() {
-  const data = getConfigSync("classes");
-  return data.classes;
-}
-function getTierRules() {
-  const data = getConfigSync("classes");
-  return data.tierRules ?? null;
-}
-function getClassById(id) {
-  return getClasses().find((c) => c.id === id);
-}
-function getSkills() {
-  const data = getConfigSync("skills");
-  return data.skills;
-}
-function getSkillsByClass(classId) {
-  return getSkills().filter((s) => s.classId === classId);
-}
-function getSkillById(id) {
-  return getSkills().find((s) => s.id === id);
-}
-function getQualities() {
-  const data = getConfigSync("items");
-  return data.itemQualities;
-}
-function getConsumables() {
-  const data = getConfigSync("items");
-  return data.consumables;
-}
-function getEquipmentPrefixes() {
-  const data = getConfigSync("items");
-  return data.equipmentPrefixes;
-}
-function getItems() {
-  const data = getConfigSync("items");
-  return data.items || [];
-}
-function getItemById(id) {
-  return getItems().find((i) => i.id === id);
-}
-function getEquipmentSets() {
-  const data = getConfigSync("items");
-  return data.equipmentSets || [];
-}
-function getEquipmentSetById(id) {
-  return getEquipmentSets().find((s) => s.id === id);
-}
-function getRoomLootTables() {
-  const data = getConfigSync("dungeons");
-  return data.roomLootTables || {};
-}
-function getEnemies() {
-  const data = getConfigSync("monsters");
-  return data.enemies;
-}
-function getEnemiesByFamily(family, includeBoss = false) {
-  return getEnemies().filter((e) => e.family === family && (includeBoss || !e.isBoss));
-}
-function getBossByFamily(family) {
-  return getEnemies().find((e) => e.family === family && e.isBoss);
-}
-function getEnemyById(id) {
-  return getEnemies().find((e) => e.id === id);
-}
-function getGlobalDropPool() {
-  const data = getConfigSync("monsters");
-  return data.globalDropPool || [];
-}
-function rollDrops(enemyId, layer, rng = Math.random) {
-  const enemy = getEnemyById(enemyId);
-  if (!enemy) return [];
-  const drops = [];
-  const roll = (min, max) => Math.floor(min + rng() * (max - min + 1));
-  if (enemy.dropTable) {
-    for (const drop of enemy.dropTable) {
-      if (drop.minLayer && layer < drop.minLayer) continue;
-      if (rng() * 100 < drop.chance) {
-        drops.push({
-          itemId: drop.itemId,
-          name: drop.name,
-          type: drop.type,
-          quantity: roll(drop.quantityMin, drop.quantityMax),
-          quality: drop.quality
-        });
-      }
-    }
-  }
-  const globalPool = getGlobalDropPool();
-  for (const drop of globalPool) {
-    if (drop.minLayer && layer < drop.minLayer) continue;
-    if (rng() * 100 < drop.chance) {
-      drops.push({
-        itemId: drop.itemId,
-        name: drop.name,
-        type: drop.type,
-        quantity: roll(drop.quantityMin, drop.quantityMax),
-        quality: drop.quality
-      });
-    }
-  }
-  return drops;
-}
-function getAIType(id) {
-  const data = getConfigSync("monsters");
-  return data.aiTypes.find((a) => a.id === id);
-}
-function getRoomTypes() {
-  const data = getConfigSync("dungeons");
-  return data.roomTypes;
-}
-function getThemeByLayer(layer) {
-  const data = getConfigSync("dungeons");
-  return data.dungeonThemes.find((t2) => layer >= t2.layerMin && layer <= t2.layerMax);
-}
-function getMapGenConfig() {
-  const data = getConfigSync("dungeons");
-  return data.mapGen;
-}
-function getElementMultiplier(attackerEl, defenderEl) {
-  const g = getGlobalConfig();
-  if (!attackerEl || !defenderEl || attackerEl === "none" || defenderEl === "none") return 1;
-  if (ELEMENT_WEAKNESS[defenderEl] === attackerEl) return g.combat.elementAdvantageMultiplier;
-  if (ELEMENT_WEAKNESS[attackerEl] === defenderEl) return g.combat.elementDisadvantageMultiplier;
-  return 1;
-}
-function getExpForLevel(level) {
-  const g = getGlobalConfig();
-  return Math.floor(g.experience.baseExpForLevel * Math.pow(g.experience.expGrowthRate, level - 1));
-}
-function renderTemplate(key, vars) {
-  const g = getGlobalConfig();
-  let template = g.textTemplates[key] || key;
-  Object.entries(vars).forEach(([k, v]) => {
-    template = template.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
-  });
-  return template;
-}
-function isFeatureEnabled(feature) {
-  const g = getGlobalConfig();
-  const val = g.switches[feature];
-  return val === true || typeof val === "number" && val > 0;
-}
-var CONFIG_DIR, CONFIG_FILES, memoryCache, ELEMENT_WEAKNESS;
-var init_config_service = __esm({
-  "api/services/config-service.ts"() {
-    init_redis_service();
-    CONFIG_DIR = join(process.cwd(), "game-configs");
-    CONFIG_FILES = {
-      refs: "references.json",
-      global: "global.json",
-      classes: "classes.json",
-      skills: "skills.json",
-      items: "items.json",
-      monsters: "monsters.json",
-      dungeons: "dungeons.json"
-    };
-    memoryCache = /* @__PURE__ */ new Map();
-    ELEMENT_WEAKNESS = {
-      fire: "wind",
-      wind: "earth",
-      earth: "water",
-      water: "fire",
-      light: "dark",
-      dark: "light"
-    };
   }
 });
 
@@ -41525,11 +41154,255 @@ var coerce = {
 };
 var NEVER = INVALID;
 
-// api/routers/game-router.ts
-init_config_service();
+// api/services/config-service.ts
+import { readFileSync } from "fs";
+import { join } from "path";
+
+// api/services/redis-service.ts
+var import_ioredis = __toESM(require_built3(), 1);
+var redis = null;
+function getRedis() {
+  if (!redis) {
+    const host = process.env.REDIS_HOST || "localhost";
+    const port = parseInt(process.env.REDIS_PORT || "6379");
+    const password = process.env.REDIS_PASSWORD || void 0;
+    redis = new import_ioredis.default({ host, port, password, retryStrategy: (times) => Math.min(times * 50, 2e3) });
+    redis.on("error", (err) => console.error("[Redis] error:", err.message));
+    redis.on("connect", () => console.log("[Redis] connected"));
+  }
+  return redis;
+}
+async function addLeaderboardScore(category, playerId, score, metadata) {
+  try {
+    const r = getRedis();
+    const member = JSON.stringify({ id: playerId, meta: metadata || {} });
+    await r.zadd(`lb:${category}`, score, member);
+    await r.zremrangebyrank(`lb:${category}`, 0, -1001);
+  } catch {
+  }
+}
+async function getLeaderboardTop(category, count = 20) {
+  try {
+    const r = getRedis();
+    const results = await r.zrevrange(`lb:${category}`, 0, count - 1, "WITHSCORES");
+    const list = [];
+    for (let i = 0; i < results.length; i += 2) {
+      try {
+        const parsed = JSON.parse(results[i]);
+        list.push({ player: parsed.id, score: parseFloat(results[i + 1]), rank: Math.floor(i / 2) + 1, meta: parsed.meta });
+      } catch {
+      }
+    }
+    return list;
+  } catch {
+    return [];
+  }
+}
+async function getPlayerRank(category, playerId) {
+  try {
+    const r = getRedis();
+    const members = await r.zrevrange(`lb:${category}`, 0, -1);
+    for (let i = 0; i < members.length; i++) {
+      try {
+        if (JSON.parse(members[i]).id === playerId) return i + 1;
+      } catch {
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+async function getOnlinePlayers() {
+  try {
+    const r = getRedis();
+    const data = await r.hgetall("online");
+    const now = Date.now();
+    const list = [];
+    for (const [id, val] of Object.entries(data)) {
+      try {
+        const parsed = JSON.parse(val);
+        if (now - parsed.ts < 3e5) list.push({ id, name: parsed.name, status: parsed.status });
+        else await r.hdel("online", id);
+      } catch {
+      }
+    }
+    return list;
+  } catch {
+    return [];
+  }
+}
+async function addChatMessage(channel, senderId, senderName, content) {
+  try {
+    const r = getRedis();
+    const msg = JSON.stringify({ senderId, senderName, content, ts: Date.now() });
+    await r.lpush(`chat:${channel}`, msg);
+    await r.ltrim(`chat:${channel}`, 0, 99);
+    await r.expire(`chat:${channel}`, 86400);
+  } catch {
+  }
+}
+async function getChatMessages(channel, count = 50) {
+  try {
+    const r = getRedis();
+    const msgs = await r.lrange(`chat:${channel}`, 0, count - 1);
+    return msgs.reverse().map((m) => {
+      const p = JSON.parse(m);
+      return { senderId: p.senderId, senderName: p.senderName, content: p.content, time: p.ts };
+    });
+  } catch {
+    return [];
+  }
+}
+
+// api/services/config-service.ts
+var CONFIG_DIR = join(process.cwd(), "game-configs");
+var CONFIG_FILES = {
+  refs: "references.json",
+  global: "global.json",
+  classes: "classes.json",
+  skills: "skills.json",
+  items: "items.json",
+  monsters: "monsters.json",
+  dungeons: "dungeons.json"
+};
+var memoryCache = /* @__PURE__ */ new Map();
+function loadRaw(filename) {
+  const path2 = join(CONFIG_DIR, filename);
+  return JSON.parse(readFileSync(path2, "utf-8"));
+}
+function getConfigSync(key) {
+  if (memoryCache.has(key)) return memoryCache.get(key);
+  const data = loadRaw(CONFIG_FILES[key]);
+  memoryCache.set(key, data);
+  return data;
+}
+function getGlobalConfig() {
+  return getConfigSync("global");
+}
+function getClasses() {
+  const data = getConfigSync("classes");
+  return data.classes;
+}
+function getTierRules() {
+  const data = getConfigSync("classes");
+  return data.tierRules ?? null;
+}
+function getClassById(id) {
+  return getClasses().find((c) => c.id === id);
+}
+function getSkills() {
+  const data = getConfigSync("skills");
+  return data.skills;
+}
+function getSkillsByClass(classId) {
+  return getSkills().filter((s) => s.classId === classId);
+}
+function getSkillById(id) {
+  return getSkills().find((s) => s.id === id);
+}
+function getConsumables() {
+  const data = getConfigSync("items");
+  return data.consumables;
+}
+function getItems() {
+  const data = getConfigSync("items");
+  return data.items || [];
+}
+function getItemById(id) {
+  return getItems().find((i) => i.id === id);
+}
+function getEquipmentSets() {
+  const data = getConfigSync("items");
+  return data.equipmentSets || [];
+}
+function getRoomLootTables() {
+  const data = getConfigSync("dungeons");
+  return data.roomLootTables || {};
+}
+function getMonsterSkills() {
+  const data = getConfigSync("monsters");
+  return data.monsterSkills || [];
+}
+function getMonsterSkillById(id) {
+  return getMonsterSkills().find((s) => s.id === id);
+}
+function getEnemies() {
+  const data = getConfigSync("monsters");
+  return data.enemies;
+}
+function getEnemiesByFamily(family, includeBoss = false) {
+  return getEnemies().filter((e) => e.family === family && (includeBoss || !e.isBoss));
+}
+function getBossByFamily(family) {
+  return getEnemies().find((e) => e.family === family && e.isBoss);
+}
+function getEnemyById(id) {
+  return getEnemies().find((e) => e.id === id);
+}
+function getGlobalDropPool() {
+  const data = getConfigSync("monsters");
+  return data.globalDropPool || [];
+}
+function rollDrops(enemyId, layer, rng = Math.random) {
+  const enemy = getEnemyById(enemyId);
+  if (!enemy) return [];
+  const drops = [];
+  const roll = (min, max) => Math.floor(min + rng() * (max - min + 1));
+  if (enemy.dropTable) {
+    for (const drop of enemy.dropTable) {
+      if (drop.minLayer && layer < drop.minLayer) continue;
+      if (rng() * 100 < drop.chance) {
+        drops.push({
+          itemId: drop.itemId,
+          name: drop.name,
+          type: drop.type,
+          quantity: roll(drop.quantityMin, drop.quantityMax),
+          quality: drop.quality
+        });
+      }
+    }
+  }
+  const globalPool = getGlobalDropPool();
+  for (const drop of globalPool) {
+    if (drop.minLayer && layer < drop.minLayer) continue;
+    if (rng() * 100 < drop.chance) {
+      drops.push({
+        itemId: drop.itemId,
+        name: drop.name,
+        type: drop.type,
+        quantity: roll(drop.quantityMin, drop.quantityMax),
+        quality: drop.quality
+      });
+    }
+  }
+  return drops;
+}
+function getRoomTypes() {
+  const data = getConfigSync("dungeons");
+  return data.roomTypes;
+}
+function getThemeByLayer(layer) {
+  const data = getConfigSync("dungeons");
+  return data.dungeonThemes.find((t2) => layer >= t2.layerMin && layer <= t2.layerMax);
+}
+var ELEMENT_WEAKNESS = {
+  fire: "wind",
+  wind: "earth",
+  earth: "water",
+  water: "fire",
+  light: "dark",
+  dark: "light"
+};
+function getElementMultiplier(attackerEl, defenderEl) {
+  const g = getGlobalConfig();
+  if (!attackerEl || !defenderEl || attackerEl === "none" || defenderEl === "none") return 1;
+  if (ELEMENT_WEAKNESS[defenderEl] === attackerEl) return g.combat.elementAdvantageMultiplier;
+  if (ELEMENT_WEAKNESS[attackerEl] === defenderEl) return g.combat.elementDisadvantageMultiplier;
+  return 1;
+}
 
 // api/services/mapgen-service.ts
-init_config_service();
 import crypto2 from "crypto";
 var SeededRNG = class {
   seed;
@@ -41763,7 +41636,8 @@ function populateRooms(rooms, layer, family, rng) {
           ...scaled,
           skills: boss.skills,
           element: boss.element,
-          aiType: boss.aiType
+          aiType: boss.aiType,
+          dropTable: boss.dropTable
         }];
       }
     } else {
@@ -41819,7 +41693,18 @@ function getRoomDirections(rooms, roomId) {
 }
 
 // api/services/combat-service.ts
-init_config_service();
+var STATUS_DEFS = {
+  bleed: { name: "\u6D41\u8840", kind: "physical" },
+  poison: { name: "\u4E2D\u6BD2", kind: "physical" },
+  stun: { name: "\u7729\u6655", kind: "physical" },
+  slow: { name: "\u51CF\u901F", kind: "physical" },
+  cripple: { name: "\u81F4\u6B8B", kind: "physical" },
+  silence: { name: "\u6C89\u9ED8", kind: "mental" },
+  fear: { name: "\u6050\u60E7", kind: "mental" },
+  charm: { name: "\u9B45\u60D1", kind: "mental" },
+  curse: { name: "\u8BC5\u5492", kind: "mental" },
+  confusion: { name: "\u6DF7\u4E71", kind: "mental" }
+};
 var SimpleRNG = class {
   seed;
   constructor(seed) {
@@ -41842,6 +41727,85 @@ function checkDodge(agi, rng) {
   const dodgeRate = Math.min(agi * 3e-3, 0.3);
   return rng.next() < dodgeRate;
 }
+var physResist = (c) => Math.min((c.con || 0) * 6e-3, 0.6);
+var magResist = (c) => Math.min((c.wil || 0) * 6e-3, 0.6);
+var effDef = (c) => c.def + Math.floor((c.con || 0) * 0.2);
+var effMdef = (c) => c.mdef + Math.floor((c.wil || 0) * 0.2);
+var hpRegen = (c) => Math.floor((c.con || 0) * 0.3);
+var mpRegen = (c) => Math.floor((c.wil || 0) * 0.5);
+var hasStatus = (c, id) => (c.statuses || []).some((s) => s.id === id);
+function tryApplyStatus(target, statusId, chance, turns, rng, logs, sourceName = "") {
+  const def = STATUS_DEFS[statusId];
+  if (!def || target.hp <= 0) return;
+  const resist = def.kind === "physical" ? physResist(target) : magResist(target);
+  const finalChance = chance * (1 - resist);
+  if (rng.next() >= finalChance) {
+    if (resist > 0.15) logs.push(`${target.name} \u62B5\u6297\u4E86${def.name}\uFF01`);
+    return;
+  }
+  target.statuses = target.statuses || [];
+  const existing = target.statuses.find((s) => s.id === statusId);
+  if (existing) {
+    existing.turns = Math.max(existing.turns, turns);
+  } else {
+    target.statuses.push({ id: statusId, name: def.name, kind: def.kind, turns });
+  }
+  logs.push(`${target.name} \u9677\u5165\u4E86${def.name}\u72B6\u6001\uFF01${sourceName ? `\uFF08\u6765\u81EA ${sourceName}\uFF09` : ""}`);
+}
+function processStatuses(c, rng, logs, isPlayerSide) {
+  if (!c.statuses || c.statuses.length === 0) return false;
+  let skip = false;
+  const who = isPlayerSide ? "\u4F60" : c.name;
+  for (const s of c.statuses) {
+    switch (s.id) {
+      case "bleed": {
+        const dot = Math.max(1, Math.floor(c.maxHp * 0.03));
+        c.hp = Math.max(0, c.hp - dot);
+        logs.push(`${who} \u56E0\u6D41\u8840\u635F\u5931\u4E86 ${dot} \u70B9\u751F\u547D\u3002`);
+        break;
+      }
+      case "poison": {
+        const dot = Math.max(1, Math.floor(c.maxHp * 0.025));
+        c.hp = Math.max(0, c.hp - dot);
+        logs.push(`${who} \u53D7\u5230\u6BD2\u7D20\u4FB5\u8680\uFF0C\u635F\u5931 ${dot} \u70B9\u751F\u547D\u3002`);
+        break;
+      }
+      case "stun":
+        logs.push(`${who} \u7729\u6655\u4E2D\uFF0C\u65E0\u6CD5\u884C\u52A8\uFF01`);
+        skip = true;
+        break;
+      case "fear":
+        if (rng.next() < 0.5) {
+          logs.push(`${who} \u88AB\u6050\u60E7\u7B3C\u7F69\uFF0C\u52A8\u5F39\u4E0D\u5F97\uFF01`);
+          skip = true;
+        }
+        break;
+      case "charm":
+        if (rng.next() < 0.5) {
+          logs.push(`${who} \u88AB\u9B45\u60D1\u4E86\uFF0C\u5931\u53BB\u4E86\u7406\u667A\uFF01`);
+          skip = true;
+        }
+        break;
+    }
+    s.turns -= 1;
+  }
+  c.statuses = c.statuses.filter((s) => {
+    if (s.turns <= 0) {
+      logs.push(`${who} \u7684${s.name}\u72B6\u6001\u89E3\u9664\u4E86\u3002`);
+      return false;
+    }
+    return true;
+  });
+  return skip;
+}
+var effAtk = (c) => {
+  let v = c.atk;
+  if (hasStatus(c, "cripple")) v = Math.floor(v * 0.7);
+  if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
+  return v;
+};
+var effMag = (c) => hasStatus(c, "curse") ? Math.floor(c.mag * 0.8) : c.mag;
+var effAgi = (c) => hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi;
 function resolveCombat(player, enemies, action, turnSeed, options) {
   const rng = new SimpleRNG(turnSeed);
   const logs = [];
@@ -41849,85 +41813,129 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
   let victory = false;
   let fled = false;
   let drops = [];
-  switch (action.type) {
-    case "attack": {
-      const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
-      if (!target) break;
-      if (checkDodge(target.agi, rng)) {
-        logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
-        break;
+  const playerSkipped = processStatuses(player, rng, logs, true);
+  if (player.hp <= 0) {
+    logs.push("\u4F60\u88AB\u51FB\u8D25\u4E86...");
+    return { logs, player, enemies, ended: true, victory: false, fled, drops };
+  }
+  const regenHp = hpRegen(player);
+  const regenMp = mpRegen(player);
+  if (regenHp > 0) player.hp = Math.min(player.maxHp, player.hp + regenHp);
+  if (regenMp > 0) player.mp = Math.min(player.maxMp, player.mp + regenMp);
+  if (!playerSkipped) {
+    const confused = hasStatus(player, "confusion") && rng.next() < 0.5;
+    if (confused) {
+      const selfDmg = Math.max(1, Math.floor(effAtk(player) * 0.5));
+      player.hp = Math.max(0, player.hp - selfDmg);
+      logs.push(`\u4F60\u5728\u6DF7\u4E71\u4E2D\u6253\u4E86\u81EA\u5DF1\uFF0C\u53D7\u5230 ${selfDmg} \u70B9\u4F24\u5BB3\uFF01`);
+      if (player.hp <= 0) {
+        logs.push("\u4F60\u88AB\u51FB\u8D25\u4E86...");
+        return { logs, player, enemies, ended: true, victory: false, fled, drops };
       }
-      let damage = player.atk - target.def;
-      damage = Math.max(1, damage);
-      const isCrit = checkCrit(player.luk, rng);
-      if (isCrit) {
-        damage = Math.floor(damage * 1.5);
-        logs.push(`\u66B4\u51FB\uFF01\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
-      } else {
-        logs.push(`\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
-      }
-      target.hp = Math.max(0, target.hp - damage);
-      if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
-      break;
-    }
-    case "skill": {
-      const skillId = action.skillId || "";
-      const skillConfig = (init_config_service(), __toCommonJS(config_service_exports)).getSkills().find((s) => s.id === skillId);
-      if (skillConfig && player.mp >= skillConfig.mpCost) {
-        player.mp -= skillConfig.mpCost;
-        const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
-        if (target) {
-          const effect = skillConfig.effect;
-          if (effect.damage) {
-            const dmgStr = effect.damage;
-            let damage = 0;
-            if (dmgStr.includes("mag*")) {
-              const mult = parseFloat(dmgStr.split("*")[1]);
-              damage = Math.floor(player.mag * mult) - target.mdef;
-            } else if (dmgStr.includes("atk*")) {
-              const mult = parseFloat(dmgStr.split("*")[1]);
-              damage = Math.floor(player.atk * mult) - target.def;
-            }
-            damage = Math.max(1, damage);
-            const elMult = getElementMultiplier(skillConfig.element, target.element);
-            if (elMult !== 1) {
-              damage = Math.floor(damage * elMult);
-              logs.push(elMult > 1 ? `\u5C5E\u6027\u514B\u5236\uFF01` : `\u5C5E\u6027\u88AB\u514B\u5236...`);
-            }
-            target.hp = Math.max(0, target.hp - damage);
-            logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${target.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\u3002`);
-            if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
+    } else {
+      switch (action.type) {
+        case "attack": {
+          const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+          if (!target) break;
+          if (checkDodge(effAgi(target), rng)) {
+            logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
+            break;
           }
-          if (effect.heal) {
-            const healStr = effect.heal;
-            let heal = 0;
-            if (healStr.includes("mag*")) {
-              const mult = parseFloat(healStr.split("*")[1]);
-              heal = Math.floor(player.mag * mult);
-            } else {
-              heal = parseInt(healStr);
-            }
-            player.hp = Math.min(player.maxHp, player.hp + heal);
-            logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u6062\u590D\u4E86 ${heal} \u70B9\u751F\u547D\u3002`);
+          let damage = effAtk(player) - effDef(target);
+          damage = Math.max(1, damage);
+          const isCrit = checkCrit(player.luk, rng);
+          if (isCrit) {
+            damage = Math.floor(damage * 1.5);
+            logs.push(`\u66B4\u51FB\uFF01\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
+          } else {
+            logs.push(`\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
           }
+          target.hp = Math.max(0, target.hp - damage);
+          if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
+          break;
+        }
+        case "skill": {
+          if (hasStatus(player, "silence")) {
+            logs.push("\u4F60\u5904\u4E8E\u6C89\u9ED8\u72B6\u6001\uFF0C\u65E0\u6CD5\u65BD\u653E\u6280\u80FD\uFF01\u6539\u4E3A\u666E\u901A\u653B\u51FB\u3002");
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            if (target) {
+              if (checkDodge(effAgi(target), rng)) {
+                logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
+              } else {
+                const damage = Math.max(1, effAtk(player) - effDef(target));
+                target.hp = Math.max(0, target.hp - damage);
+                logs.push(`\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+                if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
+              }
+            }
+            break;
+          }
+          const skillId = action.skillId || "";
+          const skillConfig = getSkillById(skillId);
+          if (skillConfig && player.mp >= skillConfig.mpCost) {
+            player.mp -= skillConfig.mpCost;
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            if (target) {
+              const effect = skillConfig.effect;
+              if (effect.damage) {
+                const dmgStr = effect.damage;
+                let damage = 0;
+                if (dmgStr.includes("mag*")) {
+                  const mult = parseFloat(dmgStr.split("*")[1]);
+                  damage = Math.floor(effMag(player) * mult) - effMdef(target);
+                } else if (dmgStr.includes("atk*")) {
+                  const mult = parseFloat(dmgStr.split("*")[1]);
+                  damage = Math.floor(effAtk(player) * mult) - effDef(target);
+                }
+                damage = Math.max(1, damage);
+                const elMult = getElementMultiplier(skillConfig.element, target.element);
+                if (elMult !== 1) {
+                  damage = Math.floor(damage * elMult);
+                  logs.push(elMult > 1 ? `\u5C5E\u6027\u514B\u5236\uFF01` : `\u5C5E\u6027\u88AB\u514B\u5236...`);
+                }
+                target.hp = Math.max(0, target.hp - damage);
+                logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${target.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+                if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
+              }
+              if (effect.heal) {
+                const healStr = effect.heal;
+                let heal = 0;
+                if (healStr.includes("mag*")) {
+                  const mult = parseFloat(healStr.split("*")[1]);
+                  heal = Math.floor(effMag(player) * mult);
+                } else {
+                  heal = parseInt(healStr);
+                }
+                player.hp = Math.min(player.maxHp, player.hp + heal);
+                logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u6062\u590D\u4E86 ${heal} \u70B9\u751F\u547D\u3002`);
+              }
+              if (effect.status && target.hp > 0) {
+                const st = effect.status;
+                tryApplyStatus(target, st.id, st.chance, st.turns ?? 2, rng, logs, skillConfig.name);
+              }
+              if (effect.stunChance && target.hp > 0) {
+                tryApplyStatus(target, "stun", effect.stunChance, effect.stunDuration ?? 1, rng, logs, skillConfig.name);
+              }
+            }
+          }
+          break;
+        }
+        case "defend": {
+          logs.push("\u4F60\u8FDB\u5165\u9632\u5FA1\u59FF\u6001\uFF0C\u4E0B\u56DE\u5408\u53D7\u5230\u7684\u4F24\u5BB3\u51CF\u534A\u3002");
+          break;
+        }
+        case "flee": {
+          const fleeChance = 0.3 + (effAgi(player) - Math.max(...enemies.map((e) => effAgi(e)))) * 0.02;
+          if (rng.next() < Math.min(fleeChance, 0.8)) {
+            logs.push("\u4F60\u6210\u529F\u9003\u8DD1\u4E86\uFF01");
+            fled = true;
+            ended = true;
+          } else {
+            logs.push("\u9003\u8DD1\u5931\u8D25\uFF01");
+          }
+          break;
         }
       }
-      break;
-    }
-    case "defend": {
-      logs.push("\u4F60\u8FDB\u5165\u9632\u5FA1\u59FF\u6001\uFF0C\u4E0B\u56DE\u5408\u53D7\u5230\u7684\u4F24\u5BB3\u51CF\u534A\u3002");
-      break;
-    }
-    case "flee": {
-      const fleeChance = 0.3 + (player.agi - Math.max(...enemies.map((e) => e.agi))) * 0.02;
-      if (rng.next() < Math.min(fleeChance, 0.8)) {
-        logs.push("\u4F60\u6210\u529F\u9003\u8DD1\u4E86\uFF01");
-        fled = true;
-        ended = true;
-      } else {
-        logs.push("\u9003\u8DD1\u5931\u8D25\uFF01");
-      }
-      break;
     }
   }
   if (!ended && enemies.every((e) => e.hp <= 0)) {
@@ -41935,14 +41943,17 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
     victory = true;
     ended = true;
     const layer = options?.layer || 1;
+    const luckDropBoost = 1 + player.luk * 0.01;
+    const luckGoldBoost = 1 + player.luk * 0.02;
     for (const enemy of enemies) {
       if (enemy.hp <= 0) {
         const enemyDrop = options?.enemyDropTables?.find((ed) => ed.enemyId === enemy.id);
         if (enemyDrop?.dropTable) {
           for (const drop of enemyDrop.dropTable) {
             if (drop.minLayer && layer < drop.minLayer) continue;
-            if (rng.next() * 100 < drop.chance) {
-              const qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
+            if (rng.next() * 100 < drop.chance * luckDropBoost) {
+              let qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
+              if (drop.type === "currency") qty = Math.floor(qty * luckGoldBoost);
               drops.push({
                 itemId: drop.itemId,
                 name: drop.name,
@@ -41964,14 +41975,45 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
   if (!ended) {
     for (const enemy of enemies) {
       if (enemy.hp <= 0) continue;
-      if (checkDodge(player.agi, rng)) {
-        logs.push(`\u4F60\u95EA\u907F\u4E86 ${enemy.name} \u7684\u653B\u51FB\uFF01`);
+      const enemySkipped = processStatuses(enemy, rng, logs, false);
+      if (enemy.hp <= 0) {
+        logs.push(`${enemy.name} \u5012\u4E0B\u4E86\uFF01`);
         continue;
       }
-      let damage = enemy.atk - player.def;
-      damage = Math.max(1, rollDamage(damage, rng));
-      player.hp = Math.max(0, player.hp - damage);
-      logs.push(`${enemy.name} \u5BF9\u4F60\u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+      if (enemySkipped) continue;
+      if (hasStatus(enemy, "confusion") && rng.next() < 0.5) {
+        const selfDmg = Math.max(1, Math.floor(effAtk(enemy) * 0.5));
+        enemy.hp = Math.max(0, enemy.hp - selfDmg);
+        logs.push(`${enemy.name} \u5728\u6DF7\u4E71\u4E2D\u653B\u51FB\u4E86\u81EA\u5DF1\uFF0C\u53D7\u5230 ${selfDmg} \u70B9\u4F24\u5BB3\uFF01`);
+        if (enemy.hp <= 0) logs.push(`${enemy.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
+        continue;
+      }
+      const usableSkills = (enemy.skills || []).map((sid) => getMonsterSkillById(sid)).filter((s) => !!s);
+      const skill = usableSkills.length > 0 && rng.next() < 0.35 ? usableSkills[Math.floor(rng.next() * usableSkills.length)] : null;
+      if (skill) {
+        let damage = 0;
+        const dmgStr = skill.damage || "atk*1";
+        if (dmgStr.includes("mag*")) {
+          damage = Math.floor((enemy.mag || 1) * parseFloat(dmgStr.split("*")[1])) - effMdef(player);
+        } else if (dmgStr.includes("atk*")) {
+          damage = Math.floor(effAtk(enemy) * parseFloat(dmgStr.split("*")[1])) - effDef(player);
+        }
+        damage = Math.max(1, rollDamage(damage, rng));
+        player.hp = Math.max(0, player.hp - damage);
+        logs.push(`${enemy.name} \u4F7F\u7528\u4E86 ${skill.name}\uFF0C\u5BF9\u4F60\u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
+        if (skill.status && player.hp > 0) {
+          tryApplyStatus(player, skill.status.id, skill.status.chance, skill.status.turns ?? 2, rng, logs, enemy.name);
+        }
+      } else {
+        if (checkDodge(effAgi(player), rng)) {
+          logs.push(`\u4F60\u95EA\u907F\u4E86 ${enemy.name} \u7684\u653B\u51FB\uFF01`);
+          continue;
+        }
+        let damage = effAtk(enemy) - effDef(player);
+        damage = Math.max(1, rollDamage(damage, rng));
+        player.hp = Math.max(0, player.hp - damage);
+        logs.push(`${enemy.name} \u5BF9\u4F60\u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+      }
       if (player.hp <= 0) {
         logs.push("\u4F60\u88AB\u51FB\u8D25\u4E86...");
         ended = true;
@@ -41979,7 +42021,6 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
       }
     }
   }
-  player.mp = Math.min(player.maxMp, player.mp + Math.floor(player.maxMp * 0.05));
   return { logs, player, enemies, ended, victory, fled, drops };
 }
 
@@ -42111,8 +42152,11 @@ var gameRouter = createRouter({
       mdef: external_exports.number(),
       agi: external_exports.number(),
       luk: external_exports.number(),
+      con: external_exports.number().optional(),
+      wil: external_exports.number().optional(),
       skills: external_exports.array(external_exports.string()),
-      element: external_exports.string().default("none")
+      element: external_exports.string().default("none"),
+      statuses: external_exports.array(external_exports.object({ id: external_exports.string(), name: external_exports.string(), kind: external_exports.string(), turns: external_exports.number() })).optional()
     }),
     enemies: external_exports.array(external_exports.object({
       id: external_exports.string(),
@@ -42127,9 +42171,12 @@ var gameRouter = createRouter({
       mdef: external_exports.number(),
       agi: external_exports.number(),
       luk: external_exports.number(),
+      con: external_exports.number().optional(),
+      wil: external_exports.number().optional(),
       skills: external_exports.array(external_exports.string()),
       element: external_exports.string(),
-      aiType: external_exports.string().optional()
+      aiType: external_exports.string().optional(),
+      statuses: external_exports.array(external_exports.object({ id: external_exports.string(), name: external_exports.string(), kind: external_exports.string(), turns: external_exports.number() })).optional()
     })),
     action: external_exports.object({
       type: external_exports.enum(["attack", "skill", "item", "defend", "flee"]),
@@ -42153,9 +42200,10 @@ var gameRouter = createRouter({
       })).nullish()
     })).optional()
   })).mutation(({ input }) => {
+    const castStatuses = (list) => list?.map((s) => ({ ...s, kind: s.kind }));
     const { logs, player, enemies, ended, victory, fled, drops } = resolveCombat(
-      { ...input.player, isPlayer: true },
-      input.enemies.map((e) => ({ ...e, isPlayer: false })),
+      { ...input.player, statuses: castStatuses(input.player.statuses), isPlayer: true },
+      input.enemies.map((e) => ({ ...e, statuses: castStatuses(e.statuses), isPlayer: false })),
       input.action,
       input.turnSeed,
       {
@@ -42165,7 +42213,7 @@ var gameRouter = createRouter({
     );
     return {
       logs,
-      player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp },
+      player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp, statuses: player.statuses || [] },
       enemies: enemies.map((e) => ({
         id: e.id,
         name: e.name,
@@ -42182,6 +42230,7 @@ var gameRouter = createRouter({
         skills: e.skills,
         element: e.element,
         aiType: e.aiType,
+        statuses: e.statuses || [],
         dead: e.hp <= 0
       })),
       ended,
@@ -42193,7 +42242,6 @@ var gameRouter = createRouter({
 });
 
 // api/routers/leaderboard-router.ts
-init_redis_service();
 var leaderboardRouter = createRouter({
   submitScore: publicQuery.input(external_exports.object({
     category: external_exports.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
@@ -42225,7 +42273,6 @@ var leaderboardRouter = createRouter({
 });
 
 // api/routers/chat-router.ts
-init_redis_service();
 var chatRouter = createRouter({
   send: publicQuery.input(external_exports.object({
     channel: external_exports.enum(["world", "area", "party", "guild"]).default("world"),

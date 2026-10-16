@@ -280,6 +280,22 @@ export interface DropItem {
   minLayer?: number;
 }
 
+// ─── Monster skills (怪物技能表，存于 monsters.json) ───
+export interface MonsterSkillDef {
+  id: string; name: string; damage?: string;
+  status?: { id: string; chance: number; turns?: number };
+  desc?: string;
+}
+
+export function getMonsterSkills(): MonsterSkillDef[] {
+  const data = getConfigSync("monsters") as { monsterSkills?: MonsterSkillDef[] };
+  return data.monsterSkills || [];
+}
+
+export function getMonsterSkillById(id: string): MonsterSkillDef | undefined {
+  return getMonsterSkills().find((s) => s.id === id);
+}
+
 export function getEnemies() {
   const data = getConfigSync("monsters") as { enemies: Array<{
     id: string; family: string; name: string; baseLevel: number;

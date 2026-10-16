@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getItemDisplayName } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -70,10 +70,12 @@ export default function CharacterPanel() {
     hp: <Heart size={14} />, mp: <Droplets size={14} />, atk: <Swords size={14} />,
     def: <Shield size={14} />, mag: <Sparkles size={14} />, mdef: <Brain size={14} />,
     agi: <Wind size={14} />, luk: <Star size={14} />,
+    con: <Shield size={14} />, wil: <Sparkles size={14} />,
   }
   const statNames: Record<string, string> = {
     hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力',
     mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运',
+    con: '体质', wil: '意志',
   }
 
   // Equipment slot names
@@ -239,18 +241,46 @@ export default function CharacterPanel() {
 
           {/* Stats Tab */}
           {activeTab === 'stats' && player && (
-            <div className="grid grid-cols-2 gap-3">
-              {Object.entries(statNames).map(([key, name]) => (
-                <div key={key} className="game-card flex items-center gap-3">
-                  <div style={{ color: 'var(--accent)' }}>{statIcons[key]}</div>
-                  <div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{name}</div>
-                    <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-                      {(player as Record<string, number>)[key] || 0}
+            <div>
+              <div className="grid grid-cols-2 gap-3">
+                {Object.entries(statNames).map(([key, name]) => (
+                  <div key={key} className="game-card flex items-center gap-3">
+                    <div style={{ color: 'var(--accent)' }}>{statIcons[key]}</div>
+                    <div>
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{name}</div>
+                      <div className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                        {(player as Record<string, number>)[key] || 0}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {/* 体质/意志派生效果 */}
+              {(() => {
+                const d = getDerivedStats(player)
+                const rows = [
+                  { label: '物理异常抵抗', value: `${d.physResist.toFixed(1)}%`, hint: '抵抗流血/中毒/眩晕/减速/致残（体质）' },
+                  { label: '精神异常抵抗', value: `${d.magResist.toFixed(1)}%`, hint: '抵抗沉默/恐惧/魅惑/诅咒/混乱（意志）' },
+                  { label: '战斗回复', value: `+${d.hpRegen} HP / +${d.mpRegen} MP 每回合`, hint: '体质回血 · 意志回蓝' },
+                  { label: '附加防御', value: `+${d.bonusDef} 物防 / +${d.bonusMdef} 魔防`, hint: '体质加物防 · 意志加魔防' },
+                ]
+                return (
+                  <div className="game-card mt-3 p-3">
+                    <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>体质 / 意志 派生效果</div>
+                    <div className="space-y-1.5">
+                      {rows.map((r) => (
+                        <div key={r.label} className="flex items-center justify-between text-xs">
+                          <span style={{ color: 'var(--text-secondary)' }}>{r.label}</span>
+                          <span className="font-bold" style={{ color: '#3FB950' }}>{r.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                      体质：生命上限/物防/回血/物理抗性（战士主加）· 意志：魔防/回蓝/精神抗性（法师、牧师主加）
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
           {activeTab === 'stats' && !player && (

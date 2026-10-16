@@ -8,6 +8,8 @@ export interface Player {
   id: string; name: string; classId: string; level: number
   hp: number; maxHp: number; mp: number; maxMp: number
   atk: number; def: number; mag: number; mdef: number; agi: number; luk: number
+  /** 体质：生命上限/少量物防/生命回复/物理异常抵抗 */ con: number
+  /** 意志：精神抗性/少量魔防/魔力回复 */ wil: number
   skills: string[]; element: string; exp: number; gold: number
   /** 职业等阶 1-9 */ tier: number
   /** 地牢最深到达层数 */ maxLayer: number
@@ -147,6 +149,8 @@ interface GameState {
   // ─── Combat ───
   inCombat: boolean; combatEnemies: Enemy[]; combatLogs: string[]
   combatEnded: boolean; combatVictory: boolean
+  /** 玩家战斗中的异常状态（瞬态，不持久化） */
+  playerStatuses: Array<{ id: string; name: string; kind: string; turns: number }>
 
   // ─── Auto Explore (挂机) ───
   isAutoExploring: boolean
@@ -207,6 +211,7 @@ interface GameState {
   addCombatLog: (log: string) => void
   setCombatEnded: (v: boolean) => void
   setCombatVictory: (v: boolean) => void
+  setPlayerStatuses: (s: Array<{ id: string; name: string; kind: string; turns: number }>) => void
   resetCombat: () => void
   resetDungeon: () => void
 
@@ -229,12 +234,35 @@ const equipSlots: Record<string, keyof Equipment> = {
 }
 
 const DEFAULT_CLASS_STATS: Record<string, Record<string, number>> = {
-  warrior:  { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5 },
-  mage:     { hp: 80,  mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8 },
-  assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10 },
-  ranger:   { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9 },
-  priest:   { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7 },
-  warlock:  { hp: 90,  mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12 },
+  warrior:  { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5, con: 12, wil: 5 },
+  mage:     { hp: 80,  mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8, con: 4, wil: 14 },
+  assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10, con: 6, wil: 7 },
+  ranger:   { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9, con: 8, wil: 8 },
+  priest:   { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7, con: 6, wil: 14 },
+  warlock:  { hp: 90,  mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12, con: 5, wil: 12 },
+}
+
+/** 每级体质/意志成长（战士主体质，法系主意志） */
+const CLASS_CON_WIL_GROWTH: Record<string, { con: number; wil: number }> = {
+  warrior:  { con: 2, wil: 1 },
+  mage:     { con: 1, wil: 2 },
+  priest:   { con: 1, wil: 2 },
+  warlock:  { con: 1, wil: 2 },
+  assassin: { con: 1, wil: 1 },
+  ranger:   { con: 1, wil: 1 },
+}
+
+/** 派生战斗数值（体质/意志） */
+export function getDerivedStats(p: { con?: number; wil?: number }) {
+  const con = p.con || 0, wil = p.wil || 0
+  return {
+    physResist: Math.min(con * 0.6, 60),   // % 物理异常抵抗
+    magResist: Math.min(wil * 0.6, 60),    // % 精神异常抵抗
+    hpRegen: Math.floor(con * 0.3),        // 每回合回血
+    mpRegen: Math.floor(wil * 0.5),        // 每回合回蓝
+    bonusDef: Math.floor(con * 0.2),       // 物防加成
+    bonusMdef: Math.floor(wil * 0.2),      // 魔防加成
+  }
 }
 
 const STORAGE_KEY = 'abyss-game-save'
@@ -289,6 +317,7 @@ export const useGameStore = create<GameState>()(
       roomInfo: null, dungeonRooms: [],
       inCombat: false, combatEnemies: [], combatLogs: [],
       combatEnded: false, combatVictory: false,
+      playerStatuses: [],
       isAutoExploring: false, autoExploreLogs: [],
       autoExploreStats: { roomsExplored: 0, enemiesKilled: 0, itemsFound: 0, currentLayer: 0 },
 
@@ -309,6 +338,7 @@ export const useGameStore = create<GameState>()(
           atk: stats.atk || 10, def: stats.def || 10,
           mag: stats.mag || 10, mdef: stats.mdef || 8,
           agi: stats.agi || 10, luk: stats.luk || 5,
+          con: stats.con ?? 6, wil: stats.wil ?? 6,
           skills: [...(STARTER_SKILLS[classId] || [])], element: 'none', exp: 0, gold: 0,
           tier: 1, maxLayer: 1,
         }
@@ -375,6 +405,7 @@ export const useGameStore = create<GameState>()(
               atk: stats.atk || 10, def: stats.def || 10,
               mag: stats.mag || 10, mdef: stats.mdef || 8,
               agi: stats.agi || 10, luk: stats.luk || 5,
+              con: stats.con ?? 6, wil: stats.wil ?? 6,
               skills: [...(STARTER_SKILLS[targetClassId] || [])], element: 'none', exp: 0, gold: 0,
               tier: 1, maxLayer: 1,
             },
@@ -427,10 +458,13 @@ export const useGameStore = create<GameState>()(
         if (!s.player) return
         const np = { ...s.player, exp: s.player.exp + amount }
         // 支持连升多级
+        const growth = CLASS_CON_WIL_GROWTH[np.classId] || { con: 1, wil: 1 }
         while (np.exp >= np.level * 100) {
           np.exp -= np.level * 100
           np.level += 1
-          np.maxHp += 10; np.hp = np.maxHp
+          np.con = (np.con || 0) + growth.con
+          np.wil = (np.wil || 0) + growth.wil
+          np.maxHp += 10 + growth.con * 8; np.hp = np.maxHp  // 基础生命 = 原生生命 + 体质×系数
           np.maxMp += 5; np.mp = np.maxMp
           np.atk += 2; np.def += 1
           np.mag += 1; np.mdef += 1
@@ -883,7 +917,8 @@ export const useGameStore = create<GameState>()(
       addCombatLog: (log) => set((s) => ({ combatLogs: [...s.combatLogs, log] })),
       setCombatEnded: (v) => set({ combatEnded: v }),
       setCombatVictory: (v) => set({ combatVictory: v }),
-      resetCombat: () => set({ inCombat: false, combatEnemies: [], combatLogs: [], combatEnded: false, combatVictory: false }),
+      setPlayerStatuses: (s) => set({ playerStatuses: s }),
+      resetCombat: () => set({ inCombat: false, combatEnemies: [], combatLogs: [], combatEnded: false, combatVictory: false, playerStatuses: [] }),
       resetDungeon: () => set({ currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(), roomInfo: null, dungeonRooms: [] }),
 
       // Auto Explore
@@ -911,6 +946,7 @@ export const useGameStore = create<GameState>()(
           state.exploredRooms = new Set()
           state.combatLogs = []
           state.inCombat = false
+          state.playerStatuses = []
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false
@@ -924,6 +960,16 @@ export const useGameStore = create<GameState>()(
             if (p) {
               if (!p.tier || p.tier < 1) p.tier = 1
               if (!p.maxLayer || p.maxLayer < 1) p.maxLayer = 1
+              // 体质/意志迁移：基础值 + (等级-1)×成长，并一次性补体质生命
+              if (p.con == null || p.wil == null) {
+                const base = DEFAULT_CLASS_STATS[p.classId] || DEFAULT_CLASS_STATS.warrior
+                const g = CLASS_CON_WIL_GROWTH[p.classId] || { con: 1, wil: 1 }
+                p.con = (base.con ?? 6) + (p.level - 1) * g.con
+                p.wil = (base.wil ?? 6) + (p.level - 1) * g.wil
+                const bonus = p.con * 8
+                p.maxHp += bonus
+                p.hp = Math.min(p.maxHp, p.hp + bonus)
+              }
             }
           }
           fixSkills(state.player)
