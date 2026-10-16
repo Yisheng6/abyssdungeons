@@ -93,6 +93,24 @@ export function getDisassembleGold(item: Item): number {
   return (base[item.quality] || 20) + (item.setTier || 0) * 100 + (item.enhanceLevel || 0) * 50
 }
 
+/** 品质等级排序（用于自动分解阈值比较） */
+export const QUALITY_RANK: Record<string, number> = {
+  common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
+}
+
+export interface GameSettings {
+  /** 装备自动分解开关 */
+  autoDisassemble: boolean
+  /** 自动分解品质阈值：品质 ≤ 该值的装备直接分解为金币 */
+  autoDisassembleMaxQuality: string
+}
+
+/** 判断装备是否符合自动分解条件 */
+export function shouldAutoDisassemble(item: Item, settings: GameSettings): boolean {
+  if (!settings.autoDisassemble || item.type !== 'equipment') return false
+  return (QUALITY_RANK[item.quality] ?? 0) <= (QUALITY_RANK[settings.autoDisassembleMaxQuality] ?? 0)
+}
+
 export interface Equipment {
   weapon: Item | null; helmet: Item | null; armor: Item | null
   leggings: Item | null; boots: Item | null; necklace: Item | null
@@ -137,6 +155,9 @@ interface GameState {
   // ─── SHARED backpack (all classes see the same items) ───
   inventory: Item[]
 
+  // ─── Settings ───
+  settings: GameSettings
+
   // ─── Runtime: current class ───
   player: Player | null
   equipment: Equipment
@@ -164,6 +185,7 @@ interface GameState {
   // ─── Actions ───
   setLoggedIn: (v: boolean) => void
   setPlayerName: (v: string) => void
+  updateSettings: (patch: Partial<GameSettings>) => void
 
   createPlayer: (classId: string, classStats: Record<string, number>) => boolean
   switchClass: (classId: string) => { success: boolean; message: string }
@@ -322,6 +344,7 @@ export const useGameStore = create<GameState>()(
       classSaves: {}, activeClassId: '',
       lastClassSwitch: 0, switchCooldownMs: 5000,
       inventory: [],
+      settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common' },
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
@@ -335,6 +358,7 @@ export const useGameStore = create<GameState>()(
       // ─── Auth ───
       setLoggedIn: (v) => set({ isLoggedIn: v }),
       setPlayerName: (v) => set({ playerName: v }),
+      updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
 
       // ─── Create Player ───
       createPlayer: (classId, classStats) => {
@@ -991,6 +1015,7 @@ export const useGameStore = create<GameState>()(
         player: state.player,
         equipment: state.equipment,
         tempBag: state.tempBag,          // 未结算的探索战利品
+        settings: state.settings,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -999,6 +1024,7 @@ export const useGameStore = create<GameState>()(
           state.inCombat = false
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
+          state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', ...(state.settings || {}) }
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false

@@ -14,6 +14,10 @@ const STAT_NAMES: Record<string, string> = {
   atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运',
 }
 
+const SETTINGS_QUALITY_NAMES: Record<string, string> = {
+  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说',
+}
+
 const features = [
   { icon: Sword, label: '进入地牢', path: '/explore', desc: '自动探索 · 无限层数' },
   { icon: User, label: '角色面板', path: '/character', desc: '查看属性和技能' },
@@ -27,8 +31,9 @@ export default function Town() {
   const navigate = useNavigate()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const player = useGameStore((s) => s.player)
+  const settings = useGameStore((s) => s.settings)
+  const updateSettings = useGameStore((s) => s.updateSettings)
   const [showSettings, setShowSettings] = useState(false)
-  const [confirmReset, setConfirmReset] = useState(false)
 
   // 预加载物品/技能目录（套装加成计算等依赖）
   useEffect(() => { loadCatalogs() }, [])
@@ -37,11 +42,6 @@ export default function Town() {
     localStorage.removeItem('ad_token')
     localStorage.removeItem('ad_user')
     navigate('/login')
-  }
-
-  const resetSave = () => {
-    localStorage.removeItem('abyss-game-save')
-    window.location.reload()
   }
 
   return (
@@ -128,7 +128,7 @@ export default function Town() {
             <button onClick={logout} className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs lg:hidden" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
               <LogOut size={12} /> 退出
             </button>
-            <button onClick={() => { setShowSettings(true); setConfirmReset(false) }}
+            <button onClick={() => setShowSettings(true)}
               className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-colors"
               style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
@@ -151,29 +151,46 @@ export default function Town() {
 
               <div className="space-y-2 text-xs">
                 <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-                  账号：{playerName}<br />
-                  存档：本地自动保存
+                  账号：{playerName}
                 </div>
 
-                {confirmReset ? (
-                  <div className="rounded border p-2" style={{ borderColor: 'var(--danger)', backgroundColor: 'rgba(248,81,73,0.1)' }}>
-                    <div className="mb-2" style={{ color: 'var(--danger)' }}>确定要清除全部存档吗？角色、背包、进度都将丢失！</div>
-                    <div className="flex gap-2">
-                      <button onClick={resetSave} className="flex-1 rounded py-1 font-bold"
-                        style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>确认清除</button>
-                      <button onClick={() => setConfirmReset(false)} className="flex-1 rounded border py-1"
-                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>取消</button>
-                    </div>
+                {/* 装备自动分解 */}
+                <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span style={{ color: 'var(--text-secondary)' }}>装备自动分解</span>
+                    <button
+                      onClick={() => updateSettings({ autoDisassemble: !settings.autoDisassemble })}
+                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-colors"
+                      style={{
+                        backgroundColor: settings.autoDisassemble ? 'rgba(63,185,80,0.25)' : 'var(--bg-card)',
+                        color: settings.autoDisassemble ? '#3FB950' : 'var(--text-muted)',
+                        border: settings.autoDisassemble ? '1px solid #3FB950' : '1px solid var(--border-color)',
+                      }}>
+                      {settings.autoDisassemble ? '已开启' : '已关闭'}
+                    </button>
                   </div>
-                ) : (
-                  <button onClick={() => setConfirmReset(true)}
-                    className="w-full rounded border py-1.5 transition-colors"
-                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-                    清除本地存档
-                  </button>
-                )}
+                  {settings.autoDisassemble && (
+                    <>
+                      <div className="mb-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                        分解条件：品质 ≤ 以下选择的装备，拾取时直接分解为金币
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {(['common', 'fine', 'rare', 'epic', 'legendary'] as const).map((q) => (
+                          <button key={q}
+                            onClick={() => updateSettings({ autoDisassembleMaxQuality: q })}
+                            className="rounded-full px-2 py-0.5 text-[10px] transition-colors"
+                            style={{
+                              backgroundColor: settings.autoDisassembleMaxQuality === q ? 'rgba(201,168,76,0.25)' : 'var(--bg-card)',
+                              color: settings.autoDisassembleMaxQuality === q ? '#C9A84C' : 'var(--text-muted)',
+                              border: settings.autoDisassembleMaxQuality === q ? '1px solid #C9A84C' : '1px solid transparent',
+                            }}>
+                            {SETTINGS_QUALITY_NAMES[q]}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
 
                 <button onClick={logout}
                   className="w-full rounded border py-1.5 transition-colors"

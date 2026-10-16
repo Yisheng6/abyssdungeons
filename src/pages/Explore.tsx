@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
-import { useGameStore } from '@/stores/gameStore'
+import { useGameStore, shouldAutoDisassemble, getDisassembleGold } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
 
@@ -45,6 +45,10 @@ export default function Explore() {
   const [moving, setMoving] = useState(false)
   const [currentLayer, setCurrentLayer] = useState(1)
   const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
+  const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string; note?: string }>>([])
+  const recordLoot = useCallback((entries: Array<{ name: string; quantity: number; quality?: string; note?: string }>) => {
+    setLootHistory((prev) => [...entries.map((e) => ({ name: e.name, quantity: e.quantity, quality: e.quality || 'common', note: e.note })), ...prev].slice(0, 200))
+  }, [])
   const isRunningRef = useRef(false)
   const isBattlingRef = useRef(false)
 
@@ -76,9 +80,10 @@ export default function Explore() {
         const value = l.value ?? cat?.value ?? 1
         gs.addPlayerGold(l.quantity * value)
         addLog(`拾取 ${name}×${l.quantity}（+${l.quantity * value} 金币）`)
+        recordLoot([{ name, quantity: l.quantity, quality: l.quality || cat?.quality }])
         continue
       }
-      gs.addTempItem({
+      const item = {
         uid: `loot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         id: l.itemId, name, type,
         slot: (l.slot || cat?.slot) as never,
@@ -91,11 +96,21 @@ export default function Explore() {
         value: l.value ?? cat?.value,
         effect: l.effect || cat?.effect,
         learnSkillId: l.learnSkillId || cat?.learnSkillId,
-      })
+      }
+      // 符合自动分解条件的装备直接分解为金币
+      if (shouldAutoDisassemble(item, gs.settings)) {
+        const gold = getDisassembleGold(item)
+        gs.addPlayerGold(gold)
+        addLog(`拾取 ${name}×${l.quantity} → 自动分解（+${gold} 金币）`)
+        recordLoot([{ name, quantity: l.quantity, quality: item.quality, note: `已分解 +${gold}金币` }])
+        continue
+      }
+      gs.addItem(item)
       addLog(`拾取 ${name}×${l.quantity}`)
+      recordLoot([{ name, quantity: l.quantity, quality: item.quality }])
     }
     setStats((s) => ({ ...s, items: s.items + loot.length }))
-  }, [addLog])
+  }, [addLog, recordLoot])
 
   // ─── 进入新一层地牢 ───
   const enterNewFloor = useCallback(async (layer: number) => {
@@ -327,16 +342,19 @@ export default function Explore() {
             for (const drop of result.drops) {
               const cat = getItemInfo(drop.itemId)
               const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
+              const dName = drop.name || cat?.name || drop.itemId
+              const dQuality = (drop.quality || cat?.quality || 'common') as string
               if (type === 'currency') {
                 after.addPlayerGold(drop.quantity * (cat?.value ?? 1))
+                recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality }])
                 continue
               }
-              after.addTempItem({
+              const item = {
                 uid: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-                id: drop.itemId, name: drop.name || cat?.name || drop.itemId,
+                id: drop.itemId, name: dName,
                 type,
                 slot: cat?.slot as never,
-                quality: (drop.quality || cat?.quality || 'common') as never,
+                quality: dQuality as never,
                 quantity: drop.quantity,
                 desc: cat?.desc || drop.name,
                 stats: cat?.stats,
@@ -345,7 +363,17 @@ export default function Explore() {
                 value: cat?.value,
                 effect: cat?.effect,
                 learnSkillId: cat?.learnSkillId,
-              })
+              }
+              // 符合自动分解条件的装备直接分解为金币
+              if (shouldAutoDisassemble(item, after.settings)) {
+                const gold = getDisassembleGold(item)
+                after.addPlayerGold(gold)
+                addLog(`${dName} 符合自动分解条件 → +${gold} 金币`)
+                recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality, note: `已分解 +${gold}金币` }])
+                continue
+              }
+              after.addItem(item)
+              recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality }])
             }
             addLog(`获得掉落：${result.drops.map(d => `${d.name}×${d.quantity}`).join('、')}`)
             setStats((s) => ({ ...s, items: s.items + result.drops.length }))
@@ -379,7 +407,7 @@ export default function Explore() {
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, combatTurnMut, currentLayer])
+  }, [addLog, combatTurnMut, currentLayer, recordLoot])
 
   // ─── 开始 / 停止 ───
   const startExploring = useCallback(async () => {
@@ -659,37 +687,28 @@ export default function Explore() {
         </div>
       </main>
 
-      {/* Right: 临时物品栏（探索中获得，结束探索自动转入背包） */}
+      {/* Right: 获得物品 */}
       <aside className="hidden w-[220px] flex-shrink-0 flex-col border-l p-3 xl:flex" style={{ borderColor: 'var(--border-color)' }}>
         <div className="mb-2 flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
-          <span>临时物品栏</span>
-          <span style={{ color: 'var(--text-muted)' }}>{store.tempBag.length} 种</span>
+          <span>获得物品（最新在上）</span>
+          <span style={{ color: 'var(--text-muted)' }}>{lootHistory.length} 条</span>
         </div>
         <div className="max-h-[70vh] space-y-1 overflow-y-auto pr-1">
-          {store.tempBag.length === 0 && (
+          {lootHistory.length === 0 && (
             <div className="rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-              探索中获得的物品暂存于此，结束探索后自动转入背包
+              探索中获得的物品会显示在这里
             </div>
           )}
-          {store.tempBag.map((item) => (
-            <div key={item.uid} className="flex items-center justify-between gap-1 rounded px-2 py-1 text-xs"
-              style={{ backgroundColor: 'var(--bg-hover)' }}>
-              <span className="truncate" style={{ color: LOOT_QUALITY_COLORS[item.quality] || 'var(--text-secondary)' }}>
-                {item.name}
-              </span>
-              {item.quantity > 1 && (
+          {lootHistory.map((item, idx) => (
+            <div key={idx} className="rounded px-2 py-1 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
+              <div className="flex items-center justify-between">
+                <span className="truncate" style={{ color: LOOT_QUALITY_COLORS[item.quality] || 'var(--text-secondary)' }}>
+                  {item.name}
+                </span>
                 <span className="ml-1 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>×{item.quantity}</span>
-              )}
-              {item.type === 'equipment' && (
-                <button
-                  onClick={() => {
-                    const r = store.disassembleTempItem(item.uid)
-                    addLog(r.message)
-                  }}
-                  className="flex-shrink-0 rounded px-1 text-[9px]"
-                  style={{ backgroundColor: 'rgba(201,168,76,0.2)', color: '#C9A84C' }}>
-                  分解
-                </button>
+              </div>
+              {item.note && (
+                <div className="text-[9px]" style={{ color: '#C9A84C' }}>{item.note}</div>
               )}
             </div>
           ))}
