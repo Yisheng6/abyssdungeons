@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User } from 'lucide-react'
+import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User, Settings, X } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
 
@@ -27,6 +27,8 @@ export default function Town() {
   const navigate = useNavigate()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const player = useGameStore((s) => s.player)
+  const [showSettings, setShowSettings] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   // 预加载物品/技能目录（套装加成计算等依赖）
   useEffect(() => { loadCatalogs() }, [])
@@ -35,6 +37,11 @@ export default function Town() {
     localStorage.removeItem('ad_token')
     localStorage.removeItem('ad_user')
     navigate('/login')
+  }
+
+  const resetSave = () => {
+    localStorage.removeItem('abyss-game-save')
+    window.location.reload()
   }
 
   return (
@@ -121,8 +128,66 @@ export default function Town() {
             <button onClick={logout} className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs lg:hidden" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
               <LogOut size={12} /> 退出
             </button>
+            <button onClick={() => { setShowSettings(true); setConfirmReset(false) }}
+              className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-colors"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
+              <Settings size={12} /> 设置
+            </button>
           </div>
         </header>
+
+        {/* Settings Modal */}
+        {showSettings && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+            onClick={() => setShowSettings(false)}>
+            <div className="w-full max-w-xs rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+              onClick={(e) => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>设置</span>
+                <button onClick={() => setShowSettings(false)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+                  账号：{playerName}<br />
+                  存档：本地自动保存
+                </div>
+
+                {confirmReset ? (
+                  <div className="rounded border p-2" style={{ borderColor: 'var(--danger)', backgroundColor: 'rgba(248,81,73,0.1)' }}>
+                    <div className="mb-2" style={{ color: 'var(--danger)' }}>确定要清除全部存档吗？角色、背包、进度都将丢失！</div>
+                    <div className="flex gap-2">
+                      <button onClick={resetSave} className="flex-1 rounded py-1 font-bold"
+                        style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>确认清除</button>
+                      <button onClick={() => setConfirmReset(false)} className="flex-1 rounded border py-1"
+                        style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>取消</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmReset(true)}
+                    className="w-full rounded border py-1.5 transition-colors"
+                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
+                    清除本地存档
+                  </button>
+                )}
+
+                <button onClick={logout}
+                  className="w-full rounded border py-1.5 transition-colors"
+                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
+                  退出登录
+                </button>
+
+                <div className="pt-1 text-center text-[10px]" style={{ color: 'var(--text-muted)' }}>深渊地城 · zhiyihw.com</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Scene Description */}
         <div className="m-4 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
