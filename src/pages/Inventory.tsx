@@ -23,7 +23,7 @@ const slotNames: Record<string, string> = {
 }
 
 const statNames: Record<string, string> = {
-  hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运',
+  hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运', con: '体质', wil: '意志',
 }
 
 const typeNames: Record<string, string> = {
@@ -37,7 +37,18 @@ export default function Inventory() {
   const navigate = useNavigate()
   const store = useGameStore()
   const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>('全部')
-  const [qualityFilter, setQualityFilter] = useState<string>('全部品质')
+  const [showAdvFilter, setShowAdvFilter] = useState(false)
+  const [fQualities, setFQualities] = useState<string[]>([])
+  const [fSlots, setFSlots] = useState<string[]>([])
+  const [fStats, setFStats] = useState<string[]>([])
+  const [fSetTier, setFSetTier] = useState<number>(0) // 0=任意
+  const [fEnhance, setFEnhance] = useState<number>(0) // 0=任意, 5=+5以上, 10=+10以上
+
+  const toggleIn = (arr: string[], v: string, set: (a: string[]) => void) =>
+    set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
+
+  const advFilterCount = fQualities.length + fSlots.length + fStats.length + (fSetTier > 0 ? 1 : 0) + (fEnhance > 0 ? 1 : 0)
+  const clearAdvFilter = () => { setFQualities([]); setFSlots([]); setFStats([]); setFSetTier(0); setFEnhance(0) }
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [useMsg, setUseMsg] = useState('')
 
@@ -59,7 +70,19 @@ export default function Inventory() {
 
   const filtered = (activeFilter === '全部' ? inventory
     : inventory.filter((i) => i.type === filterTypeMap[activeFilter]))
-    .filter((i) => qualityFilter === '全部品质' || i.quality === qualityFilter)
+    .filter((i) => {
+      // 高级筛选仅作用于装备
+      if (i.type !== 'equipment') return advFilterCount === 0
+      if (fQualities.length > 0 && !fQualities.includes(i.quality)) return false
+      if (fSlots.length > 0 && !fSlots.includes(i.slot || '')) return false
+      if (fStats.length > 0) {
+        const eff = getEffectiveStats(i)
+        if (!fStats.every((s) => (eff[s] || 0) > 0)) return false
+      }
+      if (fSetTier > 0 && (i.setTier || 0) !== fSetTier) return false
+      if (fEnhance > 0 && (i.enhanceLevel || 0) < fEnhance) return false
+      return true
+    })
 
   // Equipped items list
   const equippedItems = Object.entries(equipment)
@@ -123,23 +146,82 @@ export default function Inventory() {
                   color: activeFilter === f ? 'var(--bg-primary)' : 'var(--text-secondary)',
                 }}>{f}</button>
             ))}
+            {activeFilter === '装备' && (
+              <button onClick={() => setShowAdvFilter((v) => !v)}
+                className="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: showAdvFilter || advFilterCount > 0 ? 'rgba(163,113,247,0.3)' : 'var(--bg-hover)',
+                  color: showAdvFilter || advFilterCount > 0 ? '#A371F7' : 'var(--text-secondary)',
+                  border: advFilterCount > 0 ? '1px solid #A371F7' : '1px solid transparent',
+                }}>
+                筛选{advFilterCount > 0 ? ` (${advFilterCount})` : ''}
+              </button>
+            )}
           </div>
 
-          {/* Quality Filter */}
-          <div className="mb-3 flex flex-wrap gap-1.5">
-            {([
-              ['全部品质', null], ['普通', 'common'], ['精良', 'fine'], ['稀有', 'rare'],
-              ['史诗', 'epic'], ['传说', 'legendary'], ['神话', 'mythic'],
-            ] as const).map(([label, q]) => (
-              <button key={label} onClick={() => setQualityFilter(label)}
-                className="rounded-full px-2.5 py-0.5 text-[10px] transition-colors"
-                style={{
-                  backgroundColor: qualityFilter === label ? 'rgba(163,113,247,0.3)' : 'var(--bg-hover)',
-                  color: qualityFilter === label ? '#A371F7' : 'var(--text-muted)',
-                  border: qualityFilter === label ? '1px solid #A371F7' : '1px solid transparent',
-                }}>{label}</button>
-            ))}
-          </div>
+          {/* Advanced Filter Panel（仅装备页签） */}
+          {activeFilter === '装备' && showAdvFilter && (
+            <div className="mb-3 rounded-lg p-3" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              {([
+                ['品质', Object.entries(qualityNames), fQualities, setFQualities, qualityColors] as const,
+                ['部位', Object.entries(slotNames), fSlots, setFSlots, null] as const,
+                ['词条属性', Object.entries(statNames), fStats, setFStats, null] as const,
+              ]).map(([title, entries, sel, setSel, colors]) => (
+                <div key={title as string} className="mb-2">
+                  <div className="mb-1 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>{title as string}</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(entries as [string, string][]).map(([code, label]) => {
+                      const on = (sel as string[]).includes(code)
+                      const c = colors ? (colors as Record<string, string>)[code] : '#A371F7'
+                      return (
+                        <button key={code}
+                          onClick={() => toggleIn(sel as string[], code, setSel as (a: string[]) => void)}
+                          className="rounded-full px-2.5 py-0.5 text-[10px] transition-colors"
+                          style={{
+                            backgroundColor: on ? 'rgba(163,113,247,0.25)' : 'var(--bg-hover)',
+                            color: on ? c : 'var(--text-muted)',
+                            border: on ? `1px solid ${c}` : '1px solid transparent',
+                          }}>{label}</button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="mb-2 flex flex-wrap gap-4">
+                <div>
+                  <div className="mb-1 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>套装阶级</div>
+                  <div className="flex gap-1.5">
+                    {[[0, '任意'], [1, '1阶'], [2, '2阶'], [3, '3阶']].map(([v, label]) => (
+                      <button key={v} onClick={() => setFSetTier(v as number)}
+                        className="rounded-full px-2.5 py-0.5 text-[10px]"
+                        style={{
+                          backgroundColor: fSetTier === v ? 'rgba(163,113,247,0.25)' : 'var(--bg-hover)',
+                          color: fSetTier === v ? '#A371F7' : 'var(--text-muted)',
+                        }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1 text-[10px] font-bold" style={{ color: 'var(--text-muted)' }}>强化等级</div>
+                  <div className="flex gap-1.5">
+                    {[[0, '任意'], [5, '+5以上'], [10, '+10以上']].map(([v, label]) => (
+                      <button key={v} onClick={() => setFEnhance(v as number)}
+                        className="rounded-full px-2.5 py-0.5 text-[10px]"
+                        style={{
+                          backgroundColor: fEnhance === v ? 'rgba(163,113,247,0.25)' : 'var(--bg-hover)',
+                          color: fEnhance === v ? '#A371F7' : 'var(--text-muted)',
+                        }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {advFilterCount > 0 && (
+                <button onClick={clearAdvFilter} className="text-[10px] underline" style={{ color: 'var(--text-muted)' }}>
+                  清空筛选
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Equipped Section */}
           {equippedItems.length > 0 && (
