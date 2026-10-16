@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User, Settings, X } from 'lucide-react'
-import { useGameStore } from '@/stores/gameStore'
+import { useGameStore, shouldAutoDisassemble, getDisassembleGold } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
+import { trpc } from '@/providers/trpc'
 
 // 职业中文名映射
 const CLASS_NAMES: Record<string, string> = {
@@ -16,6 +17,20 @@ const STAT_NAMES: Record<string, string> = {
 
 const SETTINGS_QUALITY_NAMES: Record<string, string> = {
   common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说',
+}
+
+interface OfflineSummary {
+  settled: boolean; seconds: number; capped: boolean; rooms: number; kills: number
+  defeats: number; bossKills: number; exp: number; gold: number; diamonds: number
+  startLayer: number; finalLayer: number
+  items: Array<{ itemId: string; name: string; type: string; quality: string; quantity: number }>
+  disassembledGold: number; keptCount: number
+}
+
+function formatDuration(sec: number): string {
+  const h = Math.floor(sec / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  return h > 0 ? `${h} 小时 ${m} 分钟` : `${m} 分钟`
 }
 
 const features = [
@@ -34,9 +49,46 @@ export default function Town() {
   const settings = useGameStore((s) => s.settings)
   const updateSettings = useGameStore((s) => s.updateSettings)
   const [showSettings, setShowSettings] = useState(false)
+  const [offlineResult, setOfflineResult] = useState<OfflineSummary | null>(null)
+  const offlineSettleMut = trpc.game.offlineSettle.useMutation()
 
   // 预加载物品/技能目录（套装加成计算等依赖）
   useEffect(() => { loadCatalogs() }, [])
+
+  // 离线挂机结算：上线时领取离线期间的探索收益
+  useEffect(() => {
+    const name = localStorage.getItem('ad_user')
+    if (!name) return
+    offlineSettleMut.mutateAsync({ playerName: name }).then((r) => {
+      if (!r.settled || r.rooms <= 0) return
+      const gs = useGameStore.getState()
+      if (r.exp > 0) gs.addPlayerExp(r.exp)
+      if (r.gold > 0) gs.addPlayerGold(r.gold)
+      if (r.diamonds > 0) gs.addPlayerDiamonds(r.diamonds)
+      if (r.finalLayer > (gs.player?.maxLayer || 1)) gs.updateMaxLayer(r.finalLayer)
+      // 物品入包；符合自动分解条件的装备直接折算金币
+      let disassembledGold = 0
+      let kept = 0
+      for (const it of r.items) {
+        const item = {
+          uid: `offline_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          id: it.itemId, name: it.name,
+          type: it.type as never,
+          quality: it.quality as never,
+          quantity: it.quantity,
+        }
+        if (shouldAutoDisassemble(item, gs.settings)) {
+          disassembledGold += getDisassembleGold(item) * it.quantity
+        } else {
+          gs.addItem(item)
+          kept += it.quantity
+        }
+      }
+      if (disassembledGold > 0) gs.addPlayerGold(disassembledGold)
+      setOfflineResult({ ...r, disassembledGold, keptCount: kept })
+    }).catch(() => { /* 结算失败不影响进入游戏 */ })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const logout = () => {
     localStorage.removeItem('ad_token')
@@ -202,6 +254,41 @@ export default function Town() {
 
                 <div className="pt-1 text-center text-[10px]" style={{ color: 'var(--text-muted)' }}>深渊地城 · zhiyihw.com</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 离线挂机结算弹窗 */}
+        {offlineResult && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}>
+            <div className="w-full max-w-sm rounded-lg border p-4" style={{ borderColor: 'var(--accent)', backgroundColor: 'var(--bg-card)' }}>
+              <div className="mb-1 text-center text-sm font-bold" style={{ color: 'var(--accent)' }}>离线探索结算</div>
+              <div className="mb-3 text-center text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                你离线期间，角色在地牢中继续战斗了 {formatDuration(offlineResult.seconds)}
+                {offlineResult.capped && '（已达 12 小时上限）'}
+              </div>
+              <div className="mb-3 grid grid-cols-2 gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>探索房间：<span style={{ color: 'var(--text-primary)' }}>{offlineResult.rooms}</span></div>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>到达层数：<span style={{ color: 'var(--text-primary)' }}>第 {offlineResult.startLayer} → {offlineResult.finalLayer} 层</span></div>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>击杀怪物：<span style={{ color: 'var(--text-primary)' }}>{offlineResult.kills}{offlineResult.bossKills > 0 ? `（含 Boss×${offlineResult.bossKills}）` : ''}</span></div>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>战败次数：<span style={{ color: 'var(--text-primary)' }}>{offlineResult.defeats}</span></div>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>经验：<span style={{ color: '#C9A84C' }}>+{offlineResult.exp}</span></div>
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>金币：<span style={{ color: '#C9A84C' }}>+{offlineResult.gold}</span></div>
+                {offlineResult.diamonds > 0 && (
+                  <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>钻石：<span style={{ color: '#79C0FF' }}>+{offlineResult.diamonds}</span></div>
+                )}
+                <div className="rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>物品入包：<span style={{ color: 'var(--text-primary)' }}>{offlineResult.keptCount} 件</span></div>
+                {offlineResult.disassembledGold > 0 && (
+                  <div className="col-span-2 rounded p-1.5" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                    自动分解：<span style={{ color: '#C9A84C' }}>+{offlineResult.disassembledGold} 金币</span>
+                  </div>
+                )}
+              </div>
+              <button onClick={() => setOfflineResult(null)}
+                className="w-full rounded-lg py-2 text-sm font-bold"
+                style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>
+                收下收益
+              </button>
             </div>
           </div>
         )}

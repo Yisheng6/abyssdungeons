@@ -43,19 +43,51 @@ export default function Explore() {
   const [logs, setLogs] = useState<string[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [moving, setMoving] = useState(false)
-  const [currentLayer, setCurrentLayer] = useState(1)
+  const [currentLayer, _setCurrentLayer] = useState(1)
+  const setCurrentLayer = useCallback((v: number) => { currentLayerRef.current = v; _setCurrentLayer(v) }, [])
   const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
   const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string; note?: string }>>([])
   const recordLoot = useCallback((entries: Array<{ name: string; quantity: number; quality?: string; note?: string }>) => {
     setLootHistory((prev) => [...entries.map((e) => ({ name: e.name, quantity: e.quantity, quality: e.quality || 'common', note: e.note })), ...prev].slice(0, 200))
   }, [])
   const isRunningRef = useRef(false)
+  const currentLayerRef = useRef(1)
   const isBattlingRef = useRef(false)
 
   // 使用 useMutation 避免 useQuery 参数不同步问题
   const generateDungeonMut = trpc.game.generateDungeon.useMutation()
   const enterRoomMut = trpc.game.enterRoom.useMutation()
   const combatTurnMut = trpc.game.combatTurn.useMutation()
+  const offlineStartMut = trpc.game.offlineStart.useMutation()
+  const offlineHeartbeatMut = trpc.game.offlineHeartbeat.useMutation()
+  const offlineStopMut = trpc.game.offlineStop.useMutation()
+
+  // 离线挂机：角色快照
+  const buildSnapshot = useCallback(() => {
+    const gs = useGameStore.getState()
+    const p = gs.player
+    if (!p) return null
+    return {
+      playerName: localStorage.getItem('ad_user') || '冒险者',
+      player: {
+        level: p.level, hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp,
+        atk: p.atk, def: p.def, mag: p.mag, mdef: p.mdef,
+        agi: p.agi, luk: p.luk, con: p.con || 0, wil: p.wil || 0,
+      },
+      layer: currentLayerRef.current,
+    }
+  }, [])
+
+  // 探索中每 20 秒上报心跳（离线后从最后心跳开始结算）
+  useEffect(() => {
+    if (!isRunning) return
+    const timer = setInterval(() => {
+      const snap = buildSnapshot()
+      if (snap) offlineHeartbeatMut.mutate(snap)
+    }, 20000)
+    return () => clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunning])
 
   // 加载物品/技能目录（技能MP消耗、掉落解析用）
   useEffect(() => { loadCatalogs() }, [])
@@ -427,6 +459,10 @@ export default function Explore() {
     addLog('═══ 自动探索开始 ═══')
     addLog(`角色：${gs.player.name} (Lv.${gs.player.level})`)
     addLog(`HP: ${gs.player.hp}/${gs.player.maxHp} MP: ${gs.player.mp}/${gs.player.maxMp}`)
+    // 注册离线挂机会话（之后每 20s 心跳一次）
+    const snap = buildSnapshot()
+    if (snap) offlineStartMut.mutate(snap)
+    addLog(`离线挂机已开启：下线后将继续探索，最长 12 小时`)
     await enterNewFloor(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addLog, enterNewFloor])
@@ -435,7 +471,11 @@ export default function Explore() {
     setIsRunning(false)
     isRunningRef.current = false
     useGameStore.getState().setAutoExploring(false)
+    // 主动停止探索 → 结束离线挂机会话（不结算）
+    const name = localStorage.getItem('ad_user') || '冒险者'
+    offlineStopMut.mutate({ playerName: name })
     addLog('═══ 探索结束 ═══')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addLog])
 
   const getRoomTypeName = (type: string) => ROOM_TYPE_NAMES[type] || type

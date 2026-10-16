@@ -9,6 +9,17 @@ import {
 } from "../services/config-service";
 import { generateDungeon, getRoomDirections } from "../services/mapgen-service";
 import { resolveCombat } from "../services/combat-service";
+import {
+  offlineStart, offlineHeartbeat, offlineStop, offlineStatus, offlineSettle,
+  OFFLINE_BASE_HOURS,
+} from "../services/offline-service";
+
+const offlinePlayerSchema = z.object({
+  level: z.number(), hp: z.number(), maxHp: z.number(),
+  mp: z.number(), maxMp: z.number(),
+  atk: z.number(), def: z.number(), mag: z.number(), mdef: z.number(),
+  agi: z.number(), luk: z.number(), con: z.number(), wil: z.number(),
+});
 
 export const gameRouter = createRouter({
   // ─── Config APIs ───
@@ -193,4 +204,37 @@ export const gameRouter = createRouter({
         drops,
       };
     }),
+
+  // ─── 离线挂机探索 ───
+  offlineStart: publicQuery
+    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number() }))
+    .mutation(({ input }) => {
+      offlineStart(input.playerName, input.player, input.layer);
+      return { ok: true, maxHours: OFFLINE_BASE_HOURS };
+    }),
+
+  offlineHeartbeat: publicQuery
+    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number() }))
+    .mutation(({ input }) => {
+      offlineHeartbeat(input.playerName, input.player, input.layer);
+      return { ok: true };
+    }),
+
+  offlineStop: publicQuery
+    .input(z.object({ playerName: z.string() }))
+    .mutation(({ input }) => {
+      offlineStop(input.playerName);
+      return { ok: true };
+    }),
+
+  offlineStatus: publicQuery
+    .input(z.object({ playerName: z.string() }))
+    .query(({ input }) => ({
+      ...offlineStatus(input.playerName),
+      maxHours: OFFLINE_BASE_HOURS,
+    })),
+
+  offlineSettle: publicQuery
+    .input(z.object({ playerName: z.string() }))
+    .mutation(({ input }) => offlineSettle(input.playerName)),
 });

@@ -27943,7 +27943,7 @@ var require_named_placeholders = __commonJS({
         }
         return s;
       }
-      function join4(tree) {
+      function join5(tree) {
         if (tree.length === 1) {
           return tree;
         }
@@ -27969,7 +27969,7 @@ var require_named_placeholders = __commonJS({
         if (cache2 && (tree = cache2.get(query))) {
           return toArrayParams(tree, paramsObj);
         }
-        tree = join4(parse4(query));
+        tree = join5(parse4(query));
         if (cache2) {
           cache2.set(query, tree);
         }
@@ -31254,8 +31254,8 @@ var init_mime = __esm({
 });
 
 // node_modules/@hono/node-server/dist/serve-static.mjs
-import { createReadStream, statSync, existsSync } from "fs";
-import { join as join2 } from "path";
+import { createReadStream, statSync, existsSync as existsSync2 } from "fs";
+import { join as join3 } from "path";
 import { versions } from "process";
 import { Readable as Readable2 } from "stream";
 var COMPRESSIBLE_CONTENT_TYPE_REGEX, ENCODINGS, ENCODINGS_ORDERED_KEYS, pr54206Applied, useReadableToWeb, createStreamBody, getStats, tryDecode2, tryDecodeURI2, serveStatic;
@@ -31321,7 +31321,7 @@ var init_serve_static = __esm({
     serveStatic = (options = { root: "" }) => {
       const root = options.root || "";
       const optionPath = options.path;
-      if (root !== "" && !existsSync(root)) {
+      if (root !== "" && !existsSync2(root)) {
         console.error(`serveStatic: root path '${root}' is not found, are you sure it's correct?`);
       }
       return async (c, next) => {
@@ -31342,14 +31342,14 @@ var init_serve_static = __esm({
             return next();
           }
         }
-        let path2 = join2(
+        let path2 = join3(
           root,
           !optionPath && options.rewriteRequestPath ? options.rewriteRequestPath(filename, c) : filename
         );
         let stats = getStats(path2);
         if (stats && stats.isDirectory()) {
           const indexFile = options.index ?? "index.html";
-          path2 = join2(path2, indexFile);
+          path2 = join3(path2, indexFile);
           stats = getStats(path2);
         }
         if (!stats) {
@@ -42024,7 +42024,240 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
   return { logs, player, enemies, ended, victory, fled, drops };
 }
 
+// api/services/offline-service.ts
+import { existsSync, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "fs";
+import { join as join2 } from "path";
+var OFFLINE_BASE_HOURS = 12;
+var OFFLINE_MAX_MS = OFFLINE_BASE_HOURS * 3600 * 1e3;
+var ROOM_SECONDS = 18;
+var ROOMS_PER_LAYER = 12;
+var HEARTBEAT_TIMEOUT_MS = 60 * 1e3;
+var DATA_DIR = join2(process.cwd(), "data");
+var STORE_FILE = join2(DATA_DIR, "offline-sessions.json");
+var sessions = /* @__PURE__ */ new Map();
+var loaded = false;
+function loadSessions() {
+  if (loaded) return;
+  loaded = true;
+  try {
+    if (existsSync(STORE_FILE)) {
+      const raw2 = JSON.parse(readFileSync2(STORE_FILE, "utf-8"));
+      for (const s of raw2) sessions.set(s.playerName, s);
+    }
+  } catch {
+  }
+}
+function saveSessions() {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(STORE_FILE, JSON.stringify([...sessions.values()]), "utf-8");
+  } catch {
+  }
+}
+function offlineStart(playerName, player, layer) {
+  loadSessions();
+  const now = Date.now();
+  sessions.set(playerName, { playerName, player, layer, startTs: now, lastHeartbeat: now });
+  saveSessions();
+}
+function offlineHeartbeat(playerName, player, layer) {
+  loadSessions();
+  const s = sessions.get(playerName);
+  if (!s) {
+    offlineStart(playerName, player, layer);
+    return;
+  }
+  s.player = player;
+  s.layer = layer;
+  s.lastHeartbeat = Date.now();
+  saveSessions();
+}
+function offlineStop(playerName) {
+  loadSessions();
+  if (sessions.delete(playerName)) saveSessions();
+}
+function offlineStatus(playerName) {
+  loadSessions();
+  const s = sessions.get(playerName);
+  if (!s) return { active: false, elapsedMs: 0, layer: 1 };
+  return { active: true, elapsedMs: Date.now() - s.startTs, layer: s.layer };
+}
+function simulateBattle(player, enemies, layer, rng, st) {
+  const off = Math.max(player.atk, player.mag * 1.6);
+  const mitigation = player.def + player.con * 0.2;
+  for (const e of enemies) {
+    const pdmg = Math.max(1, Math.round(off * (0.9 + rng() * 0.2) - e.def * 0.8));
+    const rounds = Math.ceil(e.hp / pdmg);
+    const edmg = Math.max(1, Math.round(e.atk - mitigation));
+    const dodgeFactor = Math.max(0.6, 1 - player.agi * 4e-3);
+    const incoming = Math.round(edmg * rounds * dodgeFactor * (0.85 + rng() * 0.3));
+    const regen = Math.round(player.con * 0.3 * rounds);
+    st.hp -= Math.max(0, incoming - regen);
+    if (st.hp <= 0) {
+      st.defeats += 1;
+      st.hp = player.maxHp;
+    }
+    st.kills += 1;
+    if (e.isBoss) st.bossKills += 1;
+    const base = 10 + layer * 3 + Math.ceil(e.hp / 20) + e.atk;
+    st.exp += e.isBoss ? base * 2 : base;
+    const drops = rollDrops(e.id, layer, rng);
+    for (const d of drops) {
+      const cat = getItemById(d.itemId);
+      const type = d.type || cat?.type || "material";
+      if (type === "currency") {
+        if (d.itemId === "gem_diamond") st.diamonds += d.quantity;
+        else st.gold += d.quantity * (cat?.value ?? 1);
+        continue;
+      }
+      const key = d.itemId;
+      const existing = st.itemMap.get(key);
+      if (existing) existing.quantity += d.quantity;
+      else st.itemMap.set(key, {
+        itemId: d.itemId,
+        name: d.name || cat?.name || d.itemId,
+        type,
+        quality: d.quality || cat?.quality || "common",
+        quantity: d.quantity
+      });
+    }
+  }
+}
+function scaleEnemy(base, layer, eliteMult, bossHpMult, bossAtkMult) {
+  const layerMult = 1 + (layer - 1) * 0.08;
+  return {
+    hp: Math.round((base.hp ?? 30) * eliteMult * layerMult * bossHpMult),
+    atk: Math.round((base.atk ?? 5) * eliteMult * layerMult * bossAtkMult),
+    def: Math.round((base.def ?? 3) * eliteMult * layerMult * (bossAtkMult > 1 ? 3 : 1))
+  };
+}
+function offlineSettle(playerName) {
+  loadSessions();
+  const empty = {
+    settled: false,
+    seconds: 0,
+    capped: false,
+    rooms: 0,
+    kills: 0,
+    defeats: 0,
+    bossKills: 0,
+    exp: 0,
+    gold: 0,
+    diamonds: 0,
+    startLayer: 1,
+    finalLayer: 1,
+    items: []
+  };
+  const s = sessions.get(playerName);
+  if (!s) return empty;
+  const now = Date.now();
+  if (now - s.lastHeartbeat < HEARTBEAT_TIMEOUT_MS) {
+    return { ...empty, message: "exploring" };
+  }
+  const rawMs = now - s.lastHeartbeat;
+  const effMs = Math.min(rawMs, OFFLINE_MAX_MS);
+  const capped = rawMs > OFFLINE_MAX_MS;
+  const totalRooms = Math.floor(effMs / 1e3 / ROOM_SECONDS);
+  sessions.delete(playerName);
+  saveSessions();
+  if (totalRooms <= 0) return { ...empty, seconds: Math.floor(effMs / 1e3), capped };
+  const rng = Math.random;
+  const st = {
+    hp: s.player.maxHp,
+    kills: 0,
+    defeats: 0,
+    bossKills: 0,
+    exp: 0,
+    gold: 0,
+    diamonds: 0,
+    itemMap: /* @__PURE__ */ new Map()
+  };
+  const startLayer = s.layer;
+  let layer = startLayer;
+  let roomInLayer = 0;
+  let bossKilledLayer = false;
+  let defeatsLayer = 0;
+  for (let room = 1; room <= totalRooms; room++) {
+    roomInLayer += 1;
+    const isBossRoom = roomInLayer === ROOMS_PER_LAYER;
+    const theme = getThemeByLayer(layer);
+    const roll = rng();
+    const defeatsBefore = st.defeats;
+    if (isBossRoom && theme) {
+      const family = theme.enemyFamilies[Math.floor(rng() * theme.enemyFamilies.length)];
+      const boss = getBossByFamily(family);
+      if (boss) {
+        const bossKillsBefore = st.bossKills;
+        const sc = scaleEnemy(boss.baseStats, layer, 1, 8, 3);
+        simulateBattle(s.player, [{ id: boss.id, ...sc, isBoss: true }], layer, rng, st);
+        if (st.bossKills > bossKillsBefore) bossKilledLayer = true;
+      }
+    } else if (roll < 0.68 && theme) {
+      const family = theme.enemyFamilies[Math.floor(rng() * theme.enemyFamilies.length)];
+      const pool = getEnemiesByFamily(family);
+      if (pool.length > 0) {
+        const count = 1 + Math.floor(rng() * 3);
+        const enemies = Array.from({ length: count }, () => {
+          const tpl = pool[Math.floor(rng() * pool.length)];
+          const elite = rng() < 0.12;
+          const sc = scaleEnemy(tpl.baseStats, layer, elite ? 1.5 : 1, 1, 1);
+          return { id: tpl.id, ...sc, isBoss: false };
+        });
+        simulateBattle(s.player, enemies, layer, rng, st);
+      }
+    } else if (roll < 0.78) {
+      st.gold += Math.round((20 + layer * 5) * (0.8 + rng() * 0.4));
+    } else if (roll < 0.83) {
+      st.hp -= Math.round(10 + layer * 2);
+      if (st.hp <= 0) {
+        st.defeats += 1;
+        st.hp = s.player.maxHp;
+      }
+    } else {
+      st.hp = Math.min(s.player.maxHp, st.hp + Math.round(s.player.maxHp * 0.25));
+    }
+    defeatsLayer += st.defeats - defeatsBefore;
+    if (roomInLayer === ROOMS_PER_LAYER) {
+      if (bossKilledLayer && defeatsLayer <= 3) layer += 1;
+      roomInLayer = 0;
+      bossKilledLayer = false;
+      defeatsLayer = 0;
+    }
+  }
+  const finalLayer = layer;
+  return {
+    settled: true,
+    seconds: Math.floor(effMs / 1e3),
+    capped,
+    rooms: totalRooms,
+    kills: st.kills,
+    defeats: st.defeats,
+    bossKills: st.bossKills,
+    exp: st.exp,
+    gold: st.gold,
+    diamonds: st.diamonds,
+    startLayer,
+    finalLayer,
+    items: [...st.itemMap.values()].slice(0, 80)
+  };
+}
+
 // api/routers/game-router.ts
+var offlinePlayerSchema = external_exports.object({
+  level: external_exports.number(),
+  hp: external_exports.number(),
+  maxHp: external_exports.number(),
+  mp: external_exports.number(),
+  maxMp: external_exports.number(),
+  atk: external_exports.number(),
+  def: external_exports.number(),
+  mag: external_exports.number(),
+  mdef: external_exports.number(),
+  agi: external_exports.number(),
+  luk: external_exports.number(),
+  con: external_exports.number(),
+  wil: external_exports.number()
+});
 var gameRouter = createRouter({
   // ─── Config APIs ───
   getClasses: publicQuery.query(() => {
@@ -42238,7 +42471,25 @@ var gameRouter = createRouter({
       fled,
       drops
     };
-  })
+  }),
+  // ─── 离线挂机探索 ───
+  offlineStart: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number() })).mutation(({ input }) => {
+    offlineStart(input.playerName, input.player, input.layer);
+    return { ok: true, maxHours: OFFLINE_BASE_HOURS };
+  }),
+  offlineHeartbeat: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number() })).mutation(({ input }) => {
+    offlineHeartbeat(input.playerName, input.player, input.layer);
+    return { ok: true };
+  }),
+  offlineStop: publicQuery.input(external_exports.object({ playerName: external_exports.string() })).mutation(({ input }) => {
+    offlineStop(input.playerName);
+    return { ok: true };
+  }),
+  offlineStatus: publicQuery.input(external_exports.object({ playerName: external_exports.string() })).query(({ input }) => ({
+    ...offlineStatus(input.playerName),
+    maxHours: OFFLINE_BASE_HOURS
+  })),
+  offlineSettle: publicQuery.input(external_exports.object({ playerName: external_exports.string() })).mutation(({ input }) => offlineSettle(input.playerName))
 });
 
 // api/routers/leaderboard-router.ts
@@ -45205,7 +45456,7 @@ function sql(strings, ...params) {
     return new SQL([new StringChunk(str)]);
   }
   sql2.raw = raw2;
-  function join4(chunks, separator) {
+  function join5(chunks, separator) {
     const result = [];
     for (const [i, chunk] of chunks.entries()) {
       if (i > 0 && separator !== void 0) {
@@ -45215,7 +45466,7 @@ function sql(strings, ...params) {
     }
     return new SQL(result);
   }
-  sql2.join = join4;
+  sql2.join = join5;
   function identifier(value) {
     return new Name(value);
   }
@@ -48711,7 +48962,7 @@ var MySqlSelectQueryBuilderBase = class extends TypedQueryBuilder {
       const baseTableName = this.tableName;
       const tableName = getTableLikeName(table);
       for (const item of extractUsedTable(table)) this.usedTables.add(item);
-      if (typeof tableName === "string" && this.config.joins?.some((join4) => join4.alias === tableName)) {
+      if (typeof tableName === "string" && this.config.joins?.some((join5) => join5.alias === tableName)) {
         throw new Error(`Alias "${tableName}" is already used in this query`);
       }
       if (!this.isPartialSelect) {
@@ -50832,9 +51083,9 @@ async function createContext(opts) {
 }
 
 // api/boot.ts
-import { writeFileSync, mkdirSync, existsSync as existsSync2 } from "fs";
+import { writeFileSync as writeFileSync2, mkdirSync as mkdirSync2, existsSync as existsSync3 } from "fs";
 import { execSync } from "child_process";
-import { join as join3 } from "path";
+import { join as join4 } from "path";
 var app = new Hono2();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
@@ -50845,13 +51096,13 @@ app.post("/api/deploy", async (c) => {
     if (!filePath || !content) {
       return c.json({ error: "Missing path or content" }, 400);
     }
-    const fullPath = join3(process.cwd(), filePath);
+    const fullPath = join4(process.cwd(), filePath);
     const dir = fullPath.substring(0, fullPath.lastIndexOf("/"));
-    if (!existsSync2(dir)) {
-      mkdirSync(dir, { recursive: true });
+    if (!existsSync3(dir)) {
+      mkdirSync2(dir, { recursive: true });
     }
     const buffer = Buffer.from(content, "base64");
-    writeFileSync(fullPath, buffer);
+    writeFileSync2(fullPath, buffer);
     if (restart) {
       try {
         execSync("pm2 restart abyssdungeon || pm2 restart all", { timeout: 1e4 });
