@@ -132,7 +132,11 @@ export default function Combat() {
       })
 
       result.logs.forEach((log) => store.addCombatLog(log))
-      store.setCombatEnemies(result.enemies)
+      // result.enemies 只含本轮出战（存活）敌人，按 id 合并回完整列表，保留已死亡敌人的显示
+      store.setCombatEnemies(store.combatEnemies.map((e) => {
+        const u = result.enemies.find((r) => r.id === e.id)
+        return u ? { ...e, ...u } : e
+      }))
       store.setPlayerStatuses((result.player as any).statuses || [])
 
       if (result.victory) {

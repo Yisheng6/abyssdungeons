@@ -105,6 +105,7 @@ export default function Explore() {
 
   // ─── 进入新一层地牢 ───
   const enterNewFloor = useCallback(async (layer: number) => {
+    useGameStore.getState().setCombatEnemies([]) // 进新层立即清掉上一场残留敌人
     setCurrentLayer(layer)
     setStats((s) => ({ ...s, floor: layer }))
     const gsFloor = useGameStore.getState()
@@ -305,8 +306,14 @@ export default function Explore() {
         result.logs.forEach((log) => addLog(log))
 
         // 每轮同步最新状态到 store（血量实时显示）
+        // 注意：result.enemies 只包含本轮出战（存活）的敌人，需按 id 合并回完整列表，
+        // 否则已死亡敌人会从显示中消失，造成"数量对不上/疑似换房"的错觉
         const after = useGameStore.getState()
-        after.setCombatEnemies(result.enemies)
+        const mergedEnemies = after.combatEnemies.map((e) => {
+          const u = result.enemies.find((r) => r.id === e.id)
+          return u ? { ...e, ...u } : e
+        })
+        after.setCombatEnemies(mergedEnemies)
         after.updatePlayerHp(result.player.hp)
         after.updatePlayerMp(result.player.mp)
         after.setPlayerStatuses((result.player as any).statuses || [])
@@ -387,6 +394,7 @@ export default function Explore() {
 
   // ─── 开始 / 停止 ───
   const startExploring = useCallback(async () => {
+    if (isRunningRef.current) return // 防重入：避免并行探索链互相污染敌人显示
     const gs = useGameStore.getState()
     if (!gs.player) {
       addLog('请先创建角色')
