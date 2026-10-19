@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Skull, Swords, Coins, Crown, RefreshCw } from 'lucide-react'
+import { Skull, Swords, Coins, Crown } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getEquipmentAffixMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo, getSkillMpCost } from '@/lib/catalog'
@@ -20,6 +20,7 @@ export default function Lawful() {
   const player = useGameStore((s) => s.player)
   const lawful = useGameStore((s) => s.lawful)
   const [rooms, setRooms] = useState<LawfulRoom[] | null>(null)
+  const [currentRoom, setCurrentRoom] = useState<LawfulRoom | null>(null) // 本层随机分配的房间
   const [logs, setLogs] = useState<string[]>([])
   const [battling, setBattling] = useState(false)
   const [cleared, setCleared] = useState(false) // 通关 100 层
@@ -44,7 +45,16 @@ export default function Lawful() {
   const refreshRooms = () => {
     setSeed(Date.now())
     setRooms(null)
+    setCurrentRoom(null)
     roomsQ.refetch()
+  }
+
+  // 挑战本层：系统从 3 个房间中随机分配一个
+  const challengeLayer = async () => {
+    if (battlingRef.current || !player || !rooms || rooms.length === 0) return
+    const room = rooms[Math.floor(Math.random() * rooms.length)]
+    setCurrentRoom(room)
+    await enterRoom(room)
   }
 
   const autoBattle = useCallback(async (room: LawfulRoom): Promise<boolean> => {
@@ -239,29 +249,40 @@ export default function Lawful() {
         </div>
       </div>
 
-      {/* 房间选择 */}
-      <div className="grid flex-shrink-0 grid-cols-1 gap-2 sm:grid-cols-3">
-        {(rooms || []).map((room) => (
-          <button key={room.id} onClick={() => enterRoom(room)} disabled={battling}
-            className="game-card p-3 text-left transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-            style={room.isBoss ? { borderColor: '#F85149' } : undefined}>
-            <div className="mb-1 flex items-center gap-1.5">
-              {room.isBoss && <Skull size={14} style={{ color: '#F85149' }} />}
-              <span className="text-sm font-bold" style={{ color: room.isBoss ? '#F85149' : 'var(--text-primary)' }}>{room.name}</span>
+      {/* 本层随机分配的房间 */}
+      <div className="flex-shrink-0">
+        {!rooms && (
+          <div className="game-card p-6 text-center text-xs" style={{ color: 'var(--text-muted)' }}>深渊凝聚中…</div>
+        )}
+        {rooms && !currentRoom && (
+          <div className="game-card p-4 text-center">
+            <div className="mb-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+              第 {lawful.layer} 层 · {roomsQ.data?.isBossLayer ? 'Boss 守关层' : `已凝聚 ${rooms.length} 个房间，系统将随机分配其一`}
             </div>
-            <div className="mb-1.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>{room.desc}</div>
+            <button onClick={challengeLayer} disabled={battling || rooms.length === 0}
+              className="mx-auto flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50"
+              style={{ background: 'var(--accent)', color: '#fff' }}>
+              <Swords size={15} /> 挑战第 {lawful.layer} 层
+            </button>
+          </div>
+        )}
+        {currentRoom && (
+          <div className="game-card p-3" style={currentRoom.isBoss ? { borderColor: '#F85149' } : undefined}>
+            <div className="mb-1 flex items-center gap-1.5">
+              {currentRoom.isBoss && <Skull size={14} style={{ color: '#F85149' }} />}
+              <span className="text-sm font-bold" style={{ color: currentRoom.isBoss ? '#F85149' : 'var(--text-primary)' }}>{currentRoom.name}</span>
+              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>（随机分配）</span>
+            </div>
+            <div className="mb-1.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>{currentRoom.desc}</div>
             <div className="space-y-0.5">
-              {room.enemies.map((e) => (
+              {currentRoom.enemies.map((e) => (
                 <div key={e.id} className="flex justify-between text-[10px]" style={{ color: 'var(--text-secondary)' }}>
                   <span>{e.name}</span>
                   <span>HP {e.hp} · {ELEMENT_NAMES[e.element] || e.element}</span>
                 </div>
               ))}
             </div>
-          </button>
-        ))}
-        {!rooms && (
-          <div className="game-card col-span-full p-6 text-center text-xs" style={{ color: 'var(--text-muted)' }}>深渊凝聚中…</div>
+          </div>
         )}
       </div>
 
@@ -269,7 +290,7 @@ export default function Lawful() {
       <div className="game-card min-h-0 flex-1 overflow-y-auto p-3">
         {logs.length === 0 && (
           <div className="py-6 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
-            选择一个房间开始挑战。每 10 层有克苏鲁系 Boss 守关，Boss 必掉装备。
+            点击「挑战」后系统随机分配房间。每 10 层有克苏鲁系 Boss 守关，Boss 必掉装备。
           </div>
         )}
         {logs.map((l, i) => (
@@ -277,11 +298,6 @@ export default function Lawful() {
         ))}
       </div>
 
-      <button onClick={refreshRooms} disabled={battling}
-        className="flex flex-shrink-0 items-center justify-center gap-1 rounded-lg border py-1.5 text-xs transition-colors disabled:opacity-40"
-        style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
-        <RefreshCw size={12} /> 换一批房间
-      </button>
     </div>
   )
 }
