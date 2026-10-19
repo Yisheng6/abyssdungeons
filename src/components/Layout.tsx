@@ -13,6 +13,7 @@ const NAV_ITEMS = [
 ]
 
 const QUICK_ACTIONS = [
+  { icon: Compass, label: '探索地牢', path: '/explore' },
   { icon: User, label: '角色面板', path: '/character' },
   { icon: Backpack, label: '背包', path: '/inventory' },
   { icon: Sparkles, label: '技能树', path: '/character' },
@@ -111,7 +112,7 @@ export default function Layout() {
       <TownHeroPanel />
 
       {/* ═══ 主内容区 ═══ */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col lg:h-screen lg:overflow-hidden">
         {/* 移动端顶部栏 */}
         <div className="flex h-11 items-center justify-between border-b px-3 lg:hidden"
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
@@ -135,12 +136,12 @@ export default function Layout() {
         </div>
 
         {/* 页面内容（通用显示区，移动端底部留出导航高度） */}
-        <div className="flex min-h-0 flex-1 flex-col pb-14 lg:pb-0">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-14 lg:pb-0">
           <Outlet />
         </div>
 
         {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
-        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-5 gap-2 lg:grid">
+        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-6 gap-2 lg:grid">
           {QUICK_ACTIONS.map((f) => (
             <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
               className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
