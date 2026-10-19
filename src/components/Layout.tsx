@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router'
 import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { getTierName } from '@/lib/catalog'
+import TownHeroPanel from './TownHeroPanel'
 
 const CLASS_NAMES: Record<string, string> = {
   warrior: '战士', mage: '法师', assassin: '刺客',
@@ -104,6 +105,9 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      {/* ═══ 城镇页：角色状态面板（最左侧） ═══ */}
+      {location.pathname === '/' && <TownHeroPanel />}
+
       {/* ═══ 桌面侧边导航 ═══ */}
       <aside className="sticky top-0 hidden h-screen w-52 flex-shrink-0 flex-col border-r lg:flex"
         style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
