@@ -97,14 +97,6 @@ export default function Blacksmith() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <header className="flex h-12 items-center gap-3 border-b px-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-        <button onClick={() => navigate('/')} style={{ color: 'var(--text-muted)' }}><ArrowLeft size={20} /></button>
-        <Hammer size={18} style={{ color: 'var(--accent)' }} />
-        <span className="font-bold" style={{ color: 'var(--text-primary)' }}>铁匠铺</span>
-        <span className="ml-auto text-xs" style={{ color: '#C9A84C' }}>金币: {player?.gold ?? 0}</span>
-      </header>
-
       {msg && (
         <div className="px-4 py-2 text-center text-sm font-medium"
           style={{

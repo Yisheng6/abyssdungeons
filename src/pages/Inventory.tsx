@@ -128,13 +128,6 @@ export default function Inventory() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <header className="flex h-12 items-center gap-3 border-b px-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-        <button onClick={() => navigate('/')} style={{ color: 'var(--text-muted)' }}><ArrowLeft size={20} /></button>
-        <span className="font-bold" style={{ color: 'var(--text-primary)' }}>背包</span>
-        <span className="ml-auto text-xs" style={{ color: 'var(--text-muted)' }}>{inventory.length} / 40</span>
-      </header>
-
       {useMsg && (
         <div className="px-4 py-2 text-center text-sm font-medium"
           style={{ backgroundColor: 'rgba(63,185,80,0.15)', color: '#3FB950' }}>
@@ -257,7 +250,10 @@ export default function Inventory() {
           )}
 
           {/* Inventory Grid */}
-          <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>背包物品</div>
+          <div className="mb-2 flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+            <span>背包物品</span>
+            <span style={{ color: 'var(--text-muted)' }}>{inventory.length} / 40</span>
+          </div>
           {filtered.length === 0 ? (
             <div className="rounded-lg p-8 text-center text-sm" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
               背包空空如也

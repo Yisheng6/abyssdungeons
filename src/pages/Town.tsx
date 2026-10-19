@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Sword, Shield, Backpack, Sparkles, Map, Trophy, LogOut, User, Settings, X } from 'lucide-react'
+import { Sword, Shield, Backpack, Sparkles, Trophy, LogOut, User } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
 import { trpc } from '@/providers/trpc'
@@ -13,10 +13,6 @@ const CLASS_NAMES: Record<string, string> = {
 
 const STAT_NAMES: Record<string, string> = {
   atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运',
-}
-
-const SETTINGS_QUALITY_NAMES: Record<string, string> = {
-  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说',
 }
 
 interface OfflineSummary {
@@ -50,9 +46,6 @@ export default function Town() {
   const navigate = useNavigate()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const player = useGameStore((s) => s.player)
-  const settings = useGameStore((s) => s.settings)
-  const updateSettings = useGameStore((s) => s.updateSettings)
-  const [showSettings, setShowSettings] = useState(false)
   const [offlineResult, setOfflineResult] = useState<OfflineSummary | null>(null)
   const offlineSettleMut = trpc.game.offlineSettle.useMutation()
 
@@ -175,99 +168,6 @@ export default function Town() {
 
       {/* Center: Main Content */}
       <main className="flex flex-1 flex-col">
-        {/* Top Nav */}
-        <header className="flex h-12 items-center justify-between border-b px-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <div className="flex items-center gap-2">
-            <Sword size={18} style={{ color: 'var(--accent)' }} />
-            <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>深渊地城</span>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}> / 深渊镇</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent)' }}>
-              <span style={{ fontSize: 14 }}>$</span> 0
-            </span>
-            {/* Mobile logout button */}
-            <button onClick={logout} className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs lg:hidden" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
-              <LogOut size={12} /> 退出
-            </button>
-            <button onClick={() => setShowSettings(true)}
-              className="flex items-center gap-1 rounded-lg border px-2 py-1 text-xs transition-colors"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-              <Settings size={12} /> 设置
-            </button>
-          </div>
-        </header>
-
-        {/* Settings Modal */}
-        {showSettings && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-            onClick={() => setShowSettings(false)}>
-            <div className="w-full max-w-xs rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-              onClick={(e) => e.stopPropagation()}>
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>设置</span>
-                <button onClick={() => setShowSettings(false)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-                  账号：{playerName}
-                </div>
-
-                {/* 装备自动分解 */}
-                <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <span style={{ color: 'var(--text-secondary)' }}>装备自动分解</span>
-                    <button
-                      onClick={() => updateSettings({ autoDisassemble: !settings.autoDisassemble })}
-                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-colors"
-                      style={{
-                        backgroundColor: settings.autoDisassemble ? 'rgba(63,185,80,0.25)' : 'var(--bg-card)',
-                        color: settings.autoDisassemble ? '#3FB950' : 'var(--text-muted)',
-                        border: settings.autoDisassemble ? '1px solid #3FB950' : '1px solid var(--border-color)',
-                      }}>
-                      {settings.autoDisassemble ? '已开启' : '已关闭'}
-                    </button>
-                  </div>
-                  {settings.autoDisassemble && (
-                    <>
-                      <div className="mb-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                        分解条件：品质 ≤ 以下选择的装备，拾取时直接分解为金币
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {(['common', 'fine', 'rare', 'epic', 'legendary'] as const).map((q) => (
-                          <button key={q}
-                            onClick={() => updateSettings({ autoDisassembleMaxQuality: q })}
-                            className="rounded-full px-2 py-0.5 text-[10px] transition-colors"
-                            style={{
-                              backgroundColor: settings.autoDisassembleMaxQuality === q ? 'rgba(201,168,76,0.25)' : 'var(--bg-card)',
-                              color: settings.autoDisassembleMaxQuality === q ? '#C9A84C' : 'var(--text-muted)',
-                              border: settings.autoDisassembleMaxQuality === q ? '1px solid #C9A84C' : '1px solid transparent',
-                            }}>
-                            {SETTINGS_QUALITY_NAMES[q]}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <button onClick={logout}
-                  className="w-full rounded border py-1.5 transition-colors"
-                  style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-                  退出登录
-                </button>
-
-                <div className="pt-1 text-center text-[10px]" style={{ color: 'var(--text-muted)' }}>深渊地城 · zhiyihw.com</div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* 离线挂机结算弹窗 */}
         {offlineResult && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}>

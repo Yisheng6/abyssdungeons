@@ -87,12 +87,6 @@ export default function CharacterPanel() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <header className="flex h-12 items-center gap-3 border-b px-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-        <button onClick={() => navigate('/')} style={{ color: 'var(--text-muted)' }}><ArrowLeft size={20} /></button>
-        <span className="font-bold" style={{ color: 'var(--text-primary)' }}>角色面板</span>
-      </header>
-
       {/* Switch message */}
       {switchMsg && (
         <div className={`px-4 py-2 text-center text-sm font-medium ${switchMsg.includes('成功') ? '' : ''}`}
