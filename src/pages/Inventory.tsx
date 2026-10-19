@@ -100,11 +100,13 @@ export default function Inventory() {
 
   const handleEquip = (item: Item) => {
     if (item.type !== 'equipment') return
+    if (store.inCombat) { setUseMsg('战斗中无法更换装备'); return }
     store.equipItem(item.uid)
     setSelectedItem(null)
   }
 
   const handleUnequip = (slot: string) => {
+    if (store.inCombat) { setUseMsg('战斗中无法卸下装备'); return }
     store.unequipItem(slot as keyof typeof equipment)
   }
 

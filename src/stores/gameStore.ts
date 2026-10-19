@@ -539,6 +539,7 @@ export const useGameStore = create<GameState>()(
       // ─── Switch Class: backpack stays, equipment swaps ───
       switchClass: (targetClassId) => {
         const state = get()
+        if (state.inCombat) return { success: false, message: '战斗中无法更换职业' }
         const now = Date.now()
         const elapsed = now - state.lastClassSwitch
 
@@ -676,6 +677,7 @@ export const useGameStore = create<GameState>()(
 
       advanceTier: () => {
         const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法进阶' }
         const p = s.player
         if (!p) return { success: false, message: '尚未创建角色' }
         const cur = p.tier || 1
@@ -716,6 +718,7 @@ export const useGameStore = create<GameState>()(
       // ─── Equipment ───
       equipItem: (itemUid) => {
         const s = get()
+        if (s.inCombat) return // 战斗中无法更换装备
         const idx = s.inventory.findIndex((i) => i.uid === itemUid)
         if (idx === -1) return
         const item = s.inventory[idx]
@@ -765,6 +768,7 @@ export const useGameStore = create<GameState>()(
 
       unequipItem: (slot) => {
         const s = get()
+        if (s.inCombat) return // 战斗中无法卸下装备
         const item = s.equipment[slot]
         if (!item) return
 
@@ -831,6 +835,7 @@ export const useGameStore = create<GameState>()(
       // ─── 技能学习 ───
       learnSkill: (skillId) => {
         const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法学习技能' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const skill = getSkillInfo(skillId)
@@ -851,6 +856,7 @@ export const useGameStore = create<GameState>()(
 
       learnSkillFromBook: (itemUid) => {
         const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法学习技能' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const item = s.inventory.find((i) => i.uid === itemUid)
@@ -916,6 +922,7 @@ export const useGameStore = create<GameState>()(
 
       enhanceItem: (itemUid, options) => {
         const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法强化装备' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
 
