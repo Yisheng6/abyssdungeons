@@ -70,7 +70,10 @@ if (env.isProduction) {
   serveStaticFiles(app);
 
   const port = parseInt(process.env.PORT || "3000");
-  serve({ fetch: app.fetch, port }, () => {
+  const server = serve({ fetch: app.fetch, port }, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+  // 挂载 Socket.IO（聊天、在线状态等实时服务）
+  const { initRealtime } = await import("./services/realtime-service");
+  initRealtime(server as unknown as import("http").Server);
 }
