@@ -2,13 +2,7 @@ import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
 import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
-import { getTierName } from '@/lib/catalog'
 import TownHeroPanel from './TownHeroPanel'
-
-const CLASS_NAMES: Record<string, string> = {
-  warrior: '战士', mage: '法师', assassin: '刺客',
-  ranger: '游侠', priest: '牧师', warlock: '术士',
-}
 
 const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
@@ -105,49 +99,8 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* ═══ 城镇页：角色状态面板（最左侧） ═══ */}
-      {location.pathname === '/' && <TownHeroPanel />}
-
-      {/* ═══ 桌面侧边导航 ═══ */}
-      <aside className="sticky top-0 hidden h-screen w-52 flex-shrink-0 flex-col border-r lg:flex"
-        style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-        {/* Logo */}
-        <div className="flex h-12 items-center gap-2 border-b px-4" style={{ borderColor: 'var(--border-color)' }}>
-          <Sword size={18} style={{ color: 'var(--accent)' }} />
-          <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>深渊地城</span>
-        </div>
-
-        {/* 导航页签已移除 —— 通过城镇页快捷入口跳转 */}
-        <div className="flex-1" />
-
-        {/* 底部：角色信息 + 货币 + 设置 */}
-        <div className="border-t p-3 text-xs" style={{ borderColor: 'var(--border-color)' }}>
-          <div className="mb-2" style={{ color: 'var(--text-secondary)' }}>
-            <div className="font-bold" style={{ color: 'var(--text-primary)' }}>{playerName}</div>
-            <div style={{ color: 'var(--text-muted)' }}>
-              {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || ''} · ${getTierName(player.classId, player.tier || 1)}` : '未创建角色'}
-            </div>
-          </div>
-          <div className="mb-2 flex gap-3" style={{ color: 'var(--text-muted)' }}>
-            <span>金币 <span style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
-            <span>钻石 <span style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
-          </div>
-          <button onClick={() => setShowSettings(true)}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-            <Settings size={14} /> 设置
-          </button>
-          <button onClick={logout}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-            <LogOut size={14} /> 退出登录
-          </button>
-        </div>
-      </aside>
+      {/* ═══ 左侧：角色面板（Logo + 状态 + 货币 + 设置） ═══ */}
+      <TownHeroPanel />
 
       {/* ═══ 主内容区 ═══ */}
       <div className="flex min-w-0 flex-1 flex-col">
