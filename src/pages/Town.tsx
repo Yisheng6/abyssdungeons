@@ -33,13 +33,12 @@ function formatDuration(sec: number): string {
   return h > 0 ? `${h} 小时 ${m} 分钟` : `${m} 分钟`
 }
 
-const features = [
-  { icon: Sword, label: '进入地牢', path: '/explore', desc: '自动探索 · 无限层数' },
-  { icon: User, label: '角色面板', path: '/character', desc: '查看属性和技能' },
-  { icon: Backpack, label: '背包', path: '/inventory', desc: '管理装备和道具' },
-  { icon: Sparkles, label: '技能树', path: '/character', desc: '升级和学习技能' },
-  { icon: Shield, label: '铁匠铺', path: '/blacksmith', desc: '强化 · 分解 · 合成' },
-  { icon: Trophy, label: '排行榜', path: '#', desc: '查看全服排名' },
+const quickActions = [
+  { icon: User, label: '角色面板', path: '/character' },
+  { icon: Backpack, label: '背包', path: '/inventory' },
+  { icon: Sparkles, label: '技能树', path: '/character' },
+  { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
+  { icon: Trophy, label: '排行榜', path: '#' },
 ]
 
 export default function Town() {
@@ -203,28 +202,60 @@ export default function Town() {
           </div>
         )}
 
-        {/* Scene Description */}
-        <div className="m-4 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        {/* Scene Description — compact banner */}
+        <div className="m-4 mb-3 rounded-lg border px-4 py-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。远处传来铁匠铺的锤击声，
             空气中弥漫着淡淡的硫磺气息。镇子的边缘，一道漆黑的裂隙通向无尽的地下世界——
             那是所有冒险者梦想与噩梦开始的地方。
           </p>
-          <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-            提示：选择「进入地牢」开始你的第一次探险。输入层级坐标（如 L=1, X=0, Y=0）或点击快速开始。
-          </p>
         </div>
 
-        {/* Feature Grid */}
-        <div className="grid flex-1 grid-cols-2 gap-3 px-4 pb-4 sm:grid-cols-3">
-          {features.map((f) => (
-            <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
-              className="game-card flex flex-col items-center justify-center gap-2 p-6 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
-              <f.icon size={28} style={{ color: 'var(--accent)' }} />
-              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{f.desc}</span>
-            </button>
-          ))}
+        <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
+          {/* Hero: 进入地牢 */}
+          <button onClick={() => navigate('/explore')}
+            className="group relative flex-1 overflow-hidden rounded-xl border p-6 text-left transition-all duration-200 hover:scale-[1.005]"
+            style={{ borderColor: 'var(--accent)', background: 'linear-gradient(135deg, rgba(201,168,76,0.14) 0%, var(--bg-card) 55%)', minHeight: 180 }}>
+            {/* 背景装饰 */}
+            <Sword size={170} className="absolute -right-6 -bottom-8 opacity-[0.07] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" style={{ color: 'var(--accent)' }} />
+            <div className="relative flex h-full flex-col justify-between gap-4">
+              <div>
+                <div className="mb-1 flex items-center gap-2">
+                  <Sword size={22} style={{ color: 'var(--accent)' }} />
+                  <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>进入地牢</span>
+                </div>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>自动探索 · 无限层数 · 离线也能持续战斗</p>
+              </div>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div className="flex gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                  <div>
+                    <div style={{ color: 'var(--text-muted)' }}>最深抵达</div>
+                    <div className="mt-0.5 text-base font-bold" style={{ color: 'var(--accent)' }}>第 {player?.maxLayer ?? 1} 层</div>
+                  </div>
+                  <div>
+                    <div style={{ color: 'var(--text-muted)' }}>离线挂机</div>
+                    <div className="mt-0.5 text-base font-bold" style={{ color: 'var(--text-primary)' }}>12 小时</div>
+                  </div>
+                </div>
+                <span className="rounded-lg px-5 py-2 text-sm font-bold transition-transform group-hover:scale-105"
+                  style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>
+                  开始探索 →
+                </span>
+              </div>
+            </div>
+          </button>
+
+          {/* Quick actions — compact tiles */}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {quickActions.map((f) => (
+              <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
+                className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
+                style={{ opacity: f.path === '#' ? 0.45 : 1 }}>
+                <f.icon size={16} style={{ color: 'var(--accent)' }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </main>
     </div>
