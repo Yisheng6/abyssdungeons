@@ -4,7 +4,8 @@ import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 
 const CATEGORIES = [
-  { id: 'deepest_layer' as const, name: '最深层次', suffix: '层' },
+  { id: 'deepest_layer' as const, name: '混乱深渊', suffix: '层' },
+  { id: 'lawful_layer' as const, name: '守序深渊', suffix: '层' },
   { id: 'kills' as const, name: '累计击杀', suffix: '' },
   { id: 'wealth' as const, name: '财富', suffix: '金币' },
 ]

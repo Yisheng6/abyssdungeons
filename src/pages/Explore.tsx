@@ -581,7 +581,7 @@ export default function Explore() {
         <div className="game-card w-full max-w-md space-y-4">
           <div className="text-center">
             <Compass size={32} className="mx-auto mb-2" style={{ color: 'var(--accent)' }} />
-            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>深渊地牢</h2>
+            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>混乱深渊</h2>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>自动探索 · 无限层数 · 离线挂机</p>
           </div>
 

@@ -63835,6 +63835,130 @@ function getRoomDirections(rooms, roomId) {
   return directions;
 }
 
+// api/services/lawful-service.ts
+var LAWFUL_MAX_LAYER = 100;
+var LAWFUL_BOSSES = [
+  { layer: 10, id: "boss_dagon", name: "\u8FBE\u8D21", title: "\u6DF1\u6F5C\u8005\u4E4B\u738B", element: "water", skills: ["toxic_splash", "web_trap"], aiType: "aggressive" },
+  { layer: 20, id: "boss_ithaqua", name: "\u4F0A\u5854\u5E93\u4E9A", title: "\u51B0\u98CE\u4E4B\u4E3B", element: "ice", skills: ["ice_lance", "blizzard", "frozen_prison"], aiType: "aggressive" },
+  { layer: 30, id: "boss_cthugha", name: "\u514B\u56FE\u683C\u4E9A", title: "\u71C3\u7130\u8005", element: "fire", skills: ["flame_breath", "lava_burst", "heat_wave"], aiType: "berserk" },
+  { layer: 40, id: "boss_hastur", name: "\u54C8\u65AF\u5854", title: "\u9EC4\u8863\u4E4B\u738B", element: "wind", skills: ["fear", "whisper", "void_scream"], aiType: "cunning" },
+  { layer: 50, id: "boss_nyarl", name: "\u5948\u4E9A\u62C9\u6258\u63D0\u666E", title: "\u5343\u9762\u4E4B\u795E", element: "void", skills: ["mind_rend", "shadow_bolt_m", "fear"], aiType: "cunning" },
+  { layer: 60, id: "boss_shub", name: "\u838E\u5E03\xB7\u5C3C\u53E4\u62C9\u4E1D", title: "\u9ED1\u5C71\u7F8A\u4E4B\u6BCD", element: "earth", skills: ["poison_bite", "entropic_field", "soul_drain"], aiType: "defensive" },
+  { layer: 70, id: "boss_gatanothoa", name: "\u52A0\u5854\u8BFA\u6258\u4E9A", title: "\u6C89\u6CA1\u4E4B\u5384", element: "earth", skills: ["slam", "rock_summon", "enrage"], aiType: "berserk" },
+  { layer: 80, id: "boss_cyaegha", name: "\u8D5B\u4F0A\u683C\u4E9A", title: "\u7075\u9B42\u541E\u566C\u8005", element: "void", skills: ["soul_drain", "void_touch", "entropic_field"], aiType: "cunning" },
+  { layer: 90, id: "boss_yog", name: "\u72B9\u683C\xB7\u7D22\u6258\u65AF", title: "\u95E8\u4E4B\u94A5", element: "void", skills: ["entropic_field", "void_scream", "soul_drain"], aiType: "defensive" },
+  { layer: 100, id: "boss_azathoth", name: "\u963F\u6492\u6258\u65AF", title: "\u76F2\u76EE\u611A\u75F4\u4E4B\u795E", element: "void", skills: ["mind_rend", "void_scream", "soul_drain", "entropic_field"], aiType: "berserk" }
+];
+function isBossLayer(layer) {
+  return layer % 10 === 0;
+}
+function getLawfulBoss(layer) {
+  return LAWFUL_BOSSES.find((b) => b.layer === layer) || null;
+}
+var CLASS_COUNTER = {
+  warrior: { family: "void", style: "\u9B54\u6CD5\u538B\u5236" },
+  mage: { family: "tomb", style: "\u8FC5\u6377\u7A81\u88AD" },
+  assassin: { family: "cave", style: "\u575A\u58C1\u9632\u5B88" },
+  ranger: { family: "magma", style: "\u8FD1\u6218\u538B\u5236" },
+  priest: { family: "tomb", style: "\u5492\u6587\u5C01\u9501" },
+  warlock: { family: "ice", style: "\u7206\u53D1\u7A81\u51FB" }
+};
+var FAMILIES = ["cave", "ice", "magma", "void", "tomb"];
+var ROOM_FLAVOR = {
+  cave: ["\u788E\u77F3\u5927\u5385", "\u5E7D\u6697\u77FF\u9053", "\u6676\u7C07\u6D1E\u7A9F"],
+  ice: ["\u51B0\u5C01\u56DE\u5ECA", "\u971C\u6676\u796D\u575B", "\u5BD2\u6F6E\u6DF1\u7A74"],
+  magma: ["\u7194\u5CA9\u88C2\u8C37", "\u7070\u70EC\u6BBF\u5802", "\u707C\u70ED\u706B\u6C60"],
+  void: ["\u865A\u7A7A\u88C2\u9699", "\u4F4E\u8BED\u56DE\u5ECA", "\u6DF1\u6E0A\u4E4B\u773C"],
+  tomb: ["\u4EA1\u8005\u5893\u9053", "\u767D\u9AA8\u796D\u575B", "\u6C89\u5BC2\u9675\u5BDD"]
+};
+function mulberry(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = a + 1831565813 | 0;
+    let t2 = Math.imul(a ^ a >>> 15, 1 | a);
+    t2 = t2 + Math.imul(t2 ^ t2 >>> 7, 61 | t2) ^ t2;
+    return ((t2 ^ t2 >>> 14) >>> 0) / 4294967296;
+  };
+}
+function scale(base, layer, atkMult = 1, hpMult = 1) {
+  const lm = 1 + (layer - 1) * 0.1;
+  const s = (v) => Math.round(v * lm * atkMult);
+  const hp = Math.round((base.hp ?? 30) * lm * hpMult);
+  return {
+    hp,
+    maxHp: hp,
+    mp: base.mp ?? 0,
+    maxMp: base.mp ?? 0,
+    atk: s(base.atk ?? 5),
+    def: s(base.def ?? 3),
+    mag: s(base.mag ?? 0),
+    mdef: s(base.mdef ?? 2),
+    agi: s(base.agi ?? 5),
+    luk: s(base.luk ?? 3)
+  };
+}
+function genLawfulRooms(layer, classId, seed = Date.now()) {
+  const rng = mulberry(seed + layer * 7919);
+  if (isBossLayer(layer)) {
+    const boss = getLawfulBoss(layer);
+    if (boss) {
+      const stats = scale({ hp: 260, mp: 60, atk: 14, def: 10, mag: 12, mdef: 10, agi: 6, luk: 4 }, layer, 3, 8);
+      return [{
+        id: 0,
+        name: `${boss.title}\xB7${boss.name}`,
+        isBoss: true,
+        desc: `\u7B2C ${layer} \u5C42\u7684\u5B88\u5173 Boss\u3002${boss.name}\u5728\u6DF1\u6E0A\u7684\u4F4E\u8BED\u4E2D\u82CF\u9192\u2026\u2026`,
+        enemies: [{
+          id: boss.id,
+          name: `${boss.title}\xB7${boss.name}`,
+          ...stats,
+          skills: boss.skills,
+          element: boss.element,
+          aiType: boss.aiType,
+          dropTable: [
+            { itemId: "gem_diamond", name: "\u94BB\u77F3", type: "currency", chance: 50, quantityMin: 1, quantityMax: 2, quality: "legendary" },
+            { itemId: "soul_shard", name: "\u7075\u9B42\u788E\u7247", type: "material", chance: 100, quantityMin: 1, quantityMax: 3, quality: "epic" }
+          ]
+        }]
+      }];
+    }
+  }
+  const counter = CLASS_COUNTER[classId] || { family: "cave", style: "\u6DF7\u6218" };
+  const roomPlans = [
+    { family: counter.family, elite: layer >= 20 && rng() < 0.3 },
+    { family: FAMILIES[Math.floor(rng() * FAMILIES.length)], elite: false },
+    { family: FAMILIES[Math.floor(rng() * FAMILIES.length)], elite: layer >= 10 && rng() < 0.2 }
+  ];
+  return roomPlans.map((plan, idx) => {
+    const pool = getEnemiesByFamily(plan.family);
+    const count = 1 + Math.floor(rng() * Math.min(3, 1 + Math.ceil(layer / 25)));
+    const enemies = [];
+    for (let i = 0; i < count && pool.length > 0; i++) {
+      const t2 = pool[Math.floor(rng() * pool.length)];
+      const stats = scale(t2.baseStats, layer, plan.elite ? 1.5 : 1);
+      enemies.push({
+        id: `${t2.id}_${idx}_${i}`,
+        name: t2.name,
+        ...stats,
+        skills: t2.skills,
+        element: t2.element,
+        aiType: t2.aiType,
+        dropTable: t2.dropTable
+      });
+    }
+    const flavor = ROOM_FLAVOR[plan.family] || ROOM_FLAVOR.cave;
+    const fname = flavor[Math.floor(rng() * flavor.length)];
+    return {
+      id: idx,
+      name: fname,
+      isBoss: false,
+      desc: `${plan.elite ? "\u7CBE\u82F1\u76D8\u8E1E\u7684" : ""}${fname}\uFF08${enemies.length} \u53EA\u602A\u7269${idx === 0 ? "\uFF0C" + counter.style : ""}\uFF09`,
+      enemies
+    };
+  });
+}
+
 // api/services/combat-service.ts
 var STATUS_DEFS = {
   bleed: { name: "\u6D41\u8840", kind: "physical" },
@@ -64535,6 +64659,19 @@ var gameRouter = createRouter({
     }))
   ),
   // ─── Dungeon APIs ───
+  // 守序深渊：生成某层的 3 选 1 房间（Boss 层仅 Boss 房）
+  lawfulRooms: publicQuery.input(external_exports.object({
+    layer: external_exports.number().min(1).max(LAWFUL_MAX_LAYER),
+    classId: external_exports.string().default("warrior"),
+    seed: external_exports.number().default(() => Date.now())
+  })).query(({ input }) => {
+    return {
+      layer: input.layer,
+      maxLayer: LAWFUL_MAX_LAYER,
+      isBossLayer: isBossLayer(input.layer),
+      rooms: genLawfulRooms(input.layer, input.classId, input.seed)
+    };
+  }),
   generateDungeon: publicQuery.input(external_exports.object({
     globalSeed: external_exports.string().default("default"),
     layer: external_exports.number().min(1).max(999999),
@@ -64743,7 +64880,7 @@ var gameRouter = createRouter({
 init_redis_service();
 var leaderboardRouter = createRouter({
   submitScore: publicQuery.input(external_exports.object({
-    category: external_exports.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+    category: external_exports.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
     playerId: external_exports.string().min(1).max(32),
     score: external_exports.number().int().min(0),
     playerName: external_exports.string().min(1).max(32),
@@ -64756,14 +64893,14 @@ var leaderboardRouter = createRouter({
     return { success: true };
   }),
   getTop: publicQuery.input(external_exports.object({
-    category: external_exports.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+    category: external_exports.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
     count: external_exports.number().int().min(1).max(100).default(20)
   })).query(async ({ input }) => {
     const list = await getLeaderboardTop(input.category, input.count);
     return list;
   }),
   getMyRank: publicQuery.input(external_exports.object({
-    category: external_exports.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+    category: external_exports.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
     playerId: external_exports.string().min(1)
   })).query(async ({ input }) => {
     const rank = await getPlayerRank(input.category, input.playerId);

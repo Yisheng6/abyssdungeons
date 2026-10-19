@@ -8,6 +8,7 @@ import {
   getItems, getEquipmentSets, getSkills,
 } from "../services/config-service";
 import { generateDungeon, getRoomDirections } from "../services/mapgen-service";
+import { genLawfulRooms, LAWFUL_MAX_LAYER, isBossLayer } from "../services/lawful-service";
 import { resolveCombat } from "../services/combat-service";
 import {
   offlineStart, offlineHeartbeat, offlineStop, offlineStatus, offlineSettle,
@@ -69,6 +70,22 @@ export const gameRouter = createRouter({
   ),
 
   // ─── Dungeon APIs ───
+  // 守序深渊：生成某层的 3 选 1 房间（Boss 层仅 Boss 房）
+  lawfulRooms: publicQuery
+    .input(z.object({
+      layer: z.number().min(1).max(LAWFUL_MAX_LAYER),
+      classId: z.string().default("warrior"),
+      seed: z.number().default(() => Date.now()),
+    }))
+    .query(({ input }) => {
+      return {
+        layer: input.layer,
+        maxLayer: LAWFUL_MAX_LAYER,
+        isBossLayer: isBossLayer(input.layer),
+        rooms: genLawfulRooms(input.layer, input.classId, input.seed),
+      };
+    }),
+
   generateDungeon: publicQuery
     .input(z.object({
       globalSeed: z.string().default("default"),

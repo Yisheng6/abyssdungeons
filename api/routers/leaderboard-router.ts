@@ -9,7 +9,7 @@ import {
 export const leaderboardRouter = createRouter({
   submitScore: publicQuery
     .input(z.object({
-      category: z.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+      category: z.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
       playerId: z.string().min(1).max(32),
       score: z.number().int().min(0),
       playerName: z.string().min(1).max(32),
@@ -25,7 +25,7 @@ export const leaderboardRouter = createRouter({
 
   getTop: publicQuery
     .input(z.object({
-      category: z.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+      category: z.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
       count: z.number().int().min(1).max(100).default(20),
     }))
     .query(async ({ input }) => {
@@ -35,7 +35,7 @@ export const leaderboardRouter = createRouter({
 
   getMyRank: publicQuery
     .input(z.object({
-      category: z.enum(["deepest_layer", "speedrun", "kills", "wealth", "gear_score"]),
+      category: z.enum(["deepest_layer", "lawful_layer", "speedrun", "kills", "wealth", "gear_score"]),
       playerId: z.string().min(1),
     }))
     .query(async ({ input }) => {

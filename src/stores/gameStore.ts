@@ -260,6 +260,7 @@ interface GameState {
   // ─── Settings ───
   settings: GameSettings
   taskState: TaskState
+  lawful: { layer: number; best: number }
 
   // ─── Runtime: current class ───
   player: Player | null
@@ -291,6 +292,7 @@ interface GameState {
   updateSettings: (patch: Partial<GameSettings>) => void
   trackTaskEvent: (kind: keyof TaskProgress, n?: number) => void
   claimTaskReward: (taskId: string, scope: 'daily' | 'achievement') => void
+  setLawfulLayer: (layer: number) => void
 
   createPlayer: (classId: string, classStats: Record<string, number>) => boolean
   switchClass: (classId: string) => { success: boolean; message: string }
@@ -452,6 +454,7 @@ export const useGameStore = create<GameState>()(
       inventory: [],
       settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES }, autoPotion: false, autoPotionThreshold: 50 },
       taskState: { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } },
+      lawful: { layer: 1, best: 0 },
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
@@ -481,6 +484,8 @@ export const useGameStore = create<GameState>()(
         ts.totals = { ...ts.totals, [kind]: ts.totals[kind] + n }
         set({ taskState: ts })
       },
+
+      setLawfulLayer: (layer) => set((s) => ({ lawful: { layer, best: Math.max(s.lawful.best, layer) } })),
 
       claimTaskReward: (taskId, scope) => {
         const ts = { ...get().taskState }
@@ -1156,6 +1161,7 @@ export const useGameStore = create<GameState>()(
         tempBag: state.tempBag,          // 未结算的探索战利品
         settings: state.settings,
         taskState: state.taskState,
+        lawful: state.lawful,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -1164,6 +1170,7 @@ export const useGameStore = create<GameState>()(
           state.inCombat = false
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
+          state.lawful = state.lawful || { layer: 1, best: 0 }
           state.taskState = state.taskState || { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } }
           state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoPotion: false, autoPotionThreshold: 50, ...(state.settings || {}) }
           if (!state.settings.autoDisassembleRules) {

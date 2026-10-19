@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy, FlaskConical, Target, MessageSquare } from 'lucide-react'
+import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy, FlaskConical, Target, MessageSquare, Landmark } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import TownHeroPanel from './TownHeroPanel'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
@@ -8,7 +8,8 @@ import AutoPotionSettings from './AutoPotionSettings'
 
 const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
-  { path: '/explore', label: '探索', icon: Compass },
+  { path: '/explore', label: '混乱深渊', icon: Compass },
+  { path: '/lawful', label: '守序深渊', icon: Landmark },
   { path: '/shop', label: '商店', icon: FlaskConical },
   { path: '/character', label: '角色', icon: User },
   { path: '/inventory', label: '背包', icon: Backpack },
@@ -19,7 +20,8 @@ const NAV_ITEMS = [
 ]
 
 const QUICK_ACTIONS = [
-  { icon: Compass, label: '探索地牢', path: '/explore' },
+  { icon: Compass, label: '混乱深渊', path: '/explore' },
+  { icon: Landmark, label: '守序深渊', path: '/lawful' },
   { icon: FlaskConical, label: '商店', path: '/shop' },
   { icon: User, label: '角色面板', path: '/character' },
   { icon: Backpack, label: '背包', path: '/inventory' },
@@ -115,7 +117,7 @@ export default function Layout() {
         </div>
 
         {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
-        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-9 gap-2 lg:grid">
+        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-5 gap-2 lg:grid">
           {QUICK_ACTIONS.map((f) => (
             <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
               className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"

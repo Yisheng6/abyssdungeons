@@ -11,6 +11,7 @@ import Shop from './pages/Shop'
 import Tasks from './pages/Tasks'
 import Leaderboard from './pages/Leaderboard'
 import Chat from './pages/Chat'
+import Lawful from './pages/Lawful'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Town />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/lawful" element={<Lawful />} />
         <Route path="/combat" element={<Combat />} />
         <Route path="/character" element={<CharacterPanel />} />
         <Route path="/inventory" element={<Inventory />} />
