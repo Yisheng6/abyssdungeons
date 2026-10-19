@@ -229,7 +229,7 @@ export default function Combat() {
 
   if (!store.inCombat) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="flex min-h-[calc(100dvh-5.75rem)] items-center justify-center lg:min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="game-card text-center">
           <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>当前不在战斗中</p>
           <button className="game-btn-primary" onClick={() => navigate('/explore')}>返回探索</button>
@@ -243,7 +243,7 @@ export default function Combat() {
   const playerSkills = player.skills || []
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex min-h-[calc(100dvh-5.75rem)] flex-col lg:min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Turn Indicator */}
       <div className="border-b px-4 py-2" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
         <div className="flex items-center justify-between">

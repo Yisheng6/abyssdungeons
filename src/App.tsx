@@ -13,12 +13,11 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      {/* 全屏模式页面（不进共享布局） */}
-      <Route path="/explore" element={<Explore />} />
-      <Route path="/combat" element={<Combat />} />
-      {/* 共享布局：侧边导航 + 底部标签栏 */}
+      {/* 共享布局：侧边导航 + 底部标签栏，所有页面都显示在主内容区 */}
       <Route element={<Layout />}>
         <Route path="/" element={<Town />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/combat" element={<Combat />} />
         <Route path="/character" element={<CharacterPanel />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/blacksmith" element={<Blacksmith />} />

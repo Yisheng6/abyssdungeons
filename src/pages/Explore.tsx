@@ -546,7 +546,7 @@ export default function Explore() {
   // 主界面：未开始探索
   if (!isRunning && !store.currentDungeon) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="flex min-h-[calc(100dvh-5.75rem)] items-center justify-center p-4 lg:min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="game-card w-full max-w-md space-y-4">
           <div className="text-center">
             <Compass size={32} className="mx-auto mb-2" style={{ color: 'var(--accent)' }} />
@@ -596,7 +596,7 @@ export default function Explore() {
 
   // 探索中界面
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="flex h-[calc(100dvh-5.75rem)] overflow-hidden lg:h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Left: Player Status */}
       <aside className="hidden w-[240px] flex-shrink-0 border-r p-3 lg:block" style={{ borderColor: 'var(--border-color)' }}>
         <div className="mb-3 rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
