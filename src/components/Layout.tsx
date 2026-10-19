@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router'
 import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import TownHeroPanel from './TownHeroPanel'
+import AutoDisassembleSettings from './AutoDisassembleSettings'
 
 const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
@@ -56,43 +57,7 @@ export default function Layout() {
           <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
             账号：{playerName}
           </div>
-          {/* 装备自动分解 */}
-          <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)' }}>
-            <div className="mb-1.5 flex items-center justify-between">
-              <span style={{ color: 'var(--text-secondary)' }}>装备自动分解</span>
-              <button
-                onClick={() => updateSettings({ autoDisassemble: !settings.autoDisassemble })}
-                className="rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-colors"
-                style={{
-                  backgroundColor: settings.autoDisassemble ? 'rgba(63,185,80,0.25)' : 'var(--bg-card)',
-                  color: settings.autoDisassemble ? '#3FB950' : 'var(--text-muted)',
-                  border: settings.autoDisassemble ? '1px solid #3FB950' : '1px solid var(--border-color)',
-                }}>
-                {settings.autoDisassemble ? '已开启' : '已关闭'}
-              </button>
-            </div>
-            {settings.autoDisassemble && (
-              <>
-                <div className="mb-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                  分解条件：品质 ≤ 以下选择的装备，拾取时直接分解为金币
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {(['common', 'fine', 'rare', 'epic', 'legendary'] as const).map((q) => (
-                    <button key={q}
-                      onClick={() => updateSettings({ autoDisassembleMaxQuality: q })}
-                      className="rounded-full px-2 py-0.5 text-[10px] transition-colors"
-                      style={{
-                        backgroundColor: settings.autoDisassembleMaxQuality === q ? 'rgba(201,168,76,0.25)' : 'var(--bg-card)',
-                        color: settings.autoDisassembleMaxQuality === q ? '#C9A84C' : 'var(--text-muted)',
-                        border: settings.autoDisassembleMaxQuality === q ? '1px solid #C9A84C' : '1px solid transparent',
-                      }}>
-                      {SETTINGS_QUALITY_NAMES[q]}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          <AutoDisassembleSettings />
           <button onClick={logout}
             className="w-full rounded border py-1.5 transition-colors"
             style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}

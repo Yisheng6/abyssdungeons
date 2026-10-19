@@ -127,17 +127,64 @@ export const QUALITY_RANK: Record<string, number> = {
   common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
 }
 
+export interface AutoDisassembleRules {
+  /** 选中的品质会被分解（多选） */
+  qualities: string[]
+  /** 限定的部位（空 = 全部部位） */
+  slots: string[]
+  /** 套装阶级 ≤ 此值才分解（-1 = 不限） */
+  maxSetTier: number
+  /** 强化等级 ≤ 此值才分解（-1 = 不限） */
+  maxEnhance: number
+  /** 含这些词条的装备保留不分解 */
+  keepAffixes: string[]
+}
+
+export const DEFAULT_DISASSEMBLE_RULES: AutoDisassembleRules = {
+  qualities: ['common'],
+  slots: [],
+  maxSetTier: -1,
+  maxEnhance: -1,
+  keepAffixes: [],
+}
+
 export interface GameSettings {
   /** 装备自动分解开关 */
   autoDisassemble: boolean
-  /** 自动分解品质阈值：品质 ≤ 该值的装备直接分解为金币 */
+  /** 自动分解品质阈值（旧版兼容字段） */
   autoDisassembleMaxQuality: string
+  /** 自动分解多条件规则 */
+  autoDisassembleRules?: AutoDisassembleRules
 }
 
-/** 判断装备是否符合自动分解条件 */
+/** 判断装备是否符合自动分解条件（多条件组合） */
 export function shouldAutoDisassemble(item: Item, settings: GameSettings): boolean {
   if (!settings.autoDisassemble || item.type !== 'equipment') return false
-  return (QUALITY_RANK[item.quality] ?? 0) <= (QUALITY_RANK[settings.autoDisassembleMaxQuality] ?? 0)
+  const r = settings.autoDisassembleRules
+  if (!r) {
+    // 旧版兼容：品质 ≤ 阈值
+    return (QUALITY_RANK[item.quality] ?? 0) <= (QUALITY_RANK[settings.autoDisassembleMaxQuality] ?? 0)
+  }
+  if (r.qualities.length > 0 && !r.qualities.includes(item.quality)) return false
+  if (r.slots.length > 0 && !r.slots.includes(item.slot || '')) return false
+  if (r.maxSetTier >= 0 && (item.setTier || 0) > r.maxSetTier) return false
+  if (r.maxEnhance >= 0 && (item.enhanceLevel || 0) > r.maxEnhance) return false
+  if (r.keepAffixes.length > 0 && item.affixes && r.keepAffixes.some((k) => k in (item.affixes || {}))) return false
+  return true
+}
+
+/** 装备部位中文名 */
+export const SLOT_NAMES: Record<string, string> = {
+  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指',
+}
+
+/** 全部属性/词条中文名（含百分比、战斗特效、收益类词条） */
+export const STAT_NAMES: Record<string, string> = {
+  hp: '生命值', mp: '法力值', atk: '攻击力', def: '防御力', mag: '魔法力', mdef: '魔防', agi: '敏捷', luk: '幸运', con: '体质', wil: '意志',
+  atkPct: '攻击力%', defPct: '防御力%', magPct: '魔法力%', mdefPct: '魔防%',
+  critRate: '暴击率', critDmg: '暴击伤害', lifesteal: '吸血', reflect: '反伤', elemDmg: '附加元素伤害',
+  expGain: '经验获取', goldGain: '金币获取', killHeal: '击杀回血', killMp: '击杀回蓝',
+  physRes: '物理异常抗性', magRes: '精神异常抗性',
 }
 
 export interface Equipment {
@@ -374,7 +421,7 @@ export const useGameStore = create<GameState>()(
       classSaves: {}, activeClassId: '',
       lastClassSwitch: 0, switchCooldownMs: 5000,
       inventory: [],
-      settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common' },
+      settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES } },
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
@@ -1055,6 +1102,13 @@ export const useGameStore = create<GameState>()(
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
           state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', ...(state.settings || {}) }
+          if (!state.settings.autoDisassembleRules) {
+            const th = QUALITY_RANK[state.settings.autoDisassembleMaxQuality] ?? 0
+            state.settings.autoDisassembleRules = {
+              ...DEFAULT_DISASSEMBLE_RULES,
+              qualities: Object.keys(QUALITY_RANK).filter((q) => (QUALITY_RANK[q] ?? 0) <= th),
+            }
+          }
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false
