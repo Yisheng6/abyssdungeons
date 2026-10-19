@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Sword, Shield, Backpack, Sparkles, Trophy, User } from 'lucide-react'
+import { Sword } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold } from '@/stores/gameStore'
 import { loadCatalogs } from '@/lib/catalog'
 import { trpc } from '@/providers/trpc'
@@ -24,14 +24,6 @@ function formatDuration(sec: number): string {
   const m = Math.floor((sec % 3600) / 60)
   return h > 0 ? `${h} 小时 ${m} 分钟` : `${m} 分钟`
 }
-
-const quickActions = [
-  { icon: User, label: '角色面板', path: '/character' },
-  { icon: Backpack, label: '背包', path: '/inventory' },
-  { icon: Sparkles, label: '技能树', path: '/character' },
-  { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
-  { icon: Trophy, label: '排行榜', path: '#' },
-]
 
 export default function Town() {
   const navigate = useNavigate()
@@ -122,16 +114,7 @@ export default function Town() {
           </div>
         )}
 
-        {/* Scene Description — compact banner */}
-        <div className="m-4 mb-3 rounded-lg border px-4 py-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。远处传来铁匠铺的锤击声，
-            空气中弥漫着淡淡的硫磺气息。镇子的边缘，一道漆黑的裂隙通向无尽的地下世界——
-            那是所有冒险者梦想与噩梦开始的地方。
-          </p>
-        </div>
-
-        <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
+        <div className="flex flex-1 flex-col gap-3 p-4">
           {/* Hero: 进入地牢 */}
           <button onClick={() => navigate('/explore')}
             className="group relative flex-1 overflow-hidden rounded-xl border p-6 text-left transition-all duration-200 hover:scale-[1.005]"
@@ -164,18 +147,6 @@ export default function Town() {
               </div>
             </div>
           </button>
-
-          {/* Quick actions — compact tiles */}
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-            {quickActions.map((f) => (
-              <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
-                className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-                style={{ opacity: f.path === '#' ? 0.45 : 1 }}>
-                <f.icon size={16} style={{ color: 'var(--accent)' }} />
-                <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
-              </button>
-            ))}
-          </div>
         </div>
       </main>
     </div>

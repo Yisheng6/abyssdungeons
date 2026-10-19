@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword } from 'lucide-react'
+import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import TownHeroPanel from './TownHeroPanel'
 
@@ -10,6 +10,14 @@ const NAV_ITEMS = [
   { path: '/character', label: '角色', icon: User },
   { path: '/inventory', label: '背包', icon: Backpack },
   { path: '/blacksmith', label: '铁匠铺', icon: Hammer },
+]
+
+const QUICK_ACTIONS = [
+  { icon: User, label: '角色面板', path: '/character' },
+  { icon: Backpack, label: '背包', path: '/inventory' },
+  { icon: Sparkles, label: '技能树', path: '/character' },
+  { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
+  { icon: Trophy, label: '排行榜', path: '#' },
 ]
 
 const SETTINGS_QUALITY_NAMES: Record<string, string> = {
@@ -117,9 +125,30 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* 页面内容（移动端底部留出导航高度） */}
-        <div className="flex-1 pb-14 lg:pb-0">
+        {/* 剧情横幅（固定显示） */}
+        <div className="m-4 mb-0 flex-shrink-0 rounded-lg border px-4 py-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。远处传来铁匠铺的锤击声，
+            空气中弥漫着淡淡的硫磺气息。镇子的边缘，一道漆黑的裂隙通向无尽的地下世界——
+            那是所有冒险者梦想与噩梦开始的地方。
+          </p>
+        </div>
+
+        {/* 页面内容（通用显示区，移动端底部留出导航高度） */}
+        <div className="flex min-h-0 flex-1 flex-col pb-14 lg:pb-0">
           <Outlet />
+        </div>
+
+        {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
+        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-5 gap-2 lg:grid">
+          {QUICK_ACTIONS.map((f) => (
+            <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
+              className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
+              style={{ opacity: f.path === '#' ? 0.45 : 1 }}>
+              <f.icon size={16} style={{ color: 'var(--accent)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* 移动端底部导航 */}
