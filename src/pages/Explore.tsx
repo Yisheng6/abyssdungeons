@@ -203,6 +203,7 @@ export default function Explore() {
       gs.setCurrentRoomId(roomId)
       gs.addExploredRoom(roomId)
       setStats((s) => ({ ...s, rooms: s.rooms + 1 }))
+      useGameStore.getState().trackTaskEvent('rooms', 1)
 
       const roomName = ROOM_TYPE_NAMES[room.type] || room.type
       addLog(`【${roomName}】${room.themeDescription}`)
@@ -249,6 +250,17 @@ export default function Explore() {
 
       // Boss房 → 只有清场胜利才进入下一层
       if (room.isExit && cleared) {
+        // 通关恢复：HP/MP 各恢复 50%
+        const gsH = useGameStore.getState()
+        if (gsH.player) {
+          const healHp = Math.floor(gsH.player.maxHp * 0.5)
+          const healMp = Math.floor(gsH.player.maxMp * 0.5)
+          gsH.updatePlayerHp(Math.min(gsH.player.maxHp, gsH.player.hp + healHp))
+          gsH.updatePlayerMp(Math.min(gsH.player.maxMp, gsH.player.mp + healMp))
+          addLog(`通关恢复：HP +${healHp}，MP +${healMp}`)
+        }
+        useGameStore.getState().trackTaskEvent('bossKills', 1)
+        useGameStore.getState().trackTaskEvent('layers', 1)
         addLog(`═══ 已通过本层，进入第 ${currentLayer + 1} 层 ═══`)
         setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
         return
@@ -314,9 +326,27 @@ export default function Explore() {
         const aliveEnemies = cur.combatEnemies.filter((e) => e.hp > 0)
         if (aliveEnemies.length === 0) { victory = true; break }
 
-        const player = cur.player
-        if (!player || player.hp <= 0) { addLog('你被击败了...'); break }
+        const cur0 = useGameStore.getState()
+        const player0 = cur0.player
+        if (!player0 || player0.hp <= 0) { addLog('你被击败了...'); break }
 
+        // 自动喝药：HP 低于阈值时使用背包里最小的生命药水
+        const threshold = cur0.settings.autoPotionThreshold ?? 50
+        if (cur0.settings.autoPotion && player0.hp / player0.maxHp * 100 < threshold) {
+          const healOf = (i: { effect?: unknown; id: string }) => {
+            const e = (i.effect as any)?.heal ?? (getItemInfo(i.id)?.effect as any)?.heal ?? 0
+            return e as number
+          }
+          const potion = cur0.inventory
+            .filter((i) => i.type === 'consumable' && i.quantity > 0 && healOf(i) > 0)
+            .sort((a, b) => healOf(a) - healOf(b))[0]
+          if (potion) {
+            const r = cur0.useConsumable(potion.uid)
+            if (r.success) addLog(`⚕ 自动使用 ${potion.name}：${r.message}`)
+          }
+        }
+
+        const player = useGameStore.getState().player!
         // 按技能顺序释放：第一个 MP 足够的技能，否则普攻
         let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
         for (const skillId of player.skills || []) {
@@ -368,6 +398,7 @@ export default function Explore() {
           victory = true
           addLog(`── 战斗胜利！──`)
           setStats((s) => ({ ...s, kills: s.kills + 1 }))
+          useGameStore.getState().trackTaskEvent('kills', enemies.length)
           // 经验奖励：基础 10 + 层数×3 + 敌人强度（血/20 + 攻），boss（HP≥500）双倍
           const utilMods = getEquipmentAffixMods(after.equipment).utility
           const expGain = Math.floor(enemies.reduce((sum, e) => {

@@ -41936,16 +41936,31 @@ var effMag = (c) => {
 var effAgi = (c) => hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi;
 function rollEquipmentDrop(drop, rng) {
   if (drop.type !== "equipment") return drop;
-  const base = getItemById(drop.itemId);
+  let base = drop.itemId.startsWith("equipment:") ? (() => {
+    const tier = Number(drop.itemId.split(":")[1]);
+    const pool = getItems().filter((i) => i.type === "equipment" && i.setTier === tier);
+    return pool.length > 0 ? pool[Math.floor(rng() * pool.length)] : void 0;
+  })() : getItemById(drop.itemId);
   if (!base) return drop;
   const rolled = rollEquipmentInstance(base, rng);
   return {
     ...drop,
+    itemId: base.id,
     name: rolled.displayName,
     quality: rolled.quality,
     stats: rolled.stats,
     affixes: rolled.affixes
   };
+}
+function bossGuaranteedDrop(layer, rng) {
+  const tier = layer >= 46 ? 3 : layer >= 31 ? 2 : 1;
+  return rollEquipmentDrop({
+    itemId: `equipment:${tier}`,
+    name: "\u88C5\u5907",
+    type: "equipment",
+    quantity: 1,
+    quality: "rare"
+  }, rng);
 }
 function resolveCombat(player, enemies, action, turnSeed, options) {
   const rng = new SimpleRNG(turnSeed);
@@ -42126,6 +42141,9 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         }
         const globalDrops = rollDrops(enemy.id, layer, () => rng.next());
         drops.push(...globalDrops.map((d) => rollEquipmentDrop(d, () => rng.next())));
+        if (enemy.id.startsWith("boss_")) {
+          drops.push(bossGuaranteedDrop(layer, () => rng.next()));
+        }
       }
     }
     if (drops.length > 0) {

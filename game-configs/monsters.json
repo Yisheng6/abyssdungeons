@@ -2011,6 +2011,36 @@
       "quantityMax": 2,
       "quality": "common",
       "minLayer": 1
+    },
+    {
+      "itemId": "equipment:1",
+      "name": "随机装备",
+      "type": "equipment",
+      "chance": 4,
+      "quantityMin": 1,
+      "quantityMax": 1,
+      "quality": "common",
+      "minLayer": 1
+    },
+    {
+      "itemId": "equipment:2",
+      "name": "随机装备",
+      "type": "equipment",
+      "chance": 3,
+      "quantityMin": 1,
+      "quantityMax": 1,
+      "quality": "common",
+      "minLayer": 16
+    },
+    {
+      "itemId": "equipment:3",
+      "name": "随机装备",
+      "type": "equipment",
+      "chance": 2,
+      "quantityMin": 1,
+      "quantityMax": 1,
+      "quality": "common",
+      "minLayer": 31
     }
   ],
   "monsterSkills": [

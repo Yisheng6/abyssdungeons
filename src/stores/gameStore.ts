@@ -155,6 +155,10 @@ export interface GameSettings {
   autoDisassembleMaxQuality: string
   /** 自动分解多条件规则 */
   autoDisassembleRules?: AutoDisassembleRules
+  /** HP 低于阈值自动喝药开关 */
+  autoPotion?: boolean
+  /** 自动喝药 HP 阈值百分比（30/50/70） */
+  autoPotionThreshold?: number
 }
 
 /** 判断装备是否符合自动分解条件（多条件组合） */
@@ -171,6 +175,27 @@ export function shouldAutoDisassemble(item: Item, settings: GameSettings): boole
   if (r.maxEnhance >= 0 && (item.enhanceLevel || 0) > r.maxEnhance) return false
   if (r.keepAffixes.length > 0 && item.affixes && r.keepAffixes.some((k) => k in (item.affixes || {}))) return false
   return true
+}
+
+export interface TaskProgress { rooms: number; kills: number; layers: number; bossKills: number }
+
+export interface TaskState {
+  /** 当前每日任务所属日期（YYYY-MM-DD），跨天自动重置 */
+  dailyDate: string
+  daily: TaskProgress
+  dailyClaimed: string[]
+  totals: TaskProgress
+  achClaimed: string[]
+}
+
+const EMPTY_PROGRESS: TaskProgress = { rooms: 0, kills: 0, layers: 0, bossKills: 0 }
+
+export const DEFAULT_TASK_STATE: TaskState = {
+  dailyDate: '',
+  daily: { ...EMPTY_PROGRESS },
+  dailyClaimed: [],
+  totals: { ...EMPTY_PROGRESS },
+  achClaimed: [],
 }
 
 /** 装备部位中文名 */
@@ -234,6 +259,7 @@ interface GameState {
 
   // ─── Settings ───
   settings: GameSettings
+  taskState: TaskState
 
   // ─── Runtime: current class ───
   player: Player | null
@@ -263,6 +289,8 @@ interface GameState {
   setLoggedIn: (v: boolean) => void
   setPlayerName: (v: string) => void
   updateSettings: (patch: Partial<GameSettings>) => void
+  trackTaskEvent: (kind: keyof TaskProgress, n?: number) => void
+  claimTaskReward: (taskId: string, scope: 'daily' | 'achievement') => void
 
   createPlayer: (classId: string, classStats: Record<string, number>) => boolean
   switchClass: (classId: string) => { success: boolean; message: string }
@@ -274,6 +302,7 @@ interface GameState {
   updatePlayerMp: (mp: number) => void
   addPlayerExp: (amount: number) => void
   addPlayerGold: (amount: number) => void
+  spendGold: (amount: number) => boolean
 
   // Class tier (等阶)
   advanceTier: () => { success: boolean; message: string }
@@ -421,7 +450,8 @@ export const useGameStore = create<GameState>()(
       classSaves: {}, activeClassId: '',
       lastClassSwitch: 0, switchCooldownMs: 5000,
       inventory: [],
-      settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES } },
+      settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES }, autoPotion: false, autoPotionThreshold: 50 },
+      taskState: { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } },
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
@@ -436,6 +466,28 @@ export const useGameStore = create<GameState>()(
       setLoggedIn: (v) => set({ isLoggedIn: v }),
       setPlayerName: (v) => set({ playerName: v }),
       updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+
+      // ─── 任务追踪 ───
+      trackTaskEvent: (kind, n = 1) => {
+        const today = new Date().toISOString().slice(0, 10)
+        const ts = { ...get().taskState }
+        // 跨天重置每日进度
+        if (ts.dailyDate !== today) {
+          ts.dailyDate = today
+          ts.daily = { ...EMPTY_PROGRESS }
+          ts.dailyClaimed = []
+        }
+        ts.daily = { ...ts.daily, [kind]: ts.daily[kind] + n }
+        ts.totals = { ...ts.totals, [kind]: ts.totals[kind] + n }
+        set({ taskState: ts })
+      },
+
+      claimTaskReward: (taskId, scope) => {
+        const ts = { ...get().taskState }
+        if (scope === 'daily') ts.dailyClaimed = [...ts.dailyClaimed, taskId]
+        else ts.achClaimed = [...ts.achClaimed, taskId]
+        set({ taskState: ts })
+      },
 
       // ─── Create Player ───
       createPlayer: (classId, classStats) => {
@@ -594,6 +646,16 @@ export const useGameStore = create<GameState>()(
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
         set({ player: np, classSaves: ns })
+      },
+
+      spendGold: (amount) => {
+        const s = get()
+        if (!s.player || s.player.gold < amount) return false
+        const np = { ...s.player, gold: s.player.gold - amount }
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({ player: np, classSaves: ns })
+        return true
       },
 
       // ─── Class tier (等阶) ───
@@ -1093,6 +1155,7 @@ export const useGameStore = create<GameState>()(
         equipment: state.equipment,
         tempBag: state.tempBag,          // 未结算的探索战利品
         settings: state.settings,
+        taskState: state.taskState,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -1101,7 +1164,8 @@ export const useGameStore = create<GameState>()(
           state.inCombat = false
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
-          state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', ...(state.settings || {}) }
+          state.taskState = state.taskState || { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } }
+          state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoPotion: false, autoPotionThreshold: 50, ...(state.settings || {}) }
           if (!state.settings.autoDisassembleRules) {
             const th = QUALITY_RANK[state.settings.autoDisassembleMaxQuality] ?? 0
             state.settings.autoDisassembleRules = {

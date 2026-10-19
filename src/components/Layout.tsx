@@ -1,25 +1,33 @@
 import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy } from 'lucide-react'
+import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy, FlaskConical, Target, MessageSquare } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import TownHeroPanel from './TownHeroPanel'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
+import AutoPotionSettings from './AutoPotionSettings'
 
 const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
   { path: '/explore', label: '探索', icon: Compass },
+  { path: '/shop', label: '商店', icon: FlaskConical },
   { path: '/character', label: '角色', icon: User },
   { path: '/inventory', label: '背包', icon: Backpack },
   { path: '/blacksmith', label: '铁匠铺', icon: Hammer },
+  { path: '/tasks', label: '任务', icon: Target },
+  { path: '/leaderboard', label: '排行', icon: Trophy },
+  { path: '/chat', label: '聊天', icon: MessageSquare },
 ]
 
 const QUICK_ACTIONS = [
   { icon: Compass, label: '探索地牢', path: '/explore' },
+  { icon: FlaskConical, label: '商店', path: '/shop' },
   { icon: User, label: '角色面板', path: '/character' },
   { icon: Backpack, label: '背包', path: '/inventory' },
   { icon: Sparkles, label: '技能树', path: '/character' },
   { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
-  { icon: Trophy, label: '排行榜', path: '#' },
+  { icon: Target, label: '任务', path: '/tasks' },
+  { icon: Trophy, label: '排行榜', path: '/leaderboard' },
+  { icon: MessageSquare, label: '聊天', path: '/chat' },
 ]
 
 const SETTINGS_QUALITY_NAMES: Record<string, string> = {
@@ -57,6 +65,7 @@ export default function Layout() {
           <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
             账号：{playerName}
           </div>
+          <AutoPotionSettings />
           <AutoDisassembleSettings />
           <button onClick={logout}
             className="w-full rounded border py-1.5 transition-colors"
@@ -106,7 +115,7 @@ export default function Layout() {
         </div>
 
         {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
-        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-6 gap-2 lg:grid">
+        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-9 gap-2 lg:grid">
           {QUICK_ACTIONS.map((f) => (
             <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
               className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
@@ -118,13 +127,13 @@ export default function Layout() {
         </div>
 
         {/* 移动端底部导航 */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t lg:hidden"
+        <nav className="fixed bottom-0 left-0 right-0 z-40 flex overflow-x-auto border-t lg:hidden"
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.path)
             return (
               <button key={item.path} onClick={() => navigate(item.path)}
-                className="flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
+                className="flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
                 style={{ color: active ? 'var(--accent)' : 'var(--text-muted)' }}>
                 <item.icon size={17} />
                 {item.label}

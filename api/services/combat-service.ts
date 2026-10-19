@@ -1,7 +1,7 @@
 // Turn-based Combat Service
 // All formulas and data loaded from config - NO hardcoding
 
-import { getElementMultiplier, rollDrops, getSkillById, getMonsterSkillById, getItemById } from "./config-service";
+import { getElementMultiplier, rollDrops, getSkillById, getMonsterSkillById, getItemById, getItems } from "./config-service";
 import { rollEquipmentInstance } from "./equipgen-service";
 
 // ═══ 异常状态 ═══
@@ -196,19 +196,35 @@ export interface DropResult {
   affixes?: Record<string, number>;
 }
 
-/** 装备类掉落生成随机实例（品质重roll、主属性浮动、随机词条） */
+/** 装备类掉落生成随机实例（品质重roll、主属性浮动、随机词条）；支持 "equipment:{tier}" 令牌 */
 function rollEquipmentDrop(drop: DropResult, rng: () => number): DropResult {
   if (drop.type !== "equipment") return drop;
-  const base = getItemById(drop.itemId);
+  let base = drop.itemId.startsWith("equipment:")
+    ? (() => {
+        const tier = Number(drop.itemId.split(":")[1]);
+        const pool = getItems().filter((i) => i.type === "equipment" && i.setTier === tier);
+        return pool.length > 0 ? pool[Math.floor(rng() * pool.length)] : undefined;
+      })()
+    : getItemById(drop.itemId);
   if (!base) return drop;
   const rolled = rollEquipmentInstance(base, rng);
   return {
     ...drop,
+    itemId: base.id,
     name: rolled.displayName,
     quality: rolled.quality,
     stats: rolled.stats,
     affixes: rolled.affixes,
   };
+}
+
+/** Boss 必掉装备：按层数决定套装阶级 */
+function bossGuaranteedDrop(layer: number, rng: () => number): DropResult {
+  const tier = layer >= 46 ? 3 : layer >= 31 ? 2 : 1;
+  return rollEquipmentDrop({
+    itemId: `equipment:${tier}`, name: "装备", type: "equipment",
+    quantity: 1, quality: "rare",
+  }, rng);
 }
 
 export function resolveCombat(
@@ -416,6 +432,10 @@ export function resolveCombat(
         }
         const globalDrops = rollDrops(enemy.id, layer, () => rng.next());
         drops.push(...globalDrops.map((d) => rollEquipmentDrop(d, () => rng.next())));
+        // Boss 必掉一件装备
+        if (enemy.id.startsWith("boss_")) {
+          drops.push(bossGuaranteedDrop(layer, () => rng.next()));
+        }
       }
     }
 

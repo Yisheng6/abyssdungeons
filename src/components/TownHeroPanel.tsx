@@ -4,6 +4,7 @@ import { LogOut, Settings, Sword, User, X } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { getTierName } from '@/lib/catalog'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
+import AutoPotionSettings from './AutoPotionSettings'
 
 const CLASS_NAMES: Record<string, string> = {
   warrior: '战士', mage: '法师', assassin: '刺客',
@@ -133,6 +134,7 @@ export default function TownHeroPanel() {
               <div className="rounded p-2" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
                 账号：{playerName}
               </div>
+          <AutoPotionSettings />
           <AutoDisassembleSettings />
               <button onClick={logout}
                 className="w-full rounded border py-1.5 transition-colors"

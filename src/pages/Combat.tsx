@@ -107,6 +107,24 @@ export default function Combat() {
     const aliveEnemies = store.combatEnemies.filter((e) => e.hp > 0)
     if (aliveEnemies.length === 0) return
 
+    // 自动喝药：HP 低于阈值时优先使用生命药水（消耗本回合）
+    const st0 = useGameStore.getState()
+    const p0 = st0.player
+    const threshold = st0.settings.autoPotionThreshold ?? 50
+    if (st0.settings.autoPotion && p0 && p0.hp / p0.maxHp * 100 < threshold) {
+      const healOf = (i: { effect?: unknown; id: string }) => {
+        const e = (i.effect as any)?.heal ?? (getItemInfo(i.id)?.effect as any)?.heal ?? 0
+        return e as number
+      }
+      const potion = st0.inventory
+        .filter((i) => i.type === 'consumable' && i.quantity > 0 && healOf(i) > 0)
+        .sort((a, b) => healOf(a) - healOf(b))[0]
+      if (potion) {
+        const r = st0.useConsumable(potion.uid)
+        if (r.success) store.addCombatLog(`⚕ 自动使用 ${potion.name}：${r.message}`)
+      }
+    }
+
     const target = action.targetId || aliveEnemies[0]?.id
     const player = buildPlayerForApi()
     const enemies = buildEnemiesForApi()

@@ -7,6 +7,10 @@ import Combat from './pages/Combat'
 import CharacterPanel from './pages/CharacterPanel'
 import Inventory from './pages/Inventory'
 import Blacksmith from './pages/Blacksmith'
+import Shop from './pages/Shop'
+import Tasks from './pages/Tasks'
+import Leaderboard from './pages/Leaderboard'
+import Chat from './pages/Chat'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -21,6 +25,10 @@ export default function App() {
         <Route path="/character" element={<CharacterPanel />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/blacksmith" element={<Blacksmith />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/chat" element={<Chat />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
