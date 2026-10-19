@@ -117,24 +117,8 @@ export default function Layout() {
           <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>深渊地城</span>
         </div>
 
-        {/* 导航 */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.path)
-            return (
-              <button key={item.path} onClick={() => navigate(item.path)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors"
-                style={{
-                  backgroundColor: active ? 'rgba(201,168,76,0.15)' : 'transparent',
-                  color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                  borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent',
-                }}>
-                <item.icon size={16} />
-                {item.label}
-              </button>
-            )
-          })}
-        </nav>
+        {/* 导航页签已移除 —— 通过城镇页快捷入口跳转 */}
+        <div className="flex-1" />
 
         {/* 底部：角色信息 + 货币 + 设置 */}
         <div className="border-t p-3 text-xs" style={{ borderColor: 'var(--border-color)' }}>
