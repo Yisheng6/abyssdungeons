@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
   { path: '/explore', label: '混乱深渊', icon: Compass },
   { path: '/lawful', label: '守序深渊', icon: Landmark },
+  { path: '/talents', label: '天赋', icon: Sparkles },
   { path: '/shop', label: '商店', icon: FlaskConical },
   { path: '/character', label: '角色', icon: User },
   { path: '/inventory', label: '背包', icon: Backpack },

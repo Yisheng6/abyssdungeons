@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Skull, Swords, Coins, Crown } from 'lucide-react'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getEquipmentAffixMods } from '@/stores/gameStore'
+import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo, getSkillMpCost } from '@/lib/catalog'
 
@@ -99,7 +99,7 @@ export default function Lawful() {
             con: p.con || 0, wil: p.wil || 0,
             skills: p.skills, element: p.element || 'none',
             statuses: useGameStore.getState().playerStatuses || [],
-            mods: getEquipmentAffixMods(useGameStore.getState().equipment).combat,
+            mods: getPlayerMods().combat,
           },
           enemies: alive.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
@@ -126,7 +126,7 @@ export default function Lawful() {
         if (result.victory) {
           victory = true
           // 掉落结算
-          const utilMods = getEquipmentAffixMods(after.equipment).utility
+          const utilMods = getPlayerMods().utility
           for (const drop of result.drops || []) {
             const cat = getItemInfo(drop.itemId)
             const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
@@ -179,7 +179,7 @@ export default function Lawful() {
     const after = useGameStore.getState()
     if (won) {
       // 奖励：基础经验 + 层数加成，Boss 双倍
-      const utilMods = getEquipmentAffixMods(after.equipment).utility
+      const utilMods = getPlayerMods().utility
       const base = room.enemies.reduce((sum, e) => sum + 10 + lawful.layer * 3 + Math.ceil(e.maxHp / 20) + e.atk, 0)
       const exp = Math.floor(base * (room.isBoss ? 2 : 1) * (1 + (utilMods.expGain || 0) / 100))
       const gold = Math.floor((8 + lawful.layer * 4) * (room.isBoss ? 5 : 1) * (1 + (utilMods.goldGain || 0) / 100))

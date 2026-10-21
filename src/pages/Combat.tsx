@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { Swords, Shield, Footprints, Sparkles, Zap, Play, Pause } from 'lucide-react'
-import { useGameStore, getEquipmentAffixMods } from '@/stores/gameStore'
+import { useGameStore, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getSkillInfo, getSkillName, getItemInfo } from '@/lib/catalog'
 
@@ -52,7 +52,7 @@ export default function Combat() {
       skills: p.skills.length > 0 ? p.skills : ['fireball', 'heal'],
       element: p.element || 'none',
       statuses: store.playerStatuses || [],
-      mods: getEquipmentAffixMods(store.equipment).combat,
+      mods: getPlayerMods().combat,
     }
   }, [store.player, store.playerStatuses, store.equipment])
 
@@ -163,7 +163,7 @@ export default function Combat() {
         store.setCombatEnded(true)
         // 经验奖励（与探索页一致：基础 10 + 层数×3 + 敌人强度，boss 双倍）
         const layer = store.currentDungeon?.layer ?? 1
-        const utilMods = getEquipmentAffixMods(store.equipment).utility
+        const utilMods = getPlayerMods().utility
         const expGain = Math.floor(store.combatEnemies.reduce((sum, e) => {
           const base = 10 + layer * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5)
           return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base)

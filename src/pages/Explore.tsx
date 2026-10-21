@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getEquipmentAffixMods } from '@/stores/gameStore'
+import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
 
@@ -111,7 +111,7 @@ export default function Explore() {
       const name = l.name || cat?.name || l.itemId
       if (type === 'currency') {
         const value = l.value ?? cat?.value ?? 1
-        const goldMult = 1 + (getEquipmentAffixMods(gs.equipment).utility.goldGain || 0) / 100
+        const goldMult = 1 + (getPlayerMods().utility.goldGain || 0) / 100
         const gold = Math.floor(l.quantity * value * goldMult)
         gs.addPlayerGold(gold)
         addLog(`拾取 ${name}×${l.quantity}（+${gold} 金币）`)
@@ -364,7 +364,7 @@ export default function Explore() {
             con: player.con || 0, wil: player.wil || 0,
             skills: player.skills, element: player.element || 'none',
             statuses: cur.playerStatuses || [],
-            mods: getEquipmentAffixMods(cur.equipment).combat,
+            mods: getPlayerMods().combat,
           },
           enemies: aliveEnemies.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
@@ -400,7 +400,7 @@ export default function Explore() {
           setStats((s) => ({ ...s, kills: s.kills + 1 }))
           useGameStore.getState().trackTaskEvent('kills', enemies.length)
           // 经验奖励：基础 10 + 层数×3 + 敌人强度（血/20 + 攻），boss（HP≥500）双倍
-          const utilMods = getEquipmentAffixMods(after.equipment).utility
+          const utilMods = getPlayerMods().utility
           const expGain = Math.floor(enemies.reduce((sum, e) => {
             const base = 10 + currentLayer * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5)
             return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base)
@@ -424,7 +424,7 @@ export default function Explore() {
               const dName = drop.name || cat?.name || drop.itemId
               const dQuality = (drop.quality || cat?.quality || 'common') as string
               if (type === 'currency') {
-                const goldMult = 1 + (getEquipmentAffixMods(after.equipment).utility.goldGain || 0) / 100
+                const goldMult = 1 + (getPlayerMods().utility.goldGain || 0) / 100
                 after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * goldMult))
                 recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality }])
                 continue

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { computeSetBonuses, getSkillInfo, getItemInfo } from '@/lib/catalog'
+import { getSpentTalentPoints, canLearnTalent, getRespecCost, getTalentMods, mergeMods } from '@/lib/talents'
 
 // ─── Types ───
 
@@ -114,6 +115,14 @@ export function getEquipmentAffixMods(equipment: Equipment): { combat: Record<st
     }
   }
   return { combat, utility }
+}
+
+/** 玩家总修正 = 装备词条 + 天赋（战斗用 combat，收益用 utility） */
+export function getPlayerMods(): { combat: Record<string, number>; utility: Record<string, number> } {
+  const s = useGameStore.getState()
+  const eq = getEquipmentAffixMods(s.equipment)
+  const classId = s.player?.classId || ''
+  return mergeMods(eq, getTalentMods(s.talents?.[classId], classId))
 }
 
 /** 分解装备可获得的金币（品质 + 套装阶级 + 强化等级） */
@@ -261,6 +270,8 @@ interface GameState {
   settings: GameSettings
   taskState: TaskState
   lawful: { layer: number; best: number }
+  /** 天赋：classId -> nodeId -> rank */
+  talents: Record<string, Record<string, number>>
 
   // ─── Runtime: current class ───
   player: Player | null
@@ -293,6 +304,10 @@ interface GameState {
   trackTaskEvent: (kind: keyof TaskProgress, n?: number) => void
   claimTaskReward: (taskId: string, scope: 'daily' | 'achievement') => void
   setLawfulLayer: (layer: number) => void
+
+  // 天赋树
+  learnTalent: (nodeId: string) => { success: boolean; message: string }
+  respecTalents: () => { success: boolean; message: string }
 
   createPlayer: (classId: string, classStats: Record<string, number>) => boolean
   switchClass: (classId: string) => { success: boolean; message: string }
@@ -455,6 +470,7 @@ export const useGameStore = create<GameState>()(
       settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES }, autoPotion: false, autoPotionThreshold: 50 },
       taskState: { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } },
       lawful: { layer: 1, best: 0 },
+      talents: {},
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
@@ -486,6 +502,35 @@ export const useGameStore = create<GameState>()(
       },
 
       setLawfulLayer: (layer) => set((s) => ({ lawful: { layer, best: Math.max(s.lawful.best, layer) } })),
+
+      // ─── 天赋树 ───
+      learnTalent: (nodeId) => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法修改天赋' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        const ranks = s.talents[p.classId] || {}
+        const spent = getSpentTalentPoints(ranks)
+        const available = p.level - spent
+        const err = canLearnTalent(ranks, p.classId, nodeId, available)
+        if (err) return { success: false, message: err }
+        set({ talents: { ...s.talents, [p.classId]: { ...ranks, [nodeId]: (ranks[nodeId] || 0) + 1 } } })
+        return { success: true, message: '天赋已激活' }
+      },
+
+      respecTalents: () => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法洗点' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        const spent = getSpentTalentPoints(s.talents[p.classId])
+        if (spent === 0) return { success: false, message: '尚未投入任何天赋点' }
+        const cost = getRespecCost(p.level)
+        if (!s.spendGold(cost)) return { success: false, message: `金币不足（需要 ${cost}）` }
+        set((st) => ({ talents: { ...st.talents, [p.classId]: {} } }))
+        return { success: true, message: `已重置全部天赋（花费 ${cost} 金币）` }
+      },
+
 
       claimTaskReward: (taskId, scope) => {
         const ts = { ...get().taskState }
@@ -1169,6 +1214,7 @@ export const useGameStore = create<GameState>()(
         settings: state.settings,
         taskState: state.taskState,
         lawful: state.lawful,
+        talents: state.talents,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -1178,6 +1224,7 @@ export const useGameStore = create<GameState>()(
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
           state.lawful = state.lawful || { layer: 1, best: 0 }
+          state.talents = state.talents || {}
           state.taskState = state.taskState || { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } }
           state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoPotion: false, autoPotionThreshold: 50, ...(state.settings || {}) }
           if (!state.settings.autoDisassembleRules) {

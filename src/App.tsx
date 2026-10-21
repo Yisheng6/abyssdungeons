@@ -12,6 +12,7 @@ import Tasks from './pages/Tasks'
 import Leaderboard from './pages/Leaderboard'
 import Chat from './pages/Chat'
 import Lawful from './pages/Lawful'
+import Talents from './pages/Talents'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/blacksmith" element={<Blacksmith />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/tasks" element={<Tasks />} />
+        <Route path="/talents" element={<Talents />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/chat" element={<Chat />} />
       </Route>
