@@ -26,7 +26,7 @@ const QUICK_ACTIONS = [
   { icon: FlaskConical, label: '商店', path: '/shop' },
   { icon: User, label: '角色面板', path: '/character' },
   { icon: Backpack, label: '背包', path: '/inventory' },
-  { icon: Sparkles, label: '技能树', path: '/character' },
+  { icon: Sparkles, label: '天赋', path: '/talents' },
   { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
   { icon: Target, label: '任务', path: '/tasks' },
   { icon: Trophy, label: '排行榜', path: '/leaderboard' },
