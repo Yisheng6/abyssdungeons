@@ -3,7 +3,7 @@ import { Sparkles, RotateCcw, Lock, Check } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import {
   TALENT_TREES, getSpentTalentPoints, getBranchSpent, canLearnTalent,
-  getRespecCost, getTalentMods, TALENT_NODE_DESC_KEYS, type TalentNode,
+  getRespecCost, getTalentMods, TALENT_NODE_DESC_KEYS, tierGate, type TalentNode,
 } from '@/lib/talents'
 
 export default function Talents() {
@@ -45,7 +45,7 @@ export default function Talents() {
     const err = canLearnTalent(ranks, player.classId, n.id, available)
     const learnable = !err && !inCombat
     const maxed = rank >= n.maxRank
-    const tierLocked = (getBranchSpent(ranks, player.classId, branchId) < (n.tier - 1) * 3)
+    const tierLocked = (getBranchSpent(ranks, player.classId, branchId) < tierGate(n.tier))
     return (
       <button key={n.id} onClick={() => learn(n.id)} disabled={!learnable}
         className="game-card w-full p-2.5 text-left transition-all disabled:cursor-not-allowed"
