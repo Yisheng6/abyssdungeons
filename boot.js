@@ -63428,73 +63428,52 @@ import crypto2 from "crypto";
 
 // api/services/equipgen-service.ts
 var AFFIX_POOL = [
-  // ─── 基础属性（固定值，随阶级成长）───
-  { stat: "atk", min: 2, max: 4, scaleTier: true },
-  { stat: "def", min: 2, max: 4, scaleTier: true },
-  { stat: "mag", min: 2, max: 4, scaleTier: true },
-  { stat: "mdef", min: 2, max: 4, scaleTier: true },
-  { stat: "agi", min: 1, max: 3, scaleTier: true },
-  { stat: "luk", min: 1, max: 3, scaleTier: true },
-  { stat: "con", min: 1, max: 3, scaleTier: true },
-  { stat: "wil", min: 1, max: 3, scaleTier: true },
-  { stat: "hp", min: 8, max: 15, scaleTier: true },
-  { stat: "mp", min: 6, max: 12, scaleTier: true },
-  // ─── A. 百分比属性（战斗中按比例放大，不吃阶级缩放）───
-  { stat: "atkPct", min: 3, max: 8 },
-  { stat: "defPct", min: 3, max: 8 },
-  { stat: "magPct", min: 3, max: 8 },
-  { stat: "mdefPct", min: 3, max: 8 },
-  // ─── B. 战斗特效 ───
-  { stat: "critRate", min: 2, max: 5 },
-  // 暴击率 +%
-  { stat: "critDmg", min: 10, max: 25 },
-  // 暴击伤害 +%
-  { stat: "lifesteal", min: 3, max: 8 },
-  // 吸血：伤害 %
-  { stat: "reflect", min: 4, max: 10 },
-  // 反伤：承伤 %
-  { stat: "elemDmg", min: 4, max: 10, scaleTier: true },
-  // 附加元素伤害（固定）
-  // ─── C. 功能/收益 ───
-  { stat: "expGain", min: 5, max: 12 },
-  // 经验获取 +%
-  { stat: "goldGain", min: 5, max: 12 },
-  // 金币获取 +%
-  { stat: "killHeal", min: 8, max: 20, scaleTier: true },
-  // 击杀回血（固定）
-  { stat: "killMp", min: 5, max: 12, scaleTier: true },
-  // 击杀回蓝（固定）
-  { stat: "physRes", min: 3, max: 8 },
-  // 物理异常抗性 +%
-  { stat: "magRes", min: 3, max: 8 }
-  // 精神异常抗性 +%
+  // ─── 生命/法力（D3：+最大生命 / +法力）───
+  { stat: "hp", min: 10, max: 20, scaleTier: true, weight: 12 },
+  { stat: "mp", min: 6, max: 14, scaleTier: true, weight: 8 },
+  // ─── 基础属性（PoE：附加属性点）───
+  { stat: "atk", min: 2, max: 5, scaleTier: true, weight: 10 },
+  { stat: "def", min: 2, max: 5, scaleTier: true, weight: 10 },
+  { stat: "mag", min: 2, max: 5, scaleTier: true, weight: 10 },
+  { stat: "mdef", min: 2, max: 5, scaleTier: true, weight: 10 },
+  { stat: "agi", min: 1, max: 4, scaleTier: true, weight: 6 },
+  { stat: "luk", min: 1, max: 4, scaleTier: true, weight: 6 },
+  { stat: "con", min: 1, max: 4, scaleTier: true, weight: 6 },
+  { stat: "wil", min: 1, max: 4, scaleTier: true, weight: 6 },
+  // ─── 伤害/防御提高（D3：伤害提高 X%）───
+  { stat: "atkPct", min: 3, max: 9, weight: 8 },
+  { stat: "magPct", min: 3, max: 9, weight: 8 },
+  { stat: "defPct", min: 3, max: 9, weight: 7 },
+  { stat: "mdefPct", min: 3, max: 9, weight: 7 },
+  // ─── 暴击（PoE：暴击几率 / 暴击加成）───
+  { stat: "critRate", min: 2, max: 6, weight: 7 },
+  { stat: "critDmg", min: 10, max: 30, weight: 7 },
+  // ─── 攻击特效 ───
+  { stat: "lifesteal", min: 2, max: 6, weight: 5 },
+  // 生命偷取
+  { stat: "elemDmg", min: 4, max: 12, scaleTier: true, weight: 6 },
+  // 附加元素伤害
+  // ─── 防御特效 ───
+  { stat: "reflect", min: 4, max: 12, weight: 4 },
+  // 荆棘（反伤）
+  { stat: "physRes", min: 3, max: 9, weight: 5 },
+  // 物理异常抗性
+  { stat: "magRes", min: 3, max: 9, weight: 5 },
+  // 精神异常抗性
+  // ─── 击杀回复（D3：击杀回复生命/法力）───
+  { stat: "killHeal", min: 8, max: 20, scaleTier: true, weight: 4 },
+  { stat: "killMp", min: 5, max: 12, scaleTier: true, weight: 3 },
+  // ─── 收益（D3：金币寻获 / 经验加成，稀有词条）───
+  { stat: "goldGain", min: 5, max: 15, weight: 3 },
+  { stat: "expGain", min: 5, max: 15, weight: 3 }
 ];
-var PREFIX_BY_STAT = {
-  atk: "\u950B\u5229\u7684",
-  def: "\u575A\u56FA\u7684",
-  mag: "\u795E\u79D8\u7684",
-  mdef: "\u62A4\u4F51\u7684",
-  agi: "\u8FC5\u6377\u7684",
-  luk: "\u5E78\u8FD0\u7684",
-  con: "\u575A\u97E7\u7684",
-  wil: "\u575A\u6BC5\u7684",
-  hp: "\u751F\u547D\u7684",
-  mp: "\u9B54\u529B\u7684",
-  atkPct: "\u5F3A\u529B\u7684",
-  defPct: "\u94C1\u58C1\u7684",
-  magPct: "\u79D8\u6CD5\u7684",
-  mdefPct: "\u7ED3\u754C\u7684",
-  critRate: "\u81F4\u547D\u7684",
-  critDmg: "\u6B8B\u66B4\u7684",
-  lifesteal: "\u5438\u8840\u7684",
-  reflect: "\u8346\u68D8\u7684",
-  elemDmg: "\u5143\u7D20\u7684",
-  expGain: "\u777F\u667A\u7684",
-  goldGain: "\u8D2A\u5A6A\u7684",
-  killHeal: "\u55DC\u8840\u7684",
-  killMp: "\u98DF\u9B42\u7684",
-  physRes: "\u78D0\u77F3\u7684",
-  magRes: "\u51C0\u5FC3\u7684"
+var QUALITY_MULT = {
+  common: 1,
+  fine: 1,
+  rare: 1.2,
+  epic: 1.5,
+  legendary: 1.8,
+  mythic: 2.2
 };
 function getQualities() {
   const data = getConfigSync("items");
@@ -63520,28 +63499,31 @@ function rollEquipmentInstance(base, rng = Math.random) {
   const affixes = {};
   const maxAffixes = qDef?.extraStatsMax ?? 0;
   const tier = base.setTier || 1;
+  const qMult = QUALITY_MULT[quality] ?? 1;
   if (maxAffixes > 0) {
     const count = 1 + Math.floor(rng() * maxAffixes);
     const pool = AFFIX_POOL.filter((a) => !(a.stat in main));
     for (let i = 0; i < count && pool.length > 0; i++) {
-      const idx = Math.floor(rng() * pool.length);
+      const tw = pool.reduce((s, a2) => s + a2.weight, 0);
+      let wr = rng() * tw;
+      let idx = 0;
+      for (let j = 0; j < pool.length; j++) {
+        if (wr < pool[j].weight) {
+          idx = j;
+          break;
+        }
+        wr -= pool[j].weight;
+      }
       const a = pool.splice(idx, 1)[0];
       const raw2 = a.min + rng() * (a.max - a.min);
-      affixes[a.stat] = Math.max(1, Math.round(raw2 * (a.scaleTier ? tier : 1)));
+      affixes[a.stat] = Math.max(1, Math.round(raw2 * (a.scaleTier ? tier : 1) * qMult));
     }
   }
   const stats = { ...main };
   for (const [k, v] of Object.entries(affixes)) {
     stats[k] = (stats[k] || 0) + v;
   }
-  let displayName = base.name;
-  const entries = Object.entries(affixes);
-  if (entries.length > 0) {
-    entries.sort((a, b) => b[1] - a[1]);
-    const prefix = PREFIX_BY_STAT[entries[0][0]];
-    if (prefix) displayName = `${prefix}${base.name}`;
-  }
-  return { quality, stats, affixes, displayName };
+  return { quality, stats, affixes, displayName: base.name };
 }
 
 // api/services/mapgen-service.ts
