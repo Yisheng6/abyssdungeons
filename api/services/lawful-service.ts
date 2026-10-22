@@ -64,6 +64,9 @@ const CLASS_COUNTER: Record<string, { family: string; style: string }> = {
 
 const FAMILIES = ['cave', 'ice', 'magma', 'void', 'tomb']
 
+/** Boss 宝石掉落轮换 */
+const GEM_TYPES = ['ruby', 'sapphire', 'emerald', 'topaz', 'onyx', 'amethyst']
+
 const ROOM_FLAVOR: Record<string, string[]> = {
   cave:  ['碎石大厅', '幽暗矿道', '晶簇洞窟'],
   ice:   ['冰封回廊', '霜晶祭坛', '寒潮深穴'],
@@ -103,7 +106,10 @@ export function genLawfulRooms(layer: number, classId: string, seed = Date.now()
   if (isBossLayer(layer)) {
     const boss = getLawfulBoss(layer);
     if (boss) {
-      const stats = scale({ hp: 260, mp: 60, atk: 14, def: 10, mag: 12, mdef: 10, agi: 6, luk: 4 }, layer, 3, 8);
+      // 平滑成长曲线：低层不再碾压（L10 攻≈44/血≈1729），高层保持强度（L100 攻≈458/血≈22672）
+      const bossAtkMult = 2.0 + layer * 0.012;
+      const bossHpMult = 4 + layer * 0.05;
+      const stats = scale({ hp: 260, mp: 60, atk: 14, def: 10, mag: 12, mdef: 10, agi: 6, luk: 4 }, layer, bossAtkMult, bossHpMult);
       return [{
         id: 0, name: `${boss.title}·${boss.name}`, isBoss: true,
         desc: `第 ${layer} 层的守关 Boss。${boss.name}在深渊的低语中苏醒……`,
@@ -113,6 +119,12 @@ export function genLawfulRooms(layer: number, classId: string, seed = Date.now()
           dropTable: [
             { itemId: 'gem_diamond', name: '钻石', type: 'currency', chance: 50, quantityMin: 1, quantityMax: 2, quality: 'legendary' },
             { itemId: 'soul_shard', name: '灵魂碎片', type: 'material', chance: 100, quantityMin: 1, quantityMax: 3, quality: 'epic' },
+            // 镶嵌宝石：层数越高阶级越高
+            ...(layer >= 60
+              ? [{ itemId: `gem_${GEM_TYPES[layer % 6]}_3`, name: '完美的宝石', type: 'material', chance: 30, quantityMin: 1, quantityMax: 1, quality: 'legendary' }]
+              : layer >= 30
+                ? [{ itemId: `gem_${GEM_TYPES[layer % 6]}_2`, name: '无瑕的宝石', type: 'material', chance: 30, quantityMin: 1, quantityMax: 1, quality: 'epic' }]
+                : [{ itemId: `gem_${GEM_TYPES[layer % 6]}_1`, name: '碎裂的宝石', type: 'material', chance: 30, quantityMin: 1, quantityMax: 1, quality: 'fine' }]),
           ],
         }],
       }];

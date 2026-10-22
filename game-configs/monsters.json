@@ -1,2310 +1,2520 @@
 {
-  "version": "2.0",
-  "monsterTypes": [
+ "version": "2.0",
+ "monsterTypes": [
+  {
+   "id": "normal",
+   "name": "普通",
+   "hpMultiplier": 1.0,
+   "atkMultiplier": 1.0,
+   "expMultiplier": 1.0,
+   "goldMultiplier": 1.0
+  },
+  {
+   "id": "elite",
+   "name": "精英",
+   "hpMultiplier": 2.5,
+   "atkMultiplier": 1.5,
+   "expMultiplier": 3.0,
+   "goldMultiplier": 2.5
+  },
+  {
+   "id": "boss",
+   "name": "Boss",
+   "hpMultiplier": 8.0,
+   "atkMultiplier": 2.0,
+   "expMultiplier": 10.0,
+   "goldMultiplier": 8.0
+  }
+ ],
+ "aiTypes": [
+  {
+   "id": "aggressive",
+   "name": "攻击性",
+   "description": "优先使用高伤害技能"
+  },
+  {
+   "id": "defensive",
+   "name": "防御性",
+   "description": "低血量时切换防御姿态"
+  },
+  {
+   "id": "cunning",
+   "name": "狡猾型",
+   "description": "优先攻击 HP 最低目标"
+  },
+  {
+   "id": "support",
+   "name": "支援型",
+   "description": "为其他敌人恢复或增益"
+  },
+  {
+   "id": "berserk",
+   "name": "狂暴型",
+   "description": "低血量时攻击力翻倍"
+  }
+ ],
+ "enemies": [
+  {
+   "id": "bat_cave",
+   "name": "矿洞蝙蝠",
+   "family": "cave",
+   "baseLevel": 1,
+   "baseStats": {
+    "hp": 30,
+    "mp": 0,
+    "atk": 6,
+    "def": 2,
+    "mag": 0,
+    "mdef": 1,
+    "agi": 10,
+    "luk": 3
+   },
+   "aiType": "aggressive",
+   "skills": [],
+   "element": "none",
+   "dropTable": [
     {
-      "id": "normal",
-      "name": "普通",
-      "hpMultiplier": 1.0,
-      "atkMultiplier": 1.0,
-      "expMultiplier": 1.0,
-      "goldMultiplier": 1.0
+     "itemId": "bat_wing",
+     "name": "蝙蝠翅膀",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
     },
     {
-      "id": "elite",
-      "name": "精英",
-      "hpMultiplier": 2.5,
-      "atkMultiplier": 1.5,
-      "expMultiplier": 3.0,
-      "goldMultiplier": 2.5
+     "itemId": "hp_small",
+     "name": "小型生命药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     },
     {
-      "id": "boss",
-      "name": "Boss",
-      "hpMultiplier": 8.0,
-      "atkMultiplier": 2.0,
-      "expMultiplier": 10.0,
-      "goldMultiplier": 8.0
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 60,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     }
-  ],
-  "aiTypes": [
+   ]
+  },
+  {
+   "id": "miner_corrupted",
+   "name": "腐化矿工",
+   "family": "cave",
+   "baseLevel": 3,
+   "baseStats": {
+    "hp": 60,
+    "mp": 0,
+    "atk": 10,
+    "def": 5,
+    "mag": 0,
+    "mdef": 3,
+    "agi": 4,
+    "luk": 2
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "club_strike"
+   ],
+   "element": "none",
+   "dropTable": [
     {
-      "id": "aggressive",
-      "name": "攻击性",
-      "description": "优先使用高伤害技能"
+     "itemId": "pickaxe_broken",
+     "name": "破旧的镐头",
+     "type": "material",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     },
     {
-      "id": "defensive",
-      "name": "防御性",
-      "description": "低血量时切换防御姿态"
+     "itemId": "ore_iron",
+     "name": "铁矿石",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "common"
     },
     {
-      "id": "cunning",
-      "name": "狡猾型",
-      "description": "优先攻击 HP 最低目标"
+     "itemId": "mp_small",
+     "name": "小型法力药水",
+     "type": "consumable",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     },
     {
-      "id": "support",
-      "name": "支援型",
-      "description": "为其他敌人恢复或增益"
-    },
-    {
-      "id": "berserk",
-      "name": "狂暴型",
-      "description": "低血量时攻击力翻倍"
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 70,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     }
-  ],
-  "enemies": [
+   ]
+  },
+  {
+   "id": "spider_giant",
+   "name": "巨型蜘蛛",
+   "family": "cave",
+   "baseLevel": 5,
+   "baseStats": {
+    "hp": 50,
+    "mp": 10,
+    "atk": 12,
+    "def": 4,
+    "mag": 5,
+    "mdef": 4,
+    "agi": 14,
+    "luk": 5
+   },
+   "aiType": "cunning",
+   "skills": [
+    "web_trap",
+    "poison_bite"
+   ],
+   "element": "none",
+   "dropTable": [
     {
-      "id": "bat_cave",
-      "name": "矿洞蝙蝠",
-      "family": "cave",
-      "baseLevel": 1,
-      "baseStats": {
-        "hp": 30,
-        "mp": 0,
-        "atk": 6,
-        "def": 2,
-        "mag": 0,
-        "mdef": 1,
-        "agi": 10,
-        "luk": 3
-      },
-      "aiType": "aggressive",
-      "skills": [],
-      "element": "none",
-      "dropTable": [
-        {
-          "itemId": "bat_wing",
-          "name": "蝙蝠翅膀",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "hp_small",
-          "name": "小型生命药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 60,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        }
-      ]
+     "itemId": "spider_silk",
+     "name": "蜘蛛丝",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "fine"
     },
     {
-      "id": "miner_corrupted",
-      "name": "腐化矿工",
-      "family": "cave",
-      "baseLevel": 3,
-      "baseStats": {
-        "hp": 60,
-        "mp": 0,
-        "atk": 10,
-        "def": 5,
-        "mag": 0,
-        "mdef": 3,
-        "agi": 4,
-        "luk": 2
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "club_strike"
-      ],
-      "element": "none",
-      "dropTable": [
-        {
-          "itemId": "pickaxe_broken",
-          "name": "破旧的镐头",
-          "type": "material",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "ore_iron",
-          "name": "铁矿石",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "common"
-        },
-        {
-          "itemId": "mp_small",
-          "name": "小型法力药水",
-          "type": "consumable",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 70,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        }
-      ]
+     "itemId": "venom_sac",
+     "name": "毒囊",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "fine"
     },
     {
-      "id": "spider_giant",
-      "name": "巨型蜘蛛",
-      "family": "cave",
-      "baseLevel": 5,
-      "baseStats": {
-        "hp": 50,
-        "mp": 10,
-        "atk": 12,
-        "def": 4,
-        "mag": 5,
-        "mdef": 4,
-        "agi": 14,
-        "luk": 5
-      },
-      "aiType": "cunning",
-      "skills": [
-        "web_trap",
-        "poison_bite"
-      ],
-      "element": "none",
-      "dropTable": [
-        {
-          "itemId": "spider_silk",
-          "name": "蜘蛛丝",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "fine"
-        },
-        {
-          "itemId": "venom_sac",
-          "name": "毒囊",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "fine"
-        },
-        {
-          "itemId": "hp_small",
-          "name": "小型生命药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 75,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        }
-      ]
+     "itemId": "hp_small",
+     "name": "小型生命药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
     },
     {
-      "id": "slime_toxic",
-      "name": "毒泥怪",
-      "family": "cave",
-      "baseLevel": 2,
-      "baseStats": {
-        "hp": 40,
-        "mp": 5,
-        "atk": 5,
-        "def": 8,
-        "mag": 8,
-        "mdef": 6,
-        "agi": 2,
-        "luk": 1
-      },
-      "aiType": "defensive",
-      "skills": [
-        "toxic_splash"
-      ],
-      "element": "water",
-      "dropTable": [
-        {
-          "itemId": "slime_gel",
-          "name": "史莱姆凝胶",
-          "type": "material",
-          "chance": 50,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "common"
-        },
-        {
-          "itemId": "antidote_herb",
-          "name": "解毒草",
-          "type": "consumable",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 55,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        }
-      ]
-    },
-    {
-      "id": "skeleton",
-      "name": "骷髅兵",
-      "family": "tomb",
-      "baseLevel": 12,
-      "baseStats": {
-        "hp": 80,
-        "mp": 0,
-        "atk": 15,
-        "def": 10,
-        "mag": 0,
-        "mdef": 5,
-        "agi": 6,
-        "luk": 2
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "bone_strike"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "bone_fragment",
-          "name": "碎骨片",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "sword_rusty",
-          "name": "生锈的剑",
-          "type": "equipment",
-          "chance": 8,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "hp_medium",
-          "name": "中型生命药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "fine"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 65,
-          "quantityMin": 1,
-          "quantityMax": 4,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "ghost",
-      "name": "幽灵",
-      "family": "tomb",
-      "baseLevel": 15,
-      "baseStats": {
-        "hp": 60,
-        "mp": 40,
-        "atk": 5,
-        "def": 3,
-        "mag": 18,
-        "mdef": 15,
-        "agi": 12,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "spectral_touch",
-        "fear"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "ectoplasm",
-          "name": "灵质",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "soul_shard",
-          "name": "灵魂碎片",
-          "type": "material",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "mp_medium",
-          "name": "中型法力药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "fine"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 70,
-          "quantityMin": 2,
-          "quantityMax": 6,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "zombie",
-      "name": "僵尸",
-      "family": "tomb",
-      "baseLevel": 11,
-      "baseStats": {
-        "hp": 120,
-        "mp": 0,
-        "atk": 12,
-        "def": 6,
-        "mag": 0,
-        "mdef": 3,
-        "agi": 2,
-        "luk": 1
-      },
-      "aiType": "berserk",
-      "skills": [],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "rotten_flesh",
-          "name": "腐肉",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "hp_small",
-          "name": "小型生命药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 60,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "common"
-        }
-      ]
-    },
-    {
-      "id": "boss_golem_ore",
-      "name": "矿脉巨像",
-      "family": "cave",
-      "baseLevel": 10,
-      "isBoss": true,
-      "phases": 3,
-      "baseStats": {
-        "hp": 300,
-        "mp": 50,
-        "atk": 20,
-        "def": 15,
-        "mag": 5,
-        "mdef": 10,
-        "agi": 3,
-        "luk": 2
-      },
-      "aiType": "berserk",
-      "skills": [
-        "slam",
-        "rock_summon",
-        "enrage"
-      ],
-      "element": "earth",
-      "dropTable": [
-        {
-          "itemId": "golem_core",
-          "name": "巨像核心",
-          "type": "material",
-          "chance": 100,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "ore_mithril",
-          "name": "秘银矿石",
-          "type": "material",
-          "chance": 60,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "rare"
-        },
-        {
-          "itemId": "armor_stone",
-          "name": "石甲",
-          "type": "equipment",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "weapon_earth",
-          "name": "大地之锤",
-          "type": "equipment",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "hp_large",
-          "name": "大型生命药水",
-          "type": "consumable",
-          "chance": 80,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 100,
-          "quantityMin": 10,
-          "quantityMax": 30,
-          "quality": "epic"
-        },
-        {
-          "itemId": "gem_diamond",
-          "name": "钻石",
-          "type": "currency",
-          "chance": 5,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        }
-      ]
-    },
-    {
-      "id": "flame_imp",
-      "name": "火焰小鬼",
-      "family": "magma",
-      "baseLevel": 20,
-      "baseStats": {
-        "hp": 70,
-        "mp": 30,
-        "atk": 8,
-        "def": 5,
-        "mag": 20,
-        "mdef": 10,
-        "agi": 12,
-        "luk": 6
-      },
-      "aiType": "cunning",
-      "skills": [
-        "flame_breath"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "ore_iron",
-          "name": "铁矿石",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 60,
-          "quantityMin": 1,
-          "quantityMax": 4,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "lava_hound",
-      "name": "熔岩猎犬",
-      "family": "magma",
-      "baseLevel": 22,
-      "baseStats": {
-        "hp": 110,
-        "mp": 0,
-        "atk": 22,
-        "def": 8,
-        "mag": 0,
-        "mdef": 6,
-        "agi": 14,
-        "luk": 5
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "molten_slam"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "hp_medium",
-          "name": "中型生命药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 65,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "magma_slug",
-      "name": "岩浆蛞蝓",
-      "family": "magma",
-      "baseLevel": 21,
-      "baseStats": {
-        "hp": 130,
-        "mp": 20,
-        "atk": 10,
-        "def": 16,
-        "mag": 14,
-        "mdef": 12,
-        "agi": 2,
-        "luk": 2
-      },
-      "aiType": "defensive",
-      "skills": [
-        "heat_wave"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "slime_gel",
-          "name": "粘液",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "ore_mithril",
-          "name": "秘银矿石",
-          "type": "material",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare",
-          "minLayer": 25
-        }
-      ]
-    },
-    {
-      "id": "ash_wraith",
-      "name": "灰烬怨灵",
-      "family": "magma",
-      "baseLevel": 26,
-      "baseStats": {
-        "hp": 85,
-        "mp": 40,
-        "atk": 10,
-        "def": 6,
-        "mag": 24,
-        "mdef": 16,
-        "agi": 13,
-        "luk": 7
-      },
-      "aiType": "cunning",
-      "skills": [
-        "ash_cloud",
-        "flame_breath"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "ectoplasm",
-          "name": "灵质",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "mp_medium",
-          "name": "中型法力药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "fire_elemental",
-      "name": "烈焰元素",
-      "family": "magma",
-      "baseLevel": 28,
-      "baseStats": {
-        "hp": 100,
-        "mp": 50,
-        "atk": 14,
-        "def": 8,
-        "mag": 28,
-        "mdef": 14,
-        "agi": 10,
-        "luk": 6
-      },
-      "aiType": "berserk",
-      "skills": [
-        "lava_burst"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 55,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "fine"
-        },
-        {
-          "itemId": "gem_ruby",
-          "name": "红宝石",
-          "type": "material",
-          "chance": 12,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 40,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "obsidian_golem",
-      "name": "黑曜石傀儡",
-      "family": "magma",
-      "baseLevel": 30,
-      "baseStats": {
-        "hp": 180,
-        "mp": 0,
-        "atk": 24,
-        "def": 20,
-        "mag": 0,
-        "mdef": 10,
-        "agi": 3,
-        "luk": 2
-      },
-      "aiType": "defensive",
-      "skills": [
-        "molten_slam"
-      ],
-      "element": "earth",
-      "dropTable": [
-        {
-          "itemId": "ore_mithril",
-          "name": "秘银矿石",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "rare"
-        },
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "enhance_shard",
-          "name": "强化碎片",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "common"
-        }
-      ]
-    },
-    {
-      "id": "cinder_spider",
-      "name": "燃烬蛛",
-      "family": "magma",
-      "baseLevel": 24,
-      "baseStats": {
-        "hp": 90,
-        "mp": 15,
-        "atk": 20,
-        "def": 8,
-        "mag": 12,
-        "mdef": 8,
-        "agi": 16,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "flame_breath",
-        "web_trap"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "spider_silk",
-          "name": "蛛丝",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 60,
-          "quantityMin": 2,
-          "quantityMax": 4,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "frost_wolf",
-      "name": "霜狼",
-      "family": "ice",
-      "baseLevel": 35,
-      "baseStats": {
-        "hp": 140,
-        "mp": 0,
-        "atk": 28,
-        "def": 12,
-        "mag": 0,
-        "mdef": 10,
-        "agi": 16,
-        "luk": 6
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "chilling_touch"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "hp_large",
-          "name": "大型生命药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 60,
-          "quantityMin": 3,
-          "quantityMax": 6,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "ice_sprite",
-      "name": "冰晶精灵",
-      "family": "ice",
-      "baseLevel": 36,
-      "baseStats": {
-        "hp": 100,
-        "mp": 60,
-        "atk": 10,
-        "def": 8,
-        "mag": 32,
-        "mdef": 20,
-        "agi": 14,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "ice_lance"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "mp_large",
-          "name": "大型法力药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "gem_sapphire",
-          "name": "蓝宝石",
-          "type": "material",
-          "chance": 10,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "frozen_zombie",
-      "name": "冻僵行尸",
-      "family": "ice",
-      "baseLevel": 37,
-      "baseStats": {
-        "hp": 220,
-        "mp": 0,
-        "atk": 24,
-        "def": 14,
-        "mag": 0,
-        "mdef": 8,
-        "agi": 2,
-        "luk": 1
-      },
-      "aiType": "berserk",
-      "skills": [],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "rotten_flesh",
-          "name": "腐肉",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 55,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "snow_harpy",
-      "name": "雪羽鹰身女妖",
-      "family": "ice",
-      "baseLevel": 38,
-      "baseStats": {
-        "hp": 130,
-        "mp": 30,
-        "atk": 26,
-        "def": 10,
-        "mag": 18,
-        "mdef": 12,
-        "agi": 20,
-        "luk": 9
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "chilling_touch",
-        "fear"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "herb_glow",
-          "name": "荧光草",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 35,
-          "quantityMin": 2,
-          "quantityMax": 5,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "ice_golem",
-      "name": "寒冰傀儡",
-      "family": "ice",
-      "baseLevel": 42,
-      "baseStats": {
-        "hp": 260,
-        "mp": 20,
-        "atk": 30,
-        "def": 26,
-        "mag": 8,
-        "mdef": 16,
-        "agi": 3,
-        "luk": 2
-      },
-      "aiType": "defensive",
-      "skills": [
-        "frozen_prison"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 50,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "fine"
-        },
-        {
-          "itemId": "ore_mithril",
-          "name": "秘银矿石",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "enhance_shard",
-          "name": "强化碎片",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 2,
-          "quantityMax": 4,
-          "quality": "common"
-        }
-      ]
-    },
-    {
-      "id": "frost_mage_cultist",
-      "name": "霜语教徒",
-      "family": "ice",
-      "baseLevel": 40,
-      "baseStats": {
-        "hp": 120,
-        "mp": 80,
-        "atk": 8,
-        "def": 10,
-        "mag": 38,
-        "mdef": 24,
-        "agi": 10,
-        "luk": 7
-      },
-      "aiType": "cunning",
-      "skills": [
-        "frost_nova",
-        "ice_lance"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "mp_large",
-          "name": "大型法力药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "soul_shard",
-          "name": "灵魂碎片",
-          "type": "material",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "glacier_serpent",
-      "name": "冰川巨蟒",
-      "family": "ice",
-      "baseLevel": 41,
-      "baseStats": {
-        "hp": 190,
-        "mp": 20,
-        "atk": 32,
-        "def": 16,
-        "mag": 10,
-        "mdef": 12,
-        "agi": 12,
-        "luk": 5
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "chilling_touch",
-        "frozen_prison"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "venom_sac",
-          "name": "毒囊",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "gem_sapphire",
-          "name": "蓝宝石",
-          "type": "material",
-          "chance": 12,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "void_crawler",
-      "name": "虚空爬行者",
-      "family": "void",
-      "baseLevel": 50,
-      "baseStats": {
-        "hp": 200,
-        "mp": 20,
-        "atk": 36,
-        "def": 16,
-        "mag": 20,
-        "mdef": 14,
-        "agi": 14,
-        "luk": 6
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "void_touch"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 55,
-          "quantityMin": 3,
-          "quantityMax": 8,
-          "quality": "epic"
-        },
-        {
-          "itemId": "hp_large",
-          "name": "大型生命药水",
-          "type": "consumable",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "shadow_stalker",
-      "name": "暗影追猎者",
-      "family": "void",
-      "baseLevel": 52,
-      "baseStats": {
-        "hp": 170,
-        "mp": 40,
-        "atk": 34,
-        "def": 14,
-        "mag": 30,
-        "mdef": 18,
-        "agi": 22,
-        "luk": 10
-      },
-      "aiType": "cunning",
-      "skills": [
-        "shadow_bolt_m",
-        "fear"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "shadow_fang",
-          "name": "暗影之牙",
-          "type": "material",
-          "chance": 8,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 50,
-          "quantityMin": 4,
-          "quantityMax": 8,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "void_priest",
-      "name": "虚空祭司",
-      "family": "void",
-      "baseLevel": 54,
-      "baseStats": {
-        "hp": 150,
-        "mp": 100,
-        "atk": 12,
-        "def": 14,
-        "mag": 46,
-        "mdef": 30,
-        "agi": 10,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "entropic_field",
-        "whisper"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "soul_shard",
-          "name": "灵魂碎片",
-          "type": "material",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "ancient_rune",
-          "name": "远古符文",
-          "type": "material",
-          "chance": 10,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "chaos_spawn",
-      "name": "混沌魔裔",
-      "family": "void",
-      "baseLevel": 55,
-      "baseStats": {
-        "hp": 240,
-        "mp": 30,
-        "atk": 40,
-        "def": 18,
-        "mag": 24,
-        "mdef": 16,
-        "agi": 8,
-        "luk": 5
-      },
-      "aiType": "berserk",
-      "skills": [
-        "mind_rend"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "rare"
-        },
-        {
-          "itemId": "demon_horn",
-          "name": "恶魔之角",
-          "type": "material",
-          "chance": 8,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 55,
-          "quantityMin": 4,
-          "quantityMax": 9,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "void_devourer",
-      "name": "虚空吞噬虫",
-      "family": "void",
-      "baseLevel": 56,
-      "baseStats": {
-        "hp": 280,
-        "mp": 40,
-        "atk": 38,
-        "def": 20,
-        "mag": 26,
-        "mdef": 20,
-        "agi": 6,
-        "luk": 4
-      },
-      "aiType": "aggressive",
-      "skills": [
-        "soul_drain"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 50,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "rare"
-        },
-        {
-          "itemId": "hp_full",
-          "name": "特效生命药水",
-          "type": "consumable",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "soul_shard",
-          "name": "灵魂碎片",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "rift_phantom",
-      "name": "裂隙魅影",
-      "family": "void",
-      "baseLevel": 58,
-      "baseStats": {
-        "hp": 180,
-        "mp": 80,
-        "atk": 20,
-        "def": 16,
-        "mag": 44,
-        "mdef": 28,
-        "agi": 18,
-        "luk": 12
-      },
-      "aiType": "cunning",
-      "skills": [
-        "void_scream",
-        "mind_rend"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "ancient_rune",
-          "name": "远古符文",
-          "type": "material",
-          "chance": 12,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "mp_large",
-          "name": "大型法力药水",
-          "type": "consumable",
-          "chance": 25,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        }
-      ]
-    },
-    {
-      "id": "entropy_horror",
-      "name": "熵能魔像",
-      "family": "void",
-      "baseLevel": 60,
-      "baseStats": {
-        "hp": 340,
-        "mp": 50,
-        "atk": 42,
-        "def": 30,
-        "mag": 30,
-        "mdef": 24,
-        "agi": 4,
-        "luk": 3
-      },
-      "aiType": "defensive",
-      "skills": [
-        "void_touch",
-        "entropic_field"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 55,
-          "quantityMin": 2,
-          "quantityMax": 4,
-          "quality": "rare"
-        },
-        {
-          "itemId": "enhance_stone_mid",
-          "name": "中级强化石",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "fine"
-        },
-        {
-          "itemId": "ancient_rune",
-          "name": "远古符文",
-          "type": "material",
-          "chance": 15,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        }
-      ]
-    },
-    {
-      "id": "boss_balrog",
-      "name": "熔岩领主",
-      "family": "magma",
-      "baseLevel": 32,
-      "isBoss": true,
-      "phases": 3,
-      "baseStats": {
-        "hp": 280,
-        "mp": 60,
-        "atk": 26,
-        "def": 16,
-        "mag": 24,
-        "mdef": 14,
-        "agi": 6,
-        "luk": 4
-      },
-      "aiType": "berserk",
-      "skills": [
-        "lava_burst",
-        "molten_slam",
-        "enrage"
-      ],
-      "element": "fire",
-      "dropTable": [
-        {
-          "itemId": "crystal_fire",
-          "name": "火焰水晶",
-          "type": "material",
-          "chance": 80,
-          "quantityMin": 2,
-          "quantityMax": 4,
-          "quality": "fine"
-        },
-        {
-          "itemId": "gem_ruby",
-          "name": "红宝石",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "enhance_stone_mid",
-          "name": "中级强化石",
-          "type": "material",
-          "chance": 50,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "war_blood",
-          "name": "战神之血",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 100,
-          "quantityMin": 10,
-          "quantityMax": 20,
-          "quality": "epic"
-        },
-        {
-          "itemId": "gem_diamond",
-          "name": "钻石",
-          "type": "currency",
-          "chance": 5,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        }
-      ]
-    },
-    {
-      "id": "boss_frost_queen",
-      "name": "冰霜女皇",
-      "family": "ice",
-      "baseLevel": 45,
-      "isBoss": true,
-      "phases": 3,
-      "baseStats": {
-        "hp": 320,
-        "mp": 120,
-        "atk": 18,
-        "def": 20,
-        "mag": 40,
-        "mdef": 30,
-        "agi": 12,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "blizzard",
-        "frozen_prison",
-        "ice_lance"
-      ],
-      "element": "ice",
-      "dropTable": [
-        {
-          "itemId": "crystal_ice",
-          "name": "寒冰水晶",
-          "type": "material",
-          "chance": 80,
-          "quantityMin": 2,
-          "quantityMax": 4,
-          "quality": "fine"
-        },
-        {
-          "itemId": "gem_sapphire",
-          "name": "蓝宝石",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "enhance_stone_high",
-          "name": "上级强化石",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "elemental_crystal",
-          "name": "元素魔晶",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "epic"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 100,
-          "quantityMin": 15,
-          "quantityMax": 30,
-          "quality": "epic"
-        },
-        {
-          "itemId": "gem_diamond",
-          "name": "钻石",
-          "type": "currency",
-          "chance": 5,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        }
-      ]
-    },
-    {
-      "id": "boss_void_tyrant",
-      "name": "虚空暴君",
-      "family": "void",
-      "baseLevel": 62,
-      "isBoss": true,
-      "phases": 3,
-      "baseStats": {
-        "hp": 400,
-        "mp": 150,
-        "atk": 40,
-        "def": 26,
-        "mag": 48,
-        "mdef": 32,
-        "agi": 10,
-        "luk": 8
-      },
-      "aiType": "berserk",
-      "skills": [
-        "void_scream",
-        "mind_rend",
-        "soul_drain"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "void_dust",
-          "name": "虚空之尘",
-          "type": "material",
-          "chance": 90,
-          "quantityMin": 3,
-          "quantityMax": 6,
-          "quality": "rare"
-        },
-        {
-          "itemId": "ancient_rune",
-          "name": "远古符文",
-          "type": "material",
-          "chance": 45,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "epic"
-        },
-        {
-          "itemId": "dragon_scale",
-          "name": "龙鳞",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        },
-        {
-          "itemId": "abyss_core",
-          "name": "深渊之核",
-          "type": "material",
-          "chance": 20,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        },
-        {
-          "itemId": "enhance_stone_high",
-          "name": "上级强化石",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 100,
-          "quantityMin": 20,
-          "quantityMax": 40,
-          "quality": "epic"
-        },
-        {
-          "itemId": "gem_diamond",
-          "name": "钻石",
-          "type": "currency",
-          "chance": 5,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "legendary"
-        }
-      ]
-    },
-    {
-      "id": "vampire_spawn",
-      "name": "血族侍从",
-      "family": "tomb",
-      "baseLevel": 16,
-      "baseStats": {
-        "hp": 90,
-        "mp": 30,
-        "atk": 20,
-        "def": 8,
-        "mag": 14,
-        "mdef": 10,
-        "agi": 15,
-        "luk": 8
-      },
-      "aiType": "cunning",
-      "skills": [
-        "spectral_touch",
-        "fear"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "ectoplasm",
-          "name": "灵质",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "fine"
-        },
-        {
-          "itemId": "soul_shard",
-          "name": "灵魂碎片",
-          "type": "material",
-          "chance": 18,
-          "quantityMin": 1,
-          "quantityMax": 1,
-          "quality": "rare"
-        },
-        {
-          "itemId": "coin_gold",
-          "name": "金币",
-          "type": "currency",
-          "chance": 65,
-          "quantityMin": 2,
-          "quantityMax": 6,
-          "quality": "fine"
-        }
-      ]
-    },
-    {
-      "id": "tomb_spider_queen",
-      "name": "墓穴蛛后",
-      "family": "tomb",
-      "baseLevel": 14,
-      "baseStats": {
-        "hp": 110,
-        "mp": 20,
-        "atk": 16,
-        "def": 8,
-        "mag": 8,
-        "mdef": 8,
-        "agi": 13,
-        "luk": 6
-      },
-      "aiType": "cunning",
-      "skills": [
-        "web_trap",
-        "poison_bite"
-      ],
-      "element": "dark",
-      "dropTable": [
-        {
-          "itemId": "spider_silk",
-          "name": "蛛丝",
-          "type": "material",
-          "chance": 40,
-          "quantityMin": 1,
-          "quantityMax": 3,
-          "quality": "common"
-        },
-        {
-          "itemId": "venom_sac",
-          "name": "毒囊",
-          "type": "material",
-          "chance": 35,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        },
-        {
-          "itemId": "bone_fragment",
-          "name": "碎骨",
-          "type": "material",
-          "chance": 30,
-          "quantityMin": 1,
-          "quantityMax": 2,
-          "quality": "common"
-        }
-      ]
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 75,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     }
-  ],
-  "globalDropPool": [
+   ]
+  },
+  {
+   "id": "slime_toxic",
+   "name": "毒泥怪",
+   "family": "cave",
+   "baseLevel": 2,
+   "baseStats": {
+    "hp": 40,
+    "mp": 5,
+    "atk": 5,
+    "def": 8,
+    "mag": 8,
+    "mdef": 6,
+    "agi": 2,
+    "luk": 1
+   },
+   "aiType": "defensive",
+   "skills": [
+    "toxic_splash"
+   ],
+   "element": "water",
+   "dropTable": [
     {
-      "itemId": "hp_small",
-      "name": "小型生命药水",
-      "type": "consumable",
-      "chance": 15,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 1
+     "itemId": "slime_gel",
+     "name": "史莱姆凝胶",
+     "type": "material",
+     "chance": 50,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "common"
     },
     {
-      "itemId": "mp_small",
-      "name": "小型法力药水",
-      "type": "consumable",
-      "chance": 10,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 1
+     "itemId": "antidote_herb",
+     "name": "解毒草",
+     "type": "consumable",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     },
     {
-      "itemId": "hp_medium",
-      "name": "中型生命药水",
-      "type": "consumable",
-      "chance": 8,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "fine",
-      "minLayer": 5
-    },
-    {
-      "itemId": "scroll_town",
-      "name": "回城卷轴",
-      "type": "consumable",
-      "chance": 5,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "fine",
-      "minLayer": 3
-    },
-    {
-      "itemId": "coin_gold",
-      "name": "金币",
-      "type": "currency",
-      "chance": 25,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 1
-    },
-    {
-      "itemId": "herb_glow",
-      "name": "荧光草",
-      "type": "material",
-      "chance": 12,
-      "quantityMin": 1,
-      "quantityMax": 2,
-      "quality": "common",
-      "minLayer": 1
-    },
-    {
-      "itemId": "enhance_shard",
-      "name": "强化石碎片",
-      "type": "material",
-      "chance": 18,
-      "quantityMin": 1,
-      "quantityMax": 2,
-      "quality": "common",
-      "minLayer": 1
-    },
-    {
-      "itemId": "equipment:1",
-      "name": "随机装备",
-      "type": "equipment",
-      "chance": 4,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 1
-    },
-    {
-      "itemId": "equipment:2",
-      "name": "随机装备",
-      "type": "equipment",
-      "chance": 3,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 16
-    },
-    {
-      "itemId": "equipment:3",
-      "name": "随机装备",
-      "type": "equipment",
-      "chance": 2,
-      "quantityMin": 1,
-      "quantityMax": 1,
-      "quality": "common",
-      "minLayer": 31
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 55,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     }
-  ],
-  "monsterSkills": [
+   ]
+  },
+  {
+   "id": "skeleton",
+   "name": "骷髅兵",
+   "family": "tomb",
+   "baseLevel": 12,
+   "baseStats": {
+    "hp": 80,
+    "mp": 0,
+    "atk": 15,
+    "def": 10,
+    "mag": 0,
+    "mdef": 5,
+    "agi": 6,
+    "luk": 2
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "bone_strike"
+   ],
+   "element": "dark",
+   "dropTable": [
     {
-      "id": "club_strike",
-      "name": "棍棒猛击",
-      "damage": "atk*1.3",
-      "desc": "沉重的棍棒打击"
+     "itemId": "bone_fragment",
+     "name": "碎骨片",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
     },
     {
-      "id": "web_trap",
-      "name": "蛛网束缚",
-      "damage": "atk*0.8",
-      "status": {
-        "id": "slow",
-        "chance": 0.6,
-        "turns": 2
-      },
-      "desc": "吐出黏网束缚对手"
+     "itemId": "sword_rusty",
+     "name": "生锈的剑",
+     "type": "equipment",
+     "chance": 8,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
     },
     {
-      "id": "poison_bite",
-      "name": "毒牙撕咬",
-      "damage": "atk*1.1",
-      "status": {
-        "id": "poison",
-        "chance": 0.5,
-        "turns": 3
-      },
-      "desc": "带毒的撕咬"
+     "itemId": "hp_medium",
+     "name": "中型生命药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "fine"
     },
     {
-      "id": "toxic_splash",
-      "name": "毒液飞溅",
-      "damage": "mag*1.2",
-      "status": {
-        "id": "poison",
-        "chance": 0.4,
-        "turns": 3
-      },
-      "desc": "喷溅腐蚀性毒液"
-    },
-    {
-      "id": "bone_strike",
-      "name": "骨击",
-      "damage": "atk*1.4",
-      "desc": "挥舞白骨重击"
-    },
-    {
-      "id": "spectral_touch",
-      "name": "幽灵之触",
-      "damage": "mag*1.3",
-      "status": {
-        "id": "silence",
-        "chance": 0.3,
-        "turns": 2
-      },
-      "desc": "冰冷触手封锁咒文"
-    },
-    {
-      "id": "fear",
-      "name": "恐惧嚎叫",
-      "damage": "mag*0.5",
-      "status": {
-        "id": "fear",
-        "chance": 0.4,
-        "turns": 2
-      },
-      "desc": "令人胆寒的嚎叫"
-    },
-    {
-      "id": "slam",
-      "name": "猛击",
-      "damage": "atk*1.6",
-      "status": {
-        "id": "stun",
-        "chance": 0.25,
-        "turns": 1
-      },
-      "desc": "震天动地的猛击"
-    },
-    {
-      "id": "rock_summon",
-      "name": "落石",
-      "damage": "mag*1.8",
-      "desc": "召唤巨石砸落"
-    },
-    {
-      "id": "enrage",
-      "name": "狂暴",
-      "damage": "atk*1.5",
-      "desc": "进入狂暴状态的舍身一击"
-    },
-    {
-      "id": "flame_breath",
-      "name": "烈焰吐息",
-      "damage": "mag*1.5",
-      "status": {
-        "id": "bleed",
-        "chance": 0.4,
-        "turns": 2
-      },
-      "desc": "喷吐灼热的火焰"
-    },
-    {
-      "id": "lava_burst",
-      "name": "岩浆爆发",
-      "damage": "mag*1.8",
-      "status": {
-        "id": "bleed",
-        "chance": 0.45,
-        "turns": 3
-      },
-      "desc": "岩浆炸裂，灼伤血肉"
-    },
-    {
-      "id": "molten_slam",
-      "name": "熔岩猛击",
-      "damage": "atk*1.5",
-      "status": {
-        "id": "stun",
-        "chance": 0.2,
-        "turns": 1
-      },
-      "desc": "裹挟岩浆的重击"
-    },
-    {
-      "id": "ash_cloud",
-      "name": "灰烬之云",
-      "damage": "mag*0.8",
-      "status": {
-        "id": "silence",
-        "chance": 0.35,
-        "turns": 2
-      },
-      "desc": "呛人的灰烬封锁吟唱"
-    },
-    {
-      "id": "heat_wave",
-      "name": "灼热波动",
-      "damage": "mag*1.2",
-      "desc": "滚滚热浪"
-    },
-    {
-      "id": "chilling_touch",
-      "name": "寒触",
-      "damage": "mag*1.2",
-      "status": {
-        "id": "slow",
-        "chance": 0.4,
-        "turns": 2
-      },
-      "desc": "冰冷触碰迟滞行动"
-    },
-    {
-      "id": "ice_lance",
-      "name": "冰枪术",
-      "damage": "mag*1.7",
-      "desc": "射出锋利的冰枪"
-    },
-    {
-      "id": "frost_nova",
-      "name": "冰霜新星",
-      "damage": "mag*1.5",
-      "status": {
-        "id": "slow",
-        "chance": 0.55,
-        "turns": 2
-      },
-      "desc": "冰霜爆裂冻结四周"
-    },
-    {
-      "id": "frozen_prison",
-      "name": "冰冻禁锢",
-      "damage": "mag*1.0",
-      "status": {
-        "id": "stun",
-        "chance": 0.3,
-        "turns": 1
-      },
-      "desc": "将敌人封入寒冰"
-    },
-    {
-      "id": "blizzard",
-      "name": "暴风雪",
-      "damage": "mag*2.0",
-      "status": {
-        "id": "slow",
-        "chance": 0.45,
-        "turns": 2
-      },
-      "desc": "召唤漫天暴风雪"
-    },
-    {
-      "id": "void_touch",
-      "name": "虚空之触",
-      "damage": "mag*1.4",
-      "status": {
-        "id": "curse",
-        "chance": 0.35,
-        "turns": 2
-      },
-      "desc": "虚空能量侵蚀身躯"
-    },
-    {
-      "id": "mind_rend",
-      "name": "精神撕裂",
-      "damage": "mag*1.5",
-      "status": {
-        "id": "confusion",
-        "chance": 0.3,
-        "turns": 2
-      },
-      "desc": "撕裂心智的攻击"
-    },
-    {
-      "id": "shadow_bolt_m",
-      "name": "暗影冲击",
-      "damage": "mag*1.6",
-      "desc": "凝聚暗影之力射出"
-    },
-    {
-      "id": "soul_drain",
-      "name": "灵魂汲取",
-      "damage": "mag*1.3",
-      "status": {
-        "id": "curse",
-        "chance": 0.3,
-        "turns": 2
-      },
-      "desc": "汲取灵魂之力"
-    },
-    {
-      "id": "whisper",
-      "name": "虚空低语",
-      "damage": "mag*0.6",
-      "status": {
-        "id": "fear",
-        "chance": 0.35,
-        "turns": 2
-      },
-      "desc": "不可名状的低语"
-    },
-    {
-      "id": "entropic_field",
-      "name": "熵力场",
-      "damage": "mag*1.1",
-      "status": {
-        "id": "curse",
-        "chance": 0.4,
-        "turns": 3
-      },
-      "desc": "万物凋零的力场"
-    },
-    {
-      "id": "void_scream",
-      "name": "虚空尖啸",
-      "damage": "mag*1.2",
-      "status": {
-        "id": "silence",
-        "chance": 0.4,
-        "turns": 2
-      },
-      "desc": "撕裂耳膜的尖啸"
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 65,
+     "quantityMin": 1,
+     "quantityMax": 4,
+     "quality": "fine"
     }
-  ]
+   ]
+  },
+  {
+   "id": "ghost",
+   "name": "幽灵",
+   "family": "tomb",
+   "baseLevel": 15,
+   "baseStats": {
+    "hp": 60,
+    "mp": 40,
+    "atk": 5,
+    "def": 3,
+    "mag": 18,
+    "mdef": 15,
+    "agi": 12,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "spectral_touch",
+    "fear"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "ectoplasm",
+     "name": "灵质",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "soul_shard",
+     "name": "灵魂碎片",
+     "type": "material",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "mp_medium",
+     "name": "中型法力药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "fine"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 70,
+     "quantityMin": 2,
+     "quantityMax": 6,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "zombie",
+   "name": "僵尸",
+   "family": "tomb",
+   "baseLevel": 11,
+   "baseStats": {
+    "hp": 120,
+    "mp": 0,
+    "atk": 12,
+    "def": 6,
+    "mag": 0,
+    "mdef": 3,
+    "agi": 2,
+    "luk": 1
+   },
+   "aiType": "berserk",
+   "skills": [],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "rotten_flesh",
+     "name": "腐肉",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "hp_small",
+     "name": "小型生命药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 60,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "common"
+    }
+   ]
+  },
+  {
+   "id": "boss_golem_ore",
+   "name": "矿脉巨像",
+   "family": "cave",
+   "baseLevel": 10,
+   "isBoss": true,
+   "phases": 3,
+   "baseStats": {
+    "hp": 300,
+    "mp": 50,
+    "atk": 20,
+    "def": 15,
+    "mag": 5,
+    "mdef": 10,
+    "agi": 3,
+    "luk": 2
+   },
+   "aiType": "berserk",
+   "skills": [
+    "slam",
+    "rock_summon",
+    "enrage"
+   ],
+   "element": "earth",
+   "dropTable": [
+    {
+     "itemId": "golem_core",
+     "name": "巨像核心",
+     "type": "material",
+     "chance": 100,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "ore_mithril",
+     "name": "秘银矿石",
+     "type": "material",
+     "chance": 60,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "rare"
+    },
+    {
+     "itemId": "armor_stone",
+     "name": "石甲",
+     "type": "equipment",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "weapon_earth",
+     "name": "大地之锤",
+     "type": "equipment",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "hp_large",
+     "name": "大型生命药水",
+     "type": "consumable",
+     "chance": 80,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 100,
+     "quantityMin": 10,
+     "quantityMax": 30,
+     "quality": "epic"
+    },
+    {
+     "itemId": "gem_diamond",
+     "name": "钻石",
+     "type": "currency",
+     "chance": 5,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    }
+   ]
+  },
+  {
+   "id": "flame_imp",
+   "name": "火焰小鬼",
+   "family": "magma",
+   "baseLevel": 20,
+   "baseStats": {
+    "hp": 70,
+    "mp": 30,
+    "atk": 8,
+    "def": 5,
+    "mag": 20,
+    "mdef": 10,
+    "agi": 12,
+    "luk": 6
+   },
+   "aiType": "cunning",
+   "skills": [
+    "flame_breath"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "ore_iron",
+     "name": "铁矿石",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "common"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 60,
+     "quantityMin": 1,
+     "quantityMax": 4,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "lava_hound",
+   "name": "熔岩猎犬",
+   "family": "magma",
+   "baseLevel": 22,
+   "baseStats": {
+    "hp": 110,
+    "mp": 0,
+    "atk": 22,
+    "def": 8,
+    "mag": 0,
+    "mdef": 6,
+    "agi": 14,
+    "luk": 5
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "molten_slam"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "hp_medium",
+     "name": "中型生命药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 65,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "magma_slug",
+   "name": "岩浆蛞蝓",
+   "family": "magma",
+   "baseLevel": 21,
+   "baseStats": {
+    "hp": 130,
+    "mp": 20,
+    "atk": 10,
+    "def": 16,
+    "mag": 14,
+    "mdef": 12,
+    "agi": 2,
+    "luk": 2
+   },
+   "aiType": "defensive",
+   "skills": [
+    "heat_wave"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "slime_gel",
+     "name": "粘液",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "ore_mithril",
+     "name": "秘银矿石",
+     "type": "material",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare",
+     "minLayer": 25
+    }
+   ]
+  },
+  {
+   "id": "ash_wraith",
+   "name": "灰烬怨灵",
+   "family": "magma",
+   "baseLevel": 26,
+   "baseStats": {
+    "hp": 85,
+    "mp": 40,
+    "atk": 10,
+    "def": 6,
+    "mag": 24,
+    "mdef": 16,
+    "agi": 13,
+    "luk": 7
+   },
+   "aiType": "cunning",
+   "skills": [
+    "ash_cloud",
+    "flame_breath"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "ectoplasm",
+     "name": "灵质",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "mp_medium",
+     "name": "中型法力药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "fire_elemental",
+   "name": "烈焰元素",
+   "family": "magma",
+   "baseLevel": 28,
+   "baseStats": {
+    "hp": 100,
+    "mp": 50,
+    "atk": 14,
+    "def": 8,
+    "mag": 28,
+    "mdef": 14,
+    "agi": 10,
+    "luk": 6
+   },
+   "aiType": "berserk",
+   "skills": [
+    "lava_burst"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 55,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "fine"
+    },
+    {
+     "itemId": "gem_ruby",
+     "name": "红宝石",
+     "type": "material",
+     "chance": 12,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 40,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "obsidian_golem",
+   "name": "黑曜石傀儡",
+   "family": "magma",
+   "baseLevel": 30,
+   "baseStats": {
+    "hp": 180,
+    "mp": 0,
+    "atk": 24,
+    "def": 20,
+    "mag": 0,
+    "mdef": 10,
+    "agi": 3,
+    "luk": 2
+   },
+   "aiType": "defensive",
+   "skills": [
+    "molten_slam"
+   ],
+   "element": "earth",
+   "dropTable": [
+    {
+     "itemId": "ore_mithril",
+     "name": "秘银矿石",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "rare"
+    },
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "enhance_shard",
+     "name": "强化碎片",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "common"
+    }
+   ]
+  },
+  {
+   "id": "cinder_spider",
+   "name": "燃烬蛛",
+   "family": "magma",
+   "baseLevel": 24,
+   "baseStats": {
+    "hp": 90,
+    "mp": 15,
+    "atk": 20,
+    "def": 8,
+    "mag": 12,
+    "mdef": 8,
+    "agi": 16,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "flame_breath",
+    "web_trap"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "spider_silk",
+     "name": "蛛丝",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 60,
+     "quantityMin": 2,
+     "quantityMax": 4,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "frost_wolf",
+   "name": "霜狼",
+   "family": "ice",
+   "baseLevel": 35,
+   "baseStats": {
+    "hp": 140,
+    "mp": 0,
+    "atk": 28,
+    "def": 12,
+    "mag": 0,
+    "mdef": 10,
+    "agi": 16,
+    "luk": 6
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "chilling_touch"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "hp_large",
+     "name": "大型生命药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 60,
+     "quantityMin": 3,
+     "quantityMax": 6,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "ice_sprite",
+   "name": "冰晶精灵",
+   "family": "ice",
+   "baseLevel": 36,
+   "baseStats": {
+    "hp": 100,
+    "mp": 60,
+    "atk": 10,
+    "def": 8,
+    "mag": 32,
+    "mdef": 20,
+    "agi": 14,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "ice_lance"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "mp_large",
+     "name": "大型法力药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "gem_sapphire",
+     "name": "蓝宝石",
+     "type": "material",
+     "chance": 10,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "frozen_zombie",
+   "name": "冻僵行尸",
+   "family": "ice",
+   "baseLevel": 37,
+   "baseStats": {
+    "hp": 220,
+    "mp": 0,
+    "atk": 24,
+    "def": 14,
+    "mag": 0,
+    "mdef": 8,
+    "agi": 2,
+    "luk": 1
+   },
+   "aiType": "berserk",
+   "skills": [],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "rotten_flesh",
+     "name": "腐肉",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 55,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "snow_harpy",
+   "name": "雪羽鹰身女妖",
+   "family": "ice",
+   "baseLevel": 38,
+   "baseStats": {
+    "hp": 130,
+    "mp": 30,
+    "atk": 26,
+    "def": 10,
+    "mag": 18,
+    "mdef": 12,
+    "agi": 20,
+    "luk": 9
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "chilling_touch",
+    "fear"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "herb_glow",
+     "name": "荧光草",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 35,
+     "quantityMin": 2,
+     "quantityMax": 5,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "ice_golem",
+   "name": "寒冰傀儡",
+   "family": "ice",
+   "baseLevel": 42,
+   "baseStats": {
+    "hp": 260,
+    "mp": 20,
+    "atk": 30,
+    "def": 26,
+    "mag": 8,
+    "mdef": 16,
+    "agi": 3,
+    "luk": 2
+   },
+   "aiType": "defensive",
+   "skills": [
+    "frozen_prison"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 50,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "fine"
+    },
+    {
+     "itemId": "ore_mithril",
+     "name": "秘银矿石",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "enhance_shard",
+     "name": "强化碎片",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 2,
+     "quantityMax": 4,
+     "quality": "common"
+    }
+   ]
+  },
+  {
+   "id": "frost_mage_cultist",
+   "name": "霜语教徒",
+   "family": "ice",
+   "baseLevel": 40,
+   "baseStats": {
+    "hp": 120,
+    "mp": 80,
+    "atk": 8,
+    "def": 10,
+    "mag": 38,
+    "mdef": 24,
+    "agi": 10,
+    "luk": 7
+   },
+   "aiType": "cunning",
+   "skills": [
+    "frost_nova",
+    "ice_lance"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "mp_large",
+     "name": "大型法力药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "soul_shard",
+     "name": "灵魂碎片",
+     "type": "material",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "glacier_serpent",
+   "name": "冰川巨蟒",
+   "family": "ice",
+   "baseLevel": 41,
+   "baseStats": {
+    "hp": 190,
+    "mp": 20,
+    "atk": 32,
+    "def": 16,
+    "mag": 10,
+    "mdef": 12,
+    "agi": 12,
+    "luk": 5
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "chilling_touch",
+    "frozen_prison"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "venom_sac",
+     "name": "毒囊",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "gem_sapphire",
+     "name": "蓝宝石",
+     "type": "material",
+     "chance": 12,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "void_crawler",
+   "name": "虚空爬行者",
+   "family": "void",
+   "baseLevel": 50,
+   "baseStats": {
+    "hp": 200,
+    "mp": 20,
+    "atk": 36,
+    "def": 16,
+    "mag": 20,
+    "mdef": 14,
+    "agi": 14,
+    "luk": 6
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "void_touch"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 55,
+     "quantityMin": 3,
+     "quantityMax": 8,
+     "quality": "epic"
+    },
+    {
+     "itemId": "hp_large",
+     "name": "大型生命药水",
+     "type": "consumable",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "shadow_stalker",
+   "name": "暗影追猎者",
+   "family": "void",
+   "baseLevel": 52,
+   "baseStats": {
+    "hp": 170,
+    "mp": 40,
+    "atk": 34,
+    "def": 14,
+    "mag": 30,
+    "mdef": 18,
+    "agi": 22,
+    "luk": 10
+   },
+   "aiType": "cunning",
+   "skills": [
+    "shadow_bolt_m",
+    "fear"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "shadow_fang",
+     "name": "暗影之牙",
+     "type": "material",
+     "chance": 8,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 50,
+     "quantityMin": 4,
+     "quantityMax": 8,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "void_priest",
+   "name": "虚空祭司",
+   "family": "void",
+   "baseLevel": 54,
+   "baseStats": {
+    "hp": 150,
+    "mp": 100,
+    "atk": 12,
+    "def": 14,
+    "mag": 46,
+    "mdef": 30,
+    "agi": 10,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "entropic_field",
+    "whisper"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "soul_shard",
+     "name": "灵魂碎片",
+     "type": "material",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "ancient_rune",
+     "name": "远古符文",
+     "type": "material",
+     "chance": 10,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "chaos_spawn",
+   "name": "混沌魔裔",
+   "family": "void",
+   "baseLevel": 55,
+   "baseStats": {
+    "hp": 240,
+    "mp": 30,
+    "atk": 40,
+    "def": 18,
+    "mag": 24,
+    "mdef": 16,
+    "agi": 8,
+    "luk": 5
+   },
+   "aiType": "berserk",
+   "skills": [
+    "mind_rend"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "rare"
+    },
+    {
+     "itemId": "demon_horn",
+     "name": "恶魔之角",
+     "type": "material",
+     "chance": 8,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 55,
+     "quantityMin": 4,
+     "quantityMax": 9,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "void_devourer",
+   "name": "虚空吞噬虫",
+   "family": "void",
+   "baseLevel": 56,
+   "baseStats": {
+    "hp": 280,
+    "mp": 40,
+    "atk": 38,
+    "def": 20,
+    "mag": 26,
+    "mdef": 20,
+    "agi": 6,
+    "luk": 4
+   },
+   "aiType": "aggressive",
+   "skills": [
+    "soul_drain"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 50,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "rare"
+    },
+    {
+     "itemId": "hp_full",
+     "name": "特效生命药水",
+     "type": "consumable",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "soul_shard",
+     "name": "灵魂碎片",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "rift_phantom",
+   "name": "裂隙魅影",
+   "family": "void",
+   "baseLevel": 58,
+   "baseStats": {
+    "hp": 180,
+    "mp": 80,
+    "atk": 20,
+    "def": 16,
+    "mag": 44,
+    "mdef": 28,
+    "agi": 18,
+    "luk": 12
+   },
+   "aiType": "cunning",
+   "skills": [
+    "void_scream",
+    "mind_rend"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "ancient_rune",
+     "name": "远古符文",
+     "type": "material",
+     "chance": 12,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "mp_large",
+     "name": "大型法力药水",
+     "type": "consumable",
+     "chance": 25,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    }
+   ]
+  },
+  {
+   "id": "entropy_horror",
+   "name": "熵能魔像",
+   "family": "void",
+   "baseLevel": 60,
+   "baseStats": {
+    "hp": 340,
+    "mp": 50,
+    "atk": 42,
+    "def": 30,
+    "mag": 30,
+    "mdef": 24,
+    "agi": 4,
+    "luk": 3
+   },
+   "aiType": "defensive",
+   "skills": [
+    "void_touch",
+    "entropic_field"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 55,
+     "quantityMin": 2,
+     "quantityMax": 4,
+     "quality": "rare"
+    },
+    {
+     "itemId": "enhance_stone_mid",
+     "name": "中级强化石",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "fine"
+    },
+    {
+     "itemId": "ancient_rune",
+     "name": "远古符文",
+     "type": "material",
+     "chance": 15,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    }
+   ]
+  },
+  {
+   "id": "boss_balrog",
+   "name": "熔岩领主",
+   "family": "magma",
+   "baseLevel": 32,
+   "isBoss": true,
+   "phases": 3,
+   "baseStats": {
+    "hp": 280,
+    "mp": 60,
+    "atk": 26,
+    "def": 16,
+    "mag": 24,
+    "mdef": 14,
+    "agi": 6,
+    "luk": 4
+   },
+   "aiType": "berserk",
+   "skills": [
+    "lava_burst",
+    "molten_slam",
+    "enrage"
+   ],
+   "element": "fire",
+   "dropTable": [
+    {
+     "itemId": "crystal_fire",
+     "name": "火焰水晶",
+     "type": "material",
+     "chance": 80,
+     "quantityMin": 2,
+     "quantityMax": 4,
+     "quality": "fine"
+    },
+    {
+     "itemId": "gem_ruby",
+     "name": "红宝石",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "enhance_stone_mid",
+     "name": "中级强化石",
+     "type": "material",
+     "chance": 50,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "war_blood",
+     "name": "战神之血",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 100,
+     "quantityMin": 10,
+     "quantityMax": 20,
+     "quality": "epic"
+    },
+    {
+     "itemId": "gem_diamond",
+     "name": "钻石",
+     "type": "currency",
+     "chance": 5,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    }
+   ]
+  },
+  {
+   "id": "boss_frost_queen",
+   "name": "冰霜女皇",
+   "family": "ice",
+   "baseLevel": 45,
+   "isBoss": true,
+   "phases": 3,
+   "baseStats": {
+    "hp": 320,
+    "mp": 120,
+    "atk": 18,
+    "def": 20,
+    "mag": 40,
+    "mdef": 30,
+    "agi": 12,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "blizzard",
+    "frozen_prison",
+    "ice_lance"
+   ],
+   "element": "ice",
+   "dropTable": [
+    {
+     "itemId": "crystal_ice",
+     "name": "寒冰水晶",
+     "type": "material",
+     "chance": 80,
+     "quantityMin": 2,
+     "quantityMax": 4,
+     "quality": "fine"
+    },
+    {
+     "itemId": "gem_sapphire",
+     "name": "蓝宝石",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "enhance_stone_high",
+     "name": "上级强化石",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "elemental_crystal",
+     "name": "元素魔晶",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "epic"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 100,
+     "quantityMin": 15,
+     "quantityMax": 30,
+     "quality": "epic"
+    },
+    {
+     "itemId": "gem_diamond",
+     "name": "钻石",
+     "type": "currency",
+     "chance": 5,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    }
+   ]
+  },
+  {
+   "id": "boss_void_tyrant",
+   "name": "虚空暴君",
+   "family": "void",
+   "baseLevel": 62,
+   "isBoss": true,
+   "phases": 3,
+   "baseStats": {
+    "hp": 400,
+    "mp": 150,
+    "atk": 40,
+    "def": 26,
+    "mag": 48,
+    "mdef": 32,
+    "agi": 10,
+    "luk": 8
+   },
+   "aiType": "berserk",
+   "skills": [
+    "void_scream",
+    "mind_rend",
+    "soul_drain"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "void_dust",
+     "name": "虚空之尘",
+     "type": "material",
+     "chance": 90,
+     "quantityMin": 3,
+     "quantityMax": 6,
+     "quality": "rare"
+    },
+    {
+     "itemId": "ancient_rune",
+     "name": "远古符文",
+     "type": "material",
+     "chance": 45,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "epic"
+    },
+    {
+     "itemId": "dragon_scale",
+     "name": "龙鳞",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    },
+    {
+     "itemId": "abyss_core",
+     "name": "深渊之核",
+     "type": "material",
+     "chance": 20,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    },
+    {
+     "itemId": "enhance_stone_high",
+     "name": "上级强化石",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 100,
+     "quantityMin": 20,
+     "quantityMax": 40,
+     "quality": "epic"
+    },
+    {
+     "itemId": "gem_diamond",
+     "name": "钻石",
+     "type": "currency",
+     "chance": 5,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "legendary"
+    }
+   ]
+  },
+  {
+   "id": "vampire_spawn",
+   "name": "血族侍从",
+   "family": "tomb",
+   "baseLevel": 16,
+   "baseStats": {
+    "hp": 90,
+    "mp": 30,
+    "atk": 20,
+    "def": 8,
+    "mag": 14,
+    "mdef": 10,
+    "agi": 15,
+    "luk": 8
+   },
+   "aiType": "cunning",
+   "skills": [
+    "spectral_touch",
+    "fear"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "ectoplasm",
+     "name": "灵质",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "fine"
+    },
+    {
+     "itemId": "soul_shard",
+     "name": "灵魂碎片",
+     "type": "material",
+     "chance": 18,
+     "quantityMin": 1,
+     "quantityMax": 1,
+     "quality": "rare"
+    },
+    {
+     "itemId": "coin_gold",
+     "name": "金币",
+     "type": "currency",
+     "chance": 65,
+     "quantityMin": 2,
+     "quantityMax": 6,
+     "quality": "fine"
+    }
+   ]
+  },
+  {
+   "id": "tomb_spider_queen",
+   "name": "墓穴蛛后",
+   "family": "tomb",
+   "baseLevel": 14,
+   "baseStats": {
+    "hp": 110,
+    "mp": 20,
+    "atk": 16,
+    "def": 8,
+    "mag": 8,
+    "mdef": 8,
+    "agi": 13,
+    "luk": 6
+   },
+   "aiType": "cunning",
+   "skills": [
+    "web_trap",
+    "poison_bite"
+   ],
+   "element": "dark",
+   "dropTable": [
+    {
+     "itemId": "spider_silk",
+     "name": "蛛丝",
+     "type": "material",
+     "chance": 40,
+     "quantityMin": 1,
+     "quantityMax": 3,
+     "quality": "common"
+    },
+    {
+     "itemId": "venom_sac",
+     "name": "毒囊",
+     "type": "material",
+     "chance": 35,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    },
+    {
+     "itemId": "bone_fragment",
+     "name": "碎骨",
+     "type": "material",
+     "chance": 30,
+     "quantityMin": 1,
+     "quantityMax": 2,
+     "quality": "common"
+    }
+   ]
+  }
+ ],
+ "globalDropPool": [
+  {
+   "itemId": "hp_small",
+   "name": "小型生命药水",
+   "type": "consumable",
+   "chance": 15,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "mp_small",
+   "name": "小型法力药水",
+   "type": "consumable",
+   "chance": 10,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "hp_medium",
+   "name": "中型生命药水",
+   "type": "consumable",
+   "chance": 8,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 5
+  },
+  {
+   "itemId": "scroll_town",
+   "name": "回城卷轴",
+   "type": "consumable",
+   "chance": 5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 3
+  },
+  {
+   "itemId": "coin_gold",
+   "name": "金币",
+   "type": "currency",
+   "chance": 25,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "herb_glow",
+   "name": "荧光草",
+   "type": "material",
+   "chance": 12,
+   "quantityMin": 1,
+   "quantityMax": 2,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "enhance_shard",
+   "name": "强化石碎片",
+   "type": "material",
+   "chance": 18,
+   "quantityMin": 1,
+   "quantityMax": 2,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "equipment:1",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 4,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 1
+  },
+  {
+   "itemId": "equipment:2",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 3,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 16
+  },
+  {
+   "itemId": "equipment:3",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "common",
+   "minLayer": 31
+  },
+  {
+   "itemId": "equipment:4",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 45
+  },
+  {
+   "itemId": "equipment:5",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 1.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 65
+  },
+  {
+   "itemId": "equipment:6",
+   "name": "随机装备",
+   "type": "equipment",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "rare",
+   "minLayer": 85
+  },
+  {
+   "itemId": "gem_ruby_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_ruby_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_ruby_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  },
+  {
+   "itemId": "gem_sapphire_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_sapphire_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_sapphire_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  },
+  {
+   "itemId": "gem_emerald_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_emerald_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_emerald_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  },
+  {
+   "itemId": "gem_topaz_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_topaz_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_topaz_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  },
+  {
+   "itemId": "gem_onyx_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_onyx_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_onyx_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  },
+  {
+   "itemId": "gem_amethyst_1",
+   "name": "碎裂的宝石",
+   "type": "material",
+   "chance": 2,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "fine",
+   "minLayer": 10
+  },
+  {
+   "itemId": "gem_amethyst_2",
+   "name": "无瑕的宝石",
+   "type": "material",
+   "chance": 1,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "epic",
+   "minLayer": 35
+  },
+  {
+   "itemId": "gem_amethyst_3",
+   "name": "完美的宝石",
+   "type": "material",
+   "chance": 0.5,
+   "quantityMin": 1,
+   "quantityMax": 1,
+   "quality": "legendary",
+   "minLayer": 60
+  }
+ ],
+ "monsterSkills": [
+  {
+   "id": "club_strike",
+   "name": "棍棒猛击",
+   "damage": "atk*1.3",
+   "desc": "沉重的棍棒打击"
+  },
+  {
+   "id": "web_trap",
+   "name": "蛛网束缚",
+   "damage": "atk*0.8",
+   "status": {
+    "id": "slow",
+    "chance": 0.6,
+    "turns": 2
+   },
+   "desc": "吐出黏网束缚对手"
+  },
+  {
+   "id": "poison_bite",
+   "name": "毒牙撕咬",
+   "damage": "atk*1.1",
+   "status": {
+    "id": "poison",
+    "chance": 0.5,
+    "turns": 3
+   },
+   "desc": "带毒的撕咬"
+  },
+  {
+   "id": "toxic_splash",
+   "name": "毒液飞溅",
+   "damage": "mag*1.2",
+   "status": {
+    "id": "poison",
+    "chance": 0.4,
+    "turns": 3
+   },
+   "desc": "喷溅腐蚀性毒液"
+  },
+  {
+   "id": "bone_strike",
+   "name": "骨击",
+   "damage": "atk*1.4",
+   "desc": "挥舞白骨重击"
+  },
+  {
+   "id": "spectral_touch",
+   "name": "幽灵之触",
+   "damage": "mag*1.3",
+   "status": {
+    "id": "silence",
+    "chance": 0.3,
+    "turns": 2
+   },
+   "desc": "冰冷触手封锁咒文"
+  },
+  {
+   "id": "fear",
+   "name": "恐惧嚎叫",
+   "damage": "mag*0.5",
+   "status": {
+    "id": "fear",
+    "chance": 0.4,
+    "turns": 2
+   },
+   "desc": "令人胆寒的嚎叫"
+  },
+  {
+   "id": "slam",
+   "name": "猛击",
+   "damage": "atk*1.6",
+   "status": {
+    "id": "stun",
+    "chance": 0.25,
+    "turns": 1
+   },
+   "desc": "震天动地的猛击"
+  },
+  {
+   "id": "rock_summon",
+   "name": "落石",
+   "damage": "mag*1.8",
+   "desc": "召唤巨石砸落"
+  },
+  {
+   "id": "enrage",
+   "name": "狂暴",
+   "damage": "atk*1.5",
+   "desc": "进入狂暴状态的舍身一击"
+  },
+  {
+   "id": "flame_breath",
+   "name": "烈焰吐息",
+   "damage": "mag*1.5",
+   "status": {
+    "id": "bleed",
+    "chance": 0.4,
+    "turns": 2
+   },
+   "desc": "喷吐灼热的火焰"
+  },
+  {
+   "id": "lava_burst",
+   "name": "岩浆爆发",
+   "damage": "mag*1.8",
+   "status": {
+    "id": "bleed",
+    "chance": 0.45,
+    "turns": 3
+   },
+   "desc": "岩浆炸裂，灼伤血肉"
+  },
+  {
+   "id": "molten_slam",
+   "name": "熔岩猛击",
+   "damage": "atk*1.5",
+   "status": {
+    "id": "stun",
+    "chance": 0.2,
+    "turns": 1
+   },
+   "desc": "裹挟岩浆的重击"
+  },
+  {
+   "id": "ash_cloud",
+   "name": "灰烬之云",
+   "damage": "mag*0.8",
+   "status": {
+    "id": "silence",
+    "chance": 0.35,
+    "turns": 2
+   },
+   "desc": "呛人的灰烬封锁吟唱"
+  },
+  {
+   "id": "heat_wave",
+   "name": "灼热波动",
+   "damage": "mag*1.2",
+   "desc": "滚滚热浪"
+  },
+  {
+   "id": "chilling_touch",
+   "name": "寒触",
+   "damage": "mag*1.2",
+   "status": {
+    "id": "slow",
+    "chance": 0.4,
+    "turns": 2
+   },
+   "desc": "冰冷触碰迟滞行动"
+  },
+  {
+   "id": "ice_lance",
+   "name": "冰枪术",
+   "damage": "mag*1.7",
+   "desc": "射出锋利的冰枪"
+  },
+  {
+   "id": "frost_nova",
+   "name": "冰霜新星",
+   "damage": "mag*1.5",
+   "status": {
+    "id": "slow",
+    "chance": 0.55,
+    "turns": 2
+   },
+   "desc": "冰霜爆裂冻结四周"
+  },
+  {
+   "id": "frozen_prison",
+   "name": "冰冻禁锢",
+   "damage": "mag*1.0",
+   "status": {
+    "id": "stun",
+    "chance": 0.3,
+    "turns": 1
+   },
+   "desc": "将敌人封入寒冰"
+  },
+  {
+   "id": "blizzard",
+   "name": "暴风雪",
+   "damage": "mag*2.0",
+   "status": {
+    "id": "slow",
+    "chance": 0.45,
+    "turns": 2
+   },
+   "desc": "召唤漫天暴风雪"
+  },
+  {
+   "id": "void_touch",
+   "name": "虚空之触",
+   "damage": "mag*1.4",
+   "status": {
+    "id": "curse",
+    "chance": 0.35,
+    "turns": 2
+   },
+   "desc": "虚空能量侵蚀身躯"
+  },
+  {
+   "id": "mind_rend",
+   "name": "精神撕裂",
+   "damage": "mag*1.5",
+   "status": {
+    "id": "confusion",
+    "chance": 0.3,
+    "turns": 2
+   },
+   "desc": "撕裂心智的攻击"
+  },
+  {
+   "id": "shadow_bolt_m",
+   "name": "暗影冲击",
+   "damage": "mag*1.6",
+   "desc": "凝聚暗影之力射出"
+  },
+  {
+   "id": "soul_drain",
+   "name": "灵魂汲取",
+   "damage": "mag*1.3",
+   "status": {
+    "id": "curse",
+    "chance": 0.3,
+    "turns": 2
+   },
+   "desc": "汲取灵魂之力"
+  },
+  {
+   "id": "whisper",
+   "name": "虚空低语",
+   "damage": "mag*0.6",
+   "status": {
+    "id": "fear",
+    "chance": 0.35,
+    "turns": 2
+   },
+   "desc": "不可名状的低语"
+  },
+  {
+   "id": "entropic_field",
+   "name": "熵力场",
+   "damage": "mag*1.1",
+   "status": {
+    "id": "curse",
+    "chance": 0.4,
+    "turns": 3
+   },
+   "desc": "万物凋零的力场"
+  },
+  {
+   "id": "void_scream",
+   "name": "虚空尖啸",
+   "damage": "mag*1.2",
+   "status": {
+    "id": "silence",
+    "chance": 0.4,
+    "turns": 2
+   },
+   "desc": "撕裂耳膜的尖啸"
+  }
+ ]
 }

@@ -342,6 +342,16 @@ export default function CharacterPanel() {
                       const skill = getSkillInfo(skillId)
                       return (
                         <div key={skillId} className="game-card flex items-center gap-2 py-2">
+                          <div className="flex flex-col gap-0.5">
+                            <button disabled={idx === 0 || store.inCombat}
+                              onClick={() => store.moveSkill(skillId, -1)}
+                              className="rounded px-1 leading-none disabled:opacity-30"
+                              style={{ color: 'var(--text-muted)' }}>▲</button>
+                            <button disabled={idx === player.skills.length - 1 || store.inCombat}
+                              onClick={() => store.moveSkill(skillId, 1)}
+                              className="rounded px-1 leading-none disabled:opacity-30"
+                              style={{ color: 'var(--text-muted)' }}>▼</button>
+                          </div>
                           <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold"
                             style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-primary)' }}>
                             {idx + 1}
@@ -353,6 +363,7 @@ export default function CharacterPanel() {
                               <span className="ml-2 text-[10px] font-normal" style={{ color: 'var(--text-muted)' }}>
                                 {skill ? (skill.type === 'active' ? '主动' : skill.type === 'passive' ? '被动' : '终极') : ''}
                                 {skill && skill.mpCost > 0 ? ` · MP ${skill.mpCost}` : ''}
+                                {skill && (skill as { cooldown?: number }).cooldown ? ` · 冷却 ${(skill as { cooldown?: number }).cooldown} 回合` : ''}
                               </span>
                             </div>
                             {skill?.description && (

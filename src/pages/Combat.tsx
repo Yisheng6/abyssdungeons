@@ -4,6 +4,7 @@ import { Swords, Shield, Footprints, Sparkles, Zap, Play, Pause } from 'lucide-r
 import { useGameStore, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getSkillInfo, getSkillName, getItemInfo } from '@/lib/catalog'
+import { chooseAutoSkill } from '@/lib/battle-ai'
 
 // Skill name mapping - loaded from config
 const SKILL_NAMES: Record<string, string> = {
@@ -52,6 +53,7 @@ export default function Combat() {
       skills: p.skills.length > 0 ? p.skills : ['fireball', 'heal'],
       element: p.element || 'none',
       statuses: store.playerStatuses || [],
+      cooldowns: store.skillCooldowns || {},
       mods: getPlayerMods().combat,
     }
   }, [store.player, store.playerStatuses, store.equipment])
@@ -81,20 +83,14 @@ export default function Combat() {
   // 自动选择技能：按顺序尝试，MP足够就用
   const selectAutoAction = useCallback(() => {
     const player = store.player || buildPlayerForApi()
-    const skills = player.skills || []
-
-    // 按顺序尝试每个技能
-    for (const skillId of skills) {
-      // 从技能配置中获取MP消耗（这里简化处理，实际可以从config获取）
-      const skillConfig = getSkillConfig(skillId)
-      if (skillConfig && player.mp >= skillConfig.mpCost) {
-        return { type: 'skill' as const, skillId }
-      }
-    }
-
-    // 所有技能MP都不够，普通攻击
+    const first = store.combatEnemies.find((e) => e.hp > 0)
+    const sid = chooseAutoSkill(
+      { hp: player.hp, maxHp: player.maxHp, mp: player.mp, skills: player.skills || [],
+        statuses: store.playerStatuses || [], cooldowns: store.skillCooldowns || {} },
+      player.skills || [], (first as unknown as { statuses?: Array<{ id: string }> })?.statuses)
+    if (sid) return { type: 'skill' as const, skillId: sid }
     return { type: 'attack' as const }
-  }, [store.player])
+  }, [store.player, store.playerStatuses, store.skillCooldowns, store.combatEnemies])
 
   // 获取技能配置（优先目录缓存，回退静态表）
   const getSkillConfig = (skillId: string) => {
@@ -157,6 +153,7 @@ export default function Combat() {
         return u ? { ...e, ...u } : e
       }))
       store.setPlayerStatuses((result.player as any).statuses || [])
+      store.setSkillCooldowns((result.player as any).cooldowns || {})
 
       if (result.victory) {
         store.setCombatVictory(true)
@@ -360,12 +357,21 @@ export default function Combat() {
           </div>
           {/* 技能顺序显示 */}
           <div className="mt-2 flex flex-wrap gap-1">
-            {playerSkills.map((skillId, idx) => (
-              <span key={skillId} className="rounded px-1.5 py-0.5 text-[10px]"
-                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
-                {idx + 1}.{getSkillName(skillId)}
-              </span>
-            ))}
+            {playerSkills.map((skillId, idx) => {
+              const cd = (store.skillCooldowns || {})[skillId] || 0
+              const info = getSkillInfo(skillId)
+              const maxCd = (info as unknown as { cooldown?: number })?.cooldown || 0
+              return (
+                <span key={skillId} className="rounded px-1.5 py-0.5 text-[10px]"
+                  style={{
+                    backgroundColor: 'var(--bg-hover)',
+                    color: cd > 0 ? 'var(--danger)' : 'var(--text-secondary)',
+                    opacity: cd > 0 ? 0.6 : 1,
+                  }}>
+                  {idx + 1}.{getSkillName(skillId)}{cd > 0 ? ` 冷却${cd}` : maxCd > 0 ? ` · ${maxCd}回合CD` : ''}
+                </span>
+              )
+            })}
           </div>
         </div>
 

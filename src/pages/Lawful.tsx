@@ -2,7 +2,8 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { Skull, Swords, Coins, Crown } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
-import { getItemInfo, getSkillMpCost } from '@/lib/catalog'
+import { getItemInfo } from '@/lib/catalog'
+import { chooseAutoSkill } from '@/lib/battle-ai'
 
 interface LawfulEnemy {
   id: string; name: string; hp: number; maxHp: number; mp: number; maxMp: number
@@ -97,10 +98,12 @@ export default function Lawful() {
         }
 
         const p = useGameStore.getState().player!
-        let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
-        for (const skillId of p.skills || []) {
-          if (p.mp >= getSkillMpCost(skillId, 10)) { action = { type: 'skill', skillId }; break }
-        }
+        const st0 = useGameStore.getState()
+        const sid = chooseAutoSkill(
+          { hp: p.hp, maxHp: p.maxHp, mp: p.mp, skills: p.skills || [],
+            statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
+          p.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
+        const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
@@ -109,6 +112,7 @@ export default function Lawful() {
             con: p.con || 0, wil: p.wil || 0,
             skills: p.skills, element: p.element || 'none',
             statuses: useGameStore.getState().playerStatuses || [],
+            cooldowns: useGameStore.getState().skillCooldowns || {},
             mods: getPlayerMods().combat,
           },
           enemies: alive.map((e) => ({
@@ -132,6 +136,7 @@ export default function Lawful() {
         after.updatePlayerHp(result.player.hp)
         after.updatePlayerMp(result.player.mp)
         after.setPlayerStatuses((result.player as any).statuses || [])
+        after.setSkillCooldowns((result.player as any).cooldowns || {})
 
         if (result.victory) {
           victory = true

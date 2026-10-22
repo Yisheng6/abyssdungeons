@@ -12,6 +12,8 @@ export interface CatalogItem {
   effect?: Record<string, unknown>
   desc?: string; value?: number; stackSize?: number
   learnSkillId?: string
+  /** 可镶嵌宝石标记 */
+  gem?: boolean
 }
 
 export interface CatalogSet {

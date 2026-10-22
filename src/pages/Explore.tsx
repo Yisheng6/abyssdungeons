@@ -4,6 +4,7 @@ import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } 
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
+import { chooseAutoSkill } from '@/lib/battle-ai'
 
 const ROOM_TYPE_NAMES: Record<string, string> = {
   entrance: '入口', normal: '普通房间', elite: '精英房间', boss: 'Boss房间',
@@ -347,14 +348,13 @@ export default function Explore() {
         }
 
         const player = useGameStore.getState().player!
-        // 按技能顺序释放：第一个 MP 足够的技能，否则普攻
-        let action: { type: 'attack' | 'skill'; skillId?: string } = { type: 'attack' }
-        for (const skillId of player.skills || []) {
-          if (player.mp >= getSkillMpCost(skillId, SKILL_MP_COSTS[skillId] ?? 10)) {
-            action = { type: 'skill', skillId }
-            break
-          }
-        }
+        // 智能技能选择：按玩家排序，跳过冷却/蓝不足/满血治疗/重复增益/重复DoT
+        const firstEnemy = aliveEnemies[0] as unknown as { statuses?: Array<{ id: string }> }
+        const sid = chooseAutoSkill(
+          { hp: player.hp, maxHp: player.maxHp, mp: player.mp, skills: player.skills || [],
+            statuses: cur0.playerStatuses || [], cooldowns: cur0.skillCooldowns },
+          player.skills || [], firstEnemy?.statuses)
+        const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
@@ -364,6 +364,7 @@ export default function Explore() {
             con: player.con || 0, wil: player.wil || 0,
             skills: player.skills, element: player.element || 'none',
             statuses: cur.playerStatuses || [],
+            cooldowns: cur.skillCooldowns || {},
             mods: getPlayerMods().combat,
           },
           enemies: aliveEnemies.map((e) => ({
@@ -393,6 +394,7 @@ export default function Explore() {
         after.updatePlayerHp(result.player.hp)
         after.updatePlayerMp(result.player.mp)
         after.setPlayerStatuses((result.player as any).statuses || [])
+        after.setSkillCooldowns((result.player as any).cooldowns || {})
 
         if (result.victory) {
           victory = true

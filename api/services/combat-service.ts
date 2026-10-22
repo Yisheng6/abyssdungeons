@@ -12,6 +12,8 @@ export interface StatusEffect {
   name: string;
   kind: "physical" | "mental";
   turns: number;
+  /** 增益/减益/DoT 的数值负载（atkBuff/defBuff/magMult/defMult/critBuff/dodge/shield/dotDmg/atkDown/defDown） */
+  data?: Record<string, number>;
 }
 
 export const STATUS_DEFS: Record<string, { name: string; kind: "physical" | "mental" }> = {
@@ -53,6 +55,8 @@ export interface Combatant {
   element: string;
   aiType?: string;
   statuses?: StatusEffect[];
+  /** 技能冷却剩余回合（玩家；战斗中由服务端维护并随结果返回） */
+  cooldowns?: Record<string, number>;
 }
 
 export interface CombatAction {
@@ -107,13 +111,52 @@ const modsOf = (c: Combatant) => c.mods || {};
 const pctOf = (c: Combatant, k: "atkPct" | "defPct" | "magPct" | "mdefPct") => (modsOf(c)[k] || 0) / 100;
 const physResist = (c: Combatant) => Math.min((c.con || 0) * 0.006 + (modsOf(c).physRes || 0) / 100, 0.6);
 const magResist = (c: Combatant) => Math.min((c.wil || 0) * 0.006 + (modsOf(c).magRes || 0) / 100, 0.6);
-const effDef = (c: Combatant) => Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
-const effMdef = (c: Combatant) => Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
+const effDef = (c: Combatant) => {
+  let v = Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
+  v += statusSum(c, "defBuff");
+  v = Math.floor(v * (1 + statusSum(c, "defMult")));
+  return Math.max(0, v - statusSum(c, "defDown"));
+};
+const effMdef = (c: Combatant) => {
+  let v = Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
+  return Math.max(0, v - statusSum(c, "defDown"));
+};
 const hpRegen = (c: Combatant) => Math.floor((c.con || 0) * 0.3);
 const mpRegen = (c: Combatant) => Math.floor((c.wil || 0) * 0.5);
 
 // 异常状态工具
 const hasStatus = (c: Combatant, id: string) => (c.statuses || []).some((s) => s.id === id);
+
+/** 玩家受击前的防御层：闪避增益（烟雾弹等）→ 护盾吸收（魔法护盾等）。返回实际掉血，0 = 完全规避 */
+function applyPlayerDefense(player: Combatant, damage: number, logs: string[], rng: SimpleRNG, attacker: string): number {
+  const dodge = Math.min(statusSum(player, "dodge"), 0.75);
+  if (dodge > 0 && rng.next() < dodge) {
+    logs.push(`你闪避了 ${attacker} 的攻击！`);
+    return 0;
+  }
+  // 护盾吸收
+  for (const s of player.statuses || []) {
+    const shield = s.data?.shield || 0;
+    if (shield > 0 && damage > 0) {
+      const absorbed = Math.min(shield, damage);
+      s.data!.shield = shield - absorbed;
+      damage -= absorbed;
+      logs.push(`「${s.name}」吸收了 ${absorbed} 点伤害${damage > 0 ? "" : "，攻击被完全挡下"}！`);
+      if (s.data!.shield <= 0) { s.turns = 0; logs.push(`「${s.name}」的护盾破碎了。`); }
+    }
+  }
+  return damage;
+}
+
+/** 汇总状态负载中的某个数值键（增益/减益/DoT/护盾/闪避） */
+function statusSum(c: Combatant, key: string): number {
+  let sum = 0;
+  for (const s of c.statuses || []) {
+    const v = s.data?.[key];
+    if (typeof v === "number") sum += v;
+  }
+  return sum;
+}
 
 function tryApplyStatus(target: Combatant, statusId: string, chance: number, turns: number, rng: SimpleRNG, logs: string[], sourceName = ""): void {
   const def = STATUS_DEFS[statusId];
@@ -165,6 +208,13 @@ function processStatuses(c: Combatant, rng: SimpleRNG, logs: string[], isPlayerS
         if (rng.next() < 0.5) { logs.push(`${who} 被魅惑了，失去了理智！`); skip = true; }
         break;
     }
+    // 通用 DoT（腐蚀术/痛苦诅咒等，id 以 dot_ 开头，data.dotDmg 为每回合伤害）
+    if (s.id.startsWith("dot_") && s.data?.dotDmg) {
+      const dot = Math.max(1, Math.floor(s.data.dotDmg));
+      c.hp = Math.max(0, c.hp - dot);
+      logs.push(`${who} 受到「${s.name}」持续伤害，损失 ${dot} 点生命。`);
+      if (c.hp <= 0) logs.push(`${isPlayerSide ? "你" : c.name} 倒下了！`);
+    }
     s.turns -= 1;
   }
   c.statuses = c.statuses.filter((s) => {
@@ -177,14 +227,16 @@ function processStatuses(c: Combatant, rng: SimpleRNG, logs: string[], isPlayerS
 // 受异常影响的实际属性
 const effAtk = (c: Combatant) => {
   let v = Math.floor(c.atk * (1 + pctOf(c, "atkPct")));
+  v += statusSum(c, "atkBuff");
   if (hasStatus(c, "cripple")) v = Math.floor(v * 0.7);
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
-  return v;
+  return Math.max(1, v - statusSum(c, "atkDown"));
 };
 const effMag = (c: Combatant) => {
   let v = Math.floor(c.mag * (1 + pctOf(c, "magPct")));
+  v = Math.floor(v * (1 + statusSum(c, "magMult")));
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
-  return v;
+  return Math.max(1, v);
 };
 const effAgi = (c: Combatant) => (hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi);
 
@@ -261,6 +313,14 @@ export function resolveCombat(
   if (regenHp > 0) player.hp = Math.min(player.maxHp, player.hp + regenHp);
   if (regenMp > 0) player.mp = Math.min(player.maxMp, player.mp + regenMp);
 
+  // 技能冷却每回合递减
+  if (player.cooldowns) {
+    for (const k of Object.keys(player.cooldowns)) {
+      player.cooldowns[k] = Math.max(0, player.cooldowns[k] - 1);
+      if (player.cooldowns[k] === 0) delete player.cooldowns[k];
+    }
+  }
+
   // Player turn
   if (!playerSkipped) {
     // 混乱：50% 攻击自己
@@ -326,60 +386,182 @@ export function resolveCombat(
           }
           const skillId = action.skillId || "";
           const skillConfig = getSkillById(skillId);
-          if (skillConfig && player.mp >= skillConfig.mpCost) {
+          // 冷却校验：冷却中的技能自动降级为普通攻击
+          const cdLeft = player.cooldowns?.[skillId] || 0;
+          const usable = skillConfig && player.mp >= skillConfig.mpCost && cdLeft <= 0;
+          if (skillConfig && !usable && cdLeft > 0) {
+            logs.push(`${skillConfig.name} 冷却中（剩余 ${cdLeft} 回合），改为普通攻击。`);
+          }
+          if (skillConfig && usable) {
             player.mp -= skillConfig.mpCost;
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
-            if (target) {
-              const effect = skillConfig.effect as Record<string, unknown>;
-              if (effect.damage) {
-                const dmgStr = effect.damage as string;
-                let damage = 0;
-                if (dmgStr.includes("mag*")) {
-                  const mult = parseFloat(dmgStr.split("*")[1]);
-                  damage = Math.floor(effMag(player) * mult) - effMdef(target);
-                } else if (dmgStr.includes("atk*")) {
-                  const mult = parseFloat(dmgStr.split("*")[1]);
-                  damage = Math.floor(effAtk(player) * mult) - effDef(target);
-                }
-                damage = Math.max(1, damage);
-                const elMult = getElementMultiplier(skillConfig.element, target.element);
-                if (elMult !== 1) {
-                  damage = Math.floor(damage * elMult);
-                  logs.push(elMult > 1 ? `属性克制！` : `属性被克制...`);
-                }
-                const sm = modsOf(player);
-                if (sm.elemDmg) damage += Math.floor(sm.elemDmg); // 附加元素伤害词条
-                target.hp = Math.max(0, target.hp - damage);
-                logs.push(`你施放了 ${skillConfig.name}，对 ${target.name} 造成 ${damage} 点伤害。`);
-                // 吸血词条（技能伤害同样生效）
-                if (sm.lifesteal) {
-                  const heal = Math.floor(damage * (sm.lifesteal as number) / 100);
-                  if (heal > 0) {
-                    player.hp = Math.min(player.maxHp, player.hp + heal);
-                    logs.push(`吸血效果恢复了你 ${heal} 点生命。`);
+            // 进入冷却
+            const cd = (skillConfig as { cooldown?: number }).cooldown || 0;
+            if (cd > 0) {
+              player.cooldowns = player.cooldowns || {};
+              player.cooldowns[skillId] = cd;
+            }
+            const effect = skillConfig.effect as Record<string, unknown>;
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0)
+              || enemies.find((e) => e.hp > 0);
+            const sm = modsOf(player);
+
+            // ─── 伤害（支持 AOE / 多段 / 无视防御 / 穿透）───
+            if (effect.damage) {
+              const dmgStr = effect.damage as string;
+              const isMag = dmgStr.includes("mag*");
+              const mult = parseFloat(dmgStr.split("*")[1]);
+              const aoe = !!effect.aoe;
+              const hits = (effect.hits as number) || 1;
+              const targets = aoe ? enemies.filter((e) => e.hp > 0) : target ? [target] : [];
+              for (const t of targets) {
+                for (let h = 0; h < hits; h++) {
+                  if (t.hp <= 0) break;
+                  let def = isMag ? effMdef(t) : effDef(t);
+                  if (effect.ignoreDef) def = 0;
+                  else if (effect.defPenetration) def = Math.floor(def * (1 - (effect.defPenetration as number)));
+                  let damage = Math.floor((isMag ? effMag(player) : effAtk(player)) * mult) - def;
+                  damage = Math.max(1, damage);
+                  const elMult = getElementMultiplier(skillConfig.element, t.element);
+                  if (elMult !== 1) {
+                    damage = Math.floor(damage * elMult);
+                    logs.push(elMult > 1 ? `属性克制！` : `属性被克制...`);
                   }
+                  // 技能暴击（吃词条暴击率；背刺等 critDamage 提升暴击倍率）
+                  const critBuff = statusSum(player, "critBuff");
+                  const critChance = (sm.critRate || 0) / 100 + critBuff + player.luk * 0.002;
+                  const isCrit = rng.next() < critChance;
+                  if (isCrit) damage = Math.floor(damage * ((effect.critDamage as number) || (1.5 + (sm.critDmg || 0) / 100)));
+                  if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
+                  t.hp = Math.max(0, t.hp - damage);
+                  logs.push(`你施放了 ${skillConfig.name}，对 ${t.name} 造成 ${damage} 点伤害${isCrit ? "（暴击）" : ""}。`);
+                  // 吸血（词条 + 技能自身 lifesteal）
+                  const ls = ((sm.lifesteal || 0) as number) / 100 + ((effect.lifesteal as number) || 0);
+                  if (ls > 0) {
+                    const heal = Math.floor(damage * ls);
+                    if (heal > 0) {
+                      player.hp = Math.min(player.maxHp, player.hp + heal);
+                      logs.push(`吸血效果恢复了你 ${heal} 点生命。`);
+                    }
+                  }
+                  if (t.hp <= 0) logs.push(`${t.name} 被击败了！`);
                 }
+              }
+            }
+
+            // ─── 治疗（固定 / 百分比）───
+            if (effect.heal || effect.healPercent) {
+              let heal = 0;
+              if (effect.healPercent) heal = Math.floor(player.maxHp * (effect.healPercent as number));
+              else {
+                const healStr = effect.heal as string;
+                heal = healStr.includes("mag*") ? Math.floor(effMag(player) * parseFloat(healStr.split("*")[1]))
+                  : healStr.includes("atk*") ? Math.floor(effAtk(player) * parseFloat(healStr.split("*")[1]))
+                  : parseInt(healStr);
+              }
+              player.hp = Math.min(player.maxHp, player.hp + heal);
+              logs.push(`你施放了 ${skillConfig.name}，恢复了 ${heal} 点生命。`);
+            }
+
+            // ─── 增益（buff，作为状态挂在玩家身上）───
+            {
+              const data: Record<string, number> = {};
+              if (effect.atkBuff) data.atkBuff = effect.atkBuff as number;
+              if (effect.defBuff) data.defBuff = effect.defBuff as number;
+              if (effect.magMultiplier) data.magMult = (effect.magMultiplier as number) - 1;
+              if (effect.defMultiplier) data.defMult = (effect.defMultiplier as number) - 1;
+              if (effect.critChanceBuff) data.critBuff = effect.critChanceBuff as number;
+              if (effect.dodgeBuff) data.dodge = effect.dodgeBuff as number;
+              if (effect.shield) data.shield = Math.max(1, Math.floor(effMag(player)));
+              const dur = (effect.buffDuration as number) || (effect.duration as number) || 0;
+              if (Object.keys(data).length > 0 && dur > 0) {
+                const bid = `buff_${skillId}`;
+                player.statuses = (player.statuses || []).filter((s) => s.id !== bid);
+                player.statuses.push({ id: bid, name: skillConfig.name, kind: "mental", turns: dur, data });
+                logs.push(`你获得了「${skillConfig.name}」增益，持续 ${dur} 回合。`);
+              }
+            }
+
+            // ─── DoT（腐蚀/痛苦诅咒等）───
+            if (effect.dotDamage && target && target.hp > 0) {
+              const dStr = effect.dotDamage as string;
+              const base = dStr.includes("mag*") ? effMag(player) : effAtk(player);
+              const dotDmg = Math.max(1, Math.floor(base * parseFloat(dStr.split("*")[1])));
+              const dur = (effect.dotDuration as number) || 3;
+              const did = `dot_${skillId}`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== did);
+              target.statuses.push({ id: did, name: skillConfig.name, kind: "physical", turns: dur, data: { dotDmg } });
+              logs.push(`${target.name} 受到「${skillConfig.name}」持续伤害效果，每回合 ${dotDmg} 点，持续 ${dur} 回合。`);
+            }
+
+            // ─── 减益（削弱敌方攻/防）───
+            if ((effect.atkDebuff || effect.defDebuff) && target && target.hp > 0) {
+              const data: Record<string, number> = {};
+              if (effect.atkDebuff) data.atkDown = effect.atkDebuff as number;
+              if (effect.defDebuff) data.defDown = effect.defDebuff as number;
+              const dur = (effect.debuffDuration as number) || 2;
+              const bid = `debuff_${skillId}`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== bid);
+              target.statuses.push({ id: bid, name: skillConfig.name, kind: "mental", turns: dur, data });
+              logs.push(`${target.name} 被「${skillConfig.name}」削弱，持续 ${dur} 回合。`);
+            }
+
+            // ─── 驱散（移除自身减益/异常）───
+            if (effect.dispel) {
+              const before = (player.statuses || []).length;
+              player.statuses = (player.statuses || []).filter((s) => s.id.startsWith("buff_"));
+              logs.push(before > player.statuses.length ? `你驱散了身上的负面状态！` : `没有可驱散的状态。`);
+            }
+
+            // ─── 附毒（伤害后置毒）───
+            if (effect.poisonDamage && target && target.hp > 0) {
+              const pStr = effect.poisonDamage as string;
+              const base = pStr.includes("mag*") ? effMag(player) : effAtk(player);
+              const dotDmg = Math.max(1, Math.floor(base * parseFloat(pStr.split("*")[1])));
+              const dur = (effect.poisonDuration as number) || 3;
+              const did = `dot_${skillId}_poison`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== did);
+              target.statuses.push({ id: did, name: "剧毒", kind: "physical", turns: dur, data: { dotDmg } });
+              logs.push(`${target.name} 中了剧毒，每回合损失 ${dotDmg} 点生命，持续 ${dur} 回合。`);
+            }
+
+            // ─── 冻结 → 眩晕 ───
+            if (effect.freezeChance && target && target.hp > 0) {
+              tryApplyStatus(target, "stun", effect.freezeChance as number, (effect.freezeDuration as number) ?? 1, rng, logs, skillConfig.name);
+            }
+            // ─── 陷阱缠绕 → 减速 + 即时伤害 ───
+            if (effect.root && target && target.hp > 0) {
+              tryApplyStatus(target, "slow", 1, 2, rng, logs, skillConfig.name);
+              if (effect.trapDamage) {
+                const tStr = effect.trapDamage as string;
+                const base = tStr.includes("mag*") ? effMag(player) : effAtk(player);
+                const td = Math.max(1, Math.floor(base * parseFloat(tStr.split("*")[1])) - effDef(target));
+                target.hp = Math.max(0, target.hp - td);
+                logs.push(`陷阱对 ${target.name} 造成 ${td} 点伤害。`);
                 if (target.hp <= 0) logs.push(`${target.name} 被击败了！`);
               }
-              if (effect.heal) {
-                const healStr = effect.heal as string;
-                let heal = 0;
-                if (healStr.includes("mag*")) {
-                  const mult = parseFloat(healStr.split("*")[1]);
-                  heal = Math.floor(effMag(player) * mult);
-                } else {
-                  heal = parseInt(healStr);
-                }
-                player.hp = Math.min(player.maxHp, player.hp + heal);
-                logs.push(`你施放了 ${skillConfig.name}，恢复了 ${heal} 点生命。`);
-              }
-              // 技能附带异常（盾击 stunChance/stunDuration 等旧格式也兼容）
-              if (effect.status && target.hp > 0) {
-                const st = effect.status as { id: string; chance: number; turns?: number };
-                tryApplyStatus(target, st.id, st.chance, st.turns ?? 2, rng, logs, skillConfig.name);
-              }
-              if (effect.stunChance && target.hp > 0) {
-                tryApplyStatus(target, "stun", effect.stunChance as number, (effect.stunDuration as number) ?? 1, rng, logs, skillConfig.name);
+            }
+
+            // ─── 技能附带异常（盾击 stunChance/stunDuration 等旧格式也兼容）───
+            if (effect.status && target && target.hp > 0) {
+              const st = effect.status as { id: string; chance: number; turns?: number };
+              tryApplyStatus(target, st.id, st.chance, st.turns ?? 2, rng, logs, skillConfig.name);
+            }
+            if (effect.stunChance && target && target.hp > 0) {
+              tryApplyStatus(target, "stun", effect.stunChance as number, (effect.stunDuration as number) ?? 1, rng, logs, skillConfig.name);
+            }
+            break;
+          }
+          // 技能不可用（冷却/蓝不足）→ 降级为普攻
+          {
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            if (target) {
+              if (checkDodge(effAgi(target), rng)) {
+                logs.push(`${target.name} 闪避了你的攻击！`);
+              } else {
+                const damage = Math.max(1, effAtk(player) - effDef(target));
+                target.hp = Math.max(0, target.hp - damage);
+                logs.push(`你对 ${target.name} 造成了 ${damage} 点伤害。`);
+                if (target.hp <= 0) logs.push(`${target.name} 被击败了！`);
               }
             }
           }
@@ -484,6 +666,8 @@ export function resolveCombat(
           damage = Math.floor(effAtk(enemy) * parseFloat(dmgStr.split("*")[1])) - effDef(player);
         }
         damage = Math.max(1, rollDamage(damage, rng));
+        damage = applyPlayerDefense(player, damage, logs, rng, enemy.name);
+        if (damage <= 0) continue;
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} 使用了 ${skill.name}，对你造成 ${damage} 点伤害！`);
         // 反伤词条
@@ -507,6 +691,8 @@ export function resolveCombat(
         }
         let damage = effAtk(enemy) - effDef(player);
         damage = Math.max(1, rollDamage(damage, rng));
+        damage = applyPlayerDefense(player, damage, logs, rng, enemy.name);
+        if (damage <= 0) continue;
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} 对你造成了 ${damage} 点伤害。`);
         // 反伤词条

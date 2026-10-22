@@ -63846,6 +63846,7 @@ var CLASS_COUNTER = {
   warlock: { family: "ice", style: "\u7206\u53D1\u7A81\u51FB" }
 };
 var FAMILIES = ["cave", "ice", "magma", "void", "tomb"];
+var GEM_TYPES = ["ruby", "sapphire", "emerald", "topaz", "onyx", "amethyst"];
 var ROOM_FLAVOR = {
   cave: ["\u788E\u77F3\u5927\u5385", "\u5E7D\u6697\u77FF\u9053", "\u6676\u7C07\u6D1E\u7A9F"],
   ice: ["\u51B0\u5C01\u56DE\u5ECA", "\u971C\u6676\u796D\u575B", "\u5BD2\u6F6E\u6DF1\u7A74"],
@@ -63885,7 +63886,9 @@ function genLawfulRooms(layer, classId, seed = Date.now()) {
   if (isBossLayer(layer)) {
     const boss = getLawfulBoss(layer);
     if (boss) {
-      const stats = scale({ hp: 260, mp: 60, atk: 14, def: 10, mag: 12, mdef: 10, agi: 6, luk: 4 }, layer, 3, 8);
+      const bossAtkMult = 2 + layer * 0.012;
+      const bossHpMult = 4 + layer * 0.05;
+      const stats = scale({ hp: 260, mp: 60, atk: 14, def: 10, mag: 12, mdef: 10, agi: 6, luk: 4 }, layer, bossAtkMult, bossHpMult);
       return [{
         id: 0,
         name: `${boss.title}\xB7${boss.name}`,
@@ -63900,7 +63903,9 @@ function genLawfulRooms(layer, classId, seed = Date.now()) {
           aiType: boss.aiType,
           dropTable: [
             { itemId: "gem_diamond", name: "\u94BB\u77F3", type: "currency", chance: 50, quantityMin: 1, quantityMax: 2, quality: "legendary" },
-            { itemId: "soul_shard", name: "\u7075\u9B42\u788E\u7247", type: "material", chance: 100, quantityMin: 1, quantityMax: 3, quality: "epic" }
+            { itemId: "soul_shard", name: "\u7075\u9B42\u788E\u7247", type: "material", chance: 100, quantityMin: 1, quantityMax: 3, quality: "epic" },
+            // 镶嵌宝石：层数越高阶级越高
+            ...layer >= 60 ? [{ itemId: `gem_${GEM_TYPES[layer % 6]}_3`, name: "\u5B8C\u7F8E\u7684\u5B9D\u77F3", type: "material", chance: 30, quantityMin: 1, quantityMax: 1, quality: "legendary" }] : layer >= 30 ? [{ itemId: `gem_${GEM_TYPES[layer % 6]}_2`, name: "\u65E0\u7455\u7684\u5B9D\u77F3", type: "material", chance: 30, quantityMin: 1, quantityMax: 1, quality: "epic" }] : [{ itemId: `gem_${GEM_TYPES[layer % 6]}_1`, name: "\u788E\u88C2\u7684\u5B9D\u77F3", type: "material", chance: 30, quantityMin: 1, quantityMax: 1, quality: "fine" }]
           ]
         }]
       }];
@@ -63980,11 +63985,48 @@ var modsOf = (c) => c.mods || {};
 var pctOf = (c, k) => (modsOf(c)[k] || 0) / 100;
 var physResist = (c) => Math.min((c.con || 0) * 6e-3 + (modsOf(c).physRes || 0) / 100, 0.6);
 var magResist = (c) => Math.min((c.wil || 0) * 6e-3 + (modsOf(c).magRes || 0) / 100, 0.6);
-var effDef = (c) => Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
-var effMdef = (c) => Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
+var effDef = (c) => {
+  let v = Math.floor((c.def + Math.floor((c.con || 0) * 0.2)) * (1 + pctOf(c, "defPct")));
+  v += statusSum(c, "defBuff");
+  v = Math.floor(v * (1 + statusSum(c, "defMult")));
+  return Math.max(0, v - statusSum(c, "defDown"));
+};
+var effMdef = (c) => {
+  let v = Math.floor((c.mdef + Math.floor((c.wil || 0) * 0.2)) * (1 + pctOf(c, "mdefPct")));
+  return Math.max(0, v - statusSum(c, "defDown"));
+};
 var hpRegen = (c) => Math.floor((c.con || 0) * 0.3);
 var mpRegen = (c) => Math.floor((c.wil || 0) * 0.5);
 var hasStatus = (c, id) => (c.statuses || []).some((s) => s.id === id);
+function applyPlayerDefense(player, damage, logs, rng, attacker) {
+  const dodge = Math.min(statusSum(player, "dodge"), 0.75);
+  if (dodge > 0 && rng.next() < dodge) {
+    logs.push(`\u4F60\u95EA\u907F\u4E86 ${attacker} \u7684\u653B\u51FB\uFF01`);
+    return 0;
+  }
+  for (const s of player.statuses || []) {
+    const shield = s.data?.shield || 0;
+    if (shield > 0 && damage > 0) {
+      const absorbed = Math.min(shield, damage);
+      s.data.shield = shield - absorbed;
+      damage -= absorbed;
+      logs.push(`\u300C${s.name}\u300D\u5438\u6536\u4E86 ${absorbed} \u70B9\u4F24\u5BB3${damage > 0 ? "" : "\uFF0C\u653B\u51FB\u88AB\u5B8C\u5168\u6321\u4E0B"}\uFF01`);
+      if (s.data.shield <= 0) {
+        s.turns = 0;
+        logs.push(`\u300C${s.name}\u300D\u7684\u62A4\u76FE\u7834\u788E\u4E86\u3002`);
+      }
+    }
+  }
+  return damage;
+}
+function statusSum(c, key) {
+  let sum = 0;
+  for (const s of c.statuses || []) {
+    const v = s.data?.[key];
+    if (typeof v === "number") sum += v;
+  }
+  return sum;
+}
 function tryApplyStatus(target, statusId, chance, turns, rng, logs, sourceName = "") {
   const def = STATUS_DEFS[statusId];
   if (!def || target.hp <= 0) return;
@@ -64038,6 +64080,12 @@ function processStatuses(c, rng, logs, isPlayerSide) {
         }
         break;
     }
+    if (s.id.startsWith("dot_") && s.data?.dotDmg) {
+      const dot = Math.max(1, Math.floor(s.data.dotDmg));
+      c.hp = Math.max(0, c.hp - dot);
+      logs.push(`${who} \u53D7\u5230\u300C${s.name}\u300D\u6301\u7EED\u4F24\u5BB3\uFF0C\u635F\u5931 ${dot} \u70B9\u751F\u547D\u3002`);
+      if (c.hp <= 0) logs.push(`${isPlayerSide ? "\u4F60" : c.name} \u5012\u4E0B\u4E86\uFF01`);
+    }
     s.turns -= 1;
   }
   c.statuses = c.statuses.filter((s) => {
@@ -64051,14 +64099,16 @@ function processStatuses(c, rng, logs, isPlayerSide) {
 }
 var effAtk = (c) => {
   let v = Math.floor(c.atk * (1 + pctOf(c, "atkPct")));
+  v += statusSum(c, "atkBuff");
   if (hasStatus(c, "cripple")) v = Math.floor(v * 0.7);
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
-  return v;
+  return Math.max(1, v - statusSum(c, "atkDown"));
 };
 var effMag = (c) => {
   let v = Math.floor(c.mag * (1 + pctOf(c, "magPct")));
+  v = Math.floor(v * (1 + statusSum(c, "magMult")));
   if (hasStatus(c, "curse")) v = Math.floor(v * 0.8);
-  return v;
+  return Math.max(1, v);
 };
 var effAgi = (c) => hasStatus(c, "slow") ? Math.floor(c.agi * 0.5) : c.agi;
 function rollEquipmentDrop(drop, rng) {
@@ -64105,6 +64155,12 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
   const regenMp = mpRegen(player);
   if (regenHp > 0) player.hp = Math.min(player.maxHp, player.hp + regenHp);
   if (regenMp > 0) player.mp = Math.min(player.maxMp, player.mp + regenMp);
+  if (player.cooldowns) {
+    for (const k of Object.keys(player.cooldowns)) {
+      player.cooldowns[k] = Math.max(0, player.cooldowns[k] - 1);
+      if (player.cooldowns[k] === 0) delete player.cooldowns[k];
+    }
+  }
   if (!playerSkipped) {
     const confused = hasStatus(player, "confusion") && rng.next() < 0.5;
     if (confused) {
@@ -64165,58 +64221,155 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
           }
           const skillId = action.skillId || "";
           const skillConfig = getSkillById(skillId);
-          if (skillConfig && player.mp >= skillConfig.mpCost) {
+          const cdLeft = player.cooldowns?.[skillId] || 0;
+          const usable = skillConfig && player.mp >= skillConfig.mpCost && cdLeft <= 0;
+          if (skillConfig && !usable && cdLeft > 0) {
+            logs.push(`${skillConfig.name} \u51B7\u5374\u4E2D\uFF08\u5269\u4F59 ${cdLeft} \u56DE\u5408\uFF09\uFF0C\u6539\u4E3A\u666E\u901A\u653B\u51FB\u3002`);
+          }
+          if (skillConfig && usable) {
             player.mp -= skillConfig.mpCost;
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
-            if (target) {
-              const effect = skillConfig.effect;
-              if (effect.damage) {
-                const dmgStr = effect.damage;
-                let damage = 0;
-                if (dmgStr.includes("mag*")) {
-                  const mult = parseFloat(dmgStr.split("*")[1]);
-                  damage = Math.floor(effMag(player) * mult) - effMdef(target);
-                } else if (dmgStr.includes("atk*")) {
-                  const mult = parseFloat(dmgStr.split("*")[1]);
-                  damage = Math.floor(effAtk(player) * mult) - effDef(target);
-                }
-                damage = Math.max(1, damage);
-                const elMult = getElementMultiplier(skillConfig.element, target.element);
-                if (elMult !== 1) {
-                  damage = Math.floor(damage * elMult);
-                  logs.push(elMult > 1 ? `\u5C5E\u6027\u514B\u5236\uFF01` : `\u5C5E\u6027\u88AB\u514B\u5236...`);
-                }
-                const sm = modsOf(player);
-                if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
-                target.hp = Math.max(0, target.hp - damage);
-                logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${target.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\u3002`);
-                if (sm.lifesteal) {
-                  const heal = Math.floor(damage * sm.lifesteal / 100);
-                  if (heal > 0) {
-                    player.hp = Math.min(player.maxHp, player.hp + heal);
-                    logs.push(`\u5438\u8840\u6548\u679C\u6062\u590D\u4E86\u4F60 ${heal} \u70B9\u751F\u547D\u3002`);
+            const cd = skillConfig.cooldown || 0;
+            if (cd > 0) {
+              player.cooldowns = player.cooldowns || {};
+              player.cooldowns[skillId] = cd;
+            }
+            const effect = skillConfig.effect;
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0) || enemies.find((e) => e.hp > 0);
+            const sm = modsOf(player);
+            if (effect.damage) {
+              const dmgStr = effect.damage;
+              const isMag = dmgStr.includes("mag*");
+              const mult = parseFloat(dmgStr.split("*")[1]);
+              const aoe = !!effect.aoe;
+              const hits = effect.hits || 1;
+              const targets = aoe ? enemies.filter((e) => e.hp > 0) : target ? [target] : [];
+              for (const t2 of targets) {
+                for (let h = 0; h < hits; h++) {
+                  if (t2.hp <= 0) break;
+                  let def = isMag ? effMdef(t2) : effDef(t2);
+                  if (effect.ignoreDef) def = 0;
+                  else if (effect.defPenetration) def = Math.floor(def * (1 - effect.defPenetration));
+                  let damage = Math.floor((isMag ? effMag(player) : effAtk(player)) * mult) - def;
+                  damage = Math.max(1, damage);
+                  const elMult = getElementMultiplier(skillConfig.element, t2.element);
+                  if (elMult !== 1) {
+                    damage = Math.floor(damage * elMult);
+                    logs.push(elMult > 1 ? `\u5C5E\u6027\u514B\u5236\uFF01` : `\u5C5E\u6027\u88AB\u514B\u5236...`);
                   }
+                  const critBuff = statusSum(player, "critBuff");
+                  const critChance = (sm.critRate || 0) / 100 + critBuff + player.luk * 2e-3;
+                  const isCrit = rng.next() < critChance;
+                  if (isCrit) damage = Math.floor(damage * (effect.critDamage || 1.5 + (sm.critDmg || 0) / 100));
+                  if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
+                  t2.hp = Math.max(0, t2.hp - damage);
+                  logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${t2.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3${isCrit ? "\uFF08\u66B4\u51FB\uFF09" : ""}\u3002`);
+                  const ls = (sm.lifesteal || 0) / 100 + (effect.lifesteal || 0);
+                  if (ls > 0) {
+                    const heal = Math.floor(damage * ls);
+                    if (heal > 0) {
+                      player.hp = Math.min(player.maxHp, player.hp + heal);
+                      logs.push(`\u5438\u8840\u6548\u679C\u6062\u590D\u4E86\u4F60 ${heal} \u70B9\u751F\u547D\u3002`);
+                    }
+                  }
+                  if (t2.hp <= 0) logs.push(`${t2.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
                 }
+              }
+            }
+            if (effect.heal || effect.healPercent) {
+              let heal = 0;
+              if (effect.healPercent) heal = Math.floor(player.maxHp * effect.healPercent);
+              else {
+                const healStr = effect.heal;
+                heal = healStr.includes("mag*") ? Math.floor(effMag(player) * parseFloat(healStr.split("*")[1])) : healStr.includes("atk*") ? Math.floor(effAtk(player) * parseFloat(healStr.split("*")[1])) : parseInt(healStr);
+              }
+              player.hp = Math.min(player.maxHp, player.hp + heal);
+              logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u6062\u590D\u4E86 ${heal} \u70B9\u751F\u547D\u3002`);
+            }
+            {
+              const data = {};
+              if (effect.atkBuff) data.atkBuff = effect.atkBuff;
+              if (effect.defBuff) data.defBuff = effect.defBuff;
+              if (effect.magMultiplier) data.magMult = effect.magMultiplier - 1;
+              if (effect.defMultiplier) data.defMult = effect.defMultiplier - 1;
+              if (effect.critChanceBuff) data.critBuff = effect.critChanceBuff;
+              if (effect.dodgeBuff) data.dodge = effect.dodgeBuff;
+              if (effect.shield) data.shield = Math.max(1, Math.floor(effMag(player)));
+              const dur = effect.buffDuration || effect.duration || 0;
+              if (Object.keys(data).length > 0 && dur > 0) {
+                const bid = `buff_${skillId}`;
+                player.statuses = (player.statuses || []).filter((s) => s.id !== bid);
+                player.statuses.push({ id: bid, name: skillConfig.name, kind: "mental", turns: dur, data });
+                logs.push(`\u4F60\u83B7\u5F97\u4E86\u300C${skillConfig.name}\u300D\u589E\u76CA\uFF0C\u6301\u7EED ${dur} \u56DE\u5408\u3002`);
+              }
+            }
+            if (effect.dotDamage && target && target.hp > 0) {
+              const dStr = effect.dotDamage;
+              const base = dStr.includes("mag*") ? effMag(player) : effAtk(player);
+              const dotDmg = Math.max(1, Math.floor(base * parseFloat(dStr.split("*")[1])));
+              const dur = effect.dotDuration || 3;
+              const did = `dot_${skillId}`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== did);
+              target.statuses.push({ id: did, name: skillConfig.name, kind: "physical", turns: dur, data: { dotDmg } });
+              logs.push(`${target.name} \u53D7\u5230\u300C${skillConfig.name}\u300D\u6301\u7EED\u4F24\u5BB3\u6548\u679C\uFF0C\u6BCF\u56DE\u5408 ${dotDmg} \u70B9\uFF0C\u6301\u7EED ${dur} \u56DE\u5408\u3002`);
+            }
+            if ((effect.atkDebuff || effect.defDebuff) && target && target.hp > 0) {
+              const data = {};
+              if (effect.atkDebuff) data.atkDown = effect.atkDebuff;
+              if (effect.defDebuff) data.defDown = effect.defDebuff;
+              const dur = effect.debuffDuration || 2;
+              const bid = `debuff_${skillId}`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== bid);
+              target.statuses.push({ id: bid, name: skillConfig.name, kind: "mental", turns: dur, data });
+              logs.push(`${target.name} \u88AB\u300C${skillConfig.name}\u300D\u524A\u5F31\uFF0C\u6301\u7EED ${dur} \u56DE\u5408\u3002`);
+            }
+            if (effect.dispel) {
+              const before = (player.statuses || []).length;
+              player.statuses = (player.statuses || []).filter((s) => s.id.startsWith("buff_"));
+              logs.push(before > player.statuses.length ? `\u4F60\u9A71\u6563\u4E86\u8EAB\u4E0A\u7684\u8D1F\u9762\u72B6\u6001\uFF01` : `\u6CA1\u6709\u53EF\u9A71\u6563\u7684\u72B6\u6001\u3002`);
+            }
+            if (effect.poisonDamage && target && target.hp > 0) {
+              const pStr = effect.poisonDamage;
+              const base = pStr.includes("mag*") ? effMag(player) : effAtk(player);
+              const dotDmg = Math.max(1, Math.floor(base * parseFloat(pStr.split("*")[1])));
+              const dur = effect.poisonDuration || 3;
+              const did = `dot_${skillId}_poison`;
+              target.statuses = (target.statuses || []).filter((s) => s.id !== did);
+              target.statuses.push({ id: did, name: "\u5267\u6BD2", kind: "physical", turns: dur, data: { dotDmg } });
+              logs.push(`${target.name} \u4E2D\u4E86\u5267\u6BD2\uFF0C\u6BCF\u56DE\u5408\u635F\u5931 ${dotDmg} \u70B9\u751F\u547D\uFF0C\u6301\u7EED ${dur} \u56DE\u5408\u3002`);
+            }
+            if (effect.freezeChance && target && target.hp > 0) {
+              tryApplyStatus(target, "stun", effect.freezeChance, effect.freezeDuration ?? 1, rng, logs, skillConfig.name);
+            }
+            if (effect.root && target && target.hp > 0) {
+              tryApplyStatus(target, "slow", 1, 2, rng, logs, skillConfig.name);
+              if (effect.trapDamage) {
+                const tStr = effect.trapDamage;
+                const base = tStr.includes("mag*") ? effMag(player) : effAtk(player);
+                const td = Math.max(1, Math.floor(base * parseFloat(tStr.split("*")[1])) - effDef(target));
+                target.hp = Math.max(0, target.hp - td);
+                logs.push(`\u9677\u9631\u5BF9 ${target.name} \u9020\u6210 ${td} \u70B9\u4F24\u5BB3\u3002`);
                 if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
               }
-              if (effect.heal) {
-                const healStr = effect.heal;
-                let heal = 0;
-                if (healStr.includes("mag*")) {
-                  const mult = parseFloat(healStr.split("*")[1]);
-                  heal = Math.floor(effMag(player) * mult);
-                } else {
-                  heal = parseInt(healStr);
-                }
-                player.hp = Math.min(player.maxHp, player.hp + heal);
-                logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u6062\u590D\u4E86 ${heal} \u70B9\u751F\u547D\u3002`);
-              }
-              if (effect.status && target.hp > 0) {
-                const st = effect.status;
-                tryApplyStatus(target, st.id, st.chance, st.turns ?? 2, rng, logs, skillConfig.name);
-              }
-              if (effect.stunChance && target.hp > 0) {
-                tryApplyStatus(target, "stun", effect.stunChance, effect.stunDuration ?? 1, rng, logs, skillConfig.name);
+            }
+            if (effect.status && target && target.hp > 0) {
+              const st = effect.status;
+              tryApplyStatus(target, st.id, st.chance, st.turns ?? 2, rng, logs, skillConfig.name);
+            }
+            if (effect.stunChance && target && target.hp > 0) {
+              tryApplyStatus(target, "stun", effect.stunChance, effect.stunDuration ?? 1, rng, logs, skillConfig.name);
+            }
+            break;
+          }
+          {
+            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            if (target) {
+              if (checkDodge(effAgi(target), rng)) {
+                logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
+              } else {
+                const damage = Math.max(1, effAtk(player) - effDef(target));
+                target.hp = Math.max(0, target.hp - damage);
+                logs.push(`\u4F60\u5BF9 ${target.name} \u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
+                if (target.hp <= 0) logs.push(`${target.name} \u88AB\u51FB\u8D25\u4E86\uFF01`);
               }
             }
           }
@@ -64304,6 +64457,8 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
           damage = Math.floor(effAtk(enemy) * parseFloat(dmgStr.split("*")[1])) - effDef(player);
         }
         damage = Math.max(1, rollDamage(damage, rng));
+        damage = applyPlayerDefense(player, damage, logs, rng, enemy.name);
+        if (damage <= 0) continue;
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} \u4F7F\u7528\u4E86 ${skill.name}\uFF0C\u5BF9\u4F60\u9020\u6210 ${damage} \u70B9\u4F24\u5BB3\uFF01`);
         const rm1 = modsOf(player);
@@ -64325,6 +64480,8 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         }
         let damage = effAtk(enemy) - effDef(player);
         damage = Math.max(1, rollDamage(damage, rng));
+        damage = applyPlayerDefense(player, damage, logs, rng, enemy.name);
+        if (damage <= 0) continue;
         player.hp = Math.max(0, player.hp - damage);
         logs.push(`${enemy.name} \u5BF9\u4F60\u9020\u6210\u4E86 ${damage} \u70B9\u4F24\u5BB3\u3002`);
         const rm2 = modsOf(player);

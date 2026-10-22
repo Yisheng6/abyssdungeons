@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { computeSetBonuses, getSkillInfo, getItemInfo } from '@/lib/catalog'
 import { getSpentTalentPoints, canLearnTalent, getRespecCost, getTalentMods, mergeMods } from '@/lib/talents'
+import { QUALITY_MAX_AFFIXES, REFORGE_DIAMOND_COST, getReforgeGoldCost, rollAffixes, extractMainStats } from '@/lib/affixes'
 
 // ─── Types ───
 
@@ -55,6 +56,8 @@ export interface Item {
   quantity: number; desc: string; stats?: Record<string, number>
   /** 装备副词条（随机生成，已合并进 stats，此字段用于展示区分） */
   affixes?: Record<string, number>
+  /** 已镶嵌的宝石 id 列表（长度 ≤ 孔位数） */
+  gems?: string[]
   setId?: string; setTier?: number; value?: number
   effect?: Record<string, unknown>; learnSkillId?: string
   enhanceLevel?: number
@@ -72,14 +75,32 @@ export function getEnhanceCost(level: number): { stoneId: string; stoneName: str
   return { stoneId: 'enhance_stone_high', stoneName: '上级强化石', count: level - 9 }
 }
 
-/** 强化后的有效属性：每级 +10%（向上取整） */
+/** 装备孔位数：按品质（普通0 / 精良1 / 稀有1 / 史诗2 / 传说2 / 神话3） */
+export function getSocketCount(quality: string): number {
+  return { common: 0, fine: 1, rare: 1, epic: 2, legendary: 2, mythic: 3 }[quality] ?? 0
+}
+
+/** 已镶嵌宝石提供的属性 */
+export function getGemStats(item: Item): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const gid of item.gems || []) {
+    const def = getItemInfo(gid)
+    for (const [k, v] of Object.entries(def?.stats || {})) {
+      out[k] = (out[k] || 0) + (v as number)
+    }
+  }
+  return out
+}
+
+/** 强化后的有效属性：每级 +10%（向上取整）；镶嵌宝石属性在最后平加（不受强化加成） */
 export function getEffectiveStats(item: Item): Record<string, number> {
   const lv = item.enhanceLevel || 0
-  if (!item.stats) return {}
-  if (lv <= 0) return { ...item.stats }
   const out: Record<string, number> = {}
-  for (const [k, v] of Object.entries(item.stats)) {
-    out[k] = v + Math.ceil(v * 0.1 * lv)
+  for (const [k, v] of Object.entries(item.stats || {})) {
+    out[k] = lv > 0 ? v + Math.ceil(v * 0.1 * lv) : v
+  }
+  for (const [k, v] of Object.entries(getGemStats(item))) {
+    out[k] = (out[k] || 0) + v
   }
   return out
 }
@@ -290,7 +311,9 @@ interface GameState {
   inCombat: boolean; combatEnemies: Enemy[]; combatLogs: string[]
   combatEnded: boolean; combatVictory: boolean
   /** 玩家战斗中的异常状态（瞬态，不持久化） */
-  playerStatuses: Array<{ id: string; name: string; kind: string; turns: number }>
+  playerStatuses: Array<{ id: string; name: string; kind: string; turns: number; data?: Record<string, number> }>
+  /** 技能冷却剩余回合（瞬态，战斗开始重置） */
+  skillCooldowns: Record<string, number>
 
   // ─── Auto Explore (挂机) ───
   isAutoExploring: boolean
@@ -350,6 +373,9 @@ interface GameState {
 
   // Blacksmith (铁匠铺)
   enhanceItem: (itemUid: string, options?: { useProtect?: boolean; useLucky?: boolean }) => { success: boolean; message: string }
+  reforgeAffixes: (itemUid: string, useDiamond?: boolean) => { success: boolean; message: string }
+  socketGem: (itemUid: string, gemUid: string) => { success: boolean; message: string }
+  unsocketGem: (itemUid: string, gemIndex: number) => { success: boolean; message: string }
   disassembleItem: (itemUid: string) => { success: boolean; message: string }
   craftStone: (recipe: 'low' | 'mid' | 'high') => { success: boolean; message: string }
   countItemById: (itemId: string) => number
@@ -364,6 +390,9 @@ interface GameState {
 
   // Combat
   setInCombat: (v: boolean) => void
+  setSkillCooldowns: (cd: Record<string, number>) => void
+  /** 调整已学技能顺序（即自动释放顺序），dir=-1 上移 / 1 下移 */
+  moveSkill: (skillId: string, dir: -1 | 1) => void
   setCombatEnemies: (e: Enemy[]) => void
   addCombatLog: (log: string) => void
   setCombatEnded: (v: boolean) => void
@@ -480,6 +509,7 @@ export const useGameStore = create<GameState>()(
       inCombat: false, combatEnemies: [], combatLogs: [],
       combatEnded: false, combatVictory: false,
       playerStatuses: [],
+      skillCooldowns: {},
       isAutoExploring: false, lawfulInBattle: false, autoExploreLogs: [],
       autoExploreStats: { roomsExplored: 0, enemiesKilled: 0, itemsFound: 0, currentLayer: 0 },
 
@@ -1076,6 +1106,164 @@ export const useGameStore = create<GameState>()(
         return { success, message: `${message}（成功率 ${rate}%${protectedUsed ? '，消耗保护符×1' : ''}）` }
       },
 
+      reforgeAffixes: (itemUid, useDiamond) => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法重铸词条' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+
+        // 找装备：背包 或 已装备
+        const invIdx = s.inventory.findIndex((i) => i.uid === itemUid)
+        let equipSlot: keyof Equipment | null = null
+        let item: Item | null = null
+        if (invIdx >= 0) {
+          item = s.inventory[invIdx]
+        } else {
+          for (const [slot, eq] of Object.entries(s.equipment)) {
+            if (eq && eq.uid === itemUid) { equipSlot = slot as keyof Equipment; item = eq; break }
+          }
+        }
+        if (!item) return { success: false, message: '装备不存在' }
+        if (item.type !== 'equipment') return { success: false, message: '只能重铸装备' }
+
+        const maxAffixes = QUALITY_MAX_AFFIXES[item.quality] ?? 0
+        if (maxAffixes <= 0) return { success: false, message: '普通品质没有副词条，无法重铸' }
+
+        // 费用核算
+        const setTier = item.setTier || 1
+        let np: Player = { ...p }
+        if (useDiamond) {
+          if ((p.diamonds || 0) < REFORGE_DIAMOND_COST) return { success: false, message: `钻石不足（需要 ${REFORGE_DIAMOND_COST}）` }
+          np.diamonds = (np.diamonds || 0) - REFORGE_DIAMOND_COST
+        } else {
+          const goldCost = getReforgeGoldCost(setTier, item.quality)
+          if (p.gold < goldCost) return { success: false, message: `金币不足（需要 ${goldCost}）` }
+          np.gold = p.gold - goldCost
+        }
+
+        // 剥离旧词条 → 重新 roll → 合并
+        const main = extractMainStats(item)
+        const affixes = rollAffixes(main, item.quality, setTier, !!useDiamond)
+        const stats: Record<string, number> = { ...main }
+        for (const [k, v] of Object.entries(affixes)) stats[k] = (stats[k] || 0) + v
+        const newItem: Item = { ...item, stats, affixes }
+
+        let newInv = s.inventory
+        if (invIdx >= 0) newInv = s.inventory.map((i) => (i.uid === itemUid ? newItem : i))
+        const newEquip = equipSlot ? { ...s.equipment, [equipSlot]: newItem } : s.equipment
+
+        // 已装备：按有效属性差值调整玩家属性
+        if (equipSlot) {
+          const delta: Record<string, number> = {}
+          const oldEff = getEffectiveStats(item)
+          const newEff = getEffectiveStats(newItem)
+          for (const k of new Set([...Object.keys(oldEff), ...Object.keys(newEff)])) {
+            delta[k] = (newEff[k] || 0) - (oldEff[k] || 0)
+          }
+          np = applyStatDelta(np, delta)
+        }
+
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { player: np, equipment: newEquip }
+        set({ inventory: newInv, equipment: newEquip, player: np, classSaves: ns })
+
+        return { success: true, message: `重铸完成，获得 ${Object.keys(affixes).length} 条新词条${useDiamond ? '（钻石重铸·高值）' : ''}` }
+      },
+
+      socketGem: (itemUid, gemUid) => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法镶嵌宝石' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+
+        // 找装备：背包 或 已装备
+        const invIdx = s.inventory.findIndex((i) => i.uid === itemUid)
+        let equipSlot: keyof Equipment | null = null
+        let item: Item | null = null
+        if (invIdx >= 0) item = s.inventory[invIdx]
+        else {
+          for (const [slot, eq] of Object.entries(s.equipment)) {
+            if (eq && eq.uid === itemUid) { equipSlot = slot as keyof Equipment; item = eq; break }
+          }
+        }
+        if (!item) return { success: false, message: '装备不存在' }
+        if (item.type !== 'equipment') return { success: false, message: '只能给装备镶嵌宝石' }
+
+        const sockets = getSocketCount(item.quality)
+        const gems = [...(item.gems || [])]
+        if (sockets <= 0) return { success: false, message: '该品质没有孔位' }
+        if (gems.length >= sockets) return { success: false, message: '孔位已满' }
+
+        // 找宝石（必须是带属性的材料）
+        const gemIdx = s.inventory.findIndex((i) => i.uid === gemUid)
+        const gem = gemIdx >= 0 ? s.inventory[gemIdx] : null
+        if (!gem) return { success: false, message: '宝石不存在' }
+        const gemDef = getItemInfo(gem.id)
+        if (!gemDef?.stats || Object.keys(gemDef.stats).length === 0) return { success: false, message: '该物品不是可镶嵌宝石' }
+
+        gems.push(gem.id)
+        const newItem: Item = { ...item, gems }
+
+        // 扣宝石
+        let newInv = s.inventory.map((i) => (i.uid === gemUid ? { ...i, quantity: i.quantity - 1 } : i)).filter((i) => i.quantity > 0)
+        if (invIdx >= 0) newInv = newInv.map((i) => (i.uid === itemUid ? newItem : i))
+        const newEquip = equipSlot ? { ...s.equipment, [equipSlot]: newItem } : s.equipment
+
+        let np: Player = { ...p }
+        if (equipSlot) np = applyStatDelta(np, getGemStats({ gems: [gem.id] } as Item))
+
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { player: np, equipment: newEquip }
+        set({ inventory: newInv, equipment: newEquip, player: np, classSaves: ns })
+        return { success: true, message: `镶嵌成功：${gem.name} → ${item.name}` }
+      },
+
+      unsocketGem: (itemUid, gemIndex) => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法拆卸宝石' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+
+        const invIdx = s.inventory.findIndex((i) => i.uid === itemUid)
+        let equipSlot: keyof Equipment | null = null
+        let item: Item | null = null
+        if (invIdx >= 0) item = s.inventory[invIdx]
+        else {
+          for (const [slot, eq] of Object.entries(s.equipment)) {
+            if (eq && eq.uid === itemUid) { equipSlot = slot as keyof Equipment; item = eq; break }
+          }
+        }
+        if (!item || !item.gems || gemIndex < 0 || gemIndex >= item.gems.length) {
+          return { success: false, message: '宝石不存在' }
+        }
+        const gemId = item.gems[gemIndex]
+        const gemDef = getItemInfo(gemId)
+        const gems = item.gems.filter((_, i) => i !== gemIndex)
+        const newItem: Item = { ...item, gems }
+
+        // 宝石返还背包
+        let newInv = [...s.inventory]
+        const exist = newInv.find((i) => i.id === gemId)
+        if (exist) newInv = newInv.map((i) => (i.id === gemId ? { ...i, quantity: i.quantity + 1 } : i))
+        else if (gemDef) {
+          newInv.push({ uid: `gem_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, id: gemId, name: gemDef.name, type: 'material', quality: gemDef.quality, quantity: 1, desc: gemDef.desc || '', value: gemDef.value })
+        }
+        if (invIdx >= 0) newInv = newInv.map((i) => (i.uid === itemUid ? newItem : i))
+        const newEquip = equipSlot ? { ...s.equipment, [equipSlot]: newItem } : s.equipment
+
+        let np: Player = { ...p }
+        if (equipSlot) {
+          const neg: Record<string, number> = {}
+          for (const [k, v] of Object.entries(getGemStats({ gems: [gemId] } as Item))) neg[k] = -(v as number)
+          np = applyStatDelta(np, neg)
+        }
+
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { player: np, equipment: newEquip }
+        set({ inventory: newInv, equipment: newEquip, player: np, classSaves: ns })
+        return { success: true, message: `已卸下 ${gemDef?.name || gemId}，返还背包` }
+      },
+
       disassembleItem: (itemUid) => {
         const s = get()
         const item = s.inventory.find((i) => i.uid === itemUid)
@@ -1083,10 +1271,20 @@ export const useGameStore = create<GameState>()(
         if (item.type !== 'equipment') return { success: false, message: '只能分解装备' }
 
         const gold = getDisassembleGold(item)
-        const newInv = s.inventory.filter((i) => i.uid !== itemUid)
+        let newInv = s.inventory.filter((i) => i.uid !== itemUid)
+        // 已镶嵌宝石返还背包
+        let returned = 0
+        for (const gid of item.gems || []) {
+          const gemDef = getItemInfo(gid)
+          if (!gemDef) continue
+          returned++
+          const exist = newInv.find((i) => i.id === gid)
+          if (exist) newInv = newInv.map((i) => (i.id === gid ? { ...i, quantity: i.quantity + 1 } : i))
+          else newInv.push({ uid: `gem_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, id: gid, name: gemDef.name, type: 'material', quality: gemDef.quality, quantity: 1, desc: gemDef.desc || '', value: gemDef.value })
+        }
         set({ inventory: newInv })
         get().addPlayerGold(gold)
-        return { success: true, message: `分解 ${getItemDisplayName(item)}，获得金币 ×${gold}` }
+        return { success: true, message: `分解 ${getItemDisplayName(item)}，获得金币 ×${gold}${returned ? `，返还宝石 ×${returned}` : ''}` }
       },
 
       disassembleTempItem: (itemUid) => {
@@ -1184,7 +1382,23 @@ export const useGameStore = create<GameState>()(
       resetExploredRooms: () => set({ exploredRooms: new Set() }),
 
       // ─── Combat ───
-      setInCombat: (v) => set({ inCombat: v }),
+      setInCombat: (v) => set(v ? { inCombat: v, skillCooldowns: {} } : { inCombat: v, skillCooldowns: {} }),
+
+      setSkillCooldowns: (cd) => set({ skillCooldowns: cd }),
+
+      moveSkill: (skillId, dir) => {
+        const s0 = get()
+        if (s0.inCombat || !s0.player) return
+        const skills = [...s0.player.skills]
+        const i = skills.indexOf(skillId)
+        const j = i + dir
+        if (i === -1 || j < 0 || j >= skills.length) return
+        ;[skills[i], skills[j]] = [skills[j], skills[i]]
+        const np = { ...s0.player, skills }
+        const ns = { ...s0.classSaves }
+        if (s0.activeClassId) ns[s0.activeClassId] = { ...ns[s0.activeClassId], player: np }
+        set({ player: np, classSaves: ns })
+      },
       setCombatEnemies: (e) => set({ combatEnemies: e }),
       addCombatLog: (log) => set((s) => ({ combatLogs: [...s.combatLogs, log] })),
       setCombatEnded: (v) => set({ combatEnded: v }),
