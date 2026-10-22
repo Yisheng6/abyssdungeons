@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -435,7 +435,7 @@ export default function CharacterPanel() {
                       <>
                         <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{getItemDisplayName(item)}</div>
                         {Object.entries(getEffectiveStats(item)).map(([s, v]) => (
-                          <div key={s} className="text-[10px]" style={{ color: '#3FB950' }}>+{v} {statNames[s] || s}</div>
+                          <div key={s} className="text-[10px]" style={{ color: '#3FB950' }}>+{v}{PCT_AFFIX_KEYS.has(s) ? '%' : ''} {statNames[s] || STAT_NAMES[s] || s}</div>
                         ))}
                       </>
                     ) : (
