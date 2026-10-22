@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { LogOut, Settings, Sword, User, X } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
@@ -19,7 +19,15 @@ const SETTINGS_QUALITY_NAMES: Record<string, string> = {
 export default function TownHeroPanel() {
   const navigate = useNavigate()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
-  const player = useGameStore((s) => s.player)
+  const livePlayer = useGameStore((s) => s.player)
+  const inCombat = useGameStore((s) => s.inCombat)
+  // 战斗期间冻结面板显示：进入战斗时快照一次，结束后恢复实时
+  const [frozen, setFrozen] = useState<typeof livePlayer>(null)
+  useEffect(() => {
+    if (inCombat && useGameStore.getState().player) setFrozen(useGameStore.getState().player)
+    else setFrozen(null)
+  }, [inCombat])
+  const player = inCombat && frozen ? frozen : livePlayer
   const settings = useGameStore((s) => s.settings)
   const updateSettings = useGameStore((s) => s.updateSettings)
   const [showSettings, setShowSettings] = useState(false)

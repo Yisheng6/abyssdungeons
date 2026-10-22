@@ -171,6 +171,11 @@ export default function Lawful() {
 
   const enterRoom = async (room: LawfulRoom) => {
     if (battlingRef.current || !player) return
+    const gsNow = useGameStore.getState()
+    if (gsNow.inCombat || gsNow.isAutoExploring) {
+      addLog('混乱深渊探索/战斗进行中，结束后再挑战守序深渊')
+      return
+    }
     battlingRef.current = true
     setBattling(true)
     addLog(`═══ 第 ${lawful.layer} 层 · ${room.name} ═══`)

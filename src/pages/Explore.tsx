@@ -494,6 +494,10 @@ export default function Explore() {
   const startExploring = useCallback(async () => {
     if (isRunningRef.current) return // 防重入：避免并行探索链互相污染敌人显示
     const gs = useGameStore.getState()
+    if (gs.inCombat) {
+      addLog('另一场战斗正在进行中（守序深渊），结束后再来探索')
+      return
+    }
     if (!gs.player) {
       addLog('请先创建角色')
       return
