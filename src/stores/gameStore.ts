@@ -294,6 +294,8 @@ interface GameState {
 
   // ─── Auto Explore (挂机) ───
   isAutoExploring: boolean
+  /** 守序深渊战斗进行中（持久化：刷新后自动续战） */
+  lawfulInBattle: boolean
   autoExploreLogs: string[]
   autoExploreStats: { roomsExplored: number; enemiesKilled: number; itemsFound: number; currentLayer: number }
 
@@ -478,7 +480,7 @@ export const useGameStore = create<GameState>()(
       inCombat: false, combatEnemies: [], combatLogs: [],
       combatEnded: false, combatVictory: false,
       playerStatuses: [],
-      isAutoExploring: false, autoExploreLogs: [],
+      isAutoExploring: false, lawfulInBattle: false, autoExploreLogs: [],
       autoExploreStats: { roomsExplored: 0, enemiesKilled: 0, itemsFound: 0, currentLayer: 0 },
 
       // ─── Auth ───
@@ -1215,6 +1217,8 @@ export const useGameStore = create<GameState>()(
         taskState: state.taskState,
         lawful: state.lawful,
         talents: state.talents,
+        isAutoExploring: state.isAutoExploring,
+        lawfulInBattle: state.lawfulInBattle,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -1237,7 +1241,8 @@ export const useGameStore = create<GameState>()(
           state.combatEnemies = []
           state.combatEnded = false
           state.combatVictory = false
-          state.isAutoExploring = false
+          state.isAutoExploring = state.isAutoExploring || false
+          state.lawfulInBattle = state.lawfulInBattle || false
           state.autoExploreLogs = []
           // 旧存档迁移：没有技能的角色补发初始技能
           const fixSkills = (p: Player | null | undefined) => {

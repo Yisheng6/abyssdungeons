@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
 import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy, FlaskConical, Target, MessageSquare, Landmark } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import TownHeroPanel from './TownHeroPanel'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
+import Explore from '@/pages/Explore'
+import Lawful from '@/pages/Lawful'
 
 const NAV_ITEMS = [
   { path: '/', label: '城镇', icon: Home },
@@ -44,6 +46,13 @@ export default function Layout() {
   const settings = useGameStore((s) => s.settings)
   const updateSettings = useGameStore((s) => s.updateSettings)
   const [showSettings, setShowSettings] = useState(false)
+  // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
+  const onExplore = location.pathname.startsWith('/explore')
+  const onLawful = location.pathname.startsWith('/lawful')
+  const [exploreMounted, setExploreMounted] = useState(false)
+  const [lawfulMounted, setLawfulMounted] = useState(false)
+  useEffect(() => { if (onExplore) setExploreMounted(true) }, [onExplore])
+  useEffect(() => { if (onLawful) setLawfulMounted(true) }, [onLawful])
   const playerName = localStorage.getItem('ad_user') || '冒险者'
 
   const logout = () => {
@@ -114,7 +123,18 @@ export default function Layout() {
 
         {/* 页面内容（通用显示区，移动端底部留出导航高度） */}
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-14 lg:pb-0">
-          <Outlet />
+          {/* 战斗页常驻：隐藏而不是卸载 */}
+          {exploreMounted && (
+            <div className="flex min-h-0 flex-1 flex-col" style={{ display: onExplore ? undefined : 'none' }}>
+              <Explore />
+            </div>
+          )}
+          {lawfulMounted && (
+            <div className="flex min-h-0 flex-1 flex-col" style={{ display: onLawful ? undefined : 'none' }}>
+              <Lawful />
+            </div>
+          )}
+          {!onExplore && !onLawful && <Outlet />}
         </div>
 
         {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}

@@ -531,6 +531,15 @@ export default function Explore() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addLog])
 
+  // 刷新页面后：若之前正在自动探索，则自动续战
+  useEffect(() => {
+    if (useGameStore.getState().isAutoExploring && !isRunningRef.current) {
+      addLog('检测到未完成的探索，自动继续…')
+      startExploring()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const getRoomTypeName = (type: string) => ROOM_TYPE_NAMES[type] || type
   const getRoomTypeColor = (type: string) => ROOM_TYPE_COLORS[type] || '#8B949E'
 

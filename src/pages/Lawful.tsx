@@ -57,6 +57,16 @@ export default function Lawful() {
     await enterRoom(room)
   }
 
+  // 刷新页面后：若之前战斗被打断，自动重新挑战（重新随机分配房间）
+  useEffect(() => {
+    if (useGameStore.getState().lawfulInBattle && !battlingRef.current && rooms && rooms.length > 0 && player) {
+      useGameStore.setState({ lawfulInBattle: false })
+      addLog('检测到未完成的挑战，自动重新进入…')
+      challengeLayer()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms])
+
   const autoBattle = useCallback(async (room: LawfulRoom): Promise<boolean> => {
     const gs = useGameStore.getState()
     gs.setInCombat(true)
@@ -178,6 +188,7 @@ export default function Lawful() {
     }
     battlingRef.current = true
     setBattling(true)
+    useGameStore.setState({ lawfulInBattle: true })
     addLog(`═══ 第 ${lawful.layer} 层 · ${room.name} ═══`)
     addLog(`遭遇：${room.enemies.map((e) => e.name).join('、')}`)
     const won = await autoBattle(room)
@@ -219,6 +230,7 @@ export default function Lawful() {
     }
     battlingRef.current = false
     setBattling(false)
+    useGameStore.setState({ lawfulInBattle: false })
   }
 
   if (!player) {
