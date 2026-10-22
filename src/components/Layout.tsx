@@ -55,8 +55,6 @@ export default function Layout() {
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
 
-  const isBattlePage = ['/explore', '/lawful', '/combat'].some((p) => location.pathname.startsWith(p))
-
   const settingsModal = showSettings && (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={() => setShowSettings(false)}>
@@ -87,8 +85,8 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* ═══ 左侧：角色面板（战斗页隐藏，避免与战斗内数值显示重复） ═══ */}
-      {!isBattlePage && <TownHeroPanel />}
+      {/* ═══ 左侧：角色面板（Logo + 状态 + 货币 + 设置） ═══ */}
+      <TownHeroPanel />
 
       {/* ═══ 主内容区 ═══ */}
       <div className="flex min-w-0 flex-1 flex-col lg:h-screen lg:overflow-hidden">
