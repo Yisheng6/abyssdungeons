@@ -63946,6 +63946,115 @@ function genLawfulRooms(layer, classId, seed = Date.now()) {
   });
 }
 
+// api/services/daily-service.ts
+var RIFT_STAGES = 5;
+var MODIFIER_POOL = [
+  { id: "frenzy", name: "\u72C2\u66B4", desc: "\u79D8\u5883\u602A\u7269\u653B\u51FB +25%\uFF0C\u5956\u52B1 +20%", enemyAtkMult: 1.25, rewardBonus: 20 },
+  { id: "thickskin", name: "\u539A\u76AE", desc: "\u79D8\u5883\u602A\u7269\u751F\u547D +35%\uFF0C\u5956\u52B1 +20%", enemyHpMult: 1.35, rewardBonus: 20 },
+  { id: "swift", name: "\u8FC5\u6377", desc: "\u79D8\u5883\u602A\u7269\u654F\u6377 +30%\uFF0C\u5956\u52B1 +15%", enemyAgiMult: 1.3, rewardBonus: 15 },
+  { id: "brutal", name: "\u6B8B\u66B4", desc: "\u79D8\u5883\u602A\u7269\u653B\u51FB +15%\u3001\u751F\u547D +15%\uFF0C\u5956\u52B1 +30%", enemyAtkMult: 1.15, enemyHpMult: 1.15, rewardBonus: 30 },
+  { id: "blessing", name: "\u795D\u798F", desc: "\u73A9\u5BB6\u653B\u51FB/\u9B54\u6CD5 +15%\uFF0C\u5956\u52B1\u4E0D\u53D8", playerMods: { atkPct: 15, magPct: 15 }, rewardBonus: 0 },
+  { id: "ironskin", name: "\u94C1\u58C1", desc: "\u73A9\u5BB6\u9632\u5FA1/\u9B54\u9632 +20%\uFF0C\u5956\u52B1\u4E0D\u53D8", playerMods: { defPct: 20, mdefPct: 20 }, rewardBonus: 0 },
+  { id: "vampiric", name: "\u8840\u5951", desc: "\u73A9\u5BB6\u751F\u547D\u5077\u53D6 +8%\uFF0C\u5956\u52B1 +10%", playerMods: { lifesteal: 8 }, rewardBonus: 10 },
+  { id: "greed", name: "\u8D2A\u5A6A", desc: "\u91D1\u5E01\u5956\u52B1 +50%", rewardBonus: 50 }
+];
+var RIFT_FLAVOR = ["\u56DE\u54CD\u56DE\u5ECA", "\u7834\u788E\u955C\u5385", "\u65F6\u5E8F\u88C2\u9699", "\u865A\u7A7A\u5EAD\u9662", "\u6C89\u7720\u5723\u6240"];
+function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function mulberry2(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = a + 1831565813 | 0;
+    let t2 = Math.imul(a ^ a >>> 15, 1 | a);
+    t2 = t2 + Math.imul(t2 ^ t2 >>> 7, 61 | t2) ^ t2;
+    return ((t2 ^ t2 >>> 14) >>> 0) / 4294967296;
+  };
+}
+function getDailyModifiers(date2) {
+  const rng = mulberry2(hashStr(`rift_mod_${date2}`));
+  const first = MODIFIER_POOL[Math.floor(rng() * MODIFIER_POOL.length)];
+  let second = MODIFIER_POOL[Math.floor(rng() * MODIFIER_POOL.length)];
+  while (second.id === first.id) second = MODIFIER_POOL[Math.floor(rng() * MODIFIER_POOL.length)];
+  return [first, second];
+}
+function scaleStats(base, pseudoLayer, atkMult, hpMult) {
+  const lm = 1 + (pseudoLayer - 1) * 0.1;
+  const s = (v) => Math.max(1, Math.round(v * lm * atkMult));
+  return {
+    hp: Math.max(1, Math.round((base.hp ?? 30) * lm * hpMult)),
+    maxHp: Math.max(1, Math.round((base.hp ?? 30) * lm * hpMult)),
+    mp: Math.round(base.mp ?? 20),
+    maxMp: Math.round(base.mp ?? 20),
+    atk: s(base.atk ?? 5),
+    def: s(base.def ?? 3),
+    mag: s(base.mag ?? 5),
+    mdef: s(base.mdef ?? 3),
+    agi: s(base.agi ?? 4),
+    luk: s(base.luk ?? 3)
+  };
+}
+function genRiftStage(date2, classId, level, stage) {
+  const rng = mulberry2(hashStr(`rift_${date2}_${classId}_${stage}`));
+  const mods = getDailyModifiers(date2);
+  const families = ["cave", "ice", "magma", "void", "tomb"];
+  const family = families[Math.floor(mulberry2(hashStr(`rift_fam_${date2}`))() * families.length)];
+  const flavor = RIFT_FLAVOR[Math.floor(rng() * RIFT_FLAVOR.length)];
+  const eAtk = mods.reduce((m, x) => m * (x.enemyAtkMult ?? 1), 1);
+  const eHp = mods.reduce((m, x) => m * (x.enemyHpMult ?? 1), 1);
+  const eAgi = mods.reduce((m, x) => m * (x.enemyAgiMult ?? 1), 1);
+  const pseudo = Math.max(1, Math.min(120, Math.round(level * 0.9) + stage * 5));
+  const isBoss = stage >= RIFT_STAGES;
+  const enemies = [];
+  if (isBoss) {
+    const stageMult = 1 + (stage - 1) * 0.2;
+    const stats = scaleStats({ hp: 240, mp: 60, atk: 13, def: 9, mag: 11, mdef: 9, agi: 6, luk: 4 }, pseudo, 2 * eAtk * stageMult, 4.5 * eHp * stageMult);
+    stats.agi = Math.max(1, Math.round(stats.agi * eAgi));
+    enemies.push({
+      id: `rift_guardian_${stage}`,
+      name: "\u79D8\u5883\u5B88\u536B\xB7\u6DF1\u6E0A\u955C\u50CF",
+      ...stats,
+      skills: ["slam", "enrage", "soul_drain"],
+      element: "void",
+      aiType: "berserk",
+      dropTable: [
+        { itemId: "gem_diamond", name: "\u94BB\u77F3", type: "currency", chance: 60, quantityMin: 1, quantityMax: 2, quality: "legendary" }
+      ]
+    });
+  } else {
+    const pool = getEnemiesByFamily(family);
+    const stageMult = 1 + (stage - 1) * 0.2;
+    const count = Math.min(3, 1 + Math.floor(stage / 2) + (rng() < 0.5 ? 1 : 0));
+    for (let i = 0; i < count && pool.length > 0; i++) {
+      const t2 = pool[Math.floor(rng() * pool.length)];
+      const stats = scaleStats(t2.baseStats, pseudo, eAtk * stageMult, eHp * stageMult);
+      stats.agi = Math.max(1, Math.round(stats.agi * eAgi));
+      enemies.push({
+        id: `rift_${t2.id}_${stage}_${i}`,
+        name: `\u79D8\u5883\xB7${t2.name}`,
+        ...stats,
+        skills: t2.skills,
+        element: t2.element,
+        aiType: t2.aiType,
+        dropTable: t2.dropTable
+      });
+    }
+  }
+  return {
+    name: `${flavor} \xB7 \u7B2C ${stage} \u5883`,
+    desc: isBoss ? "\u79D8\u5883\u6DF1\u5904\u7684\u5B88\u536B\u82CF\u9192\u4E86\u3002" : "\u79D8\u5883\u4E2D\u7684\u9020\u7269\u963B\u6321\u7740\u4F60\u7684\u53BB\u8DEF\u3002",
+    isBoss,
+    enemies,
+    modifiers: mods
+  };
+}
+
 // api/services/combat-service.ts
 var STATUS_DEFS = {
   bleed: { name: "\u6D41\u8840", kind: "physical" },
@@ -64792,6 +64901,16 @@ var gameRouter = createRouter({
       mpCost: s.mpCost,
       cooldown: s.cooldown,
       description: s.description,
+      // 技能行为分类（自动战斗 AI 用）：heal=治疗 buff=自身增益 dot=持续伤害 debuff=削弱敌方 damage=直接伤害
+      kind: (() => {
+        const e = s.effect || {};
+        if (e.heal) return "heal";
+        if (e.dotDamage) return "dot";
+        if (e.atkBuff || e.defBuff || e.magMultiplier || e.defMultiplier || e.critChanceBuff || e.dodgeBuff || e.shield) return "buff";
+        if (e.atkDebuff || e.defDebuff) return "debuff";
+        if (e.damage) return "damage";
+        return "other";
+      })(),
       learnable: !!s.learnable,
       learnLevel: s.learnLevel ?? null,
       learnCost: s.learnCost ?? null
@@ -64809,6 +64928,20 @@ var gameRouter = createRouter({
       maxLayer: LAWFUL_MAX_LAYER,
       isBossLayer: isBossLayer(input.layer),
       rooms: genLawfulRooms(input.layer, input.classId, input.seed)
+    };
+  }),
+  // 每日秘境：按日期种子生成某阶段的战斗（含当日词缀）
+  dailyRift: publicQuery.input(external_exports.object({
+    date: external_exports.string(),
+    classId: external_exports.string().default("warrior"),
+    level: external_exports.number().min(1).max(100).default(1),
+    stage: external_exports.number().min(1).max(RIFT_STAGES)
+  })).query(({ input }) => {
+    return {
+      stage: input.stage,
+      maxStage: RIFT_STAGES,
+      modifiers: getDailyModifiers(input.date),
+      ...genRiftStage(input.date, input.classId, input.level, input.stage)
     };
   }),
   generateDungeon: publicQuery.input(external_exports.object({
@@ -65072,13 +65205,87 @@ var chatRouter = createRouter({
   })
 });
 
+// api/services/weekly-service.ts
+var WEEKLY_BOSSES = [
+  { id: "wboss_cthulhu", name: "\u514B\u82CF\u9C81", title: "\u62C9\u83B1\u8036\u4E4B\u4E3B", element: "water", skills: ["toxic_splash", "mind_rend", "entropic_field"], aiType: "cunning" },
+  { id: "wboss_tsath", name: "\u6492\u6258\u53E4\u4E9A", title: "\u87FE\u4E4B\u795E", element: "earth", skills: ["slam", "poison_bite", "soul_drain"], aiType: "defensive" },
+  { id: "wboss_yig", name: "\u4F0A\u683C", title: "\u4F17\u86C7\u4E4B\u7236", element: "wind", skills: ["poison_bite", "web_trap", "void_scream"], aiType: "aggressive" },
+  { id: "wboss_atlach", name: "\u963F\u7279\u62C9\u514B", title: "\u86DB\u7F51\u7F16\u7EC7\u8005", element: "ice", skills: ["web_trap", "ice_lance", "mind_rend"], aiType: "cunning" }
+];
+function currentWeekId(now = Date.now()) {
+  const tz = 8 * 36e5;
+  const t2 = new Date(now + tz);
+  const day2 = (t2.getUTCDay() + 6) % 7;
+  const monday = new Date(t2.getTime() - day2 * 864e5);
+  monday.setUTCHours(0, 0, 0, 0);
+  const endsAt = monday.getTime() + 7 * 864e5 - tz;
+  const jan4 = new Date(Date.UTC(t2.getUTCFullYear(), 0, 4));
+  const jan4Day = (jan4.getUTCDay() + 6) % 7;
+  const week1Monday = jan4.getTime() - jan4Day * 864e5;
+  const week2 = Math.floor((monday.getTime() - week1Monday) / (7 * 864e5)) + 1;
+  return { weekId: `${t2.getUTCFullYear()}w${week2}`, endsAt };
+}
+function getWeeklyBoss(now = Date.now()) {
+  const { weekId, endsAt } = currentWeekId(now);
+  const idx = Math.abs([...weekId].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 7)) % WEEKLY_BOSSES.length;
+  const def = WEEKLY_BOSSES[idx];
+  const boss = {
+    id: def.id,
+    name: `${def.title}\xB7${def.name}`,
+    hp: 12558,
+    maxHp: 12558,
+    mp: 400,
+    maxMp: 400,
+    atk: 263,
+    def: 187,
+    mag: 219,
+    mdef: 187,
+    agi: 41,
+    luk: 20,
+    skills: def.skills,
+    element: def.element,
+    aiType: def.aiType
+  };
+  return { weekId, endsAt, boss };
+}
+var weeklyCategory = (weekId) => `weekly_boss_${weekId}`;
+
+// api/routers/weekly-router.ts
+init_redis_service();
+var weeklyRouter = createRouter({
+  // 本周 Boss 信息
+  boss: publicQuery.query(() => {
+    const { weekId, endsAt, boss } = getWeeklyBoss();
+    return { weekId, endsAt, boss };
+  }),
+  // 提交本周伤害成绩（保留最高分）
+  submit: publicQuery.input(external_exports.object({
+    playerId: external_exports.string().min(1).max(32),
+    playerName: external_exports.string().min(1).max(32),
+    damage: external_exports.number().int().min(0)
+  })).mutation(async ({ input }) => {
+    const { weekId } = getWeeklyBoss();
+    const cat = weeklyCategory(weekId);
+    const oldRank = await getPlayerRank(cat, input.playerId);
+    await addLeaderboardScore(cat, input.playerId, input.damage, { name: input.playerName });
+    const rank = await getPlayerRank(cat, input.playerId);
+    return { success: true, rank, prevRank: oldRank };
+  }),
+  // 本周排行
+  top: publicQuery.input(external_exports.object({ count: external_exports.number().int().min(1).max(100).default(20) })).query(async ({ input }) => {
+    const { weekId } = getWeeklyBoss();
+    return getLeaderboardTop(weeklyCategory(weekId), input.count);
+  })
+});
+
 // api/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
   game: gameRouter,
   lb: leaderboardRouter,
-  chat: chatRouter
+  chat: chatRouter,
+  weekly: weeklyRouter
 });
 
 // node_modules/hono/dist/utils/cookie.js

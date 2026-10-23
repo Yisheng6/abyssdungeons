@@ -16,6 +16,7 @@ export interface Player {
   /** 钻石：付费货币 */ diamonds: number
   /** 职业等阶 1-9 */ tier: number
   /** 地牢最深到达层数 */ maxLayer: number
+  /** 觉醒次数（≥100 级可觉醒，继承属性并重置等级） */ awakenCount?: number
 }
 
 /** 等阶规则（与 game-configs/classes.json 的 tierRules 保持一致，作为离线兜底） */
@@ -291,6 +292,8 @@ interface GameState {
   settings: GameSettings
   taskState: TaskState
   lawful: { layer: number; best: number }
+  /** 每日秘境进度：date=当天日期，stage=下一个要挑战的阶段(1-5)，clearedDate=已通关全部阶段的日期 */
+  rift: { date: string; stage: number; clearedDate: string }
   /** 天赋：classId -> nodeId -> rank */
   talents: Record<string, Record<string, number>>
 
@@ -319,6 +322,7 @@ interface GameState {
   isAutoExploring: boolean
   /** 守序深渊战斗进行中（持久化：刷新后自动续战） */
   lawfulInBattle: boolean
+  riftInBattle: boolean
   autoExploreLogs: string[]
   autoExploreStats: { roomsExplored: number; enemiesKilled: number; itemsFound: number; currentLayer: number }
 
@@ -329,6 +333,10 @@ interface GameState {
   trackTaskEvent: (kind: keyof TaskProgress, n?: number) => void
   claimTaskReward: (taskId: string, scope: 'daily' | 'achievement') => void
   setLawfulLayer: (layer: number) => void
+  setRift: (rift: { date: string; stage: number; clearedDate: string }) => void
+
+  // 觉醒（100 级后重置等级，继承 15% 属性，成长 +20%/次）
+  awaken: () => { success: boolean; message: string }
 
   // 天赋树
   learnTalent: (nodeId: string) => { success: boolean; message: string }
@@ -501,6 +509,8 @@ export const useGameStore = create<GameState>()(
       settings: { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoDisassembleRules: { ...DEFAULT_DISASSEMBLE_RULES }, autoPotion: false, autoPotionThreshold: 50 },
       taskState: { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } },
       lawful: { layer: 1, best: 0 },
+      rift: { date: '', stage: 1, clearedDate: '' },
+      riftInBattle: false,
       talents: {},
       player: null, equipment: { ...defaultEquipment },
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
@@ -534,6 +544,7 @@ export const useGameStore = create<GameState>()(
       },
 
       setLawfulLayer: (layer) => set((s) => ({ lawful: { layer, best: Math.max(s.lawful.best, layer) } })),
+      setRift: (rift) => set({ rift }),
 
       // ─── 天赋树 ───
       learnTalent: (nodeId) => {
@@ -561,6 +572,36 @@ export const useGameStore = create<GameState>()(
         if (!s.spendGold(cost)) return { success: false, message: `金币不足（需要 ${cost}）` }
         set((st) => ({ talents: { ...st.talents, [p.classId]: {} } }))
         return { success: true, message: `已重置全部天赋（花费 ${cost} 金币）` }
+      },
+
+      // ─── 觉醒 ───
+      awaken: () => {
+        const s = get()
+        if (s.inCombat) return { success: false, message: '战斗中无法觉醒' }
+        const p = s.player
+        if (!p) return { success: false, message: '请先创建角色' }
+        if (p.level < 100) return { success: false, message: `需要等级达到 100 级（当前 Lv.${p.level}）` }
+        const count = (p.awakenCount || 0) + 1
+        const base = DEFAULT_CLASS_STATS[p.classId] || DEFAULT_CLASS_STATS.warrior
+        const inherit = (v: number) => Math.round(v * 0.15)
+        const np: Player = {
+          ...p,
+          level: 1, exp: 0, awakenCount: count,
+          maxHp: (base.hp || 100) + inherit(p.maxHp), hp: 0,
+          maxMp: (base.mp || 50) + inherit(p.maxMp), mp: 0,
+          atk: (base.atk || 10) + inherit(p.atk), def: (base.def || 10) + inherit(p.def),
+          mag: (base.mag || 10) + inherit(p.mag), mdef: (base.mdef || 8) + inherit(p.mdef),
+          agi: (base.agi || 10) + inherit(p.agi), luk: (base.luk || 5) + inherit(p.luk),
+          con: (base.con ?? 6) + inherit(p.con || 0), wil: (base.wil ?? 6) + inherit(p.wil || 0),
+        }
+        np.hp = np.maxHp; np.mp = np.maxMp
+        const ns = { ...s.classSaves }
+        if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
+        set({
+          player: np, classSaves: ns,
+          talents: { ...s.talents, [p.classId]: {} }, // 天赋重置（点数随等级重新获得）
+        })
+        return { success: true, message: `觉醒成功！第 ${count} 次觉醒：继承 15% 属性，成长率 +${count * 20}%` }
       },
 
 
@@ -706,16 +747,17 @@ export const useGameStore = create<GameState>()(
         const np = { ...s.player, exp: s.player.exp + amount }
         // 支持连升多级
         const growth = CLASS_CON_WIL_GROWTH[np.classId] || { con: 1, wil: 1 }
+        const awakenMult = 1 + 0.2 * (np.awakenCount || 0) // 觉醒：每次觉醒成长 +20%
         while (np.exp >= np.level * 100) {
           np.exp -= np.level * 100
           np.level += 1
-          np.con = (np.con || 0) + growth.con
-          np.wil = (np.wil || 0) + growth.wil
-          np.maxHp += 10 + growth.con * 8; np.hp = np.maxHp  // 基础生命 = 原生生命 + 体质×系数
-          np.maxMp += 5; np.mp = np.maxMp
-          np.atk += 2; np.def += 1
-          np.mag += 1; np.mdef += 1
-          np.agi += 1
+          np.con = (np.con || 0) + Math.ceil(growth.con * awakenMult)
+          np.wil = (np.wil || 0) + Math.ceil(growth.wil * awakenMult)
+          np.maxHp += Math.round((10 + growth.con * 8) * awakenMult); np.hp = np.maxHp
+          np.maxMp += Math.round(5 * awakenMult); np.mp = np.maxMp
+          np.atk += Math.round(2 * awakenMult); np.def += Math.round(1 * awakenMult)
+          np.mag += Math.round(1 * awakenMult); np.mdef += Math.round(1 * awakenMult)
+          np.agi += Math.round(1 * awakenMult)
         }
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
@@ -1430,6 +1472,8 @@ export const useGameStore = create<GameState>()(
         settings: state.settings,
         taskState: state.taskState,
         lawful: state.lawful,
+        rift: state.rift,
+        riftInBattle: state.riftInBattle,
         talents: state.talents,
         isAutoExploring: state.isAutoExploring,
         lawfulInBattle: state.lawfulInBattle,
@@ -1442,6 +1486,8 @@ export const useGameStore = create<GameState>()(
           state.playerStatuses = []
           state.tempBag = state.tempBag || []
           state.lawful = state.lawful || { layer: 1, best: 0 }
+          state.rift = state.rift || { date: '', stage: 1, clearedDate: '' }
+          state.riftInBattle = state.riftInBattle || false
           state.talents = state.talents || {}
           state.taskState = state.taskState || { ...DEFAULT_TASK_STATE, daily: { ...EMPTY_PROGRESS }, totals: { ...EMPTY_PROGRESS } }
           state.settings = { autoDisassemble: false, autoDisassembleMaxQuality: 'common', autoPotion: false, autoPotionThreshold: 50, ...(state.settings || {}) }

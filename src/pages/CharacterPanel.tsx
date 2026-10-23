@@ -19,7 +19,7 @@ const CLASS_COLORS: Record<string, string> = {
 export default function CharacterPanel() {
   const navigate = useNavigate()
   const store = useGameStore()
-  const [activeTab, setActiveTab] = useState<'stats' | 'skills' | 'equipment' | 'tier'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'skills' | 'equipment' | 'tier' | 'awaken'>('stats')
   const [cooldownLeft, setCooldownLeft] = useState(0)
   const [switchMsg, setSwitchMsg] = useState('')
 
@@ -224,11 +224,11 @@ export default function CharacterPanel() {
         <div className="flex-1 p-4">
           {/* Tabs */}
           <div className="mb-3 flex border-b" style={{ borderColor: 'var(--border-color)' }}>
-            {(['stats', 'skills', 'equipment', 'tier'] as const).map((tab) => (
+            {(['stats', 'skills', 'equipment', 'tier', 'awaken'] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="px-4 pb-2 text-sm font-medium transition-colors"
                 style={{ color: activeTab === tab ? 'var(--accent)' : 'var(--text-muted)', borderBottom: activeTab === tab ? '2px solid var(--accent)' : '2px solid transparent' }}>
-                {tab === 'stats' ? '属性' : tab === 'skills' ? '技能' : tab === 'equipment' ? '装备' : '等阶'}
+                {tab === 'stats' ? '属性' : tab === 'skills' ? '技能' : tab === 'equipment' ? '装备' : tab === 'tier' ? '等阶' : '觉醒'}
               </button>
             ))}
           </div>
@@ -583,6 +583,76 @@ export default function CharacterPanel() {
                     ))}
                   </div>
                 </div>
+              </div>
+            )
+          })()}
+
+          {/* Awaken Tab (觉醒) */}
+          {activeTab === 'awaken' && player && (() => {
+            const count = player.awakenCount || 0
+            const canLevel = player.level >= 100
+            const canAwaken = canLevel && !store.inCombat
+            const inheritPreview = (v: number) => Math.round(v * 0.15)
+            const rows: Array<[string, number]> = [
+              ['hp', player.maxHp], ['mp', player.maxMp], ['atk', player.atk], ['def', player.def],
+              ['mag', player.mag], ['mdef', player.mdef], ['agi', player.agi], ['con', player.con], ['wil', player.wil],
+            ]
+            return (
+              <div className="space-y-4">
+                <div className="game-card flex items-center gap-3 p-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full"
+                    style={{ backgroundColor: 'var(--bg-hover)', border: '2px solid #B06CFF' }}>
+                    <Sparkles size={22} style={{ color: '#B06CFF' }} />
+                  </div>
+                  <div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>觉醒次数</div>
+                    <div className="text-lg font-bold" style={{ color: '#B06CFF' }}>第 {count} 次觉醒</div>
+                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      当前成长加成：+{count * 20}%（每次觉醒永久 +20%）
+                    </div>
+                  </div>
+                </div>
+
+                <div className="game-card p-4">
+                  <div className="mb-2 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>觉醒规则</div>
+                  <div className="space-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <div>· 需要等级达到 <b style={{ color: canLevel ? '#3FB950' : '#F85149' }}>Lv.100</b>（当前 Lv.{player.level}）</div>
+                    <div>· 觉醒后等级重置为 Lv.1，从头开始成长</div>
+                    <div>· 继承当前 <b style={{ color: '#B06CFF' }}>15%</b> 的基础属性（叠加在职业初始属性之上）</div>
+                    <div>· 每次觉醒使升级成长 <b style={{ color: '#B06CFF' }}>+20%</b>（永久，可叠加）</div>
+                    <div>· 本职业天赋将重置，天赋点全额返还</div>
+                    <div>· 等阶、装备、背包、金币全部保留</div>
+                  </div>
+                </div>
+
+                {canLevel && (
+                  <div className="game-card p-4">
+                    <div className="mb-2 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>继承预览（保留以下数值）</div>
+                    <div className="flex flex-wrap gap-2">
+                      {rows.map(([s, v]) => (
+                        <span key={s} className="rounded px-2 py-0.5 text-[10px]"
+                          style={{ backgroundColor: 'var(--bg-hover)', color: '#B06CFF' }}>
+                          +{inheritPreview(v)} {statNames[s] || s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    if (!window.confirm(`确定要觉醒吗？\n\n等级将重置为 Lv.1，继承 15% 属性，成长率 +${(count + 1) * 20}%。\n本职业天赋将重置。装备与等阶保留。`)) return
+                    setSwitchMsg(store.awaken().message)
+                  }}
+                  disabled={!canAwaken}
+                  className="w-full rounded py-2 text-sm font-bold transition-opacity"
+                  style={{
+                    backgroundColor: canAwaken ? '#B06CFF' : 'var(--bg-hover)',
+                    color: canAwaken ? '#000' : 'var(--text-muted)',
+                    opacity: canAwaken ? 1 : 0.6, cursor: canAwaken ? 'pointer' : 'not-allowed',
+                  }}>
+                  {store.inCombat ? '战斗中无法觉醒' : canLevel ? `觉 醒（第 ${count + 1} 次）` : `需要 Lv.100（当前 Lv.${player.level}）`}
+                </button>
               </div>
             )
           })()}
