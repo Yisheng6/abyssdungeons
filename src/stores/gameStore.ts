@@ -6,8 +6,8 @@ import { QUALITY_MAX_AFFIXES, REFORGE_DIAMOND_COST, getReforgeGoldCost, rollAffi
 
 // ─── Types ───
 
-// 升级所需经验：60*level + 400*level^1.9（约 233 小时纯挂机到 Lv.100，正常游玩约两个月）
-export const getExpNeed = (level: number) => Math.floor(60 * level + 400 * Math.pow(level, 1.9))
+// 升级所需经验：60*level + 1200*level^1.9（计入离线挂机 12h/天，正常游玩约 2-3 个月到 Lv.100）
+export const getExpNeed = (level: number) => Math.floor(60 * level + 1200 * Math.pow(level, 1.9))
 
 export interface Player {
   id: string; name: string; classId: string; level: number
