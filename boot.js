@@ -28066,7 +28066,7 @@ var require_named_placeholders = __commonJS({
         }
         return s;
       }
-      function join5(tree) {
+      function join6(tree) {
         if (tree.length === 1) {
           return tree;
         }
@@ -28092,7 +28092,7 @@ var require_named_placeholders = __commonJS({
         if (cache2 && (tree = cache2.get(query))) {
           return toArrayParams(tree, paramsObj);
         }
-        tree = join5(parse4(query));
+        tree = join6(parse4(query));
         if (cache2) {
           cache2.set(query, tree);
         }
@@ -31377,8 +31377,8 @@ var init_mime = __esm({
 });
 
 // node_modules/@hono/node-server/dist/serve-static.mjs
-import { createReadStream, statSync, existsSync as existsSync2 } from "fs";
-import { join as join3 } from "path";
+import { createReadStream, statSync, existsSync as existsSync3 } from "fs";
+import { join as join4 } from "path";
 import { versions } from "process";
 import { Readable as Readable2 } from "stream";
 var COMPRESSIBLE_CONTENT_TYPE_REGEX, ENCODINGS, ENCODINGS_ORDERED_KEYS, pr54206Applied, useReadableToWeb, createStreamBody, getStats, tryDecode2, tryDecodeURI2, serveStatic;
@@ -31444,7 +31444,7 @@ var init_serve_static = __esm({
     serveStatic = (options = { root: "" }) => {
       const root = options.root || "";
       const optionPath = options.path;
-      if (root !== "" && !existsSync2(root)) {
+      if (root !== "" && !existsSync3(root)) {
         console.error(`serveStatic: root path '${root}' is not found, are you sure it's correct?`);
       }
       return async (c, next) => {
@@ -31465,14 +31465,14 @@ var init_serve_static = __esm({
             return next();
           }
         }
-        let path2 = join3(
+        let path2 = join4(
           root,
           !optionPath && options.rewriteRequestPath ? options.rewriteRequestPath(filename, c) : filename
         );
         let stats = getStats(path2);
         if (stats && stats.isDirectory()) {
           const indexFile = options.index ?? "index.html";
-          path2 = join3(path2, indexFile);
+          path2 = join4(path2, indexFile);
           stats = getStats(path2);
         }
         if (!stats) {
@@ -65278,6 +65278,194 @@ var weeklyRouter = createRouter({
   })
 });
 
+// api/services/mail-service.ts
+import { existsSync as existsSync2, mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "fs";
+import { join as join3 } from "path";
+var DATA_DIR2 = join3(process.cwd(), "data");
+var STORE_FILE2 = join3(DATA_DIR2, "mails.json");
+var DEFAULT_TTL_MS = 14 * 24 * 3600 * 1e3;
+var mails = /* @__PURE__ */ new Map();
+var loaded2 = false;
+function loadMails() {
+  if (loaded2) return;
+  loaded2 = true;
+  try {
+    if (existsSync2(STORE_FILE2)) {
+      const raw2 = JSON.parse(readFileSync3(STORE_FILE2, "utf-8"));
+      const now = Date.now();
+      for (const m of raw2) if (m.expiresAt > now) mails.set(m.id, m);
+    }
+  } catch {
+  }
+}
+var saveTimer = null;
+function saveMails() {
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    try {
+      if (!existsSync2(DATA_DIR2)) mkdirSync2(DATA_DIR2, { recursive: true });
+      writeFileSync2(STORE_FILE2, JSON.stringify([...mails.values()]), "utf-8");
+    } catch {
+    }
+  }, 100);
+}
+function genId() {
+  return `m_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e9).toString(36)}`;
+}
+function sendMail(to, title, content, attachments = [], opts = {}) {
+  loadMails();
+  const now = Date.now();
+  const mail = {
+    id: genId(),
+    to,
+    title,
+    content,
+    attachments,
+    createdAt: now,
+    expiresAt: now + (opts.ttlMs ?? DEFAULT_TTL_MS),
+    read: false,
+    claimed: attachments.length === 0,
+    tag: opts.tag
+  };
+  mails.set(mail.id, mail);
+  saveMails();
+  return mail;
+}
+function sendMailOnce(to, tag2, title, content, attachments = []) {
+  loadMails();
+  for (const m of mails.values()) if (m.to === to && m.tag === tag2) return;
+  sendMail(to, title, content, attachments, { tag: tag2 });
+}
+function listMails(to) {
+  loadMails();
+  const now = Date.now();
+  const out = [];
+  for (const m of mails.values()) {
+    if (m.to !== to) continue;
+    if (m.expiresAt <= now) {
+      mails.delete(m.id);
+      continue;
+    }
+    out.push(m);
+  }
+  out.sort((a, b) => b.createdAt - a.createdAt);
+  return out;
+}
+function unreadCount(to) {
+  return listMails(to).filter((m) => !m.read || !m.claimed && m.attachments.length > 0).length;
+}
+function markRead(to, mailId) {
+  loadMails();
+  const m = mails.get(mailId);
+  if (!m || m.to !== to) return false;
+  m.read = true;
+  saveMails();
+  return true;
+}
+function deleteMail(to, mailId) {
+  loadMails();
+  const m = mails.get(mailId);
+  if (!m || m.to !== to) return { success: false, message: "\u90AE\u4EF6\u4E0D\u5B58\u5728" };
+  if (!m.claimed && m.attachments.length > 0) return { success: false, message: "\u8BF7\u5148\u9886\u53D6\u9644\u4EF6" };
+  mails.delete(mailId);
+  saveMails();
+  return { success: true, message: "\u5DF2\u5220\u9664" };
+}
+function claimAttachments(to, mailId) {
+  loadMails();
+  const fail = (message2) => ({ success: false, message: message2, gold: 0, diamonds: 0, items: [] });
+  const m = mails.get(mailId);
+  if (!m || m.to !== to) return fail("\u90AE\u4EF6\u4E0D\u5B58\u5728");
+  if (m.expiresAt <= Date.now()) {
+    mails.delete(mailId);
+    saveMails();
+    return fail("\u90AE\u4EF6\u5DF2\u8FC7\u671F");
+  }
+  if (m.claimed) return fail("\u9644\u4EF6\u5DF2\u9886\u53D6");
+  let gold = 0, diamonds = 0;
+  const items = [];
+  for (const att of m.attachments) {
+    if (att.kind === "gold") gold += att.amount || 0;
+    else if (att.kind === "diamonds") diamonds += att.amount || 0;
+    else if (att.kind === "item" && att.itemId) {
+      const cat = getItemById(att.itemId);
+      if (!cat) continue;
+      const qty = att.quantity || 1;
+      if ((cat.type || "material") === "equipment") {
+        for (let i = 0; i < qty; i++) {
+          const rolled = rollEquipmentInstance(cat, Math.random);
+          items.push({
+            itemId: cat.id,
+            name: rolled.displayName,
+            type: "equipment",
+            quality: rolled.quality,
+            quantity: 1,
+            stats: rolled.stats,
+            affixes: rolled.affixes,
+            slot: cat.slot,
+            setId: cat.setId,
+            setTier: cat.setTier,
+            value: cat.value
+          });
+        }
+      } else {
+        items.push({
+          itemId: cat.id,
+          name: cat.name,
+          type: cat.type || "material",
+          quality: cat.quality || "common",
+          quantity: qty,
+          stats: cat.stats,
+          value: cat.value,
+          effect: cat.effect,
+          learnSkillId: cat.learnSkillId
+        });
+      }
+    }
+  }
+  m.claimed = true;
+  m.read = true;
+  saveMails();
+  return { success: true, message: "\u9886\u53D6\u6210\u529F", gold, diamonds, items };
+}
+
+// api/routers/mail-router.ts
+var playerInput = external_exports.object({ playerName: external_exports.string().min(1).max(32) });
+var mailRouter = createRouter({
+  // 邮件列表（顺带确保欢迎邮件送达）
+  list: publicQuery.input(playerInput).query(({ input }) => {
+    sendMailOnce(
+      input.playerName,
+      "welcome",
+      "\u6B22\u8FCE\u6765\u5230\u6DF1\u6E0A\u5730\u57CE",
+      "\u5192\u9669\u8005\uFF0C\u6B22\u8FCE\u6765\u5230\u6DF1\u6E0A\u5730\u57CE\uFF01\n\n\u8FD9\u662F\u4E00\u70B9\u89C1\u9762\u793C\uFF0C\u5E0C\u671B\u80FD\u52A9\u4F60\u95EF\u8FC7\u6DF1\u6E0A\u7684\u524D\u51E0\u5C42\u3002\n\n\u2014\u2014 \u6DF1\u6E0A\u8BAE\u4F1A",
+      [
+        { kind: "gold", amount: 500 },
+        { kind: "diamonds", amount: 50 },
+        { kind: "item", itemId: "hp_medium", quantity: 10 }
+      ]
+    );
+    return listMails(input.playerName).map((m) => ({
+      id: m.id,
+      title: m.title,
+      content: m.content,
+      attachments: m.attachments,
+      createdAt: m.createdAt,
+      expiresAt: m.expiresAt,
+      read: m.read,
+      claimed: m.claimed,
+      tag: m.tag
+    }));
+  }),
+  unread: publicQuery.input(playerInput).query(({ input }) => ({
+    count: unreadCount(input.playerName)
+  })),
+  read: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => ({ success: markRead(input.playerName, input.mailId) })),
+  claim: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => claimAttachments(input.playerName, input.mailId)),
+  remove: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => deleteMail(input.playerName, input.mailId))
+});
+
 // api/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
@@ -65285,7 +65473,8 @@ var appRouter = createRouter({
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,
-  weekly: weeklyRouter
+  weekly: weeklyRouter,
+  mail: mailRouter
 });
 
 // node_modules/hono/dist/utils/cookie.js
@@ -68188,7 +68377,7 @@ function sql(strings, ...params) {
     return new SQL([new StringChunk(str)]);
   }
   sql2.raw = raw2;
-  function join5(chunks, separator) {
+  function join6(chunks, separator) {
     const result = [];
     for (const [i, chunk] of chunks.entries()) {
       if (i > 0 && separator !== void 0) {
@@ -68198,7 +68387,7 @@ function sql(strings, ...params) {
     }
     return new SQL(result);
   }
-  sql2.join = join5;
+  sql2.join = join6;
   function identifier(value) {
     return new Name(value);
   }
@@ -71694,7 +71883,7 @@ var MySqlSelectQueryBuilderBase = class extends TypedQueryBuilder {
       const baseTableName = this.tableName;
       const tableName = getTableLikeName(table);
       for (const item of extractUsedTable(table)) this.usedTables.add(item);
-      if (typeof tableName === "string" && this.config.joins?.some((join5) => join5.alias === tableName)) {
+      if (typeof tableName === "string" && this.config.joins?.some((join6) => join6.alias === tableName)) {
         throw new Error(`Alias "${tableName}" is already used in this query`);
       }
       if (!this.isPartialSelect) {
@@ -73815,9 +74004,9 @@ async function createContext(opts) {
 }
 
 // api/boot.ts
-import { writeFileSync as writeFileSync2, mkdirSync as mkdirSync2, existsSync as existsSync3 } from "fs";
+import { writeFileSync as writeFileSync3, mkdirSync as mkdirSync3, existsSync as existsSync4 } from "fs";
 import { execSync } from "child_process";
-import { join as join4 } from "path";
+import { join as join5 } from "path";
 var app = new Hono2();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
@@ -73828,13 +74017,13 @@ app.post("/api/deploy", async (c) => {
     if (!filePath || !content) {
       return c.json({ error: "Missing path or content" }, 400);
     }
-    const fullPath = join4(process.cwd(), filePath);
+    const fullPath = join5(process.cwd(), filePath);
     const dir = fullPath.substring(0, fullPath.lastIndexOf("/"));
-    if (!existsSync3(dir)) {
-      mkdirSync2(dir, { recursive: true });
+    if (!existsSync4(dir)) {
+      mkdirSync3(dir, { recursive: true });
     }
     const buffer = Buffer.from(content, "base64");
-    writeFileSync2(fullPath, buffer);
+    writeFileSync3(fullPath, buffer);
     if (restart) {
       try {
         execSync("pm2 restart abyssdungeon || pm2 restart all", { timeout: 1e4 });

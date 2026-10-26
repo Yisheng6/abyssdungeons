@@ -1,26 +1,37 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Shield, Trophy, FlaskConical, Target, MessageSquare, Landmark } from 'lucide-react'
+import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Sparkle, Shield, Trophy, FlaskConical, Target, MessageSquare, Landmark, Crown, Mail, MoreHorizontal } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
+import { trpc } from '@/providers/trpc'
 import TownHeroPanel from './TownHeroPanel'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
 import Explore from '@/pages/Explore'
 import Lawful from '@/pages/Lawful'
+import Rift from '@/pages/Rift'
+import Weekly from '@/pages/Weekly'
 
-const NAV_ITEMS = [
+// 移动端底部固定页签（其余进「更多」）
+const PRIMARY_NAV = [
   { path: '/', label: '城镇', icon: Home },
   { path: '/explore', label: '混乱深渊', icon: Compass },
   { path: '/lawful', label: '守序深渊', icon: Landmark },
+  { path: '/mail', label: '邮箱', icon: Mail },
+]
+
+const MORE_NAV = [
+  { path: '/rift', label: '每日秘境', icon: Sparkle },
+  { path: '/weekly', label: '每周挑战', icon: Crown },
   { path: '/talents', label: '天赋', icon: Sparkles },
-  { path: '/shop', label: '商店', icon: FlaskConical },
   { path: '/character', label: '角色', icon: User },
   { path: '/inventory', label: '背包', icon: Backpack },
   { path: '/blacksmith', label: '铁匠铺', icon: Hammer },
+  { path: '/shop', label: '商店', icon: FlaskConical },
   { path: '/tasks', label: '任务', icon: Target },
   { path: '/leaderboard', label: '排行', icon: Trophy },
   { path: '/chat', label: '聊天', icon: MessageSquare },
 ]
+
 
 const QUICK_ACTIONS = [
   { icon: Compass, label: '混乱深渊', path: '/explore' },
@@ -30,9 +41,11 @@ const QUICK_ACTIONS = [
   { icon: Backpack, label: '背包', path: '/inventory' },
   { icon: Sparkles, label: '天赋', path: '/talents' },
   { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
+  { icon: Crown, label: '每周挑战', path: '/weekly' },
   { icon: Target, label: '任务', path: '/tasks' },
   { icon: Trophy, label: '排行榜', path: '/leaderboard' },
   { icon: MessageSquare, label: '聊天', path: '/chat' },
+  { icon: Mail, label: '邮箱', path: '/mail' },
 ]
 
 const SETTINGS_QUALITY_NAMES: Record<string, string> = {
@@ -46,14 +59,23 @@ export default function Layout() {
   const settings = useGameStore((s) => s.settings)
   const updateSettings = useGameStore((s) => s.updateSettings)
   const [showSettings, setShowSettings] = useState(false)
+  const [showMore, setShowMore] = useState(false)
+  const playerName = localStorage.getItem('ad_user') || '冒险者'
+  const unreadQ = trpc.mail.unread.useQuery({ playerName }, { refetchInterval: 30000 })
+  const unreadMails = unreadQ.data?.count || 0
   // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
   const onExplore = location.pathname.startsWith('/explore')
   const onLawful = location.pathname.startsWith('/lawful')
+  const onRift = location.pathname.startsWith('/rift')
+  const onWeekly = location.pathname.startsWith('/weekly')
   const [exploreMounted, setExploreMounted] = useState(false)
   const [lawfulMounted, setLawfulMounted] = useState(false)
+  const [riftMounted, setRiftMounted] = useState(false)
+  const [weeklyMounted, setWeeklyMounted] = useState(false)
   useEffect(() => { if (onExplore) setExploreMounted(true) }, [onExplore])
   useEffect(() => { if (onLawful) setLawfulMounted(true) }, [onLawful])
-  const playerName = localStorage.getItem('ad_user') || '冒险者'
+  useEffect(() => { if (onRift) setRiftMounted(true) }, [onRift])
+  useEffect(() => { if (onWeekly) setWeeklyMounted(true) }, [onWeekly])
 
   const logout = () => {
     localStorage.removeItem('ad_token')
@@ -134,7 +156,17 @@ export default function Layout() {
               <Lawful />
             </div>
           )}
-          {!onExplore && !onLawful && <Outlet />}
+          {riftMounted && (
+            <div className="flex min-h-0 flex-1 flex-col" style={{ display: onRift ? undefined : 'none' }}>
+              <Rift />
+            </div>
+          )}
+          {weeklyMounted && (
+            <div className="flex min-h-0 flex-1 flex-col" style={{ display: onWeekly ? undefined : 'none' }}>
+              <Weekly />
+            </div>
+          )}
+          {!onExplore && !onLawful && !onRift && !onWeekly && <Outlet />}
         </div>
 
         {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
@@ -149,21 +181,65 @@ export default function Layout() {
           ))}
         </div>
 
-        {/* 移动端底部导航 */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 flex overflow-x-auto border-t lg:hidden"
+        {/* 移动端底部导航：4 个主功能 + 更多 */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t lg:hidden"
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          {NAV_ITEMS.map((item) => {
+          {PRIMARY_NAV.map((item) => {
             const active = isActive(item.path)
             return (
               <button key={item.path} onClick={() => navigate(item.path)}
-                className="flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
+                className="relative flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
                 style={{ color: active ? 'var(--accent)' : 'var(--text-muted)' }}>
                 <item.icon size={17} />
                 {item.label}
+                {item.path === '/mail' && unreadMails > 0 && (
+                  <span className="absolute right-3 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] font-bold"
+                    style={{ backgroundColor: '#F85149', color: '#fff' }}>
+                    {unreadMails > 99 ? '99+' : unreadMails}
+                  </span>
+                )}
               </button>
             )
           })}
+          <button onClick={() => setShowMore(true)}
+            className="relative flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
+            style={{ color: MORE_NAV.some((i) => isActive(i.path)) ? 'var(--accent)' : 'var(--text-muted)' }}>
+            <MoreHorizontal size={17} />
+            更多
+          </button>
         </nav>
+
+        {/* 更多功能抽屉 */}
+        {showMore && (
+          <div className="fixed inset-0 z-50 flex items-end lg:hidden" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+            onClick={() => setShowMore(false)}>
+            <div className="w-full rounded-t-xl border-t p-4 pb-8"
+              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+              onClick={(e) => e.stopPropagation()}>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>更多功能</span>
+                <button onClick={() => setShowMore(false)} style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {MORE_NAV.map((item) => {
+                  const active = isActive(item.path)
+                  return (
+                    <button key={item.path}
+                      onClick={() => { setShowMore(false); navigate(item.path) }}
+                      className="flex flex-col items-center gap-1 rounded-lg py-3 text-[11px]"
+                      style={{
+                        backgroundColor: active ? 'var(--bg-hover)' : 'transparent',
+                        color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                      }}>
+                      <item.icon size={18} />
+                      {item.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {settingsModal}
