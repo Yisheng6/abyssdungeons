@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
+import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
@@ -316,7 +316,7 @@ export default function Explore() {
     })))
 
     let victory = false
-    const MAX_ROUNDS = 60
+    const MAX_ROUNDS = 90
 
     try {
       for (let round = 1; round <= MAX_ROUNDS; round++) {
@@ -614,10 +614,10 @@ export default function Explore() {
               </div>
               <div className="mt-2">
                 <div className="mb-1 flex justify-between text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                  <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
+                  <span>EXP</span><span>{store.player.exp}/{getExpNeed(store.player.level)}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                  <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                  <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (getExpNeed(store.player.level))) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
                 </div>
               </div>
             </div>
@@ -680,10 +680,10 @@ export default function Explore() {
           {store.player && (
             <div>
               <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-                <span>EXP</span><span>{store.player.exp}/{store.player.level * 100}</span>
+                <span>EXP</span><span>{store.player.exp}/{getExpNeed(store.player.level)}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (store.player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.min(100, (store.player.exp / (getExpNeed(store.player.level))) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
               </div>
             </div>
           )}

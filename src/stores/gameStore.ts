@@ -6,6 +6,9 @@ import { QUALITY_MAX_AFFIXES, REFORGE_DIAMOND_COST, getReforgeGoldCost, rollAffi
 
 // ─── Types ───
 
+// 升级所需经验：60*level + 400*level^1.9（约 233 小时纯挂机到 Lv.100，正常游玩约两个月）
+export const getExpNeed = (level: number) => Math.floor(60 * level + 400 * Math.pow(level, 1.9))
+
 export interface Player {
   id: string; name: string; classId: string; level: number
   hp: number; maxHp: number; mp: number; maxMp: number
@@ -748,8 +751,8 @@ export const useGameStore = create<GameState>()(
         // 支持连升多级
         const growth = CLASS_CON_WIL_GROWTH[np.classId] || { con: 1, wil: 1 }
         const awakenMult = 1 + 0.2 * (np.awakenCount || 0) // 觉醒：每次觉醒成长 +20%
-        while (np.exp >= np.level * 100) {
-          np.exp -= np.level * 100
+        while (np.exp >= getExpNeed(np.level)) {
+          np.exp -= getExpNeed(np.level)
           np.level += 1
           np.con = (np.con || 0) + Math.ceil(growth.con * awakenMult)
           np.wil = (np.wil || 0) + Math.ceil(growth.wil * awakenMult)

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -140,10 +140,10 @@ export default function CharacterPanel() {
                 </div>
                 <div>
                   <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    <span>EXP</span><span>{player.exp}/{player.level * 100}</span>
+                    <span>EXP</span><span>{player.exp}/{getExpNeed(player.level)}</span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (getExpNeed(player.level))) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
                   </div>
                 </div>
               </div>

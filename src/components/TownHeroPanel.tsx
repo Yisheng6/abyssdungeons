@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { LogOut, Settings, Sword, User, X } from 'lucide-react'
-import { useGameStore } from '@/stores/gameStore'
+import { useGameStore, getExpNeed } from '@/stores/gameStore'
 import { getTierName } from '@/lib/catalog'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
@@ -80,10 +80,10 @@ export default function TownHeroPanel() {
           {player && (
             <div>
               <div className="mb-1 flex justify-between text-xs" style={{ color: 'var(--text-secondary)' }}>
-                <span>EXP</span><span>{player.exp}/{player.level * 100}</span>
+                <span>EXP</span><span>{player.exp}/{getExpNeed(player.level)}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (player.level * 100)) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
+                <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (player.exp / (getExpNeed(player.level))) * 100)}%`, background: 'linear-gradient(90deg, #C9A84C, #F0D878)' }} />
               </div>
             </div>
           )}
