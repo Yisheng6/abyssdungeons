@@ -1311,7 +1311,7 @@
   },
   {
    "id": "set_warrior_9",
-   "name": "永恒战神套装",
+   "name": "战神套装",
    "classId": "warrior",
    "tier": 9,
    "pieces": [
@@ -1398,7 +1398,7 @@
   },
   {
    "id": "set_mage_9",
-   "name": "万法之神套装",
+   "name": "终焉套装",
    "classId": "mage",
    "tier": 9,
    "pieces": [
@@ -1485,7 +1485,7 @@
   },
   {
    "id": "set_assassin_9",
-   "name": "暗夜主宰套装",
+   "name": "夜神套装",
    "classId": "assassin",
    "tier": 9,
    "pieces": [
@@ -1572,7 +1572,7 @@
   },
   {
    "id": "set_ranger_9",
-   "name": "万猎之神套装",
+   "name": "猎神套装",
    "classId": "ranger",
    "tier": 9,
    "pieces": [
@@ -1659,7 +1659,7 @@
   },
   {
    "id": "set_priest_9",
-   "name": "光明之神套装",
+   "name": "神圣套装",
    "classId": "priest",
    "tier": 9,
    "pieces": [
@@ -1746,7 +1746,7 @@
   },
   {
    "id": "set_warlock_9",
-   "name": "万咒邪神套装",
+   "name": "邪神套装",
    "classId": "warlock",
    "tier": 9,
    "pieces": [
@@ -6151,7 +6151,7 @@
   },
   {
    "id": "eq_warrior_9_weapon",
-   "name": "永恒战神巨剑",
+   "name": "战神巨剑",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warrior",
@@ -6162,12 +6162,12 @@
     "atk": 1351,
     "def": 403
    },
-   "desc": "永恒战神套装部件，战士专属。",
+   "desc": "战神套装部件，战士专属。",
    "value": 20275
   },
   {
    "id": "eq_warrior_9_helmet",
-   "name": "永恒战神头盔",
+   "name": "战神头盔",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warrior",
@@ -6178,12 +6178,12 @@
     "def": 540,
     "hp": 1351
    },
-   "desc": "永恒战神套装部件，战士专属。",
+   "desc": "战神套装部件，战士专属。",
    "value": 20275
   },
   {
    "id": "eq_warrior_9_armor",
-   "name": "永恒战神胸甲",
+   "name": "战神胸甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "warrior",
@@ -6194,12 +6194,12 @@
     "def": 943,
     "hp": 2702
    },
-   "desc": "永恒战神套装部件，战士专属。",
+   "desc": "战神套装部件，战士专属。",
    "value": 20275
   },
   {
    "id": "eq_warrior_9_leggings",
-   "name": "永恒战神护腿",
+   "name": "战神护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warrior",
@@ -6210,12 +6210,12 @@
     "def": 678,
     "hp": 2024
    },
-   "desc": "永恒战神套装部件，战士专属。",
+   "desc": "战神套装部件，战士专属。",
    "value": 20275
   },
   {
    "id": "eq_warrior_9_boots",
-   "name": "永恒战神战靴",
+   "name": "战神战靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warrior",
@@ -6226,7 +6226,7 @@
     "def": 403,
     "agi": 270
    },
-   "desc": "永恒战神套装部件，战士专属。",
+   "desc": "战神套装部件，战士专属。",
    "value": 20275
   },
   {
@@ -6391,7 +6391,7 @@
   },
   {
    "id": "eq_mage_9_weapon",
-   "name": "万法之神法杖",
+   "name": "终焉法杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "mage",
@@ -6402,12 +6402,12 @@
     "mag": 1351,
     "mp": 2024
    },
-   "desc": "万法之神套装部件，法师专属。",
+   "desc": "终焉套装部件，法师专属。",
    "value": 20275
   },
   {
    "id": "eq_mage_9_helmet",
-   "name": "万法之神法帽",
+   "name": "终焉法帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "mage",
@@ -6418,12 +6418,12 @@
     "mdef": 540,
     "mp": 1351
    },
-   "desc": "万法之神套装部件，法师专属。",
+   "desc": "终焉套装部件，法师专属。",
    "value": 20275
   },
   {
    "id": "eq_mage_9_armor",
-   "name": "万法之神法袍",
+   "name": "终焉法袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "mage",
@@ -6434,12 +6434,12 @@
     "mdef": 943,
     "mp": 2702
    },
-   "desc": "万法之神套装部件，法师专属。",
+   "desc": "终焉套装部件，法师专属。",
    "value": 20275
   },
   {
    "id": "eq_mage_9_leggings",
-   "name": "万法之神护腿",
+   "name": "终焉护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "mage",
@@ -6450,12 +6450,12 @@
     "mdef": 678,
     "mp": 2024
    },
-   "desc": "万法之神套装部件，法师专属。",
+   "desc": "终焉套装部件，法师专属。",
    "value": 20275
   },
   {
    "id": "eq_mage_9_boots",
-   "name": "万法之神法靴",
+   "name": "终焉法靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "mage",
@@ -6466,7 +6466,7 @@
     "mdef": 403,
     "agi": 270
    },
-   "desc": "万法之神套装部件，法师专属。",
+   "desc": "终焉套装部件，法师专属。",
    "value": 20275
   },
   {
@@ -6631,7 +6631,7 @@
   },
   {
    "id": "eq_assassin_9_weapon",
-   "name": "暗夜主宰匕首",
+   "name": "夜神匕首",
    "type": "equipment",
    "slot": "weapon",
    "classId": "assassin",
@@ -6642,12 +6642,12 @@
     "atk": 1351,
     "agi": 540
    },
-   "desc": "暗夜主宰套装部件，刺客专属。",
+   "desc": "夜神套装部件，刺客专属。",
    "value": 20275
   },
   {
    "id": "eq_assassin_9_helmet",
-   "name": "暗夜主宰面甲",
+   "name": "夜神面甲",
    "type": "equipment",
    "slot": "helmet",
    "classId": "assassin",
@@ -6658,12 +6658,12 @@
     "def": 403,
     "agi": 270
    },
-   "desc": "暗夜主宰套装部件，刺客专属。",
+   "desc": "夜神套装部件，刺客专属。",
    "value": 20275
   },
   {
    "id": "eq_assassin_9_armor",
-   "name": "暗夜主宰皮甲",
+   "name": "夜神皮甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "assassin",
@@ -6674,12 +6674,12 @@
     "def": 811,
     "hp": 1621
    },
-   "desc": "暗夜主宰套装部件，刺客专属。",
+   "desc": "夜神套装部件，刺客专属。",
    "value": 20275
   },
   {
    "id": "eq_assassin_9_leggings",
-   "name": "暗夜主宰护腿",
+   "name": "夜神护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "assassin",
@@ -6690,12 +6690,12 @@
     "def": 540,
     "agi": 270
    },
-   "desc": "暗夜主宰套装部件，刺客专属。",
+   "desc": "夜神套装部件，刺客专属。",
    "value": 20275
   },
   {
    "id": "eq_assassin_9_boots",
-   "name": "暗夜主宰轻靴",
+   "name": "夜神轻靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "assassin",
@@ -6706,7 +6706,7 @@
     "agi": 540,
     "def": 138
    },
-   "desc": "暗夜主宰套装部件，刺客专属。",
+   "desc": "夜神套装部件，刺客专属。",
    "value": 20275
   },
   {
@@ -6871,7 +6871,7 @@
   },
   {
    "id": "eq_ranger_9_weapon",
-   "name": "万猎之神长弓",
+   "name": "猎神长弓",
    "type": "equipment",
    "slot": "weapon",
    "classId": "ranger",
@@ -6882,12 +6882,12 @@
     "atk": 1351,
     "agi": 403
    },
-   "desc": "万猎之神套装部件，游侠专属。",
+   "desc": "猎神套装部件，游侠专属。",
    "value": 20275
   },
   {
    "id": "eq_ranger_9_helmet",
-   "name": "万猎之神羽帽",
+   "name": "猎神羽帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "ranger",
@@ -6898,12 +6898,12 @@
     "def": 403,
     "agi": 270
    },
-   "desc": "万猎之神套装部件，游侠专属。",
+   "desc": "猎神套装部件，游侠专属。",
    "value": 20275
   },
   {
    "id": "eq_ranger_9_armor",
-   "name": "万猎之神皮甲",
+   "name": "猎神皮甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "ranger",
@@ -6914,12 +6914,12 @@
     "def": 811,
     "hp": 2024
    },
-   "desc": "万猎之神套装部件，游侠专属。",
+   "desc": "猎神套装部件，游侠专属。",
    "value": 20275
   },
   {
    "id": "eq_ranger_9_leggings",
-   "name": "万猎之神护腿",
+   "name": "猎神护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "ranger",
@@ -6930,12 +6930,12 @@
     "def": 540,
     "agi": 270
    },
-   "desc": "万猎之神套装部件，游侠专属。",
+   "desc": "猎神套装部件，游侠专属。",
    "value": 20275
   },
   {
    "id": "eq_ranger_9_boots",
-   "name": "万猎之神疾风靴",
+   "name": "猎神疾风靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "ranger",
@@ -6946,7 +6946,7 @@
     "agi": 403,
     "def": 138
    },
-   "desc": "万猎之神套装部件，游侠专属。",
+   "desc": "猎神套装部件，游侠专属。",
    "value": 20275
   },
   {
@@ -7111,7 +7111,7 @@
   },
   {
    "id": "eq_priest_9_weapon",
-   "name": "光明之神权杖",
+   "name": "神圣权杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "priest",
@@ -7122,12 +7122,12 @@
     "mag": 1218,
     "mdef": 540
    },
-   "desc": "光明之神套装部件，牧师专属。",
+   "desc": "神圣套装部件，牧师专属。",
    "value": 20275
   },
   {
    "id": "eq_priest_9_helmet",
-   "name": "光明之神头冠",
+   "name": "神圣头冠",
    "type": "equipment",
    "slot": "helmet",
    "classId": "priest",
@@ -7138,12 +7138,12 @@
     "mdef": 540,
     "hp": 1351
    },
-   "desc": "光明之神套装部件，牧师专属。",
+   "desc": "神圣套装部件，牧师专属。",
    "value": 20275
   },
   {
    "id": "eq_priest_9_armor",
-   "name": "光明之神圣袍",
+   "name": "神圣圣袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "priest",
@@ -7154,12 +7154,12 @@
     "mdef": 943,
     "hp": 2702
    },
-   "desc": "光明之神套装部件，牧师专属。",
+   "desc": "神圣套装部件，牧师专属。",
    "value": 20275
   },
   {
    "id": "eq_priest_9_leggings",
-   "name": "光明之神护腿",
+   "name": "神圣护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "priest",
@@ -7170,12 +7170,12 @@
     "mdef": 678,
     "hp": 2024
    },
-   "desc": "光明之神套装部件，牧师专属。",
+   "desc": "神圣套装部件，牧师专属。",
    "value": 20275
   },
   {
    "id": "eq_priest_9_boots",
-   "name": "光明之神圣靴",
+   "name": "神圣圣靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "priest",
@@ -7186,7 +7186,7 @@
     "mdef": 403,
     "agi": 138
    },
-   "desc": "光明之神套装部件，牧师专属。",
+   "desc": "神圣套装部件，牧师专属。",
    "value": 20275
   },
   {
@@ -7351,7 +7351,7 @@
   },
   {
    "id": "eq_warlock_9_weapon",
-   "name": "万咒邪神法器",
+   "name": "邪神法器",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warlock",
@@ -7362,12 +7362,12 @@
     "mag": 1351,
     "luk": 403
    },
-   "desc": "万咒邪神套装部件，术士专属。",
+   "desc": "邪神套装部件，术士专属。",
    "value": 20275
   },
   {
    "id": "eq_warlock_9_helmet",
-   "name": "万咒邪神兜帽",
+   "name": "邪神兜帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warlock",
@@ -7378,12 +7378,12 @@
     "mdef": 540,
     "mp": 1081
    },
-   "desc": "万咒邪神套装部件，术士专属。",
+   "desc": "邪神套装部件，术士专属。",
    "value": 20275
   },
   {
    "id": "eq_warlock_9_armor",
-   "name": "万咒邪神咒袍",
+   "name": "邪神咒袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "warlock",
@@ -7394,12 +7394,12 @@
     "mdef": 811,
     "mp": 2432
    },
-   "desc": "万咒邪神套装部件，术士专属。",
+   "desc": "邪神套装部件，术士专属。",
    "value": 20275
   },
   {
    "id": "eq_warlock_9_leggings",
-   "name": "万咒邪神护腿",
+   "name": "邪神护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warlock",
@@ -7410,12 +7410,12 @@
     "mdef": 678,
     "mp": 1621
    },
-   "desc": "万咒邪神套装部件，术士专属。",
+   "desc": "邪神套装部件，术士专属。",
    "value": 20275
   },
   {
    "id": "eq_warlock_9_boots",
-   "name": "万咒邪神咒靴",
+   "name": "邪神咒靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warlock",
@@ -7426,7 +7426,7 @@
     "mdef": 403,
     "agi": 138
    },
-   "desc": "万咒邪神套装部件，术士专属。",
+   "desc": "邪神套装部件，术士专属。",
    "value": 20275
   },
   {
