@@ -55,7 +55,7 @@ export const CLASS_TIER_MATS: Record<string, Array<{ id: string; name: string; c
 export interface Item {
   uid: string; id: string; name: string
   type: 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-  slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring'
+  slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring' | 'offhand'
   quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
   quantity: number; desc: string; stats?: Record<string, number>
   /** 装备副词条（随机生成，已合并进 stats，此字段用于展示区分） */
@@ -234,7 +234,7 @@ export const DEFAULT_TASK_STATE: TaskState = {
 
 /** 装备部位中文名 */
 export const SLOT_NAMES: Record<string, string> = {
-  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指',
+  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指', offhand: '副武器',
 }
 
 /** 全部属性/词条中文名（含百分比、战斗特效、收益类词条） */
@@ -428,6 +428,7 @@ const equipSlots: Record<string, keyof Equipment> = {
   weapon: 'weapon', helmet: 'helmet', armor: 'armor',
   leggings: 'leggings', boots: 'boots', necklace: 'necklace',
   ring: 'ring1',
+  offhand: 'ring2',
 }
 
 const DEFAULT_CLASS_STATS: Record<string, Record<string, number>> = {
@@ -920,7 +921,8 @@ export const useGameStore = create<GameState>()(
 
       getEquipSlot: (item) => {
         if (!item.slot) return null
-        if (item.slot === 'ring') return get().equipment.ring1 ? 'ring2' : 'ring1'
+        if (item.slot === 'ring') return 'ring1'
+        if (item.slot === 'offhand') return 'ring2'
         return equipSlots[item.slot] || null
       },
 

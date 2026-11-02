@@ -57,8 +57,8 @@
   "legs",
   "boots",
   "necklace",
-  "ring1",
-  "ring2"
+  "ring",
+  "offhand"
  ],
  "consumables": [
   {
@@ -2805,6 +2805,48 @@
    },
    "type": "equipment",
    "desc": "通用饰品，所有职业均可装备。",
+   "value": 360
+  },
+  {
+   "id": "acc_off_1",
+   "name": "木盾",
+   "slot": "offhand",
+   "setTier": 1,
+   "quality": "fine",
+   "stats": {
+    "def": 3,
+    "hp": 10
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 40
+  },
+  {
+   "id": "acc_off_2",
+   "name": "铁壁盾",
+   "slot": "offhand",
+   "setTier": 2,
+   "quality": "rare",
+   "stats": {
+    "def": 7,
+    "hp": 30
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 160
+  },
+  {
+   "id": "acc_off_3",
+   "name": "龙鳞盾",
+   "slot": "offhand",
+   "setTier": 3,
+   "quality": "epic",
+   "stats": {
+    "def": 14,
+    "hp": 70
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
    "value": 360
   },
   {

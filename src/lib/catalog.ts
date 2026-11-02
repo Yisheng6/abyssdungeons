@@ -4,7 +4,7 @@
 export interface CatalogItem {
   id: string; name: string
   type: 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-  slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring'
+  slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring' | 'offhand'
   classId?: string
   setId?: string; setTier?: number
   quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
@@ -26,6 +26,8 @@ export interface CatalogSkill {
   id: string; name: string; classId: string; type: string
   element: string; mpCost: number; cooldown: number
   description: string
+  /** 行为分类：heal/buff/dot/debuff/damage/other（自动战斗 AI 用） */
+  kind?: string
   learnable: boolean; learnLevel: number | null; learnCost: number | null
 }
 

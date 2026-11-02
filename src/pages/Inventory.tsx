@@ -15,11 +15,11 @@ const qualityNames: Record<string, string> = {
 const slotIcons: Record<string, React.ReactNode> = {
   weapon: <Swords size={14} />, helmet: <Shield size={14} />, armor: <Shield size={14} />,
   leggings: <Shield size={14} />, boots: <Wind size={14} />, necklace: <Star size={14} />,
-  ring: <Sparkles size={14} />,
+  ring: <Sparkles size={14} />, offhand: <Shield size={14} />,
 }
 
 const slotNames: Record<string, string> = {
-  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指',
+  weapon: '武器', helmet: '头盔', armor: '胸甲', leggings: '护腿', boots: '靴子', necklace: '项链', ring: '戒指', offhand: '副武器',
 }
 
 const statNames: Record<string, string> = {

@@ -82,7 +82,7 @@ export default function CharacterPanel() {
   const equipSlotNames: Record<string, string> = {
     weapon: '武器', helmet: '头盔', armor: '胸甲',
     leggings: '护腿', boots: '靴子', necklace: '项链',
-    ring1: '戒指', ring2: '戒指',
+    ring1: '戒指', ring2: '副武器',
   }
 
   return (
