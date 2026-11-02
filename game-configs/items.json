@@ -48,6 +48,14 @@
    "extraStatsMin": 5,
    "extraStatsMax": 6,
    "dropWeight": 10
+  },
+  {
+   "id": "eternal",
+   "name": "永恒",
+   "color": "#7EE7F5",
+   "extraStatsMin": 6,
+   "extraStatsMax": 7,
+   "dropWeight": 2
   }
  ],
  "itemSlots": [
@@ -2850,6 +2858,173 @@
    "value": 360
   },
   {
+   "id": "acc_neck_4",
+   "name": "钻石项链",
+   "slot": "necklace",
+   "setTier": 4,
+   "quality": "legendary",
+   "stats": {
+    "hp": 260,
+    "mdef": 30
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 640
+  },
+  {
+   "id": "acc_neck_5",
+   "name": "星辰项链",
+   "slot": "necklace",
+   "setTier": 5,
+   "quality": "mythic",
+   "stats": {
+    "hp": 480,
+    "mdef": 55
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1000
+  },
+  {
+   "id": "acc_neck_6",
+   "name": "永恒项链",
+   "slot": "necklace",
+   "setTier": 6,
+   "quality": "eternal",
+   "stats": {
+    "hp": 830,
+    "mdef": 96
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1600
+  },
+  {
+   "id": "acc_ring_4",
+   "name": "泰坦戒指",
+   "slot": "ring",
+   "setTier": 4,
+   "quality": "legendary",
+   "stats": {
+    "atk": 32,
+    "agi": 8
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 640
+  },
+  {
+   "id": "acc_ring_5",
+   "name": "诸神戒指",
+   "slot": "ring",
+   "setTier": 5,
+   "quality": "mythic",
+   "stats": {
+    "atk": 57,
+    "agi": 14
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1000
+  },
+  {
+   "id": "acc_ring_6",
+   "name": "创世戒指",
+   "slot": "ring",
+   "setTier": 6,
+   "quality": "eternal",
+   "stats": {
+    "atk": 98,
+    "agi": 24
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1600
+  },
+  {
+   "id": "acc_ringb_4",
+   "name": "圣光戒指",
+   "slot": "ring",
+   "setTier": 4,
+   "quality": "legendary",
+   "stats": {
+    "luk": 22
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 640
+  },
+  {
+   "id": "acc_ringb_5",
+   "name": "大贤者戒指",
+   "slot": "ring",
+   "setTier": 5,
+   "quality": "mythic",
+   "stats": {
+    "mag": 39,
+    "mp": 128
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1000
+  },
+  {
+   "id": "acc_ringb_6",
+   "name": "永恒之戒",
+   "slot": "ring",
+   "setTier": 6,
+   "quality": "eternal",
+   "stats": {
+    "luk": 60,
+    "agi": 30
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 1600
+  },
+  {
+   "id": "acc_off_4",
+   "name": "圣银壁垒",
+   "slot": "offhand",
+   "setTier": 4,
+   "quality": "legendary",
+   "stats": {
+    "def": 27,
+    "hp": 120
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 640
+  },
+  {
+   "id": "acc_off_5",
+   "name": "神铸巨盾",
+   "slot": "offhand",
+   "setTier": 5,
+   "quality": "mythic",
+   "stats": {
+    "def": 48,
+    "hp": 220
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 1000
+  },
+  {
+   "id": "acc_off_6",
+   "name": "永恒王权之盾",
+   "slot": "offhand",
+   "setTier": 6,
+   "quality": "eternal",
+   "stats": {
+    "def": 82,
+    "hp": 380
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 1600
+  },
+  {
    "id": "sword_rusty",
    "name": "生锈的剑",
    "type": "equipment",
@@ -4604,7 +4779,7 @@
    "classId": "warrior",
    "setId": "set_warrior_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "atk": 275,
     "def": 82
@@ -4620,7 +4795,7 @@
    "classId": "warrior",
    "setId": "set_warrior_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 110,
     "hp": 275
@@ -4636,7 +4811,7 @@
    "classId": "warrior",
    "setId": "set_warrior_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 192,
     "hp": 550
@@ -4652,7 +4827,7 @@
    "classId": "warrior",
    "setId": "set_warrior_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 138,
     "hp": 412
@@ -4668,7 +4843,7 @@
    "classId": "warrior",
    "setId": "set_warrior_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 82,
     "agi": 55
@@ -4684,7 +4859,7 @@
    "classId": "mage",
    "setId": "set_mage_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mag": 275,
     "mp": 412
@@ -4700,7 +4875,7 @@
    "classId": "mage",
    "setId": "set_mage_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 110,
     "mp": 275
@@ -4716,7 +4891,7 @@
    "classId": "mage",
    "setId": "set_mage_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 192,
     "mp": 550
@@ -4732,7 +4907,7 @@
    "classId": "mage",
    "setId": "set_mage_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 138,
     "mp": 412
@@ -4748,7 +4923,7 @@
    "classId": "mage",
    "setId": "set_mage_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 82,
     "agi": 55
@@ -4764,7 +4939,7 @@
    "classId": "assassin",
    "setId": "set_assassin_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "atk": 275,
     "agi": 110
@@ -4780,7 +4955,7 @@
    "classId": "assassin",
    "setId": "set_assassin_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 82,
     "agi": 55
@@ -4796,7 +4971,7 @@
    "classId": "assassin",
    "setId": "set_assassin_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 165,
     "hp": 330
@@ -4812,7 +4987,7 @@
    "classId": "assassin",
    "setId": "set_assassin_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 110,
     "agi": 55
@@ -4828,7 +5003,7 @@
    "classId": "assassin",
    "setId": "set_assassin_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "agi": 110,
     "def": 28
@@ -4844,7 +5019,7 @@
    "classId": "ranger",
    "setId": "set_ranger_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "atk": 275,
     "agi": 82
@@ -4860,7 +5035,7 @@
    "classId": "ranger",
    "setId": "set_ranger_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 82,
     "agi": 55
@@ -4876,7 +5051,7 @@
    "classId": "ranger",
    "setId": "set_ranger_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 165,
     "hp": 412
@@ -4892,7 +5067,7 @@
    "classId": "ranger",
    "setId": "set_ranger_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "def": 110,
     "agi": 55
@@ -4908,7 +5083,7 @@
    "classId": "ranger",
    "setId": "set_ranger_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "agi": 82,
     "def": 28
@@ -4924,7 +5099,7 @@
    "classId": "priest",
    "setId": "set_priest_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mag": 248,
     "mdef": 110
@@ -4940,7 +5115,7 @@
    "classId": "priest",
    "setId": "set_priest_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 110,
     "hp": 275
@@ -4956,7 +5131,7 @@
    "classId": "priest",
    "setId": "set_priest_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 192,
     "hp": 550
@@ -4972,7 +5147,7 @@
    "classId": "priest",
    "setId": "set_priest_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 138,
     "hp": 412
@@ -4988,7 +5163,7 @@
    "classId": "priest",
    "setId": "set_priest_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 82,
     "agi": 28
@@ -5004,7 +5179,7 @@
    "classId": "warlock",
    "setId": "set_warlock_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mag": 275,
     "luk": 82
@@ -5020,7 +5195,7 @@
    "classId": "warlock",
    "setId": "set_warlock_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 110,
     "mp": 220
@@ -5036,7 +5211,7 @@
    "classId": "warlock",
    "setId": "set_warlock_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 165,
     "mp": 495
@@ -5052,7 +5227,7 @@
    "classId": "warlock",
    "setId": "set_warlock_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 138,
     "mp": 330
@@ -5068,7 +5243,7 @@
    "classId": "warlock",
    "setId": "set_warlock_6",
    "setTier": 6,
-   "quality": "mythic",
+   "quality": "eternal",
    "stats": {
     "mdef": 82,
     "agi": 28

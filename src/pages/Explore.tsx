@@ -36,7 +36,7 @@ const SKILL_MP_COSTS: Record<string, number> = {
 
 const LOOT_QUALITY_COLORS: Record<string, string> = {
   common: '#9DA7B3', fine: '#3FB950', rare: '#58A6FF',
-  epic: '#A371F7', legendary: '#F0A832', mythic: '#FF7B72',
+  epic: '#A371F7', legendary: '#F0A832', mythic: '#FF7B72', eternal: '#7EE7F5',
 }
 
 export default function Explore() {

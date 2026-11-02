@@ -49,7 +49,7 @@ const QUICK_ACTIONS = [
 ]
 
 const SETTINGS_QUALITY_NAMES: Record<string, string> = {
-  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说',
+  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说', mythic: '神话', eternal: '永恒',
 }
 
 export default function Layout() {

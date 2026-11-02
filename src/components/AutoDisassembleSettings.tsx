@@ -2,7 +2,7 @@ import { useGameStore, SLOT_NAMES, STAT_NAMES, DEFAULT_DISASSEMBLE_RULES } from 
 import type { AutoDisassembleRules } from '@/stores/gameStore'
 
 const QUALITY_OPTIONS: Array<[string, string]> = [
-  ['common', '普通'], ['fine', '精致'], ['rare', '稀有'], ['epic', '史诗'], ['legendary', '传说'], ['mythic', '神话'],
+  ['common', '普通'], ['fine', '精致'], ['rare', '稀有'], ['epic', '史诗'], ['legendary', '传说'], ['mythic', '神话'], ['eternal', '永恒'],
 ]
 
 /** 自动分解多条件设置（与背包装备筛选同款交互） */

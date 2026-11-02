@@ -7,7 +7,7 @@ export interface CatalogItem {
   slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring' | 'offhand'
   classId?: string
   setId?: string; setTier?: number
-  quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
+  quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic' | 'eternal'
   stats?: Record<string, number>
   effect?: Record<string, unknown>
   desc?: string; value?: number; stackSize?: number

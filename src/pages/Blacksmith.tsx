@@ -10,7 +10,7 @@ import { loadCatalogs, getItemInfo } from '@/lib/catalog'
 import { getReforgeGoldCost, REFORGE_DIAMOND_COST, QUALITY_MAX_AFFIXES } from '@/lib/affixes'
 
 const qualityColors: Record<string, string> = {
-  common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149',
+  common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149', eternal: '#7EE7F5',
 }
 
 const statNames: Record<string, string> = {

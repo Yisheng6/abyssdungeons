@@ -69,7 +69,7 @@ const AFFIX_POOL: AffixDef[] = [
 
 /** 品质词条数值倍率（品质越高 roll 值越高，类似 PoE 的词缀阶级） */
 const QUALITY_MULT: Record<string, number> = {
-  common: 1, fine: 1, rare: 1.2, epic: 1.5, legendary: 1.8, mythic: 2.2,
+  common: 1, fine: 1, rare: 1.2, epic: 1.5, legendary: 1.8, mythic: 2.2, eternal: 2.6,
 };
 
 function getQualities(): QualityDef[] {

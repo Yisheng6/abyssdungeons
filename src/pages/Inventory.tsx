@@ -5,11 +5,11 @@ import { useGameStore, type Item, getEffectiveStats, getItemDisplayName, getDisa
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
-  common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149',
+  common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149', eternal: '#7EE7F5',
 }
 
 const qualityNames: Record<string, string> = {
-  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说', mythic: '神话',
+  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说', mythic: '神话', eternal: '永恒',
 }
 
 const slotIcons: Record<string, React.ReactNode> = {

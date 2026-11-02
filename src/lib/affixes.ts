@@ -36,12 +36,12 @@ export const AFFIX_POOL: AffixDef[] = [
 ];
 
 export const QUALITY_MULT: Record<string, number> = {
-  common: 1, fine: 1, rare: 1.2, epic: 1.5, legendary: 1.8, mythic: 2.2,
+  common: 1, fine: 1, rare: 1.2, epic: 1.5, legendary: 1.8, mythic: 2.2, eternal: 2.6,
 };
 
 /** 各品质词条数量上限（与 itemQualities.extraStatsMax 对应） */
 export const QUALITY_MAX_AFFIXES: Record<string, number> = {
-  common: 0, fine: 2, rare: 3, epic: 4, legendary: 5, mythic: 6,
+  common: 0, fine: 2, rare: 3, epic: 4, legendary: 5, mythic: 6, eternal: 7,
 };
 
 /** 金币重铸费用：套装阶级 × 品质系数 × 400 */

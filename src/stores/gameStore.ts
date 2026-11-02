@@ -56,7 +56,7 @@ export interface Item {
   uid: string; id: string; name: string
   type: 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
   slot?: 'weapon' | 'helmet' | 'armor' | 'leggings' | 'boots' | 'necklace' | 'ring' | 'offhand'
-  quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic'
+  quality: 'common' | 'fine' | 'rare' | 'epic' | 'legendary' | 'mythic' | 'eternal'
   quantity: number; desc: string; stats?: Record<string, number>
   /** 装备副词条（随机生成，已合并进 stats，此字段用于展示区分） */
   affixes?: Record<string, number>
@@ -81,7 +81,7 @@ export function getEnhanceCost(level: number): { stoneId: string; stoneName: str
 
 /** 装备孔位数：按品质（普通0 / 精良1 / 稀有1 / 史诗2 / 传说2 / 神话3） */
 export function getSocketCount(quality: string): number {
-  return { common: 0, fine: 1, rare: 1, epic: 2, legendary: 2, mythic: 3 }[quality] ?? 0
+  return { common: 0, fine: 1, rare: 1, epic: 2, legendary: 2, mythic: 3, eternal: 3 }[quality] ?? 0
 }
 
 /** 已镶嵌宝石提供的属性 */
@@ -152,13 +152,13 @@ export function getPlayerMods(): { combat: Record<string, number>; utility: Reco
 
 /** 分解装备可获得的金币（品质 + 套装阶级 + 强化等级） */
 export function getDisassembleGold(item: Item): number {
-  const base: Record<string, number> = { common: 20, fine: 50, rare: 120, epic: 300, legendary: 800, mythic: 2000 }
+  const base: Record<string, number> = { common: 20, fine: 50, rare: 120, epic: 300, legendary: 800, mythic: 2000, eternal: 4000 }
   return (base[item.quality] || 20) + (item.setTier || 0) * 100 + (item.enhanceLevel || 0) * 50
 }
 
 /** 品质等级排序（用于自动分解阈值比较） */
 export const QUALITY_RANK: Record<string, number> = {
-  common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5,
+  common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, eternal: 6,
 }
 
 export interface AutoDisassembleRules {

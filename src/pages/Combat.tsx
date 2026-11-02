@@ -310,7 +310,7 @@ export default function Combat() {
               {lastDrops.map((drop, i) => (
                 <span key={i} className="rounded px-1.5 py-0.5 text-[10px]" style={{
                   backgroundColor: drop.quality === 'epic' ? 'rgba(201,168,76,0.2)' : drop.quality === 'rare' ? 'rgba(163,113,247,0.2)' : drop.quality === 'fine' ? 'rgba(88,166,255,0.2)' : 'var(--bg-hover)',
-                  color: drop.quality === 'epic' ? '#C9A84C' : drop.quality === 'rare' ? '#A371F7' : drop.quality === 'fine' ? '#58A6FF' : 'var(--text-secondary)',
+                  color: ({ legendary: '#C9A84C', mythic: '#F85149', eternal: '#7EE7F5', epic: '#A371F7', rare: '#58A6FF', fine: '#3FB950' } as Record<string, string>)[drop.quality] || 'var(--text-secondary)',
                 }}>
                   {drop.name} x{drop.quantity}
                 </span>
