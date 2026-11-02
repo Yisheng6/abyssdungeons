@@ -129,7 +129,7 @@ export default function BattleStage() {
           <div className="bs-bar"><div className="bs-bar-fill" style={{ width: `${(player.hp / player.maxHp) * 100}%`, background: 'linear-gradient(90deg,#F85149,#3FB950)' }} /></div>
           <div className="bs-bar bs-bar-mp"><div className="bs-bar-fill" style={{ width: `${(player.mp / player.maxMp) * 100}%`, background: '#58A6FF' }} /></div>
         </div>
-        <HeroSprite classId={player.classId} size={64} />
+        <HeroSprite classId={player.classId} size={68} pose={lunging === 'player' || projectile ? 'attack' : 'idle'} />
         <div className="bs-name" style={{ color: 'var(--accent)' }}>{player.name}</div>
       </div>
 
@@ -188,7 +188,8 @@ const CSS = `
 .bs-lunge-l { animation: bs-lunge-l 0.3s ease-out !important; }
 @keyframes bs-lunge-l { 0% { transform: translateX(-50%); } 40% { transform: translateX(calc(-50% - 46px)); } 100% { transform: translateX(-50%); } }
 .bs-hit { filter: brightness(2.2) saturate(0.4); }
-.bs-dead { opacity: 0.25; animation: bs-die 0.6s ease-out forwards !important; }
+.bs-dead { opacity: 0.25; filter: grayscale(1); animation: bs-die 0.6s ease-out forwards !important; }
+.bs-unit svg { image-rendering: pixelated; }
 @keyframes bs-die { to { transform: translateX(-50%) translateY(10px) rotate(80deg); opacity: 0.15; } }
 .bs-shake { animation: bs-shake 0.25s linear; }
 @keyframes bs-shake { 0%,100% { transform: translate(0,0); } 25% { transform: translate(3px,-2px); } 50% { transform: translate(-3px,2px); } 75% { transform: translate(2px,2px); } }
