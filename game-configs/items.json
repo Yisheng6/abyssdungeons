@@ -1250,6 +1250,528 @@
      }
     }
    ]
+  },
+  {
+   "id": "set_warrior_7",
+   "name": "神怒套装",
+   "classId": "warrior",
+   "tier": 7,
+   "pieces": [
+    "eq_warrior_7_weapon",
+    "eq_warrior_7_helmet",
+    "eq_warrior_7_armor",
+    "eq_warrior_7_leggings",
+    "eq_warrior_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 187,
+      "hp": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_warrior_8",
+   "name": "天启套装",
+   "classId": "warrior",
+   "tier": 8,
+   "pieces": [
+    "eq_warrior_8_weapon",
+    "eq_warrior_8_helmet",
+    "eq_warrior_8_armor",
+    "eq_warrior_8_leggings",
+    "eq_warrior_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 318,
+      "hp": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_warrior_9",
+   "name": "永恒战神套装",
+   "classId": "warrior",
+   "tier": 9,
+   "pieces": [
+    "eq_warrior_9_weapon",
+    "eq_warrior_9_helmet",
+    "eq_warrior_9_armor",
+    "eq_warrior_9_leggings",
+    "eq_warrior_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 540,
+      "hp": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 1081,
+      "luk": 403
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_mage_7",
+   "name": "星界套装",
+   "classId": "mage",
+   "tier": 7,
+   "pieces": [
+    "eq_mage_7_weapon",
+    "eq_mage_7_helmet",
+    "eq_mage_7_armor",
+    "eq_mage_7_leggings",
+    "eq_mage_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 187,
+      "mp": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_mage_8",
+   "name": "真理套装",
+   "classId": "mage",
+   "tier": 8,
+   "pieces": [
+    "eq_mage_8_weapon",
+    "eq_mage_8_helmet",
+    "eq_mage_8_armor",
+    "eq_mage_8_leggings",
+    "eq_mage_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 318,
+      "mp": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_mage_9",
+   "name": "万法之神套装",
+   "classId": "mage",
+   "tier": 9,
+   "pieces": [
+    "eq_mage_9_weapon",
+    "eq_mage_9_helmet",
+    "eq_mage_9_armor",
+    "eq_mage_9_leggings",
+    "eq_mage_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 540,
+      "mp": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 1081,
+      "luk": 403
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_assassin_7",
+   "name": "无形套装",
+   "classId": "assassin",
+   "tier": 7,
+   "pieces": [
+    "eq_assassin_7_weapon",
+    "eq_assassin_7_helmet",
+    "eq_assassin_7_armor",
+    "eq_assassin_7_leggings",
+    "eq_assassin_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 187,
+      "agi": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_assassin_8",
+   "name": "灭魂套装",
+   "classId": "assassin",
+   "tier": 8,
+   "pieces": [
+    "eq_assassin_8_weapon",
+    "eq_assassin_8_helmet",
+    "eq_assassin_8_armor",
+    "eq_assassin_8_leggings",
+    "eq_assassin_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 318,
+      "agi": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_assassin_9",
+   "name": "暗夜主宰套装",
+   "classId": "assassin",
+   "tier": 9,
+   "pieces": [
+    "eq_assassin_9_weapon",
+    "eq_assassin_9_helmet",
+    "eq_assassin_9_armor",
+    "eq_assassin_9_leggings",
+    "eq_assassin_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 540,
+      "agi": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 1081,
+      "luk": 403
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_ranger_7",
+   "name": "银河套装",
+   "classId": "ranger",
+   "tier": 7,
+   "pieces": [
+    "eq_ranger_7_weapon",
+    "eq_ranger_7_helmet",
+    "eq_ranger_7_armor",
+    "eq_ranger_7_leggings",
+    "eq_ranger_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 187,
+      "agi": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_ranger_8",
+   "name": "天罚套装",
+   "classId": "ranger",
+   "tier": 8,
+   "pieces": [
+    "eq_ranger_8_weapon",
+    "eq_ranger_8_helmet",
+    "eq_ranger_8_armor",
+    "eq_ranger_8_leggings",
+    "eq_ranger_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 318,
+      "agi": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_ranger_9",
+   "name": "万猎之神套装",
+   "classId": "ranger",
+   "tier": 9,
+   "pieces": [
+    "eq_ranger_9_weapon",
+    "eq_ranger_9_helmet",
+    "eq_ranger_9_armor",
+    "eq_ranger_9_leggings",
+    "eq_ranger_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "atk": 540,
+      "agi": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "atk": 1081,
+      "luk": 403
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_priest_7",
+   "name": "圣辉套装",
+   "classId": "priest",
+   "tier": 7,
+   "pieces": [
+    "eq_priest_7_weapon",
+    "eq_priest_7_helmet",
+    "eq_priest_7_armor",
+    "eq_priest_7_leggings",
+    "eq_priest_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 187,
+      "hp": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_priest_8",
+   "name": "神启套装",
+   "classId": "priest",
+   "tier": 8,
+   "pieces": [
+    "eq_priest_8_weapon",
+    "eq_priest_8_helmet",
+    "eq_priest_8_armor",
+    "eq_priest_8_leggings",
+    "eq_priest_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 318,
+      "hp": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_priest_9",
+   "name": "光明之神套装",
+   "classId": "priest",
+   "tier": 9,
+   "pieces": [
+    "eq_priest_9_weapon",
+    "eq_priest_9_helmet",
+    "eq_priest_9_armor",
+    "eq_priest_9_leggings",
+    "eq_priest_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 540,
+      "hp": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 1081,
+      "luk": 403
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_warlock_7",
+   "name": "外神套装",
+   "classId": "warlock",
+   "tier": 7,
+   "pieces": [
+    "eq_warlock_7_weapon",
+    "eq_warlock_7_helmet",
+    "eq_warlock_7_armor",
+    "eq_warlock_7_leggings",
+    "eq_warlock_7_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 187,
+      "mp": 935
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 374,
+      "luk": 139
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_warlock_8",
+   "name": "终极深渊套装",
+   "classId": "warlock",
+   "tier": 8,
+   "pieces": [
+    "eq_warlock_8_weapon",
+    "eq_warlock_8_helmet",
+    "eq_warlock_8_armor",
+    "eq_warlock_8_leggings",
+    "eq_warlock_8_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 318,
+      "mp": 1589
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 636,
+      "luk": 237
+     }
+    }
+   ]
+  },
+  {
+   "id": "set_warlock_9",
+   "name": "万咒邪神套装",
+   "classId": "warlock",
+   "tier": 9,
+   "pieces": [
+    "eq_warlock_9_weapon",
+    "eq_warlock_9_helmet",
+    "eq_warlock_9_armor",
+    "eq_warlock_9_leggings",
+    "eq_warlock_9_boots"
+   ],
+   "bonus": [
+    {
+     "pieces": 2,
+     "stats": {
+      "mag": 540,
+      "mp": 2702
+     }
+    },
+    {
+     "pieces": 5,
+     "stats": {
+      "mag": 1081,
+      "luk": 403
+     }
+    }
+   ]
   }
  ],
  "items": [
@@ -5466,6 +5988,1614 @@
    "gem": true,
    "desc": "可镶嵌在装备孔位上，魔防 +10。",
    "value": 1200
+  },
+  {
+   "id": "eq_warrior_7_weapon",
+   "name": "神怒巨剑",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warrior",
+   "setId": "set_warrior_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "atk": 468,
+    "def": 139
+   },
+   "desc": "神怒套装部件，战士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warrior_7_helmet",
+   "name": "神怒头盔",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warrior",
+   "setId": "set_warrior_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 187,
+    "hp": 468
+   },
+   "desc": "神怒套装部件，战士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warrior_7_armor",
+   "name": "神怒胸甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warrior",
+   "setId": "set_warrior_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 326,
+    "hp": 935
+   },
+   "desc": "神怒套装部件，战士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warrior_7_leggings",
+   "name": "神怒护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warrior",
+   "setId": "set_warrior_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 235,
+    "hp": 700
+   },
+   "desc": "神怒套装部件，战士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warrior_7_boots",
+   "name": "神怒战靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warrior",
+   "setId": "set_warrior_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 139,
+    "agi": 94
+   },
+   "desc": "神怒套装部件，战士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warrior_8_weapon",
+   "name": "天启巨剑",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warrior",
+   "setId": "set_warrior_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "atk": 795,
+    "def": 237
+   },
+   "desc": "天启套装部件，战士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warrior_8_helmet",
+   "name": "天启头盔",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warrior",
+   "setId": "set_warrior_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 318,
+    "hp": 795
+   },
+   "desc": "天启套装部件，战士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warrior_8_armor",
+   "name": "天启胸甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warrior",
+   "setId": "set_warrior_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 555,
+    "hp": 1589
+   },
+   "desc": "天启套装部件，战士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warrior_8_leggings",
+   "name": "天启护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warrior",
+   "setId": "set_warrior_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 399,
+    "hp": 1191
+   },
+   "desc": "天启套装部件，战士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warrior_8_boots",
+   "name": "天启战靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warrior",
+   "setId": "set_warrior_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 237,
+    "agi": 159
+   },
+   "desc": "天启套装部件，战士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warrior_9_weapon",
+   "name": "永恒战神巨剑",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warrior",
+   "setId": "set_warrior_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "atk": 1351,
+    "def": 403
+   },
+   "desc": "永恒战神套装部件，战士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warrior_9_helmet",
+   "name": "永恒战神头盔",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warrior",
+   "setId": "set_warrior_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 540,
+    "hp": 1351
+   },
+   "desc": "永恒战神套装部件，战士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warrior_9_armor",
+   "name": "永恒战神胸甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warrior",
+   "setId": "set_warrior_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 943,
+    "hp": 2702
+   },
+   "desc": "永恒战神套装部件，战士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warrior_9_leggings",
+   "name": "永恒战神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warrior",
+   "setId": "set_warrior_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 678,
+    "hp": 2024
+   },
+   "desc": "永恒战神套装部件，战士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warrior_9_boots",
+   "name": "永恒战神战靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warrior",
+   "setId": "set_warrior_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 403,
+    "agi": 270
+   },
+   "desc": "永恒战神套装部件，战士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_mage_7_weapon",
+   "name": "星界法杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "mage",
+   "setId": "set_mage_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mag": 468,
+    "mp": 700
+   },
+   "desc": "星界套装部件，法师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_mage_7_helmet",
+   "name": "星界法帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "mage",
+   "setId": "set_mage_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 187,
+    "mp": 468
+   },
+   "desc": "星界套装部件，法师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_mage_7_armor",
+   "name": "星界法袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "mage",
+   "setId": "set_mage_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 326,
+    "mp": 935
+   },
+   "desc": "星界套装部件，法师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_mage_7_leggings",
+   "name": "星界护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "mage",
+   "setId": "set_mage_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 235,
+    "mp": 700
+   },
+   "desc": "星界套装部件，法师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_mage_7_boots",
+   "name": "星界法靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "mage",
+   "setId": "set_mage_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 139,
+    "agi": 94
+   },
+   "desc": "星界套装部件，法师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_mage_8_weapon",
+   "name": "真理法杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "mage",
+   "setId": "set_mage_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mag": 795,
+    "mp": 1191
+   },
+   "desc": "真理套装部件，法师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_mage_8_helmet",
+   "name": "真理法帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "mage",
+   "setId": "set_mage_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 318,
+    "mp": 795
+   },
+   "desc": "真理套装部件，法师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_mage_8_armor",
+   "name": "真理法袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "mage",
+   "setId": "set_mage_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 555,
+    "mp": 1589
+   },
+   "desc": "真理套装部件，法师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_mage_8_leggings",
+   "name": "真理护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "mage",
+   "setId": "set_mage_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 399,
+    "mp": 1191
+   },
+   "desc": "真理套装部件，法师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_mage_8_boots",
+   "name": "真理法靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "mage",
+   "setId": "set_mage_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 237,
+    "agi": 159
+   },
+   "desc": "真理套装部件，法师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_mage_9_weapon",
+   "name": "万法之神法杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "mage",
+   "setId": "set_mage_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mag": 1351,
+    "mp": 2024
+   },
+   "desc": "万法之神套装部件，法师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_mage_9_helmet",
+   "name": "万法之神法帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "mage",
+   "setId": "set_mage_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 540,
+    "mp": 1351
+   },
+   "desc": "万法之神套装部件，法师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_mage_9_armor",
+   "name": "万法之神法袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "mage",
+   "setId": "set_mage_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 943,
+    "mp": 2702
+   },
+   "desc": "万法之神套装部件，法师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_mage_9_leggings",
+   "name": "万法之神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "mage",
+   "setId": "set_mage_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 678,
+    "mp": 2024
+   },
+   "desc": "万法之神套装部件，法师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_mage_9_boots",
+   "name": "万法之神法靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "mage",
+   "setId": "set_mage_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 403,
+    "agi": 270
+   },
+   "desc": "万法之神套装部件，法师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_assassin_7_weapon",
+   "name": "无形匕首",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "assassin",
+   "setId": "set_assassin_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "atk": 468,
+    "agi": 187
+   },
+   "desc": "无形套装部件，刺客专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_assassin_7_helmet",
+   "name": "无形面甲",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "assassin",
+   "setId": "set_assassin_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 139,
+    "agi": 94
+   },
+   "desc": "无形套装部件，刺客专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_assassin_7_armor",
+   "name": "无形皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "assassin",
+   "setId": "set_assassin_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 280,
+    "hp": 561
+   },
+   "desc": "无形套装部件，刺客专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_assassin_7_leggings",
+   "name": "无形护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "assassin",
+   "setId": "set_assassin_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 187,
+    "agi": 94
+   },
+   "desc": "无形套装部件，刺客专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_assassin_7_boots",
+   "name": "无形轻靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "assassin",
+   "setId": "set_assassin_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "agi": 187,
+    "def": 48
+   },
+   "desc": "无形套装部件，刺客专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_assassin_8_weapon",
+   "name": "灭魂匕首",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "assassin",
+   "setId": "set_assassin_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "atk": 795,
+    "agi": 318
+   },
+   "desc": "灭魂套装部件，刺客专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_assassin_8_helmet",
+   "name": "灭魂面甲",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "assassin",
+   "setId": "set_assassin_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 237,
+    "agi": 159
+   },
+   "desc": "灭魂套装部件，刺客专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_assassin_8_armor",
+   "name": "灭魂皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "assassin",
+   "setId": "set_assassin_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 477,
+    "hp": 954
+   },
+   "desc": "灭魂套装部件，刺客专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_assassin_8_leggings",
+   "name": "灭魂护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "assassin",
+   "setId": "set_assassin_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 318,
+    "agi": 159
+   },
+   "desc": "灭魂套装部件，刺客专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_assassin_8_boots",
+   "name": "灭魂轻靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "assassin",
+   "setId": "set_assassin_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "agi": 318,
+    "def": 81
+   },
+   "desc": "灭魂套装部件，刺客专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_assassin_9_weapon",
+   "name": "暗夜主宰匕首",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "assassin",
+   "setId": "set_assassin_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "atk": 1351,
+    "agi": 540
+   },
+   "desc": "暗夜主宰套装部件，刺客专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_assassin_9_helmet",
+   "name": "暗夜主宰面甲",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "assassin",
+   "setId": "set_assassin_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 403,
+    "agi": 270
+   },
+   "desc": "暗夜主宰套装部件，刺客专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_assassin_9_armor",
+   "name": "暗夜主宰皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "assassin",
+   "setId": "set_assassin_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 811,
+    "hp": 1621
+   },
+   "desc": "暗夜主宰套装部件，刺客专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_assassin_9_leggings",
+   "name": "暗夜主宰护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "assassin",
+   "setId": "set_assassin_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 540,
+    "agi": 270
+   },
+   "desc": "暗夜主宰套装部件，刺客专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_assassin_9_boots",
+   "name": "暗夜主宰轻靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "assassin",
+   "setId": "set_assassin_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "agi": 540,
+    "def": 138
+   },
+   "desc": "暗夜主宰套装部件，刺客专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_ranger_7_weapon",
+   "name": "银河长弓",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "ranger",
+   "setId": "set_ranger_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "atk": 468,
+    "agi": 139
+   },
+   "desc": "银河套装部件，游侠专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_ranger_7_helmet",
+   "name": "银河羽帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "ranger",
+   "setId": "set_ranger_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 139,
+    "agi": 94
+   },
+   "desc": "银河套装部件，游侠专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_ranger_7_armor",
+   "name": "银河皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "ranger",
+   "setId": "set_ranger_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 280,
+    "hp": 700
+   },
+   "desc": "银河套装部件，游侠专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_ranger_7_leggings",
+   "name": "银河护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "ranger",
+   "setId": "set_ranger_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 187,
+    "agi": 94
+   },
+   "desc": "银河套装部件，游侠专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_ranger_7_boots",
+   "name": "银河疾风靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "ranger",
+   "setId": "set_ranger_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "agi": 139,
+    "def": 48
+   },
+   "desc": "银河套装部件，游侠专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_ranger_8_weapon",
+   "name": "天罚长弓",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "ranger",
+   "setId": "set_ranger_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "atk": 795,
+    "agi": 237
+   },
+   "desc": "天罚套装部件，游侠专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_ranger_8_helmet",
+   "name": "天罚羽帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "ranger",
+   "setId": "set_ranger_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 237,
+    "agi": 159
+   },
+   "desc": "天罚套装部件，游侠专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_ranger_8_armor",
+   "name": "天罚皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "ranger",
+   "setId": "set_ranger_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 477,
+    "hp": 1191
+   },
+   "desc": "天罚套装部件，游侠专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_ranger_8_leggings",
+   "name": "天罚护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "ranger",
+   "setId": "set_ranger_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 318,
+    "agi": 159
+   },
+   "desc": "天罚套装部件，游侠专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_ranger_8_boots",
+   "name": "天罚疾风靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "ranger",
+   "setId": "set_ranger_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "agi": 237,
+    "def": 81
+   },
+   "desc": "天罚套装部件，游侠专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_ranger_9_weapon",
+   "name": "万猎之神长弓",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "ranger",
+   "setId": "set_ranger_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "atk": 1351,
+    "agi": 403
+   },
+   "desc": "万猎之神套装部件，游侠专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_ranger_9_helmet",
+   "name": "万猎之神羽帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "ranger",
+   "setId": "set_ranger_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 403,
+    "agi": 270
+   },
+   "desc": "万猎之神套装部件，游侠专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_ranger_9_armor",
+   "name": "万猎之神皮甲",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "ranger",
+   "setId": "set_ranger_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 811,
+    "hp": 2024
+   },
+   "desc": "万猎之神套装部件，游侠专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_ranger_9_leggings",
+   "name": "万猎之神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "ranger",
+   "setId": "set_ranger_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 540,
+    "agi": 270
+   },
+   "desc": "万猎之神套装部件，游侠专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_ranger_9_boots",
+   "name": "万猎之神疾风靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "ranger",
+   "setId": "set_ranger_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "agi": 403,
+    "def": 138
+   },
+   "desc": "万猎之神套装部件，游侠专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_priest_7_weapon",
+   "name": "圣辉权杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "priest",
+   "setId": "set_priest_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mag": 422,
+    "mdef": 187
+   },
+   "desc": "圣辉套装部件，牧师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_priest_7_helmet",
+   "name": "圣辉头冠",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "priest",
+   "setId": "set_priest_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 187,
+    "hp": 468
+   },
+   "desc": "圣辉套装部件，牧师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_priest_7_armor",
+   "name": "圣辉圣袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "priest",
+   "setId": "set_priest_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 326,
+    "hp": 935
+   },
+   "desc": "圣辉套装部件，牧师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_priest_7_leggings",
+   "name": "圣辉护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "priest",
+   "setId": "set_priest_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 235,
+    "hp": 700
+   },
+   "desc": "圣辉套装部件，牧师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_priest_7_boots",
+   "name": "圣辉圣靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "priest",
+   "setId": "set_priest_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 139,
+    "agi": 48
+   },
+   "desc": "圣辉套装部件，牧师专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_priest_8_weapon",
+   "name": "神启权杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "priest",
+   "setId": "set_priest_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mag": 717,
+    "mdef": 318
+   },
+   "desc": "神启套装部件，牧师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_priest_8_helmet",
+   "name": "神启头冠",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "priest",
+   "setId": "set_priest_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 318,
+    "hp": 795
+   },
+   "desc": "神启套装部件，牧师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_priest_8_armor",
+   "name": "神启圣袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "priest",
+   "setId": "set_priest_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 555,
+    "hp": 1589
+   },
+   "desc": "神启套装部件，牧师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_priest_8_leggings",
+   "name": "神启护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "priest",
+   "setId": "set_priest_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 399,
+    "hp": 1191
+   },
+   "desc": "神启套装部件，牧师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_priest_8_boots",
+   "name": "神启圣靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "priest",
+   "setId": "set_priest_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 237,
+    "agi": 81
+   },
+   "desc": "神启套装部件，牧师专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_priest_9_weapon",
+   "name": "光明之神权杖",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "priest",
+   "setId": "set_priest_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mag": 1218,
+    "mdef": 540
+   },
+   "desc": "光明之神套装部件，牧师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_priest_9_helmet",
+   "name": "光明之神头冠",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "priest",
+   "setId": "set_priest_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 540,
+    "hp": 1351
+   },
+   "desc": "光明之神套装部件，牧师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_priest_9_armor",
+   "name": "光明之神圣袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "priest",
+   "setId": "set_priest_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 943,
+    "hp": 2702
+   },
+   "desc": "光明之神套装部件，牧师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_priest_9_leggings",
+   "name": "光明之神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "priest",
+   "setId": "set_priest_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 678,
+    "hp": 2024
+   },
+   "desc": "光明之神套装部件，牧师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_priest_9_boots",
+   "name": "光明之神圣靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "priest",
+   "setId": "set_priest_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 403,
+    "agi": 138
+   },
+   "desc": "光明之神套装部件，牧师专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warlock_7_weapon",
+   "name": "外神法器",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warlock",
+   "setId": "set_warlock_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mag": 468,
+    "luk": 139
+   },
+   "desc": "外神套装部件，术士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warlock_7_helmet",
+   "name": "外神兜帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warlock",
+   "setId": "set_warlock_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 187,
+    "mp": 374
+   },
+   "desc": "外神套装部件，术士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warlock_7_armor",
+   "name": "外神咒袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warlock",
+   "setId": "set_warlock_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 280,
+    "mp": 842
+   },
+   "desc": "外神套装部件，术士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warlock_7_leggings",
+   "name": "外神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warlock",
+   "setId": "set_warlock_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 235,
+    "mp": 561
+   },
+   "desc": "外神套装部件，术士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warlock_7_boots",
+   "name": "外神咒靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warlock",
+   "setId": "set_warlock_7",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 139,
+    "agi": 48
+   },
+   "desc": "外神套装部件，术士专属。",
+   "value": 7920
+  },
+  {
+   "id": "eq_warlock_8_weapon",
+   "name": "终极深渊法器",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warlock",
+   "setId": "set_warlock_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mag": 795,
+    "luk": 237
+   },
+   "desc": "终极深渊套装部件，术士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warlock_8_helmet",
+   "name": "终极深渊兜帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warlock",
+   "setId": "set_warlock_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 318,
+    "mp": 636
+   },
+   "desc": "终极深渊套装部件，术士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warlock_8_armor",
+   "name": "终极深渊咒袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warlock",
+   "setId": "set_warlock_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 477,
+    "mp": 1431
+   },
+   "desc": "终极深渊套装部件，术士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warlock_8_leggings",
+   "name": "终极深渊护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warlock",
+   "setId": "set_warlock_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 399,
+    "mp": 954
+   },
+   "desc": "终极深渊套装部件，术士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warlock_8_boots",
+   "name": "终极深渊咒靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warlock",
+   "setId": "set_warlock_8",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 237,
+    "agi": 81
+   },
+   "desc": "终极深渊套装部件，术士专属。",
+   "value": 12672
+  },
+  {
+   "id": "eq_warlock_9_weapon",
+   "name": "万咒邪神法器",
+   "type": "equipment",
+   "slot": "weapon",
+   "classId": "warlock",
+   "setId": "set_warlock_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mag": 1351,
+    "luk": 403
+   },
+   "desc": "万咒邪神套装部件，术士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warlock_9_helmet",
+   "name": "万咒邪神兜帽",
+   "type": "equipment",
+   "slot": "helmet",
+   "classId": "warlock",
+   "setId": "set_warlock_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 540,
+    "mp": 1081
+   },
+   "desc": "万咒邪神套装部件，术士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warlock_9_armor",
+   "name": "万咒邪神咒袍",
+   "type": "equipment",
+   "slot": "armor",
+   "classId": "warlock",
+   "setId": "set_warlock_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 811,
+    "mp": 2432
+   },
+   "desc": "万咒邪神套装部件，术士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warlock_9_leggings",
+   "name": "万咒邪神护腿",
+   "type": "equipment",
+   "slot": "leggings",
+   "classId": "warlock",
+   "setId": "set_warlock_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 678,
+    "mp": 1621
+   },
+   "desc": "万咒邪神套装部件，术士专属。",
+   "value": 20275
+  },
+  {
+   "id": "eq_warlock_9_boots",
+   "name": "万咒邪神咒靴",
+   "type": "equipment",
+   "slot": "boots",
+   "classId": "warlock",
+   "setId": "set_warlock_9",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "mdef": 403,
+    "agi": 138
+   },
+   "desc": "万咒邪神套装部件，术士专属。",
+   "value": 20275
+  },
+  {
+   "id": "acc_neck_7",
+   "name": "神谕项链",
+   "slot": "necklace",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "hp": 1410,
+    "mdef": 163
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 2560
+  },
+  {
+   "id": "acc_neck_8",
+   "name": "天启项链",
+   "slot": "necklace",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "hp": 2400,
+    "mdef": 277
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 4100
+  },
+  {
+   "id": "acc_neck_9",
+   "name": "创世之心",
+   "slot": "necklace",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "hp": 4080,
+    "mdef": 471
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 6560
+  },
+  {
+   "id": "acc_ring_7",
+   "name": "灭世戒指",
+   "slot": "ring",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "atk": 167,
+    "agi": 41
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 2560
+  },
+  {
+   "id": "acc_ring_8",
+   "name": "天罚戒指",
+   "slot": "ring",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "atk": 284,
+    "agi": 70
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 4100
+  },
+  {
+   "id": "acc_ring_9",
+   "name": "永恒神戒",
+   "slot": "ring",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "atk": 483,
+    "agi": 119
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 6560
+  },
+  {
+   "id": "acc_ringb_7",
+   "name": "命运戒指",
+   "slot": "ring",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "luk": 102,
+    "agi": 51
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 2560
+  },
+  {
+   "id": "acc_ringb_8",
+   "name": "神运戒指",
+   "slot": "ring",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "luk": 173,
+    "agi": 87
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 4100
+  },
+  {
+   "id": "acc_ringb_9",
+   "name": "起源之戒",
+   "slot": "ring",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "luk": 294,
+    "agi": 148
+   },
+   "type": "equipment",
+   "desc": "通用饰品，所有职业均可装备。",
+   "value": 6560
+  },
+  {
+   "id": "acc_off_7",
+   "name": "不灭神盾",
+   "slot": "offhand",
+   "setTier": 7,
+   "quality": "eternal",
+   "stats": {
+    "def": 139,
+    "hp": 646
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 2560
+  },
+  {
+   "id": "acc_off_8",
+   "name": "世界壁垒",
+   "slot": "offhand",
+   "setTier": 8,
+   "quality": "eternal",
+   "stats": {
+    "def": 237,
+    "hp": 1098
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 4100
+  },
+  {
+   "id": "acc_off_9",
+   "name": "永恒神域之盾",
+   "slot": "offhand",
+   "setTier": 9,
+   "quality": "eternal",
+   "stats": {
+    "def": 403,
+    "hp": 1867
+   },
+   "type": "equipment",
+   "desc": "通用副武器，所有职业均可装备。",
+   "value": 6560
   }
  ]
 }

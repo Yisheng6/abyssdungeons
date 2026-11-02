@@ -340,7 +340,7 @@
       1,
       1
      ],
-     "minLayer": 45
+     "minLayer": 40
     },
     {
      "item": "equipment:5",
@@ -349,7 +349,7 @@
       1,
       1
      ],
-     "minLayer": 65
+     "minLayer": 55
     },
     {
      "item": "equipment:6",
@@ -358,7 +358,34 @@
       1,
       1
      ],
-     "minLayer": 85
+     "minLayer": 70
+    },
+    {
+     "item": "equipment:7",
+     "weight": 2,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 80
+    },
+    {
+     "item": "equipment:8",
+     "weight": 1,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 88
+    },
+    {
+     "item": "equipment:9",
+     "weight": 1,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 95
     }
    ]
   },
@@ -501,7 +528,7 @@
       1,
       1
      ],
-     "minLayer": 45
+     "minLayer": 40
     },
     {
      "item": "equipment:5",
@@ -510,7 +537,7 @@
       1,
       1
      ],
-     "minLayer": 65
+     "minLayer": 55
     },
     {
      "item": "equipment:6",
@@ -519,7 +546,7 @@
       1,
       1
      ],
-     "minLayer": 85
+     "minLayer": 70
     },
     {
      "item": "gem_ruby_1",
@@ -676,6 +703,33 @@
       1
      ],
      "minLayer": 60
+    },
+    {
+     "item": "equipment:7",
+     "weight": 4,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 80
+    },
+    {
+     "item": "equipment:8",
+     "weight": 3,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 88
+    },
+    {
+     "item": "equipment:9",
+     "weight": 2,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 95
     }
    ]
   },
@@ -785,7 +839,7 @@
       1,
       1
      ],
-     "minLayer": 45
+     "minLayer": 40
     },
     {
      "item": "equipment:5",
@@ -794,7 +848,7 @@
       1,
       1
      ],
-     "minLayer": 65
+     "minLayer": 55
     },
     {
      "item": "equipment:6",
@@ -803,7 +857,7 @@
       1,
       1
      ],
-     "minLayer": 85
+     "minLayer": 70
     },
     {
      "item": "gem_ruby_1",
@@ -906,6 +960,33 @@
       1
      ],
      "minLayer": 35
+    },
+    {
+     "item": "equipment:7",
+     "weight": 3,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 80
+    },
+    {
+     "item": "equipment:8",
+     "weight": 2,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 88
+    },
+    {
+     "item": "equipment:9",
+     "weight": 1,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 95
     }
    ]
   },
@@ -1072,7 +1153,7 @@
       1,
       1
      ],
-     "minLayer": 45
+     "minLayer": 40
     },
     {
      "item": "equipment:5",
@@ -1081,7 +1162,7 @@
       1,
       1
      ],
-     "minLayer": 65
+     "minLayer": 55
     },
     {
      "item": "equipment:6",
@@ -1090,7 +1171,7 @@
       1,
       1
      ],
-     "minLayer": 85
+     "minLayer": 70
     },
     {
      "item": "gem_ruby_2",
@@ -1199,6 +1280,33 @@
       1
      ],
      "minLayer": 60
+    },
+    {
+     "item": "equipment:7",
+     "weight": 4,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 80
+    },
+    {
+     "item": "equipment:8",
+     "weight": 3,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 88
+    },
+    {
+     "item": "equipment:9",
+     "weight": 2,
+     "qty": [
+      1,
+      1
+     ],
+     "minLayer": 95
     }
    ]
   },
