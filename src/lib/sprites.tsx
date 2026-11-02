@@ -42,7 +42,7 @@ export function HeroSprite({ classId, size = 72, pose = 'idle' }: {
 }) {
   const def = HERO_SPRITES[classId] || HERO_SPRITES.warrior
   const art: PixelArt = useMemo(() => ({
-    w: 16, h: 20, palette: def.palette, frames: [def.idle, def.attack],
+    w: 16, h: 16, palette: def.palette, frames: [def.idle, def.attack],
   }), [def])
   return <PixelSprite art={art} size={size} frame={pose === 'attack' ? 1 : 0} />
 }
