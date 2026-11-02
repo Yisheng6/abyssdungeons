@@ -227,10 +227,14 @@ export default function Rift() {
         addLog(`═══ 第 ${stage} 境已突破 ═══`)
       }
     } else {
-      if (after.player) {
-        after.updatePlayerHp(Math.max(1, Math.floor(after.player.maxHp * 0.3)))
-        addLog('你被秘境击退了……休整后可以重新挑战（进度保留）')
+      addLog('你被秘境击退了……5 秒后复活（进度保留）')
+      await new Promise((r) => setTimeout(r, 5000))
+      const afterR = useGameStore.getState()
+      if (afterR.player) {
+        afterR.updatePlayerHp(afterR.player.maxHp)
+        afterR.updatePlayerMp(afterR.player.maxMp)
       }
+      addLog('已复活并恢复全部状态，可以重新挑战')
     }
     useGameStore.setState({ riftInBattle: false })
     battlingRef.current = false

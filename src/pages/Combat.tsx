@@ -198,8 +198,16 @@ export default function Combat() {
       } else if (result.fled) {
         store.setCombatEnded(true)
       } else if (result.ended) {
-        store.addCombatLog('你被击败了...')
+        store.addCombatLog('你被击败了...5 秒后复活')
         store.setCombatEnded(true)
+        // 战败复活：等待 5 秒后满血复活
+        await new Promise((r) => setTimeout(r, 5000))
+        const afterR = useGameStore.getState()
+        if (afterR.player) {
+          afterR.updatePlayerHp(afterR.player.maxHp)
+          afterR.updatePlayerMp(afterR.player.maxMp)
+        }
+        afterR.addCombatLog('已复活并恢复全部状态')
       }
 
       setTurnCount((c) => c + 1)

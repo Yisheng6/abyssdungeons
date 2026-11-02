@@ -149,6 +149,17 @@ export default function Weekly() {
         } catch { /* 排行提交失败不影响奖励 */ }
       }
     }
+    // 战败复活：等待 5 秒后满血复活
+    if (useGameStore.getState().player && useGameStore.getState().player!.hp <= 0) {
+      addLog('你被 Boss 击倒了……5 秒后复活')
+      await new Promise((r) => setTimeout(r, 5000))
+      const afterR = useGameStore.getState()
+      if (afterR.player) {
+        afterR.updatePlayerHp(afterR.player.maxHp)
+        afterR.updatePlayerMp(afterR.player.maxMp)
+      }
+      addLog('已复活并恢复全部状态')
+    }
     battlingRef.current = false
     setBattling(false)
   }

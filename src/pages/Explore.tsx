@@ -218,14 +218,16 @@ export default function Explore() {
         const won = await autoBattle(room.enemies)
         if (!won) {
           cleared = false
-          // 战败复活：恢复全部状态，继续随机探索
+          // 战败复活：等待 5 秒后满血复活，继续随机探索
           setStats((s) => ({ ...s, defeats: s.defeats + 1 }))
+          addLog(`战败！5 秒后复活...`)
+          await new Promise((r) => setTimeout(r, 5000))
           const gsLose = useGameStore.getState()
           if (gsLose.player) {
             gsLose.updatePlayerHp(gsLose.player.maxHp)
             gsLose.updatePlayerMp(gsLose.player.maxMp)
           }
-          addLog(`战败！已复活并恢复全部状态，继续探索...`)
+          addLog(`已复活并恢复全部状态，继续探索...`)
         }
       } else if (room.type === 'treasure') {
         addLog(`发现宝箱！正在打开...`)

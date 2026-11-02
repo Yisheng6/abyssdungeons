@@ -227,12 +227,15 @@ export default function Lawful() {
       }
       refreshRooms()
     } else {
-      // 战败：30% 复活，可重试（刷新房间）
-      if (after.player) {
-        after.updatePlayerHp(Math.max(1, Math.floor(after.player.maxHp * 0.3)))
-        after.updatePlayerMp(Math.floor(after.player.maxMp * 0.3))
+      // 战败：等待 5 秒后满血复活，可重试（刷新房间）
+      addLog('你在深渊中倒下了……5 秒后复活')
+      await new Promise((r) => setTimeout(r, 5000))
+      const afterR = useGameStore.getState()
+      if (afterR.player) {
+        afterR.updatePlayerHp(afterR.player.maxHp)
+        afterR.updatePlayerMp(afterR.player.maxMp)
       }
-      addLog('你在深渊中倒下了……恢复 30% 状态后可重新挑战')
+      addLog('已复活并恢复全部状态，可重新挑战')
       refreshRooms()
     }
     battlingRef.current = false

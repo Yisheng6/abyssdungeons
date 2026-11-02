@@ -602,7 +602,7 @@ export function resolveCombat(
         if (enemyDrop?.dropTable) {
           for (const drop of enemyDrop.dropTable) {
             if (drop.minLayer && layer < drop.minLayer) continue;
-            if (rng.next() * 100 < drop.chance * luckDropBoost) {
+            if (rng.next() * 100 < drop.chance * luckDropBoost * 0.5) { // 掉落率减半
               let qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
               if (drop.type === "currency") qty = Math.floor(qty * luckGoldBoost);
               drops.push(rollEquipmentDrop({

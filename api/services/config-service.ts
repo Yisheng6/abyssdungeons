@@ -334,11 +334,11 @@ export function rollDrops(enemyId: string, layer: number, rng: () => number = Ma
   const drops: Array<{ itemId: string; name: string; type: string; quantity: number; quality: string }> = [];
   const roll = (min: number, max: number) => Math.floor(min + rng() * (max - min + 1));
 
-  // Personal drop table
+  // Personal drop table（掉落率减半）
   if (enemy.dropTable) {
     for (const drop of enemy.dropTable) {
       if (drop.minLayer && layer < drop.minLayer) continue;
-      if (rng() * 100 < drop.chance) {
+      if (rng() * 100 < drop.chance * 0.5) {
         drops.push({
           itemId: drop.itemId,
           name: drop.name,
@@ -350,11 +350,11 @@ export function rollDrops(enemyId: string, layer: number, rng: () => number = Ma
     }
   }
 
-  // Global drop pool (each item rolls independently)
+  // Global drop pool (each item rolls independently)（掉落率减半）
   const globalPool = getGlobalDropPool();
   for (const drop of globalPool) {
     if (drop.minLayer && layer < drop.minLayer) continue;
-    if (rng() * 100 < drop.chance) {
+    if (rng() * 100 < drop.chance * 0.5) {
       drops.push({
         itemId: drop.itemId,
         name: drop.name,
