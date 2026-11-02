@@ -16,6 +16,11 @@ export interface AiContext {
 /** 技能分类 */
 export function classifySkill(skillId: string): 'heal' | 'buff' | 'dot' | 'dispel' | 'damage' | 'other' {
   const sd = getSkillInfo(skillId)
+  // 目录接口下发的 kind 字段优先（服务端不下发 effect 明细）
+  const kind = (sd as unknown as { kind?: string })?.kind
+  if (kind === 'heal' || kind === 'buff' || kind === 'dot' || kind === 'debuff' || kind === 'dispel') return kind as 'heal'
+  if (kind === 'damage') return 'damage'
+  if (kind === 'other') return 'other'
   const eff = (sd as unknown as { effect?: Record<string, unknown> })?.effect || {}
   if (eff.heal || eff.healPercent) return 'heal'
   if (eff.dispel) return 'dispel'
