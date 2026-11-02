@@ -5,6 +5,7 @@ import { useGameStore, getPlayerMods } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getSkillInfo, getSkillName, getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
+import BattleStage from '@/components/BattleStage'
 
 // Skill name mapping - loaded from config
 const SKILL_NAMES: Record<string, string> = {
@@ -313,6 +314,9 @@ export default function Combat() {
 
       {/* Combat Area */}
       <div className="flex flex-1 flex-col items-center justify-center p-4">
+        {store.combatEnemies.length > 0 && (
+          <div className="mb-4 w-full max-w-2xl"><BattleStage /></div>
+        )}
         {/* Enemies */}
         <div className="mb-6 flex flex-wrap justify-center gap-3">
           {store.combatEnemies.map((enemy) => (

@@ -4,6 +4,7 @@ import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods 
 import { trpc } from '@/providers/trpc'
 import { getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
+import BattleStage from '@/components/BattleStage'
 
 interface LawfulEnemy {
   id: string; name: string; hp: number; maxHp: number; mp: number; maxMp: number
@@ -23,6 +24,7 @@ export default function Lawful() {
   const [rooms, setRooms] = useState<LawfulRoom[] | null>(null)
   const [currentRoom, setCurrentRoom] = useState<LawfulRoom | null>(null) // 本层随机分配的房间
   const [logs, setLogs] = useState<string[]>([])
+  const bsInCombat = useGameStore((s) => s.inCombat)
   const [battling, setBattling] = useState(false)
   const [cleared, setCleared] = useState(false) // 通关 100 层
   const [seed, setSeed] = useState(Date.now())
@@ -76,7 +78,7 @@ export default function Lawful() {
     let victory = false
 
     try {
-      for (let round = 1; round <= 60; round++) {
+      for (let round = 1; round <= 90; round++) {
         const cur = useGameStore.getState()
         const alive = cur.combatEnemies.filter((e) => e.hp > 0)
         if (alive.length === 0) { victory = true; break }
@@ -308,7 +310,8 @@ export default function Lawful() {
         )}
       </div>
 
-      {/* 战斗日志 */}
+{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage /></div>}
+            {/* 战斗日志 */}
       <div className="game-card min-h-0 flex-1 overflow-y-auto p-3">
         {logs.length === 0 && (
           <div className="py-6 text-center text-xs" style={{ color: 'var(--text-muted)' }}>

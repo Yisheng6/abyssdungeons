@@ -5,6 +5,7 @@ import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods,
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
+import BattleStage from '@/components/BattleStage'
 
 const ROOM_TYPE_NAMES: Record<string, string> = {
   entrance: '入口', normal: '普通房间', elite: '精英房间', boss: 'Boss房间',
@@ -719,6 +720,9 @@ export default function Explore() {
 
       {/* Center: Main Area */}
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
+        {(store.inCombat || displayEnemies.length > 0) && (
+          <div className="mb-3 flex-shrink-0"><BattleStage /></div>
+        )}
         {store.roomInfo && (
           <div className="mb-4 max-h-[45%] flex-shrink-0 overflow-y-auto rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <div className="mb-2 flex items-center gap-2">
