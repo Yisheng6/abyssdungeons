@@ -209,7 +209,7 @@
  "equipmentSets": [
   {
    "id": "set_warrior_1",
-   "name": "精铁套装",
+   "name": "誓约套装",
    "classId": "warrior",
    "tier": 1,
    "pieces": [
@@ -238,7 +238,7 @@
   },
   {
    "id": "set_warrior_2",
-   "name": "黑钢套装",
+   "name": "铁血套装",
    "classId": "warrior",
    "tier": 2,
    "pieces": [
@@ -296,7 +296,7 @@
   },
   {
    "id": "set_mage_1",
-   "name": "青藤套装",
+   "name": "启明套装",
    "classId": "mage",
    "tier": 1,
    "pieces": [
@@ -325,7 +325,7 @@
   },
   {
    "id": "set_mage_2",
-   "name": "星辉套装",
+   "name": "秘纹套装",
    "classId": "mage",
    "tier": 2,
    "pieces": [
@@ -354,7 +354,7 @@
   },
   {
    "id": "set_mage_3",
-   "name": "奥术套装",
+   "name": "奥火套装",
    "classId": "mage",
    "tier": 3,
    "pieces": [
@@ -383,7 +383,7 @@
   },
   {
    "id": "set_assassin_1",
-   "name": "影行套装",
+   "name": "灰影套装",
    "classId": "assassin",
    "tier": 1,
    "pieces": [
@@ -644,7 +644,7 @@
   },
   {
    "id": "set_warlock_1",
-   "name": "咒术套装",
+   "name": "低语套装",
    "classId": "warlock",
    "tier": 1,
    "pieces": [
@@ -673,7 +673,7 @@
   },
   {
    "id": "set_warlock_2",
-   "name": "深渊套装",
+   "name": "咒痕套装",
    "classId": "warlock",
    "tier": 2,
    "pieces": [
@@ -702,7 +702,7 @@
   },
   {
    "id": "set_warlock_3",
-   "name": "恶魔套装",
+   "name": "深渊凝视套装",
    "classId": "warlock",
    "tier": 3,
    "pieces": [
@@ -760,7 +760,7 @@
   },
   {
    "id": "set_mage_4",
-   "name": "虚空套装",
+   "name": "虚空行者套装",
    "classId": "mage",
    "tier": 4,
    "pieces": [
@@ -1688,7 +1688,7 @@
   },
   {
    "id": "set_warlock_7",
-   "name": "外神套装",
+   "name": "外神眷者套装",
    "classId": "warlock",
    "tier": 7,
    "pieces": [
@@ -1777,7 +1777,7 @@
  "items": [
   {
    "id": "eq_warrior_1_weapon",
-   "name": "精铁长剑",
+   "name": "誓约长剑",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warrior",
@@ -1788,12 +1788,12 @@
     "atk": 10,
     "def": 3
    },
-   "desc": "精铁套装部件，战士专属。",
+   "desc": "誓约套装部件，战士专属。",
    "value": 50
   },
   {
    "id": "eq_warrior_1_helmet",
-   "name": "精铁头盔",
+   "name": "誓约头盔",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warrior",
@@ -1804,12 +1804,12 @@
     "def": 4,
     "hp": 10
    },
-   "desc": "精铁套装部件，战士专属。",
+   "desc": "誓约套装部件，战士专属。",
    "value": 50
   },
   {
    "id": "eq_warrior_1_armor",
-   "name": "精铁胸甲",
+   "name": "誓约胸甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "warrior",
@@ -1820,12 +1820,12 @@
     "def": 7,
     "hp": 20
    },
-   "desc": "精铁套装部件，战士专属。",
+   "desc": "誓约套装部件，战士专属。",
    "value": 50
   },
   {
    "id": "eq_warrior_1_leggings",
-   "name": "精铁护腿",
+   "name": "誓约护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warrior",
@@ -1836,12 +1836,12 @@
     "def": 5,
     "hp": 15
    },
-   "desc": "精铁套装部件，战士专属。",
+   "desc": "誓约套装部件，战士专属。",
    "value": 50
   },
   {
    "id": "eq_warrior_1_boots",
-   "name": "精铁战靴",
+   "name": "誓约战靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warrior",
@@ -1852,12 +1852,12 @@
     "def": 3,
     "agi": 2
    },
-   "desc": "精铁套装部件，战士专属。",
+   "desc": "誓约套装部件，战士专属。",
    "value": 50
   },
   {
    "id": "eq_warrior_2_weapon",
-   "name": "黑钢长剑",
+   "name": "铁血长剑",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warrior",
@@ -1868,12 +1868,12 @@
     "atk": 25,
     "def": 8
    },
-   "desc": "黑钢套装部件，战士专属。",
+   "desc": "铁血套装部件，战士专属。",
    "value": 200
   },
   {
    "id": "eq_warrior_2_helmet",
-   "name": "黑钢头盔",
+   "name": "铁血头盔",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warrior",
@@ -1884,12 +1884,12 @@
     "def": 10,
     "hp": 25
    },
-   "desc": "黑钢套装部件，战士专属。",
+   "desc": "铁血套装部件，战士专属。",
    "value": 200
   },
   {
    "id": "eq_warrior_2_armor",
-   "name": "黑钢胸甲",
+   "name": "铁血胸甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "warrior",
@@ -1900,12 +1900,12 @@
     "def": 18,
     "hp": 50
    },
-   "desc": "黑钢套装部件，战士专属。",
+   "desc": "铁血套装部件，战士专属。",
    "value": 200
   },
   {
    "id": "eq_warrior_2_leggings",
-   "name": "黑钢护腿",
+   "name": "铁血护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warrior",
@@ -1916,12 +1916,12 @@
     "def": 12,
     "hp": 38
    },
-   "desc": "黑钢套装部件，战士专属。",
+   "desc": "铁血套装部件，战士专属。",
    "value": 200
   },
   {
    "id": "eq_warrior_2_boots",
-   "name": "黑钢战靴",
+   "name": "铁血战靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warrior",
@@ -1932,7 +1932,7 @@
     "def": 8,
     "agi": 5
    },
-   "desc": "黑钢套装部件，战士专属。",
+   "desc": "铁血套装部件，战士专属。",
    "value": 200
   },
   {
@@ -2017,7 +2017,7 @@
   },
   {
    "id": "eq_mage_1_weapon",
-   "name": "青藤法杖",
+   "name": "启明法杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "mage",
@@ -2028,12 +2028,12 @@
     "mag": 10,
     "mp": 15
    },
-   "desc": "青藤套装部件，法师专属。",
+   "desc": "启明套装部件，法师专属。",
    "value": 50
   },
   {
    "id": "eq_mage_1_helmet",
-   "name": "青藤法帽",
+   "name": "启明法帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "mage",
@@ -2044,12 +2044,12 @@
     "mdef": 4,
     "mp": 10
    },
-   "desc": "青藤套装部件，法师专属。",
+   "desc": "启明套装部件，法师专属。",
    "value": 50
   },
   {
    "id": "eq_mage_1_armor",
-   "name": "青藤法袍",
+   "name": "启明法袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "mage",
@@ -2060,12 +2060,12 @@
     "mdef": 7,
     "mp": 20
    },
-   "desc": "青藤套装部件，法师专属。",
+   "desc": "启明套装部件，法师专属。",
    "value": 50
   },
   {
    "id": "eq_mage_1_leggings",
-   "name": "青藤护腿",
+   "name": "启明护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "mage",
@@ -2076,12 +2076,12 @@
     "mdef": 5,
     "mp": 15
    },
-   "desc": "青藤套装部件，法师专属。",
+   "desc": "启明套装部件，法师专属。",
    "value": 50
   },
   {
    "id": "eq_mage_1_boots",
-   "name": "青藤法靴",
+   "name": "启明法靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "mage",
@@ -2092,12 +2092,12 @@
     "mdef": 3,
     "agi": 2
    },
-   "desc": "青藤套装部件，法师专属。",
+   "desc": "启明套装部件，法师专属。",
    "value": 50
   },
   {
    "id": "eq_mage_2_weapon",
-   "name": "星辉法杖",
+   "name": "秘纹法杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "mage",
@@ -2108,12 +2108,12 @@
     "mag": 25,
     "mp": 38
    },
-   "desc": "星辉套装部件，法师专属。",
+   "desc": "秘纹套装部件，法师专属。",
    "value": 200
   },
   {
    "id": "eq_mage_2_helmet",
-   "name": "星辉法帽",
+   "name": "秘纹法帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "mage",
@@ -2124,12 +2124,12 @@
     "mdef": 10,
     "mp": 25
    },
-   "desc": "星辉套装部件，法师专属。",
+   "desc": "秘纹套装部件，法师专属。",
    "value": 200
   },
   {
    "id": "eq_mage_2_armor",
-   "name": "星辉法袍",
+   "name": "秘纹法袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "mage",
@@ -2140,12 +2140,12 @@
     "mdef": 18,
     "mp": 50
    },
-   "desc": "星辉套装部件，法师专属。",
+   "desc": "秘纹套装部件，法师专属。",
    "value": 200
   },
   {
    "id": "eq_mage_2_leggings",
-   "name": "星辉护腿",
+   "name": "秘纹护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "mage",
@@ -2156,12 +2156,12 @@
     "mdef": 12,
     "mp": 38
    },
-   "desc": "星辉套装部件，法师专属。",
+   "desc": "秘纹套装部件，法师专属。",
    "value": 200
   },
   {
    "id": "eq_mage_2_boots",
-   "name": "星辉法靴",
+   "name": "秘纹法靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "mage",
@@ -2172,12 +2172,12 @@
     "mdef": 8,
     "agi": 5
    },
-   "desc": "星辉套装部件，法师专属。",
+   "desc": "秘纹套装部件，法师专属。",
    "value": 200
   },
   {
    "id": "eq_mage_3_weapon",
-   "name": "奥术法杖",
+   "name": "奥火法杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "mage",
@@ -2188,12 +2188,12 @@
     "mag": 50,
     "mp": 75
    },
-   "desc": "奥术套装部件，法师专属。",
+   "desc": "奥火套装部件，法师专属。",
    "value": 450
   },
   {
    "id": "eq_mage_3_helmet",
-   "name": "奥术法帽",
+   "name": "奥火法帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "mage",
@@ -2204,12 +2204,12 @@
     "mdef": 20,
     "mp": 50
    },
-   "desc": "奥术套装部件，法师专属。",
+   "desc": "奥火套装部件，法师专属。",
    "value": 450
   },
   {
    "id": "eq_mage_3_armor",
-   "name": "奥术法袍",
+   "name": "奥火法袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "mage",
@@ -2220,12 +2220,12 @@
     "mdef": 35,
     "mp": 100
    },
-   "desc": "奥术套装部件，法师专属。",
+   "desc": "奥火套装部件，法师专属。",
    "value": 450
   },
   {
    "id": "eq_mage_3_leggings",
-   "name": "奥术护腿",
+   "name": "奥火护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "mage",
@@ -2236,12 +2236,12 @@
     "mdef": 25,
     "mp": 75
    },
-   "desc": "奥术套装部件，法师专属。",
+   "desc": "奥火套装部件，法师专属。",
    "value": 450
   },
   {
    "id": "eq_mage_3_boots",
-   "name": "奥术法靴",
+   "name": "奥火法靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "mage",
@@ -2252,12 +2252,12 @@
     "mdef": 15,
     "agi": 10
    },
-   "desc": "奥术套装部件，法师专属。",
+   "desc": "奥火套装部件，法师专属。",
    "value": 450
   },
   {
    "id": "eq_assassin_1_weapon",
-   "name": "影行匕首",
+   "name": "灰影匕首",
    "type": "equipment",
    "slot": "weapon",
    "classId": "assassin",
@@ -2268,12 +2268,12 @@
     "atk": 10,
     "agi": 4
    },
-   "desc": "影行套装部件，刺客专属。",
+   "desc": "灰影套装部件，刺客专属。",
    "value": 50
   },
   {
    "id": "eq_assassin_1_helmet",
-   "name": "影行面甲",
+   "name": "灰影面甲",
    "type": "equipment",
    "slot": "helmet",
    "classId": "assassin",
@@ -2284,12 +2284,12 @@
     "def": 3,
     "agi": 2
    },
-   "desc": "影行套装部件，刺客专属。",
+   "desc": "灰影套装部件，刺客专属。",
    "value": 50
   },
   {
    "id": "eq_assassin_1_armor",
-   "name": "影行皮甲",
+   "name": "灰影皮甲",
    "type": "equipment",
    "slot": "armor",
    "classId": "assassin",
@@ -2300,12 +2300,12 @@
     "def": 6,
     "hp": 12
    },
-   "desc": "影行套装部件，刺客专属。",
+   "desc": "灰影套装部件，刺客专属。",
    "value": 50
   },
   {
    "id": "eq_assassin_1_leggings",
-   "name": "影行护腿",
+   "name": "灰影护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "assassin",
@@ -2316,12 +2316,12 @@
     "def": 4,
     "agi": 2
    },
-   "desc": "影行套装部件，刺客专属。",
+   "desc": "灰影套装部件，刺客专属。",
    "value": 50
   },
   {
    "id": "eq_assassin_1_boots",
-   "name": "影行轻靴",
+   "name": "灰影轻靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "assassin",
@@ -2332,7 +2332,7 @@
     "agi": 4,
     "def": 1
    },
-   "desc": "影行套装部件，刺客专属。",
+   "desc": "灰影套装部件，刺客专属。",
    "value": 50
   },
   {
@@ -2977,7 +2977,7 @@
   },
   {
    "id": "eq_warlock_1_weapon",
-   "name": "咒术法器",
+   "name": "低语法器",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warlock",
@@ -2988,12 +2988,12 @@
     "mag": 10,
     "luk": 3
    },
-   "desc": "咒术套装部件，术士专属。",
+   "desc": "低语套装部件，术士专属。",
    "value": 50
   },
   {
    "id": "eq_warlock_1_helmet",
-   "name": "咒术兜帽",
+   "name": "低语兜帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warlock",
@@ -3004,12 +3004,12 @@
     "mdef": 4,
     "mp": 8
    },
-   "desc": "咒术套装部件，术士专属。",
+   "desc": "低语套装部件，术士专属。",
    "value": 50
   },
   {
    "id": "eq_warlock_1_armor",
-   "name": "咒术咒袍",
+   "name": "低语咒袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "warlock",
@@ -3020,12 +3020,12 @@
     "mdef": 6,
     "mp": 18
    },
-   "desc": "咒术套装部件，术士专属。",
+   "desc": "低语套装部件，术士专属。",
    "value": 50
   },
   {
    "id": "eq_warlock_1_leggings",
-   "name": "咒术护腿",
+   "name": "低语护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warlock",
@@ -3036,12 +3036,12 @@
     "mdef": 5,
     "mp": 12
    },
-   "desc": "咒术套装部件，术士专属。",
+   "desc": "低语套装部件，术士专属。",
    "value": 50
   },
   {
    "id": "eq_warlock_1_boots",
-   "name": "咒术咒靴",
+   "name": "低语咒靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warlock",
@@ -3052,12 +3052,12 @@
     "mdef": 3,
     "agi": 1
    },
-   "desc": "咒术套装部件，术士专属。",
+   "desc": "低语套装部件，术士专属。",
    "value": 50
   },
   {
    "id": "eq_warlock_2_weapon",
-   "name": "深渊法器",
+   "name": "咒痕法器",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warlock",
@@ -3068,12 +3068,12 @@
     "mag": 25,
     "luk": 8
    },
-   "desc": "深渊套装部件，术士专属。",
+   "desc": "咒痕套装部件，术士专属。",
    "value": 200
   },
   {
    "id": "eq_warlock_2_helmet",
-   "name": "深渊兜帽",
+   "name": "咒痕兜帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warlock",
@@ -3084,12 +3084,12 @@
     "mdef": 10,
     "mp": 20
    },
-   "desc": "深渊套装部件，术士专属。",
+   "desc": "咒痕套装部件，术士专属。",
    "value": 200
   },
   {
    "id": "eq_warlock_2_armor",
-   "name": "深渊咒袍",
+   "name": "咒痕咒袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "warlock",
@@ -3100,12 +3100,12 @@
     "mdef": 15,
     "mp": 45
    },
-   "desc": "深渊套装部件，术士专属。",
+   "desc": "咒痕套装部件，术士专属。",
    "value": 200
   },
   {
    "id": "eq_warlock_2_leggings",
-   "name": "深渊护腿",
+   "name": "咒痕护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warlock",
@@ -3116,12 +3116,12 @@
     "mdef": 12,
     "mp": 30
    },
-   "desc": "深渊套装部件，术士专属。",
+   "desc": "咒痕套装部件，术士专属。",
    "value": 200
   },
   {
    "id": "eq_warlock_2_boots",
-   "name": "深渊咒靴",
+   "name": "咒痕咒靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warlock",
@@ -3132,12 +3132,12 @@
     "mdef": 8,
     "agi": 2
    },
-   "desc": "深渊套装部件，术士专属。",
+   "desc": "咒痕套装部件，术士专属。",
    "value": 200
   },
   {
    "id": "eq_warlock_3_weapon",
-   "name": "恶魔法器",
+   "name": "深渊凝视法器",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warlock",
@@ -3148,12 +3148,12 @@
     "mag": 50,
     "luk": 15
    },
-   "desc": "恶魔套装部件，术士专属。",
+   "desc": "深渊凝视套装部件，术士专属。",
    "value": 450
   },
   {
    "id": "eq_warlock_3_helmet",
-   "name": "恶魔兜帽",
+   "name": "深渊凝视兜帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warlock",
@@ -3164,12 +3164,12 @@
     "mdef": 20,
     "mp": 40
    },
-   "desc": "恶魔套装部件，术士专属。",
+   "desc": "深渊凝视套装部件，术士专属。",
    "value": 450
   },
   {
    "id": "eq_warlock_3_armor",
-   "name": "恶魔咒袍",
+   "name": "深渊凝视咒袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "warlock",
@@ -3180,12 +3180,12 @@
     "mdef": 30,
     "mp": 90
    },
-   "desc": "恶魔套装部件，术士专属。",
+   "desc": "深渊凝视套装部件，术士专属。",
    "value": 450
   },
   {
    "id": "eq_warlock_3_leggings",
-   "name": "恶魔护腿",
+   "name": "深渊凝视护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warlock",
@@ -3196,12 +3196,12 @@
     "mdef": 25,
     "mp": 60
    },
-   "desc": "恶魔套装部件，术士专属。",
+   "desc": "深渊凝视套装部件，术士专属。",
    "value": 450
   },
   {
    "id": "eq_warlock_3_boots",
-   "name": "恶魔咒靴",
+   "name": "深渊凝视咒靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warlock",
@@ -3212,7 +3212,7 @@
     "mdef": 15,
     "agi": 5
    },
-   "desc": "恶魔套装部件，术士专属。",
+   "desc": "深渊凝视套装部件，术士专属。",
    "value": 450
   },
   {
@@ -4415,7 +4415,7 @@
   },
   {
    "id": "eq_mage_4_weapon",
-   "name": "虚空法杖",
+   "name": "虚空行者法杖",
    "type": "equipment",
    "slot": "weapon",
    "classId": "mage",
@@ -4426,12 +4426,12 @@
     "mag": 90,
     "mp": 135
    },
-   "desc": "虚空套装部件，法师专属。",
+   "desc": "虚空行者套装部件，法师专属。",
    "value": 1620.0
   },
   {
    "id": "eq_mage_4_helmet",
-   "name": "虚空法帽",
+   "name": "虚空行者法帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "mage",
@@ -4442,12 +4442,12 @@
     "mdef": 36,
     "mp": 90
    },
-   "desc": "虚空套装部件，法师专属。",
+   "desc": "虚空行者套装部件，法师专属。",
    "value": 1620.0
   },
   {
    "id": "eq_mage_4_armor",
-   "name": "虚空法袍",
+   "name": "虚空行者法袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "mage",
@@ -4458,12 +4458,12 @@
     "mdef": 63,
     "mp": 180
    },
-   "desc": "虚空套装部件，法师专属。",
+   "desc": "虚空行者套装部件，法师专属。",
    "value": 1620.0
   },
   {
    "id": "eq_mage_4_leggings",
-   "name": "虚空护腿",
+   "name": "虚空行者护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "mage",
@@ -4474,12 +4474,12 @@
     "mdef": 45,
     "mp": 135
    },
-   "desc": "虚空套装部件，法师专属。",
+   "desc": "虚空行者套装部件，法师专属。",
    "value": 1620.0
   },
   {
    "id": "eq_mage_4_boots",
-   "name": "虚空法靴",
+   "name": "虚空行者法靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "mage",
@@ -4490,7 +4490,7 @@
     "mdef": 27,
     "agi": 18
    },
-   "desc": "虚空套装部件，法师专属。",
+   "desc": "虚空行者套装部件，法师专属。",
    "value": 1620.0
   },
   {
@@ -7191,7 +7191,7 @@
   },
   {
    "id": "eq_warlock_7_weapon",
-   "name": "外神法器",
+   "name": "外神眷者法器",
    "type": "equipment",
    "slot": "weapon",
    "classId": "warlock",
@@ -7202,12 +7202,12 @@
     "mag": 468,
     "luk": 139
    },
-   "desc": "外神套装部件，术士专属。",
+   "desc": "外神眷者套装部件，术士专属。",
    "value": 7920
   },
   {
    "id": "eq_warlock_7_helmet",
-   "name": "外神兜帽",
+   "name": "外神眷者兜帽",
    "type": "equipment",
    "slot": "helmet",
    "classId": "warlock",
@@ -7218,12 +7218,12 @@
     "mdef": 187,
     "mp": 374
    },
-   "desc": "外神套装部件，术士专属。",
+   "desc": "外神眷者套装部件，术士专属。",
    "value": 7920
   },
   {
    "id": "eq_warlock_7_armor",
-   "name": "外神咒袍",
+   "name": "外神眷者咒袍",
    "type": "equipment",
    "slot": "armor",
    "classId": "warlock",
@@ -7234,12 +7234,12 @@
     "mdef": 280,
     "mp": 842
    },
-   "desc": "外神套装部件，术士专属。",
+   "desc": "外神眷者套装部件，术士专属。",
    "value": 7920
   },
   {
    "id": "eq_warlock_7_leggings",
-   "name": "外神护腿",
+   "name": "外神眷者护腿",
    "type": "equipment",
    "slot": "leggings",
    "classId": "warlock",
@@ -7250,12 +7250,12 @@
     "mdef": 235,
     "mp": 561
    },
-   "desc": "外神套装部件，术士专属。",
+   "desc": "外神眷者套装部件，术士专属。",
    "value": 7920
   },
   {
    "id": "eq_warlock_7_boots",
-   "name": "外神咒靴",
+   "name": "外神眷者咒靴",
    "type": "equipment",
    "slot": "boots",
    "classId": "warlock",
@@ -7266,7 +7266,7 @@
     "mdef": 139,
     "agi": 48
    },
-   "desc": "外神套装部件，术士专属。",
+   "desc": "外神眷者套装部件，术士专属。",
    "value": 7920
   },
   {
