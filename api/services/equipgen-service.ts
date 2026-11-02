@@ -87,14 +87,18 @@ export function rollEquipmentInstance(
   rng: () => number = Math.random
 ): RolledEquipment {
   const qualities = getQualities();
+  const tier = Math.max(1, base.setTier || 1);
 
-  // ─── 1. 品质按权重随机 ───
-  const totalWeight = qualities.reduce((s, q) => s + q.dropWeight, 0);
+  // ─── 1. 品质按权重随机（权重随装备阶级偏移：高阶装备高品质概率大幅提升，但每档品质任何阶级都可能出）───
+  const tierBoost = 1 + (tier - 1) * 0.5; // t1=1.0 … t6=3.5
+  const effWeight = (qIdx: number, w: number) => w * Math.pow(tierBoost, qIdx);
+  const totalWeight = qualities.reduce((s, q, i) => s + effWeight(i, q.dropWeight), 0);
   let r = rng() * totalWeight;
   let quality = qualities[0]?.id || "common";
-  for (const q of qualities) {
-    if (r < q.dropWeight) { quality = q.id; break; }
-    r -= q.dropWeight;
+  for (let i = 0; i < qualities.length; i++) {
+    const w = effWeight(i, qualities[i].dropWeight);
+    if (r < w) { quality = qualities[i].id; break; }
+    r -= w;
   }
   const qDef = qualities.find((q) => q.id === quality);
 
@@ -107,7 +111,6 @@ export function rollEquipmentInstance(
   // ─── 3. 副词条：按权重抽取不重复词条，数量 1 ~ 品质上限 ───
   const affixes: Record<string, number> = {};
   const maxAffixes = qDef?.extraStatsMax ?? 0;
-  const tier = base.setTier || 1;
   const qMult = QUALITY_MULT[quality] ?? 1;
   if (maxAffixes > 0) {
     const count = 1 + Math.floor(rng() * maxAffixes); // 1 ~ max
