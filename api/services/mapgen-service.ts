@@ -390,6 +390,63 @@ function rollRoomLoot(roomType: string, layer: number, rng: SeededRNG): DungeonR
   return loot.length > 0 ? loot : undefined;
 }
 
+// ─── 随机遇敌（混乱深渊·波次模式，无房间地图）───
+// 规则：Boss 基础概率 1%，自上次 Boss 起满 100 波必出；精英 15%；其余普通。
+export interface EncounterResult {
+  type: "normal" | "elite" | "boss";
+  wave: number;
+  theme: string;
+  enemies: NonNullable<DungeonRoom["enemies"]>;
+  loot: DungeonRoom["loot"];
+}
+
+export function generateEncounter(params: { layer: number; wavesSinceBoss: number }): EncounterResult {
+  const { layer, wavesSinceBoss } = params;
+  const rng = new SeededRNG(`${Date.now()}:${Math.random()}`);
+  const wave = wavesSinceBoss + 1;
+
+  const isBoss = wave >= 100 || rng.next() < 0.01;
+  const isElite = !isBoss && rng.next() < 0.15;
+  const type: EncounterResult["type"] = isBoss ? "boss" : isElite ? "elite" : "normal";
+
+  const theme = getThemeByLayer(layer);
+  const family = theme?.id || "cave";
+
+  const enemies: EncounterResult["enemies"] = [];
+  if (isBoss) {
+    const boss = getBossByFamily(family);
+    if (boss) {
+      const scaled = scaleMonsterStats(boss.baseStats, {
+        layer, isElite: false, isBoss: true, perLayerGrowth: 0.10,
+      });
+      enemies.push({
+        id: boss.id, name: boss.name,
+        ...scaled,
+        skills: boss.skills, element: boss.element, aiType: boss.aiType,
+        dropTable: boss.dropTable,
+      });
+    }
+  } else {
+    const pool = getEnemiesByFamily(family);
+    const count = isElite ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
+    for (let i = 0; i < count && pool.length > 0; i++) {
+      const template = rng.pickOne(pool);
+      const scaled = scaleMonsterStats(template.baseStats, {
+        layer, isElite, isBoss: false, perLayerGrowth: 0.08,
+      });
+      enemies.push({
+        id: template.id, name: template.name,
+        ...scaled,
+        skills: template.skills, element: template.element, aiType: template.aiType,
+        dropTable: template.dropTable,
+      });
+    }
+  }
+
+  const loot = rollRoomLoot(type, layer, rng) ?? undefined;
+  return { type, wave, theme: family, enemies, loot };
+}
+
 /**
  * Populate rooms with enemies and loot
  */

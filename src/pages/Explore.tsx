@@ -3,36 +3,12 @@ import { useNavigate } from 'react-router'
 import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
-import { loadCatalogs, getItemInfo, getSkillMpCost, getTierName } from '@/lib/catalog'
+import { loadCatalogs, getItemInfo, getTierName } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
 import BattleStage from '@/components/BattleStage'
 
-const ROOM_TYPE_NAMES: Record<string, string> = {
-  entrance: '入口', normal: '普通房间', elite: '精英房间', boss: 'Boss房间',
-  treasure: '宝箱房间', trap: '陷阱房间', safe: '安全房间', shrine: '祭坛房间',
-  merchant: '商人房间', hidden: '隐藏房间',
-}
-
-const ROOM_TYPE_COLORS: Record<string, string> = {
-  entrance: '#3FB950', normal: '#8B949E', elite: '#A371F7', boss: '#F85149',
-  treasure: '#C9A84C', trap: '#F85149', safe: '#3FB950', shrine: '#79C0FF',
-  merchant: '#58A6FF', hidden: '#D4BA6A',
-}
-
-const SKILL_MP_COSTS: Record<string, number> = {
-  fireball: 10, heal: 15, frostbolt: 12, lightning: 18,
-  mana_shield: 20, meteor: 40, arcane_power: 25,
-  shadow_step: 15, backstab: 10, poison_blade: 12,
-  smoke_bomb: 8, assassinate: 30, shadow_dance: 25,
-  shield_bash: 8, taunt: 5, heavy_strike: 12,
-  iron_will: 10, whirlwind: 20, last_stand: 15,
-  aimed_shot: 10, trap: 8, multishot: 18,
-  poison_arrow: 12, stampede: 25, eagle_eye: 15,
-  holy_light: 15, bless: 10, dispel: 12,
-  resurrection: 50, divine_shield: 20,
-  corruption: 12, summon_imp: 20, life_drain: 15,
-  curse: 10, demon_form: 35, soul_harvest: 25,
-}
+const ENCOUNTER_NAMES: Record<string, string> = { normal: '普通怪物', elite: '精英怪物', boss: 'Boss' }
+const ENCOUNTER_COLORS: Record<string, string> = { normal: '#8B949E', elite: '#A371F7', boss: '#F85149' }
 
 const LOOT_QUALITY_COLORS: Record<string, string> = {
   common: '#9DA7B3', fine: '#3FB950', rare: '#58A6FF',
@@ -47,18 +23,20 @@ export default function Explore() {
   const [moving, setMoving] = useState(false)
   const [currentLayer, _setCurrentLayer] = useState(1)
   const setCurrentLayer = useCallback((v: number) => { currentLayerRef.current = v; _setCurrentLayer(v) }, [])
-  const [stats, setStats] = useState({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
+  const [wave, _setWave] = useState(0)
+  const setWave = useCallback((v: number) => { waveRef.current = v; _setWave(v) }, [])
+  const [lastEncounter, setLastEncounter] = useState<{ type: string; enemies: Array<{ id: string; name: string; hp: number; maxHp: number }> } | null>(null)
+  const [stats, setStats] = useState({ waves: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
   const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string; note?: string }>>([])
   const recordLoot = useCallback((entries: Array<{ name: string; quantity: number; quality?: string; note?: string }>) => {
     setLootHistory((prev) => [...entries.map((e) => ({ name: e.name, quantity: e.quantity, quality: e.quality || 'common', note: e.note })), ...prev].slice(0, 200))
   }, [])
   const isRunningRef = useRef(false)
   const currentLayerRef = useRef(1)
+  const waveRef = useRef(0)
   const isBattlingRef = useRef(false)
 
-  // 使用 useMutation 避免 useQuery 参数不同步问题
-  const generateDungeonMut = trpc.game.generateDungeon.useMutation()
-  const enterRoomMut = trpc.game.enterRoom.useMutation()
+  const encounterMut = trpc.game.randomEncounter.useMutation()
   const combatTurnMut = trpc.game.combatTurn.useMutation()
   const offlineStartMut = trpc.game.offlineStart.useMutation()
   const offlineHeartbeatMut = trpc.game.offlineHeartbeat.useMutation()
@@ -150,75 +128,72 @@ export default function Explore() {
     setStats((s) => ({ ...s, items: s.items + loot.length }))
   }, [addLog, recordLoot])
 
-  // ─── 进入新一层地牢 ───
-  const enterNewFloor = useCallback(async (layer: number) => {
-    useGameStore.getState().setCombatEnemies([]) // 进新层立即清掉上一场残留敌人
-    setCurrentLayer(layer)
-    setStats((s) => ({ ...s, floor: layer }))
-    const gsFloor = useGameStore.getState()
-    const prevMax = gsFloor.player?.maxLayer || 1
-    gsFloor.updateMaxLayer(layer)
-    addLog(`═══ 进入第 ${layer} 层 ═══`)
-    if (layer > prevMax) addLog(`新纪录！最深到达第 ${layer} 层`)
+  // ─── 探索主循环：一波接一波的随机遇敌 ───
+  const exploreLoop = useCallback(async () => {
+    while (isRunningRef.current) {
+      // 朝深处探索的行进间隔
+      setMoving(true)
+      addLog('正在朝深处探索……')
+      await new Promise((r) => setTimeout(r, 2000))
+      setMoving(false)
+      if (!isRunningRef.current) break
 
-    try {
-      const result = await generateDungeonMut.mutateAsync({
-        globalSeed: 'auto', layer, x: 0, y: 0,
-      })
-      if (result) {
-        const gs = useGameStore.getState()
-        gs.setCurrentDungeon({
-          seed: result.seed, layer: result.layer, x: 0, y: 0,
-          theme: result.theme, roomCount: result.roomCount,
+      try {
+        const enc = await encounterMut.mutateAsync({
+          layer: currentLayerRef.current,
+          wavesSinceBoss: waveRef.current,
         })
-        gs.setDungeonRooms(result.rooms)
-        gs.setCurrentRoomId(result.entranceRoomId)
-        gs.resetExploredRooms()
-        gs.addExploredRoom(result.entranceRoomId)
-        addLog(`地牢生成完毕：${result.theme}，共 ${result.roomCount} 个房间`)
-        await exploreRoom(result.entranceRoomId)
-      }
-    } catch (err) {
-      addLog(`生成地牢失败: ${err}`)
-      stopExploring()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, generateDungeonMut])
+        if (!enc || !enc.enemies || enc.enemies.length === 0) continue
 
-  // ─── 探索房间 ───
-  const exploreRoom = useCallback(async (roomId: number) => {
-    if (!isRunningRef.current) return
+        setWave(enc.wave)
+        setStats((s) => ({ ...s, waves: s.waves + 1 }))
+        useGameStore.getState().trackTaskEvent('rooms', 1)
 
-    try {
-      const result = await enterRoomMut.mutateAsync({
-        globalSeed: 'auto', layer: currentLayer, x: 0, y: 0, roomId,
-      })
-      if (!result) {
-        addLog('房间数据为空，跳过')
-        return
-      }
+        const typeName = ENCOUNTER_NAMES[enc.type] || enc.type
+        if (enc.type === 'boss') {
+          addLog(enc.wave >= 100
+            ? `⚠ 第 ${enc.wave} 波——深渊的怒吼逼近，Boss 出现了！（保底触发）`
+            : `⚠ 一股强大的气息突然降临，Boss 出现了！`)
+        } else if (enc.type === 'elite') {
+          addLog(`遭遇精英敌人：${enc.enemies.map((e) => e.name).join('、')}`)
+        } else {
+          addLog(`遭遇敌人：${enc.enemies.map((e) => e.name).join('、')}`)
+        }
+        setLastEncounter({ type: enc.type, enemies: enc.enemies.map((e) => ({ id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp })) })
 
-      const room = result
-      const gs = useGameStore.getState()
-      gs.setCombatEnemies([]) // 清空上一场战斗的敌人显示，避免残留
-      gs.setRoomInfo(room)
-      gs.setCurrentRoomId(roomId)
-      gs.addExploredRoom(roomId)
-      setStats((s) => ({ ...s, rooms: s.rooms + 1 }))
-      useGameStore.getState().trackTaskEvent('rooms', 1)
+        const won = await autoBattle(enc.enemies)
 
-      const roomName = ROOM_TYPE_NAMES[room.type] || room.type
-      addLog(`【${roomName}】${room.themeDescription}`)
+        // 战利品
+        if (enc.loot && enc.loot.length > 0) collectLoot(enc.loot as never)
 
-      let cleared = true
-      const hadBattle = room.enemies.length > 0
-      // 遇敌 → 自动战斗
-      if (room.enemies.length > 0) {
-        addLog(`遭遇敌人：${room.enemies.map(e => `${e.name}(HP:${e.hp})`).join('、')}`)
-        const won = await autoBattle(room.enemies)
-        if (!won) {
-          cleared = false
-          // 战败复活：等待 5 秒后满血复活，继续随机探索
+        if (won) {
+          if (enc.type === 'boss') {
+            // 通关恢复：HP/MP 各恢复 50%
+            const gsH = useGameStore.getState()
+            if (gsH.player) {
+              const healHp = Math.floor(gsH.player.maxHp * 0.5)
+              const healMp = Math.floor(gsH.player.maxMp * 0.5)
+              gsH.updatePlayerHp(Math.min(gsH.player.maxHp, gsH.player.hp + healHp))
+              gsH.updatePlayerMp(Math.min(gsH.player.maxMp, gsH.player.mp + healMp))
+              addLog(`通关恢复：HP +${healHp}，MP +${healMp}`)
+            }
+            useGameStore.getState().trackTaskEvent('bossKills', 1)
+            useGameStore.getState().trackTaskEvent('layers', 1)
+            const nextLayer = currentLayerRef.current + 1
+            const prevMax = gsH.player?.maxLayer || 1
+            gsH.updateMaxLayer(nextLayer)
+            addLog(`═══ 已深入至第 ${nextLayer} 层 ═══`)
+            if (nextLayer > prevMax) addLog(`新纪录！最深到达第 ${nextLayer} 层`)
+            setCurrentLayer(nextLayer)
+            setStats((s) => ({ ...s, floor: nextLayer }))
+            setWave(0)
+          } else {
+            setWave(enc.wave)
+          }
+          setLastEncounter(null)
+          useGameStore.getState().setCombatEnemies([])
+        } else {
+          // 战败复活：等待 5 秒后满血复活，波次进度保留
           setStats((s) => ({ ...s, defeats: s.defeats + 1 }))
           addLog(`战败！5 秒后复活...`)
           await new Promise((r) => setTimeout(r, 5000))
@@ -228,76 +203,16 @@ export default function Explore() {
             gsLose.updatePlayerMp(gsLose.player.maxMp)
           }
           addLog(`已复活并恢复全部状态，继续探索...`)
+          setLastEncounter(null)
+          useGameStore.getState().setCombatEnemies([])
         }
-      } else if (room.type === 'treasure') {
-        addLog(`发现宝箱！正在打开...`)
-      } else if (room.type === 'trap') {
-        const dmg = Math.floor(Math.random() * 20) + 10
-        addLog(`触发陷阱！受到 ${dmg} 点伤害`)
-        const gs2 = useGameStore.getState()
-        if (gs2.player) gs2.updatePlayerHp(gs2.player.hp - dmg)
-      } else if (room.type === 'safe') {
-        addLog(`安全区域，恢复了一些状态`)
-        const gs2 = useGameStore.getState()
-        if (gs2.player) {
-          gs2.updatePlayerHp(Math.min(gs2.player.maxHp, gs2.player.hp + 30))
-          gs2.updatePlayerMp(Math.min(gs2.player.maxMp, gs2.player.mp + 20))
-        }
-      } else {
-        addLog(`这个房间很平静，没有发现敌人`)
+      } catch (err) {
+        addLog(`探索出错: ${err}`)
+        await new Promise((r) => setTimeout(r, 3000))
       }
-
-      // 自动拾取（真实物品）
-      if (room.loot && room.loot.length > 0) {
-        collectLoot(room.loot)
-      }
-
-      // Boss房 → 只有清场胜利才进入下一层
-      if (room.isExit && cleared) {
-        // 通关恢复：HP/MP 各恢复 50%
-        const gsH = useGameStore.getState()
-        if (gsH.player) {
-          const healHp = Math.floor(gsH.player.maxHp * 0.5)
-          const healMp = Math.floor(gsH.player.maxMp * 0.5)
-          gsH.updatePlayerHp(Math.min(gsH.player.maxHp, gsH.player.hp + healHp))
-          gsH.updatePlayerMp(Math.min(gsH.player.maxMp, gsH.player.mp + healMp))
-          addLog(`通关恢复：HP +${healHp}，MP +${healMp}`)
-        }
-        useGameStore.getState().trackTaskEvent('bossKills', 1)
-        useGameStore.getState().trackTaskEvent('layers', 1)
-        addLog(`═══ 已通过本层，进入第 ${currentLayer + 1} 层 ═══`)
-        setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
-        return
-      }
-
-      // ─── 自动进入下一个房间（战斗结束显示移动过渡）───
-      if (isRunningRef.current) {
-        const gs3 = useGameStore.getState()
-        const unvisited = room.directions.filter((d) => !gs3.exploredRooms.has(d.roomId))
-        const candidates = unvisited.length > 0 ? unvisited : room.directions
-        if (candidates.length > 0) {
-          const nextDir = candidates[Math.floor(Math.random() * candidates.length)]
-          if (hadBattle) addLog(`── 战斗结束 ──`)
-          addLog(`── 移动中 ──`)
-          setMoving(true)
-          setTimeout(() => {
-            setMoving(false)
-            if (isRunningRef.current) {
-              addLog(`向${nextDir.direction}移动...`)
-              exploreRoom(nextDir.roomId)
-            }
-          }, hadBattle ? 1800 : 1500)
-        } else {
-          addLog(`本层已无可走房间，进入下一层`)
-          setTimeout(() => { if (isRunningRef.current) enterNewFloor(currentLayer + 1) }, 1000)
-        }
-      }
-    } catch (err) {
-      addLog(`探索出错: ${err}`)
-      stopExploring()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, enterRoomMut, currentLayer, enterNewFloor, collectLoot])
+  }, [addLog, collectLoot])
 
   // ─── 自动战斗（返回是否胜利）───
   const autoBattle = useCallback(async (enemies: any[]): Promise<boolean> => {
@@ -379,7 +294,7 @@ export default function Explore() {
           })),
           action: { type: action.type, targetId: aliveEnemies[0].id, skillId: action.skillId },
           turnSeed: Date.now() + round,
-          layer: currentLayer,
+          layer: currentLayerRef.current,
           enemyDropTables: aliveEnemies.map((e) => ({ enemyId: e.id, dropTable: (e as any).dropTable })),
         })
 
@@ -387,7 +302,7 @@ export default function Explore() {
 
         // 每轮同步最新状态到 store（血量实时显示）
         // 注意：result.enemies 只包含本轮出战（存活）的敌人，需按 id 合并回完整列表，
-        // 否则已死亡敌人会从显示中消失，造成"数量对不上/疑似换房"的错觉
+        // 否则已死亡敌人会从显示中消失，造成"数量对不上"的错觉
         const after = useGameStore.getState()
         const mergedEnemies = after.combatEnemies.map((e) => {
           const u = result.enemies.find((r) => r.id === e.id)
@@ -406,8 +321,9 @@ export default function Explore() {
           useGameStore.getState().trackTaskEvent('kills', enemies.length)
           // 经验奖励：基础 10 + 层数×3 + 敌人强度（血/20 + 攻），boss（HP≥500）双倍
           const utilMods = getPlayerMods().utility
+          const lv = currentLayerRef.current
           const expGain = Math.floor(enemies.reduce((sum, e) => {
-            const base = 10 + currentLayer * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5)
+            const base = 10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5)
             return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base)
           }, 0) * (1 + (utilMods.expGain || 0) / 100))
           after.addPlayerExp(expGain)
@@ -489,15 +405,14 @@ export default function Explore() {
       if (cur.player && cur.player.hp <= 0) {
         addLog(`── 战败撤退 ──`)
       }
-      // 不再停止探索，由调用方恢复状态后继续
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, combatTurnMut, currentLayer, recordLoot])
+  }, [addLog, combatTurnMut, recordLoot])
 
   // ─── 开始 / 停止 ───
   const startExploring = useCallback(async () => {
-    if (isRunningRef.current) return // 防重入：避免并行探索链互相污染敌人显示
+    if (isRunningRef.current) return // 防重入
     const gs = useGameStore.getState()
     if (gs.inCombat) {
       addLog('另一场战斗正在进行中（守序深渊），结束后再来探索')
@@ -507,13 +422,16 @@ export default function Explore() {
       addLog('请先创建角色')
       return
     }
-    // 若已有地牢进行中，先重置
     gs.resetDungeon()
+    gs.setCombatEnemies([])
+    setLastEncounter(null)
     setIsRunning(true)
     isRunningRef.current = true
     gs.setAutoExploring(true)
     setLogs([])
-    setStats({ rooms: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
+    setStats({ waves: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
+    setCurrentLayer(1)
+    setWave(0)
     addLog('═══ 自动探索开始 ═══')
     addLog(`角色：${gs.player.name} (Lv.${gs.player.level})`)
     addLog(`HP: ${gs.player.hp}/${gs.player.maxHp} MP: ${gs.player.mp}/${gs.player.maxMp}`)
@@ -521,9 +439,9 @@ export default function Explore() {
     const snap = buildSnapshot()
     if (snap) offlineStartMut.mutate(snap)
     addLog(`离线挂机已开启：下线后将继续探索，最长 12 小时`)
-    await enterNewFloor(1)
+    exploreLoop()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, enterNewFloor])
+  }, [addLog, exploreLoop])
 
   const stopExploring = useCallback(() => {
     setIsRunning(false)
@@ -545,62 +463,17 @@ export default function Explore() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const getRoomTypeName = (type: string) => ROOM_TYPE_NAMES[type] || type
-  const getRoomTypeColor = (type: string) => ROOM_TYPE_COLORS[type] || '#8B949E'
-
-  // Minimap rendering
-  const renderMinimap = () => {
-    if (!store.dungeonRooms.length) return null
-    const rooms = store.dungeonRooms
-    const minX = Math.min(...rooms.map((r) => r.x)) - 1
-    const maxX = Math.max(...rooms.map((r) => r.x)) + 1
-    const minY = Math.min(...rooms.map((r) => r.y)) - 1
-    const maxY = Math.max(...rooms.map((r) => r.y)) + 1
-    const cellSize = 20
-    const width = (maxX - minX + 1) * cellSize
-    const height = (maxY - minY + 1) * cellSize
-
-    return (
-      <svg width={width} height={height} className="mx-auto">
-        {rooms.map((room) =>
-          room.connections.map((connId) => {
-            const conn = rooms.find((r) => r.id === connId)
-            if (!conn || room.id > conn.id) return null
-            return (
-              <line key={`${room.id}-${connId}`} x1={(room.x - minX) * cellSize + cellSize / 2} y1={(room.y - minY) * cellSize + cellSize / 2}
-                x2={(conn.x - minX) * cellSize + cellSize / 2} y2={(conn.y - minY) * cellSize + cellSize / 2}
-                stroke={store.exploredRooms.has(room.id) && store.exploredRooms.has(conn.id) ? '#484F58' : '#1C2128'} strokeWidth={2} />
-            )
-          })
-        )}
-        {rooms.map((room) => {
-          const explored = store.exploredRooms.has(room.id)
-          const isCurrent = room.id === store.currentRoomId
-          return (
-            <rect key={room.id} x={(room.x - minX) * cellSize + 3} y={(room.y - minY) * cellSize + 3}
-              width={cellSize - 6} height={cellSize - 6} rx={3}
-              fill={isCurrent ? '#C9A84C' : explored ? getRoomTypeColor(room.type) : '#1C2128'}
-              stroke={isCurrent ? '#D4BA6A' : explored ? '#484F58' : '#161B22'} strokeWidth={1} />
-          )
-        })}
-      </svg>
-    )
-  }
-
-  // 敌人显示：战斗中用 combatEnemies（实时血量），否则用 roomInfo.enemies
-  const displayEnemies = store.combatEnemies.length > 0
-    ? store.combatEnemies
-    : (store.roomInfo?.enemies || [])
+  const displayEnemies = store.combatEnemies
 
   // 主界面：未开始探索
-  if (!isRunning && !store.currentDungeon) {
+  if (!isRunning && stats.waves === 0 && !store.isAutoExploring) {
     return (
       <div className="flex min-h-[calc(100dvh-5.75rem)] items-center justify-center p-4 lg:min-h-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="game-card w-full max-w-md space-y-4">
           <div className="text-center">
             <Compass size={32} className="mx-auto mb-2" style={{ color: 'var(--accent)' }} />
             <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>混乱深渊</h2>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>自动探索 · 无限层数 · 离线挂机</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>自动探索 · 随机遇敌 · 离线挂机</p>
           </div>
 
           {store.player ? (
@@ -636,7 +509,7 @@ export default function Explore() {
           <button className="game-btn-secondary w-full" onClick={() => navigate('/')}>返回城镇</button>
 
           <div className="rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
-            提示：自动探索会自动战斗、自动拾取、自动进入下一层。你可以随时停止探索。
+            提示：探索中会自动遭遇怪物——普通怪物、精英（15%）、Boss（1%，第 100 波保底）。击杀 Boss 后深入下一层。你可以随时停止探索。
           </div>
         </div>
       </div>
@@ -649,8 +522,13 @@ export default function Explore() {
       {/* Left: Player Status */}
       <aside className="hidden w-[240px] flex-shrink-0 border-r p-3 lg:block" style={{ borderColor: 'var(--border-color)' }}>
         <div className="mb-3 rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
-          <div className="font-bold" style={{ color: 'var(--accent)' }}>第 {currentLayer} 层</div>
-          <div style={{ color: 'var(--text-muted)' }}>已探索 {stats.rooms} 个房间</div>
+          <div className="font-bold" style={{ color: 'var(--accent)' }}>第 {currentLayer} 层 · 第 {wave} 波</div>
+          <div className="mt-1" style={{ color: 'var(--text-muted)' }}>
+            Boss 保底进度 {Math.min(wave, 100)}/100
+          </div>
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(100, wave)}%`, background: 'linear-gradient(90deg, #A371F7, #F85149)' }} />
+          </div>
         </div>
 
         <div className="mb-3 space-y-2">
@@ -694,6 +572,9 @@ export default function Explore() {
 
         <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
+            <Compass size={12} /> 波数: {stats.waves}
+          </div>
+          <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Skull size={12} /> 击杀: {stats.kills}
           </div>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
@@ -725,55 +606,60 @@ export default function Explore() {
         {(store.inCombat || displayEnemies.length > 0) && (
           <div className="mb-3 flex-shrink-0"><BattleStage /></div>
         )}
-        {store.roomInfo && (
-          <div className="mb-4 max-h-[45%] flex-shrink-0 overflow-y-auto rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-            <div className="mb-2 flex items-center gap-2">
-              <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: getRoomTypeColor(store.roomInfo.type), color: '#0D1117' }}>
-                {getRoomTypeName(store.roomInfo.type)}
+
+        {/* 当前遭遇面板 */}
+        <div className="mb-4 flex-shrink-0 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+          <div className="mb-2 flex items-center gap-2">
+            <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--accent)' }}>
+              第 {currentLayer} 层 · 第 {wave} 波
+            </span>
+            {lastEncounter && (
+              <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: ENCOUNTER_COLORS[lastEncounter.type], color: '#0D1117' }}>
+                {ENCOUNTER_NAMES[lastEncounter.type]}
               </span>
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>房间 #{store.currentRoomId}</span>
-              {store.inCombat && (
-                <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>
-                  战斗中
-                </span>
-              )}
-              {moving && !store.inCombat && (
-                <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: '#0D1117' }}>
-                  移动中...
-                </span>
-              )}
-            </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              {store.roomInfo.themeDescription}
-            </p>
-            {displayEnemies.length > 0 && (
-              <div className="mt-2 rounded p-2" style={{ backgroundColor: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)' }}>
-                <div className="mb-1 text-xs font-bold" style={{ color: 'var(--danger)' }}>敌人</div>
-                {displayEnemies.map((e) => {
-                  const hpPct = e.maxHp > 0 ? Math.max(0, e.hp) / e.maxHp : 0
-                  return (
-                    <div key={e.id} className="mb-1.5 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)', opacity: e.hp <= 0 ? 0.4 : 1 }}>
-                      <span className="w-20 truncate">{e.name}</span>
-                      {((e as any).statuses || []).map((st: any) => (
-                        <span key={st.id} className="flex-shrink-0 rounded px-1 text-[9px]"
-                          style={{ backgroundColor: 'rgba(163,113,247,0.2)', color: '#A371F7' }}>
-                          {st.name}{st.turns > 1 ? st.turns : ''}
-                        </span>
-                      ))}
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
-                        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
-                          width: `${hpPct * 100}%`,
-                          background: hpPct > 0.5 ? '#3FB950' : hpPct > 0.2 ? '#C9A84C' : '#F85149',
-                        }} />
-                      </div>
-                      <span style={{ color: 'var(--text-muted)' }}>{Math.max(0, e.hp)}/{e.maxHp}</span>
-                    </div>
-                  )
-                })}
-              </div>
+            )}
+            {store.inCombat && (
+              <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>
+                战斗中
+              </span>
+            )}
+            {moving && !store.inCombat && (
+              <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--accent)', color: '#0D1117' }}>
+                正在朝深处探索……
+              </span>
             )}
           </div>
-        )}
+          {displayEnemies.length > 0 ? (
+            <div className="rounded p-2" style={{ backgroundColor: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)' }}>
+              <div className="mb-1 text-xs font-bold" style={{ color: 'var(--danger)' }}>敌人</div>
+              {displayEnemies.map((e) => {
+                const hpPct = e.maxHp > 0 ? Math.max(0, e.hp) / e.maxHp : 0
+                return (
+                  <div key={e.id} className="mb-1.5 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)', opacity: e.hp <= 0 ? 0.4 : 1 }}>
+                    <span className="w-20 truncate">{e.name}</span>
+                    {((e as any).statuses || []).map((st: any) => (
+                      <span key={st.id} className="flex-shrink-0 rounded px-1 text-[9px]"
+                        style={{ backgroundColor: 'rgba(163,113,247,0.2)', color: '#A371F7' }}>
+                        {st.name}{st.turns > 1 ? st.turns : ''}
+                      </span>
+                    ))}
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'var(--bg-hover)' }}>
+                      <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
+                        width: `${hpPct * 100}%`,
+                        background: hpPct > 0.5 ? '#3FB950' : hpPct > 0.2 ? '#C9A84C' : '#F85149',
+                      }} />
+                    </div>
+                    <span style={{ color: 'var(--text-muted)' }}>{Math.max(0, e.hp)}/{e.maxHp}</span>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              幽暗的深渊中，脚步正朝着更深处迈进……Boss 保底进度 {Math.min(wave, 100)}/100
+            </p>
+          )}
+        </div>
 
         {/* 探索日志：独立滚动区域，最新在最上面 */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
@@ -787,7 +673,7 @@ export default function Explore() {
                 color: log.includes('═══') ? 'var(--accent)'
                   : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
                     : log.includes('击败') || log.includes('受到') || log.includes('阵亡') || log.includes('战败') ? 'var(--danger)'
-                      : log.includes('战斗') || log.includes('遭遇') ? 'var(--warning)'
+                      : log.includes('战斗') || log.includes('遭遇') || log.includes('Boss') ? 'var(--warning)'
                         : 'var(--text-secondary)'
               }}>
                 {log}

@@ -7,8 +7,9 @@ import {
   getElementMultiplier, getEnemyById,
   getItems, getEquipmentSets, getSkills,
 } from "../services/config-service";
-import { generateDungeon, getRoomDirections } from "../services/mapgen-service";
+import { generateDungeon, getRoomDirections, generateEncounter } from "../services/mapgen-service";
 import { genLawfulRooms, LAWFUL_MAX_LAYER, isBossLayer } from "../services/lawful-service";
+import { genRiftStage, getDailyModifiers, RIFT_STAGES } from "../services/daily-service";
 import { resolveCombat } from "../services/combat-service";
 import {
   offlineStart, offlineHeartbeat, offlineStop, offlineStatus, offlineSettle,
@@ -63,6 +64,16 @@ export const gameRouter = createRouter({
       id: s.id, name: s.name, classId: s.classId, type: s.type,
       element: s.element, mpCost: s.mpCost, cooldown: s.cooldown,
       description: s.description,
+      // 技能行为分类（自动战斗 AI 用）：heal=治疗 buff=自身增益 dot=持续伤害 debuff=削弱敌方 damage=直接伤害
+      kind: ((): string => {
+        const e = (s as { effect?: Record<string, unknown> }).effect || {};
+        if (e.heal) return "heal";
+        if (e.dotDamage) return "dot";
+        if (e.atkBuff || e.defBuff || e.magMultiplier || e.defMultiplier || e.critChanceBuff || e.dodgeBuff || e.shield) return "buff";
+        if (e.atkDebuff || e.defDebuff) return "debuff";
+        if (e.damage) return "damage";
+        return "other";
+      })(),
       learnable: !!s.learnable,
       learnLevel: s.learnLevel ?? null,
       learnCost: s.learnCost ?? null,
@@ -85,6 +96,31 @@ export const gameRouter = createRouter({
         rooms: genLawfulRooms(input.layer, input.classId, input.seed),
       };
     }),
+
+  // 每日秘境：按日期种子生成某阶段的战斗（含当日词缀）
+  dailyRift: publicQuery
+    .input(z.object({
+      date: z.string(),
+      classId: z.string().default("warrior"),
+      level: z.number().min(1).max(100).default(1),
+      stage: z.number().min(1).max(RIFT_STAGES),
+    }))
+    .query(({ input }) => {
+      return {
+        stage: input.stage,
+        maxStage: RIFT_STAGES,
+        modifiers: getDailyModifiers(input.date),
+        ...genRiftStage(input.date, input.classId, input.level, input.stage),
+      };
+    }),
+
+  // 混乱深渊·随机遇敌（波次模式）：Boss 1%，满 100 波必出 Boss
+  randomEncounter: publicQuery
+    .input(z.object({
+      layer: z.number().min(1).max(999999),
+      wavesSinceBoss: z.number().min(0).max(999).default(0),
+    }))
+    .mutation(({ input }) => generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss })),
 
   generateDungeon: publicQuery
     .input(z.object({
