@@ -316,7 +316,7 @@ export default function Inventory() {
             {selectedItem.type === 'equipment' && (() => {
               const eff = getEffectiveStats(selectedItem)
               const affixes = selectedItem.affixes || {}
-              const mainStats = Object.entries(eff).filter(([s]) => !(s in affixes))
+              const mainStats = Object.entries(eff).filter(([s, v]) => !(s in affixes) && v !== 0)
               const affixStats = Object.entries(affixes).map(([s, v]) => {
                 const lv = selectedItem.enhanceLevel || 0
                 return [s, v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0)] as const

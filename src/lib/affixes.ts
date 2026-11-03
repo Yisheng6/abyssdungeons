@@ -88,11 +88,14 @@ export function rollAffixes(
   return affixes;
 }
 
-/** 从合并 stats 中剥离副词条，得到主属性 */
+/** 从合并 stats 中剥离副词条，得到主属性（剔除归零键，避免 0 值残留累积） */
 export function extractMainStats(item: { stats?: Record<string, number>; affixes?: Record<string, number> }): Record<string, number> {
   const main: Record<string, number> = { ...(item.stats || {}) };
   for (const [k, v] of Object.entries(item.affixes || {})) {
     if (k in main) main[k] -= v;
+  }
+  for (const k of Object.keys(main)) {
+    if (!main[k]) delete main[k];
   }
   return main;
 }

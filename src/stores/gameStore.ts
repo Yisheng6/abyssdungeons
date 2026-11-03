@@ -106,6 +106,10 @@ export function getEffectiveStats(item: Item): Record<string, number> {
   for (const [k, v] of Object.entries(getGemStats(item))) {
     out[k] = (out[k] || 0) + v
   }
+  // 剔除 0 值键（历史重铸残留），避免显示大量 +0
+  for (const k of Object.keys(out)) {
+    if (!out[k]) delete out[k]
+  }
   return out
 }
 
