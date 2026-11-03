@@ -21,10 +21,16 @@ export default function Explore() {
   const [logs, setLogs] = useState<string[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [moving, setMoving] = useState(false)
-  const [currentLayer, _setCurrentLayer] = useState(1)
-  const setCurrentLayer = useCallback((v: number) => { currentLayerRef.current = v; _setCurrentLayer(v) }, [])
-  const [wave, _setWave] = useState(0)
-  const setWave = useCallback((v: number) => { waveRef.current = v; _setWave(v) }, [])
+  const [currentLayer, _setCurrentLayer] = useState(() => useGameStore.getState().exploreLayer || 1)
+  const setCurrentLayer = useCallback((v: number) => {
+    currentLayerRef.current = v; _setCurrentLayer(v)
+    useGameStore.setState({ exploreLayer: v })
+  }, [])
+  const [wave, _setWave] = useState(() => useGameStore.getState().exploreWave || 0)
+  const setWave = useCallback((v: number) => {
+    waveRef.current = v; _setWave(v)
+    useGameStore.setState({ exploreWave: v })
+  }, [])
   const [lastEncounter, setLastEncounter] = useState<{ type: string; enemies: Array<{ id: string; name: string; hp: number; maxHp: number }> } | null>(null)
   const [stats, setStats] = useState({ waves: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
   const [lootHistory, setLootHistory] = useState<Array<{ name: string; quantity: number; quality: string; note?: string }>>([])
@@ -32,8 +38,8 @@ export default function Explore() {
     setLootHistory((prev) => [...entries.map((e) => ({ name: e.name, quantity: e.quantity, quality: e.quality || 'common', note: e.note })), ...prev].slice(0, 200))
   }, [])
   const isRunningRef = useRef(false)
-  const currentLayerRef = useRef(1)
-  const waveRef = useRef(0)
+  const currentLayerRef = useRef(useGameStore.getState().exploreLayer || 1)
+  const waveRef = useRef(useGameStore.getState().exploreWave || 0)
   const isBattlingRef = useRef(false)
 
   const encounterMut = trpc.game.randomEncounter.useMutation()
@@ -429,10 +435,16 @@ export default function Explore() {
     isRunningRef.current = true
     gs.setAutoExploring(true)
     setLogs([])
-    setStats({ waves: 0, kills: 0, items: 0, floor: 1, defeats: 0 })
-    setCurrentLayer(1)
-    setWave(0)
+    // 恢复上次进度（刷新/中断后续跑），首次则为第 1 层第 0 波
+    const resumeLayer = gs.exploreLayer || 1
+    const resumeWave = gs.exploreWave || 0
+    setStats({ waves: 0, kills: 0, items: 0, floor: resumeLayer, defeats: 0 })
+    setCurrentLayer(resumeLayer)
+    setWave(resumeWave)
     addLog('═══ 自动探索开始 ═══')
+    if (resumeLayer > 1 || resumeWave > 0) {
+      addLog(`已恢复探索进度：第 ${resumeLayer} 层 · 第 ${resumeWave} 波（Boss 保底进度保留）`)
+    }
     addLog(`角色：${gs.player.name} (Lv.${gs.player.level})`)
     addLog(`HP: ${gs.player.hp}/${gs.player.maxHp} MP: ${gs.player.mp}/${gs.player.maxMp}`)
     // 注册离线挂机会话（之后每 20s 心跳一次）

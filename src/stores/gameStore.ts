@@ -335,6 +335,9 @@ interface GameState {
 
   // ─── Auto Explore (挂机) ───
   isAutoExploring: boolean
+  /** 混乱深渊探索进度（刷新后恢复）：当前层数与本层波数 */
+  exploreLayer: number
+  exploreWave: number
   /** 守序深渊战斗进行中（持久化：刷新后自动续战） */
   lawfulInBattle: boolean
   riftInBattle: boolean
@@ -537,6 +540,7 @@ export const useGameStore = create<GameState>()(
       playerStatuses: [],
       skillCooldowns: {},
       isAutoExploring: false, lawfulInBattle: false, autoExploreLogs: [],
+      exploreLayer: 1, exploreWave: 0,
       autoExploreStats: { roomsExplored: 0, enemiesKilled: 0, itemsFound: 0, currentLayer: 0 },
 
       // ─── Auth ───
@@ -1505,6 +1509,8 @@ export const useGameStore = create<GameState>()(
         riftInBattle: state.riftInBattle,
         talents: state.talents,
         isAutoExploring: state.isAutoExploring,
+        exploreLayer: state.exploreLayer,
+        exploreWave: state.exploreWave,
         lawfulInBattle: state.lawfulInBattle,
       }),
       onRehydrateStorage: () => (state) => {
