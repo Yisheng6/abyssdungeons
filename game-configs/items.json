@@ -7501,7 +7501,7 @@
   },
   {
    "id": "acc_ring_9",
-   "name": "永恒神戒",
+   "name": "至高神戒",
    "slot": "ring",
    "setTier": 9,
    "quality": "eternal",
@@ -7543,7 +7543,7 @@
   },
   {
    "id": "acc_ringb_9",
-   "name": "起源之戒",
+   "name": "起源神戒",
    "slot": "ring",
    "setTier": 9,
    "quality": "eternal",
@@ -7585,7 +7585,7 @@
   },
   {
    "id": "acc_off_9",
-   "name": "永恒神域之盾",
+   "name": "神域盾",
    "slot": "offhand",
    "setTier": 9,
    "quality": "eternal",
