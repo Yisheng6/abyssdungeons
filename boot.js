@@ -63373,7 +63373,7 @@ function rollDrops(enemyId, layer, rng = Math.random) {
   if (enemy.dropTable) {
     for (const drop of enemy.dropTable) {
       if (drop.minLayer && layer < drop.minLayer) continue;
-      if (rng() * 100 < drop.chance) {
+      if (rng() * 100 < drop.chance * 0.5) {
         drops.push({
           itemId: drop.itemId,
           name: drop.name,
@@ -63387,7 +63387,7 @@ function rollDrops(enemyId, layer, rng = Math.random) {
   const globalPool = getGlobalDropPool();
   for (const drop of globalPool) {
     if (drop.minLayer && layer < drop.minLayer) continue;
-    if (rng() * 100 < drop.chance) {
+    if (rng() * 100 < drop.chance * 0.5) {
       drops.push({
         itemId: drop.itemId,
         name: drop.name,
@@ -63473,7 +63473,8 @@ var QUALITY_MULT = {
   rare: 1.2,
   epic: 1.5,
   legendary: 1.8,
-  mythic: 2.2
+  mythic: 2.2,
+  eternal: 2.6
 };
 function getQualities() {
   const data = getConfigSync("items");
@@ -63481,15 +63482,19 @@ function getQualities() {
 }
 function rollEquipmentInstance(base, rng = Math.random) {
   const qualities = getQualities();
-  const totalWeight = qualities.reduce((s, q) => s + q.dropWeight, 0);
+  const tier = Math.max(1, base.setTier || 1);
+  const tierBoost = 1 + (tier - 1) * 0.5;
+  const effWeight = (qIdx, w) => w * Math.pow(tierBoost, qIdx);
+  const totalWeight = qualities.reduce((s, q, i) => s + effWeight(i, q.dropWeight), 0);
   let r = rng() * totalWeight;
   let quality = qualities[0]?.id || "common";
-  for (const q of qualities) {
-    if (r < q.dropWeight) {
-      quality = q.id;
+  for (let i = 0; i < qualities.length; i++) {
+    const w = effWeight(i, qualities[i].dropWeight);
+    if (r < w) {
+      quality = qualities[i].id;
       break;
     }
-    r -= q.dropWeight;
+    r -= w;
   }
   const qDef = qualities.find((q) => q.id === quality);
   const main = {};
@@ -63498,7 +63503,6 @@ function rollEquipmentInstance(base, rng = Math.random) {
   }
   const affixes = {};
   const maxAffixes = qDef?.extraStatsMax ?? 0;
-  const tier = base.setTier || 1;
   const qMult = QUALITY_MULT[quality] ?? 1;
   if (maxAffixes > 0) {
     const count = 1 + Math.floor(rng() * maxAffixes);
@@ -63739,6 +63743,60 @@ function rollRoomLoot(roomType, layer, rng) {
     });
   }
   return loot.length > 0 ? loot : void 0;
+}
+function generateEncounter(params) {
+  const { layer, wavesSinceBoss } = params;
+  const rng = new SeededRNG(`${Date.now()}:${Math.random()}`);
+  const wave = wavesSinceBoss + 1;
+  const isBoss = wave >= 100 || rng.next() < 0.01;
+  const isElite = !isBoss && rng.next() < 0.15;
+  const type = isBoss ? "boss" : isElite ? "elite" : "normal";
+  const theme = getThemeByLayer(layer);
+  const family = theme?.id || "cave";
+  const enemies = [];
+  if (isBoss) {
+    const boss = getBossByFamily(family);
+    if (boss) {
+      const scaled = scaleMonsterStats(boss.baseStats, {
+        layer,
+        isElite: false,
+        isBoss: true,
+        perLayerGrowth: 0.1
+      });
+      enemies.push({
+        id: boss.id,
+        name: boss.name,
+        ...scaled,
+        skills: boss.skills,
+        element: boss.element,
+        aiType: boss.aiType,
+        dropTable: boss.dropTable
+      });
+    }
+  } else {
+    const pool = getEnemiesByFamily(family);
+    const count = isElite ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
+    for (let i = 0; i < count && pool.length > 0; i++) {
+      const template = rng.pickOne(pool);
+      const scaled = scaleMonsterStats(template.baseStats, {
+        layer,
+        isElite,
+        isBoss: false,
+        perLayerGrowth: 0.08
+      });
+      enemies.push({
+        id: template.id,
+        name: template.name,
+        ...scaled,
+        skills: template.skills,
+        element: template.element,
+        aiType: template.aiType,
+        dropTable: template.dropTable
+      });
+    }
+  }
+  const loot = rollRoomLoot(type, layer, rng) ?? void 0;
+  return { type, wave, theme: family, enemies, loot };
 }
 function populateRooms(rooms, layer, family, rng) {
   for (const room of rooms) {
@@ -64239,7 +64297,7 @@ function rollEquipmentDrop(drop, rng) {
   };
 }
 function bossGuaranteedDrop(layer, rng) {
-  const tier = layer >= 46 ? 3 : layer >= 31 ? 2 : 1;
+  const tier = layer >= 95 ? 9 : layer >= 88 ? 8 : layer >= 80 ? 7 : layer >= 70 ? 6 : layer >= 55 ? 5 : layer >= 40 ? 4 : layer >= 25 ? 3 : layer >= 12 ? 2 : 1;
   return rollEquipmentDrop({
     itemId: `equipment:${tier}`,
     name: "\u88C5\u5907",
@@ -64515,7 +64573,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         if (enemyDrop?.dropTable) {
           for (const drop of enemyDrop.dropTable) {
             if (drop.minLayer && layer < drop.minLayer) continue;
-            if (rng.next() * 100 < drop.chance * luckDropBoost) {
+            if (rng.next() * 100 < drop.chance * luckDropBoost * 0.5) {
               let qty = drop.quantityMin + Math.floor(rng.next() * (drop.quantityMax - drop.quantityMin + 1));
               if (drop.type === "currency") qty = Math.floor(qty * luckGoldBoost);
               drops.push(rollEquipmentDrop({
@@ -64944,6 +65002,11 @@ var gameRouter = createRouter({
       ...genRiftStage(input.date, input.classId, input.level, input.stage)
     };
   }),
+  // 混乱深渊·随机遇敌（波次模式）：Boss 1%，满 100 波必出 Boss
+  randomEncounter: publicQuery.input(external_exports.object({
+    layer: external_exports.number().min(1).max(999999),
+    wavesSinceBoss: external_exports.number().min(0).max(999).default(0)
+  })).mutation(({ input }) => generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss })),
   generateDungeon: publicQuery.input(external_exports.object({
     globalSeed: external_exports.string().default("default"),
     layer: external_exports.number().min(1).max(999999),
@@ -73931,7 +73994,6 @@ async function authenticateRequest(headers) {
   const cookies = cookie2.parse(headers.get("cookie") || "");
   const token = cookies[Session.cookieName];
   if (!token) {
-    console.warn("[auth] No session cookie found in request.");
     throw Errors.forbidden("Invalid authentication token.");
   }
   const claim = await verifySessionToken(token);
