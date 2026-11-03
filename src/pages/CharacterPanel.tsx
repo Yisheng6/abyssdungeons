@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getEquipTierScale, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -445,9 +445,26 @@ export default function CharacterPanel() {
                     {item ? (
                       <>
                         <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{getItemDisplayName(item)}</div>
-                        {Object.entries(getEffectiveStats(item)).map(([s, v]) => (
-                          <div key={s} className="text-[10px]" style={{ color: '#3FB950' }}>+{v}{PCT_AFFIX_KEYS.has(s) ? '%' : ''} {statNames[s] || STAT_NAMES[s] || s}</div>
-                        ))}
+                        {(() => {
+                          const scale = getEquipTierScale(item, store.player?.tier || 1)
+                          const eff = getEffectiveStats(item, scale)
+                          const orig = scale < 1 ? getEffectiveStats(item) : null
+                          return (
+                            <>
+                              {scale < 1 && (
+                                <div className="text-[9px]" style={{ color: '#F85149' }}>解锁 {Math.round(scale * 100)}%</div>
+                              )}
+                              {Object.entries(eff).map(([s, v]) => (
+                                <div key={s} className="text-[10px]" style={{ color: '#3FB950' }}>
+                                  +{v}{PCT_AFFIX_KEYS.has(s) ? '%' : ''} {statNames[s] || STAT_NAMES[s] || s}
+                                  {orig && orig[s] !== undefined && orig[s] !== v && (
+                                    <span style={{ color: 'var(--text-muted)' }}>（原+{orig[s]}）</span>
+                                  )}
+                                </div>
+                              ))}
+                            </>
+                          )
+                        })()}
                       </>
                     ) : (
                       <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>未装备</div>

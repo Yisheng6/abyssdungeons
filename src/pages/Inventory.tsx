@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
-import { useGameStore, type Item, getEffectiveStats, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
+import { useGameStore, type Item, getEffectiveStats, getEquipTierScale, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -314,7 +314,10 @@ export default function Inventory() {
             )}
             <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedItem.desc}</p>
             {selectedItem.type === 'equipment' && (() => {
-              const eff = getEffectiveStats(selectedItem)
+              const pTier = store.player?.tier || 1
+              const scale = getEquipTierScale(selectedItem, pTier)
+              const eff = getEffectiveStats(selectedItem, scale)
+              const orig = scale < 1 ? getEffectiveStats(selectedItem) : null
               const affixes = selectedItem.affixes || {}
               const mainStats = Object.entries(eff).filter(([s, v]) => !(s in affixes) && v !== 0)
               const affixStats = Object.entries(affixes).map(([s, v]) => {
@@ -323,9 +326,17 @@ export default function Inventory() {
               })
               return (
                 <>
+                  {scale < 1 && (
+                    <div className="mb-2 rounded p-1.5 text-[10px]" style={{ backgroundColor: 'rgba(248,81,73,0.1)', color: '#F85149' }}>
+                      等阶不足：{selectedItem.setTier || 1} 阶装备 / 当前等阶 {pTier}，基础属性仅解锁 {Math.round(scale * 100)}%（括号内为原属性）
+                    </div>
+                  )}
                   {mainStats.map(([stat, val]) => (
                     <div key={stat} className="mb-1 text-sm" style={{ color: '#3FB950' }}>
                       {statNames[stat] || stat} +{val}
+                      {orig && orig[stat] !== undefined && orig[stat] !== val && (
+                        <span className="ml-1 text-xs" style={{ color: 'var(--text-muted)' }}>（原 +{orig[stat]}）</span>
+                      )}
                     </div>
                   ))}
                   {affixStats.length > 0 && (

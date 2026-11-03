@@ -97,11 +97,19 @@ export function getGemStats(item: Item): Record<string, number> {
 }
 
 /** 强化后的有效属性：每级 +10%（向上取整）；镶嵌宝石属性在最后平加（不受强化加成） */
-export function getEffectiveStats(item: Item): Record<string, number> {
+/** 等阶缩减：装备阶级高于角色等阶时，基础属性按比例解锁（等阶追平后 100%） */
+export function getEquipTierScale(item: { setTier?: number }, playerTier: number): number {
+  const st = item.setTier || 1
+  if (st <= playerTier) return 1
+  return Math.max(0.05, playerTier / st)
+}
+
+export function getEffectiveStats(item: Item, scale = 1): Record<string, number> {
   const lv = item.enhanceLevel || 0
   const out: Record<string, number> = {}
   for (const [k, v] of Object.entries(item.stats || {})) {
-    out[k] = lv > 0 ? v + Math.ceil(v * 0.1 * lv) : v
+    const sv = scale < 1 ? Math.max(1, Math.round(v * scale)) : v
+    out[k] = lv > 0 ? sv + Math.ceil(sv * 0.1 * lv) : sv
   }
   for (const [k, v] of Object.entries(getGemStats(item))) {
     out[k] = (out[k] || 0) + v
@@ -835,7 +843,17 @@ export const useGameStore = create<GameState>()(
           }).filter((it) => it.quantity > 0)
         }
         const reward = TIER_RULES.rewards[idx] || {}
-        const np: Player = applyStatDelta({ ...p, tier: cur + 1, gold: p.gold - goldCost }, reward)
+        let np: Player = applyStatDelta({ ...p, tier: cur + 1, gold: p.gold - goldCost }, reward)
+        // 等阶提升后，身上高阶装备的基础属性按新比例解锁（补差值）
+        for (const eq of Object.values(s.equipment)) {
+          if (!eq) continue
+          const oldEff = getEffectiveStats(eq, getEquipTierScale(eq, cur))
+          const newEff = getEffectiveStats(eq, getEquipTierScale(eq, cur + 1))
+          for (const k of Object.keys(newEff)) {
+            const dv = (newEff[k] || 0) - (oldEff[k] || 0)
+            if (dv !== 0 && k in np) (np as Record<string, number>)[k] += dv
+          }
+        }
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
         set({ player: np, classSaves: ns, inventory })
@@ -865,8 +883,10 @@ export const useGameStore = create<GameState>()(
         const newEquip = { ...s.equipment, [slot]: item }
 
         // Apply stat bonuses (effective stats incl. enhance level + set bonus delta)
+        // 等阶不足时基础属性按比例解锁
+        const pTier = s.player?.tier || 1
         let newPlayer = s.player ? { ...s.player } : null
-        const effStats = getEffectiveStats(item)
+        const effStats = getEffectiveStats(item, getEquipTierScale(item, pTier))
         if (newPlayer) {
           for (const [stat, val] of Object.entries(effStats)) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] += val
@@ -874,7 +894,7 @@ export const useGameStore = create<GameState>()(
         }
         // Remove old equip stats
         if (newPlayer && oldEquip) {
-          for (const [stat, val] of Object.entries(getEffectiveStats(oldEquip))) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(oldEquip, getEquipTierScale(oldEquip, pTier)))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }
@@ -902,10 +922,10 @@ export const useGameStore = create<GameState>()(
         const newEquip = { ...s.equipment, [slot]: null }
         const newInv = [...s.inventory, item]
 
-        // Remove stat bonuses (effective stats)
+        // Remove stat bonuses (effective stats, 按当前等阶缩减比例)
         let newPlayer = s.player ? { ...s.player } : null
         if (newPlayer) {
-          for (const [stat, val] of Object.entries(getEffectiveStats(item))) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(item, getEquipTierScale(item, newPlayer.tier || 1)))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }
