@@ -2251,36 +2251,6 @@
    "quantityMax": 1,
    "quality": "legendary",
    "minLayer": 60
-  },
-  {
-   "itemId": "equipment:7",
-   "name": "随机装备",
-   "type": "equipment",
-   "chance": 0.8,
-   "quantityMin": 1,
-   "quantityMax": 1,
-   "quality": "rare",
-   "minLayer": 80
-  },
-  {
-   "itemId": "equipment:8",
-   "name": "随机装备",
-   "type": "equipment",
-   "chance": 0.5,
-   "quantityMin": 1,
-   "quantityMax": 1,
-   "quality": "rare",
-   "minLayer": 88
-  },
-  {
-   "itemId": "equipment:9",
-   "name": "随机装备",
-   "type": "equipment",
-   "chance": 0.3,
-   "quantityMin": 1,
-   "quantityMax": 1,
-   "quality": "rare",
-   "minLayer": 95
   }
  ],
  "monsterSkills": [

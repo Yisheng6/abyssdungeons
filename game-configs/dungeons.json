@@ -359,33 +359,6 @@
       1
      ],
      "minLayer": 70
-    },
-    {
-     "item": "equipment:7",
-     "weight": 2,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 80
-    },
-    {
-     "item": "equipment:8",
-     "weight": 1,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 88
-    },
-    {
-     "item": "equipment:9",
-     "weight": 1,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 95
     }
    ]
   },
@@ -703,33 +676,6 @@
       1
      ],
      "minLayer": 60
-    },
-    {
-     "item": "equipment:7",
-     "weight": 4,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 80
-    },
-    {
-     "item": "equipment:8",
-     "weight": 3,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 88
-    },
-    {
-     "item": "equipment:9",
-     "weight": 2,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 95
     }
    ]
   },
@@ -960,33 +906,6 @@
       1
      ],
      "minLayer": 35
-    },
-    {
-     "item": "equipment:7",
-     "weight": 3,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 80
-    },
-    {
-     "item": "equipment:8",
-     "weight": 2,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 88
-    },
-    {
-     "item": "equipment:9",
-     "weight": 1,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 95
     }
    ]
   },
@@ -1280,33 +1199,6 @@
       1
      ],
      "minLayer": 60
-    },
-    {
-     "item": "equipment:7",
-     "weight": 4,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 80
-    },
-    {
-     "item": "equipment:8",
-     "weight": 3,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 88
-    },
-    {
-     "item": "equipment:9",
-     "weight": 2,
-     "qty": [
-      1,
-      1
-     ],
-     "minLayer": 95
     }
    ]
   },

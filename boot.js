@@ -64297,7 +64297,7 @@ function rollEquipmentDrop(drop, rng) {
   };
 }
 function bossGuaranteedDrop(layer, rng) {
-  const tier = layer >= 95 ? 9 : layer >= 88 ? 8 : layer >= 80 ? 7 : layer >= 70 ? 6 : layer >= 55 ? 5 : layer >= 40 ? 4 : layer >= 25 ? 3 : layer >= 12 ? 2 : 1;
+  const tier = layer >= 70 ? 6 : layer >= 55 ? 5 : layer >= 40 ? 4 : layer >= 25 ? 3 : layer >= 12 ? 2 : 1;
   return rollEquipmentDrop({
     itemId: `equipment:${tier}`,
     name: "\u88C5\u5907",

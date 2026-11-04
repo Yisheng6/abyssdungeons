@@ -272,8 +272,7 @@ function rollEquipmentDrop(drop: DropResult, rng: () => number): DropResult {
 
 /** Boss 必掉装备：按层数决定套装阶级 */
 function bossGuaranteedDrop(layer: number, rng: () => number): DropResult {
-  const tier = layer >= 95 ? 9 : layer >= 88 ? 8 : layer >= 80 ? 7 : layer >= 70 ? 6
-    : layer >= 55 ? 5 : layer >= 40 ? 4 : layer >= 25 ? 3 : layer >= 12 ? 2 : 1;
+  const tier = layer >= 70 ? 6 : layer >= 55 ? 5 : layer >= 40 ? 4 : layer >= 25 ? 3 : layer >= 12 ? 2 : 1; // 深渊玩法装备掉落封顶 6 阶
   return rollEquipmentDrop({
     itemId: `equipment:${tier}`, name: "装备", type: "equipment",
     quantity: 1, quality: "rare",
