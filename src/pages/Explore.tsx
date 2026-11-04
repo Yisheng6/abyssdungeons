@@ -534,7 +534,7 @@ export default function Explore() {
       {/* Left: Player Status */}
       <aside className="hidden w-[240px] flex-shrink-0 border-r p-3 lg:block" style={{ borderColor: 'var(--border-color)' }}>
         <div className="mb-3 rounded p-2 text-center text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
-          <div className="font-bold" style={{ color: 'var(--accent)' }}>第 {currentLayer} 层 · 第 {wave} 波</div>
+          <div className="font-bold" style={{ color: 'var(--accent)' }}>遇怪波数：{stats.waves}</div>
           <div className="mt-1" style={{ color: 'var(--text-muted)' }}>
             Boss 保底进度 {Math.min(wave, 100)}/100
           </div>
@@ -584,9 +584,6 @@ export default function Explore() {
 
         <div className="mb-3 rounded p-2 text-xs" style={{ backgroundColor: 'var(--bg-hover)' }}>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
-            <Compass size={12} /> 波数: {stats.waves}
-          </div>
-          <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
             <Skull size={12} /> 击杀: {stats.kills}
           </div>
           <div className="mb-1 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
@@ -623,7 +620,7 @@ export default function Explore() {
         <div className="mb-4 flex-shrink-0 rounded-lg border p-4" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
           <div className="mb-2 flex items-center gap-2">
             <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--accent)' }}>
-              第 {currentLayer} 层 · 第 {wave} 波
+              第 {stats.waves + 1} 波
             </span>
             {lastEncounter && (
               <span className="rounded px-2 py-0.5 text-xs font-bold" style={{ backgroundColor: ENCOUNTER_COLORS[lastEncounter.type], color: '#0D1117' }}>
