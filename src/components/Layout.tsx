@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Sparkle, Shield, Trophy, FlaskConical, Target, MessageSquare, Landmark, Crown, Mail, MoreHorizontal } from 'lucide-react'
+import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Sparkle, Trophy, FlaskConical, Target, MessageSquare, Landmark, Crown, Mail, MoreHorizontal } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
-import TownHeroPanel from './TownHeroPanel'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
 import Explore from '@/pages/Explore'
@@ -11,15 +10,11 @@ import Lawful from '@/pages/Lawful'
 import Rift from '@/pages/Rift'
 import Weekly from '@/pages/Weekly'
 
-// 移动端底部固定页签（其余进「更多」）
-const PRIMARY_NAV = [
-  { path: '/', label: '城镇', icon: Home },
+// 左侧竖排导航（桌面端，Dormant Dominion 风格）
+const SIDE_NAV = [
+  { path: '/', label: '主页', icon: Home },
   { path: '/explore', label: '混乱深渊', icon: Compass },
   { path: '/lawful', label: '守序深渊', icon: Landmark },
-  { path: '/mail', label: '邮箱', icon: Mail },
-]
-
-const MORE_NAV = [
   { path: '/rift', label: '每日秘境', icon: Sparkle },
   { path: '/weekly', label: '每周挑战', icon: Crown },
   { path: '/talents', label: '天赋', icon: Sparkles },
@@ -30,34 +25,25 @@ const MORE_NAV = [
   { path: '/tasks', label: '任务', icon: Target },
   { path: '/leaderboard', label: '排行', icon: Trophy },
   { path: '/chat', label: '聊天', icon: MessageSquare },
+  { path: '/mail', label: '邮箱', icon: Mail },
 ]
 
-
-const QUICK_ACTIONS = [
-  { icon: Compass, label: '混乱深渊', path: '/explore' },
-  { icon: Landmark, label: '守序深渊', path: '/lawful' },
-  { icon: FlaskConical, label: '商店', path: '/shop' },
-  { icon: User, label: '角色面板', path: '/character' },
-  { icon: Backpack, label: '背包', path: '/inventory' },
-  { icon: Sparkles, label: '天赋', path: '/talents' },
-  { icon: Shield, label: '铁匠铺', path: '/blacksmith' },
-  { icon: Crown, label: '每周挑战', path: '/weekly' },
-  { icon: Target, label: '任务', path: '/tasks' },
-  { icon: Trophy, label: '排行榜', path: '/leaderboard' },
-  { icon: MessageSquare, label: '聊天', path: '/chat' },
-  { icon: Mail, label: '邮箱', path: '/mail' },
+// 移动端底部固定页签（其余进「更多」）
+const PRIMARY_NAV = [
+  { path: '/', label: '主页', icon: Home },
+  { path: '/explore', label: '混乱深渊', icon: Compass },
+  { path: '/lawful', label: '守序深渊', icon: Landmark },
+  { path: '/inventory', label: '背包', icon: Backpack },
 ]
 
-const SETTINGS_QUALITY_NAMES: Record<string, string> = {
-  common: '普通', fine: '精致', rare: '稀有', epic: '史诗', legendary: '传说', mythic: '神话', eternal: '永恒',
-}
+const MORE_NAV = SIDE_NAV.filter((i) => !PRIMARY_NAV.some((p) => p.path === i.path))
 
 export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
   const player = useGameStore((s) => s.player)
-  const settings = useGameStore((s) => s.settings)
-  const updateSettings = useGameStore((s) => s.updateSettings)
+  const inCombat = useGameStore((s) => s.inCombat)
+  const exploreLayer = useGameStore((s) => s.exploreLayer)
   const [showSettings, setShowSettings] = useState(false)
   const [showMore, setShowMore] = useState(false)
   const playerName = localStorage.getItem('ad_user') || '冒险者'
@@ -85,6 +71,13 @@ export default function Layout() {
 
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
+
+  // 顶部状态一句话（仿 DD: "Idle. Pick a skill to train or a monster to fight."）
+  const statusText = inCombat
+    ? `战斗中 · 混乱深渊第 ${exploreLayer || 1} 层深处`
+    : onExplore || onLawful
+      ? '正在深渊中探索……'
+      : '休整中。去深渊战斗，或在镇上打理装备。'
 
   const settingsModal = showSettings && (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
@@ -116,31 +109,88 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* ═══ 左侧：角色面板（Logo + 状态 + 货币 + 设置） ═══ */}
-      <TownHeroPanel />
+      {/* ═══ 左侧：竖排图标导航（桌面端） ═══ */}
+      <aside className="sticky top-0 hidden h-screen w-[176px] flex-shrink-0 flex-col border-r lg:flex"
+        style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+        {/* Logo */}
+        <div className="flex h-12 flex-shrink-0 items-center gap-2 border-b px-4" style={{ borderColor: 'var(--border-color)' }}>
+          <Sword size={18} style={{ color: 'var(--accent)' }} />
+          <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>深渊地城</span>
+        </div>
+        {/* 导航项 */}
+        <nav className="flex-1 overflow-y-auto py-2">
+          {SIDE_NAV.map((item) => {
+            const active = isActive(item.path)
+            return (
+              <button key={item.path} onClick={() => navigate(item.path)}
+                className="relative flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] transition-colors"
+                style={{
+                  color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                  backgroundColor: active ? 'var(--bg-hover)' : 'transparent',
+                  fontWeight: active ? 600 : 400,
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-hover)' }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}>
+                {active && <span className="absolute left-0 top-0 h-full w-[3px]" style={{ backgroundColor: 'var(--accent)' }} />}
+                <item.icon size={17} />
+                {item.label}
+                {item.path === '/mail' && unreadMails > 0 && (
+                  <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold"
+                    style={{ backgroundColor: '#F85149', color: '#fff' }}>
+                    {unreadMails > 99 ? '99+' : unreadMails}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </nav>
+        {/* 底部：设置 + 退出 */}
+        <div className="flex-shrink-0 border-t py-1" style={{ borderColor: 'var(--border-color)' }}>
+          <button onClick={() => setShowSettings(true)}
+            className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
+            <Settings size={15} /> 设置
+          </button>
+          <button onClick={logout}
+            className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
+            <LogOut size={15} /> 退出
+          </button>
+        </div>
+      </aside>
 
       {/* ═══ 主内容区 ═══ */}
       <div className="flex min-w-0 flex-1 flex-col lg:h-screen lg:overflow-hidden">
-        {/* 移动端顶部栏 */}
-        <div className="flex h-11 items-center justify-between border-b px-3 lg:hidden"
+        {/* 顶部状态栏：玩家名 + 状态 + 货币 + 邮件 + 设置 */}
+        <div className="flex h-12 flex-shrink-0 items-center justify-between gap-3 border-b px-4"
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <span className="flex items-center gap-1.5 text-sm font-bold" style={{ color: 'var(--accent)' }}>
-            <Sword size={15} /> 深渊地城
-          </span>
-          <div className="flex items-center gap-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-            <span>金币 <span style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
-            <span>钻石 <span style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
-            <button onClick={() => setShowSettings(true)} style={{ color: 'var(--text-muted)' }}><Settings size={15} /></button>
+          <div className="flex min-w-0 items-baseline gap-3">
+            <span className="flex items-center gap-1.5 text-sm font-bold lg:hidden" style={{ color: 'var(--accent)' }}>
+              <Sword size={15} />
+            </span>
+            <span className="truncate text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{playerName}</span>
+            <span className="hidden truncate text-xs sm:inline" style={{ color: 'var(--text-muted)' }}>{statusText}</span>
           </div>
-        </div>
-
-        {/* 剧情横幅（固定显示） */}
-        <div className="m-4 mb-0 flex-shrink-0 rounded-lg border px-4 py-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。远处传来铁匠铺的锤击声，
-            空气中弥漫着淡淡的硫磺气息。镇子的边缘，一道漆黑的裂隙通向无尽的地下世界——
-            那是所有冒险者梦想与噩梦开始的地方。
-          </p>
+          <div className="flex flex-shrink-0 items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span>金币 <span className="font-bold" style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
+            <span>钻石 <span className="font-bold" style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
+            <button onClick={() => navigate('/mail')} className="relative" style={{ color: 'var(--text-muted)' }}>
+              <Mail size={15} />
+              {unreadMails > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] font-bold"
+                  style={{ backgroundColor: '#F85149', color: '#fff' }}>
+                  {unreadMails > 99 ? '99+' : unreadMails}
+                </span>
+              )}
+            </button>
+            <button onClick={() => setShowSettings(true)} className="lg:hidden" style={{ color: 'var(--text-muted)' }}>
+              <Settings size={15} />
+            </button>
+          </div>
         </div>
 
         {/* 页面内容（通用显示区，移动端底部留出导航高度） */}
@@ -167,18 +217,6 @@ export default function Layout() {
             </div>
           )}
           {!onExplore && !onLawful && !onRift && !onWeekly && <Outlet />}
-        </div>
-
-        {/* 快捷入口（固定在主内容区底部，移动端已有底部导航故隐藏） */}
-        <div className="m-4 mt-0 hidden flex-shrink-0 grid-cols-5 gap-2 lg:grid">
-          {QUICK_ACTIONS.map((f) => (
-            <button key={f.label} onClick={() => { if (f.path !== '#') navigate(f.path) }}
-              className="game-card flex items-center justify-center gap-2 rounded-lg px-2 py-3 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-              style={{ opacity: f.path === '#' ? 0.45 : 1 }}>
-              <f.icon size={16} style={{ color: 'var(--accent)' }} />
-              <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
-            </button>
-          ))}
         </div>
 
         {/* 移动端底部导航：4 个主功能 + 更多 */}
