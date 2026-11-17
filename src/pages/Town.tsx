@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Compass, Landmark, Sparkle, Crown, User, Backpack, Hammer, FlaskConical, Sparkles, Target, Trophy, Mail, MessageSquare, User as UserIcon } from 'lucide-react'
+import { Compass, Landmark, User as UserIcon } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getExpNeed } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
 import { trpc } from '@/providers/trpc'
@@ -21,26 +21,6 @@ interface OfflineSummary {
   }>
   disassembledGold: number; keptCount: number
 }
-
-// 主页功能网格（仿 Dormant Dominion：ADVENTURE / TOWN 分组图标卡片）
-const ADVENTURE_ACTIONS = [
-  { path: '/explore', label: '混乱深渊', icon: Compass },
-  { path: '/lawful', label: '守序深渊', icon: Landmark },
-  { path: '/rift', label: '每日秘境', icon: Sparkle },
-  { path: '/weekly', label: '每周挑战', icon: Crown },
-]
-
-const TOWN_ACTIONS = [
-  { path: '/character', label: '角色', icon: User },
-  { path: '/inventory', label: '背包', icon: Backpack },
-  { path: '/blacksmith', label: '铁匠铺', icon: Hammer },
-  { path: '/shop', label: '商店', icon: FlaskConical },
-  { path: '/talents', label: '天赋', icon: Sparkles },
-  { path: '/tasks', label: '任务', icon: Target },
-  { path: '/leaderboard', label: '排行', icon: Trophy },
-  { path: '/mail', label: '邮箱', icon: Mail },
-  { path: '/chat', label: '聊天', icon: MessageSquare },
-]
 
 function formatDuration(sec: number): string {
   const h = Math.floor(sec / 3600)
@@ -244,31 +224,6 @@ export default function Town() {
         </div>
       </div>
 
-      {/* ═══ 下半区：功能图标网格 ═══ */}
-      <div>
-        <div className="mb-2 text-[10px] font-bold tracking-widest" style={{ color: 'var(--text-muted)' }}>深 渊</div>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-          {ADVENTURE_ACTIONS.map((f) => (
-            <button key={f.path} onClick={() => navigate(f.path)}
-              className="game-card flex flex-col items-center gap-1.5 rounded-xl py-3 transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]">
-              <f.icon size={20} style={{ color: 'var(--accent)' }} />
-              <span className="text-xs" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className="mb-2 text-[10px] font-bold tracking-widest" style={{ color: 'var(--text-muted)' }}>城 镇</div>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-          {TOWN_ACTIONS.map((f) => (
-            <button key={f.path} onClick={() => navigate(f.path)}
-              className="game-card flex flex-col items-center gap-1.5 rounded-xl py-3 transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]">
-              <f.icon size={20} style={{ color: 'var(--accent)' }} />
-              <span className="text-xs" style={{ color: 'var(--text-primary)' }}>{f.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }
