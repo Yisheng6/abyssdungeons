@@ -677,17 +677,28 @@ export default function Explore() {
             <button className="text-xs" style={{ color: 'var(--text-muted)' }} onClick={() => setLogs([])}>清空</button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            {logs.map((log, i) => (
-              <div key={logs.length - i} className="mb-1 text-xs" style={{
-                color: log.includes('═══') ? 'var(--accent)'
-                  : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
-                    : log.includes('击败') || log.includes('受到') || log.includes('阵亡') || log.includes('战败') ? 'var(--danger)'
-                      : log.includes('战斗') || log.includes('遭遇') || log.includes('Boss') ? 'var(--warning)'
-                        : 'var(--text-secondary)'
-              }}>
-                {log}
-              </div>
-            ))}
+            {logs.map((log, i) => {
+              const isSkill = log.includes('施放') || log.includes('使用了')
+              return (
+                <div key={logs.length - i} className="mb-1 text-xs" style={
+                  isSkill
+                    ? {
+                        color: '#FFC94D', fontWeight: 700, borderLeft: '3px solid #FFC94D',
+                        paddingLeft: 6, backgroundColor: 'rgba(255,201,77,0.08)',
+                        textShadow: '0 1px 2px #000',
+                      }
+                    : {
+                        color: log.includes('═══') ? 'var(--accent)'
+                          : log.includes('胜利') || log.includes('获得') ? 'var(--success)'
+                            : log.includes('击败') || log.includes('受到') || log.includes('阵亡') || log.includes('战败') ? 'var(--danger)'
+                              : log.includes('战斗') || log.includes('遭遇') || log.includes('Boss') ? 'var(--warning)'
+                                : 'var(--text-secondary)'
+                      }
+                }>
+                  {isSkill ? `✦ ${log}` : log}
+                </div>
+              )
+            })}
           </div>
         </div>
       </main>

@@ -316,7 +316,16 @@ export default function Rift() {
         <div className="rounded-lg p-3 font-mono text-xs leading-relaxed" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', minHeight: 200 }}>
           {logs.length === 0 ? (
             <span style={{ color: 'var(--text-muted)' }}>战斗日志将显示在这里…</span>
-          ) : logs.map((l, i) => <div key={i}>{l}</div>)}
+          ) : logs.map((l, i) => {
+            const isSkill = l.includes('施放') || l.includes('使用了')
+            return (
+              <div key={i} style={
+                isSkill
+                  ? { color: '#FFC94D', fontWeight: 700, borderLeft: '3px solid #FFC94D', paddingLeft: 6, backgroundColor: 'rgba(255,201,77,0.08)', textShadow: '0 1px 2px #000' }
+                  : undefined
+              }>{isSkill ? `✦ ${l}` : l}</div>
+            )
+          })}
         </div>
       </div>
 

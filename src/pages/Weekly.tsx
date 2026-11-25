@@ -226,9 +226,16 @@ export default function Weekly() {
             每周一 0 点轮换新 Boss 并清空榜单。挑战不消耗任何东西，放心打。
           </div>
         )}
-        {logs.map((l, i) => (
-          <div key={i} className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{l}</div>
-        ))}
+        {logs.map((l, i) => {
+          const isSkill = l.includes('施放') || l.includes('使用了')
+          return (
+            <div key={i} className="text-[11px] leading-relaxed" style={
+              isSkill
+                ? { color: '#FFC94D', fontWeight: 700, borderLeft: '3px solid #FFC94D', paddingLeft: 6, backgroundColor: 'rgba(255,201,77,0.08)', textShadow: '0 1px 2px #000' }
+                : { color: 'var(--text-secondary)' }
+            }>{isSkill ? `✦ ${l}` : l}</div>
+          )
+        })}
       </div>
     </div>
   )

@@ -37,7 +37,6 @@ export default function BattleStage() {
   const [lunging, setLunging] = useState<string | null>(null) // 'player' 或敌人 id
   const [hits, setHits] = useState<Set<string>>(new Set())
   const [projectile, setProjectile] = useState<Projectile | null>(null)
-  const [shaking, setShaking] = useState(false)
   const [castBanner, setCastBanner] = useState<CastBanner | null>(null)
   const [aura, setAura] = useState<string | null>(null) // 玩家施法光环颜色
   const [bursts, setBursts] = useState<Burst[]>([])
@@ -131,7 +130,6 @@ export default function BattleStage() {
             flash(d.id)
             const big = d.amount > (player.atk * 1.2)
             spawnFloater(d.id, `-${d.amount}`, big ? 'crit' : 'dmg')
-            if (big) { setShaking(true); later(250, () => setShaking(false)) }
           })
         })
       }
@@ -157,7 +155,7 @@ export default function BattleStage() {
   const n = enemies.length
 
   return (
-    <div className={`battle-stage ${shaking ? 'bs-shake' : ''}`}>
+    <div className="battle-stage">
       <style>{CSS}</style>
       <div className="bs-bg" />
       <div className="bs-ground" />
@@ -250,8 +248,6 @@ const CSS = `
 .bs-dead { opacity: 0.25; filter: grayscale(1); animation: bs-die 0.6s ease-out forwards !important; }
 .bs-unit svg { image-rendering: pixelated; }
 @keyframes bs-die { to { transform: translateX(-50%) translateY(10px) rotate(80deg); opacity: 0.15; } }
-.bs-shake { animation: bs-shake 0.25s linear; }
-@keyframes bs-shake { 0%,100% { transform: translate(0,0); } 25% { transform: translate(3px,-2px); } 50% { transform: translate(-3px,2px); } 75% { transform: translate(2px,2px); } }
 .bs-bars { width: 64px; margin-bottom: 2px; }
 .bs-bar { height: 5px; border-radius: 3px; background: rgba(0,0,0,0.55); overflow: hidden; margin-bottom: 2px; }
 .bs-bar-fill { height: 100%; border-radius: 3px; transition: width 0.45s ease-out; }

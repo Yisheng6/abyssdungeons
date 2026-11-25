@@ -418,17 +418,24 @@ export default function Combat() {
 
       {/* Combat Logs */}
       <div className="h-[160px] overflow-auto border-t p-3" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
-        {store.combatLogs.map((log, i) => (
-          <div key={i} className="mb-1 text-xs" style={{
-            color: log.includes('暴击') ? 'var(--accent)'
-              : log.includes('胜利') ? 'var(--success)'
-                : log.includes('被击败') || log.includes('逃跑失败') ? 'var(--danger)'
-                  : log.includes('逃跑') ? 'var(--info)'
-                    : 'var(--text-secondary)'
-          }}>
-            {log}
-          </div>
-        ))}
+        {store.combatLogs.map((log, i) => {
+          const isSkill = log.includes('施放') || log.includes('使用了')
+          return (
+            <div key={i} className="mb-1 text-xs" style={
+              isSkill
+                ? { color: '#FFC94D', fontWeight: 700, borderLeft: '3px solid #FFC94D', paddingLeft: 6, backgroundColor: 'rgba(255,201,77,0.08)', textShadow: '0 1px 2px #000' }
+                : {
+                    color: log.includes('暴击') ? 'var(--accent)'
+                      : log.includes('胜利') ? 'var(--success)'
+                        : log.includes('被击败') || log.includes('逃跑失败') ? 'var(--danger)'
+                          : log.includes('逃跑') ? 'var(--info)'
+                            : 'var(--text-secondary)'
+                  }
+            }>
+              {isSkill ? `✦ ${log}` : log}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
