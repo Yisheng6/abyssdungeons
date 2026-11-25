@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router'
-import { Home, Compass, User, Backpack, Hammer, Settings, LogOut, X, Sword, Sparkles, Sparkle, Trophy, FlaskConical, Target, MessageSquare, Landmark, Crown, Mail, MoreHorizontal } from 'lucide-react'
+import { X } from 'lucide-react'
+import PixIcon from './PixIcon'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
@@ -12,28 +13,28 @@ import Weekly from '@/pages/Weekly'
 
 // 左侧竖排导航（桌面端，Dormant Dominion 风格）
 const SIDE_NAV = [
-  { path: '/', label: '主页', icon: Home },
-  { path: '/explore', label: '混乱深渊', icon: Compass },
-  { path: '/lawful', label: '守序深渊', icon: Landmark },
-  { path: '/rift', label: '每日秘境', icon: Sparkle },
-  { path: '/weekly', label: '每周挑战', icon: Crown },
-  { path: '/talents', label: '天赋', icon: Sparkles },
-  { path: '/character', label: '角色', icon: User },
-  { path: '/inventory', label: '背包', icon: Backpack },
-  { path: '/blacksmith', label: '铁匠铺', icon: Hammer },
-  { path: '/shop', label: '商店', icon: FlaskConical },
-  { path: '/tasks', label: '任务', icon: Target },
-  { path: '/leaderboard', label: '排行', icon: Trophy },
-  { path: '/chat', label: '聊天', icon: MessageSquare },
-  { path: '/mail', label: '邮箱', icon: Mail },
+  { path: '/', label: '主页', icon: 'home' },
+  { path: '/explore', label: '混乱深渊', icon: 'abyss' },
+  { path: '/lawful', label: '守序深渊', icon: 'temple' },
+  { path: '/rift', label: '每日秘境', icon: 'rift' },
+  { path: '/weekly', label: '每周挑战', icon: 'crown' },
+  { path: '/talents', label: '天赋', icon: 'talent' },
+  { path: '/character', label: '角色', icon: 'user' },
+  { path: '/inventory', label: '背包', icon: 'bag' },
+  { path: '/blacksmith', label: '铁匠铺', icon: 'anvil' },
+  { path: '/shop', label: '商店', icon: 'flask' },
+  { path: '/tasks', label: '任务', icon: 'quest' },
+  { path: '/leaderboard', label: '排行', icon: 'trophy' },
+  { path: '/chat', label: '聊天', icon: 'chat' },
+  { path: '/mail', label: '邮箱', icon: 'mail' },
 ]
 
 // 移动端底部固定页签（其余进「更多」）
 const PRIMARY_NAV = [
-  { path: '/', label: '主页', icon: Home },
-  { path: '/explore', label: '混乱深渊', icon: Compass },
-  { path: '/lawful', label: '守序深渊', icon: Landmark },
-  { path: '/inventory', label: '背包', icon: Backpack },
+  { path: '/', label: '主页', icon: 'home' },
+  { path: '/explore', label: '混乱深渊', icon: 'abyss' },
+  { path: '/lawful', label: '守序深渊', icon: 'temple' },
+  { path: '/inventory', label: '背包', icon: 'bag' },
 ]
 
 const MORE_NAV = SIDE_NAV.filter((i) => !PRIMARY_NAV.some((p) => p.path === i.path))
@@ -114,7 +115,7 @@ export default function Layout() {
         style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
         {/* Logo */}
         <div className="flex h-12 flex-shrink-0 items-center gap-2 border-b px-4" style={{ borderColor: 'var(--border-color)' }}>
-          <Sword size={18} style={{ color: 'var(--accent)' }} />
+          <PixIcon name="sword" size={20} />
           <span className="text-sm font-bold" style={{ color: 'var(--accent)' }}>深渊地城</span>
         </div>
         {/* 导航项 */}
@@ -132,7 +133,7 @@ export default function Layout() {
                 onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-hover)' }}
                 onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}>
                 {active && <span className="absolute left-0 top-0 h-full w-[3px]" style={{ backgroundColor: 'var(--accent)' }} />}
-                <item.icon size={17} />
+                <PixIcon name={item.icon} size={18} />
                 {item.label}
                 {item.path === '/mail' && unreadMails > 0 && (
                   <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold"
@@ -151,14 +152,14 @@ export default function Layout() {
             style={{ color: 'var(--text-muted)' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-            <Settings size={15} /> 设置
+            <PixIcon name="gear" size={16} /> 设置
           </button>
           <button onClick={logout}
             className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] transition-colors"
             style={{ color: 'var(--text-muted)' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-            <LogOut size={15} /> 退出
+            <PixIcon name="exit" size={16} /> 退出
           </button>
         </div>
       </aside>
@@ -170,7 +171,7 @@ export default function Layout() {
           style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
           <div className="flex min-w-0 items-baseline gap-3">
             <span className="flex items-center gap-1.5 text-sm font-bold lg:hidden" style={{ color: 'var(--accent)' }}>
-              <Sword size={15} />
+              <PixIcon name="sword" size={16} />
             </span>
             <span className="truncate text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{playerName}</span>
             <span className="hidden truncate text-xs sm:inline" style={{ color: 'var(--text-muted)' }}>{statusText}</span>
@@ -179,7 +180,7 @@ export default function Layout() {
             <span>金币 <span className="font-bold" style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
             <span>钻石 <span className="font-bold" style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
             <button onClick={() => navigate('/mail')} className="relative" style={{ color: 'var(--text-muted)' }}>
-              <Mail size={15} />
+              <PixIcon name="mail" size={16} />
               {unreadMails > 0 && (
                 <span className="absolute -right-1.5 -top-1.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] font-bold"
                   style={{ backgroundColor: '#F85149', color: '#fff' }}>
@@ -188,7 +189,7 @@ export default function Layout() {
               )}
             </button>
             <button onClick={() => setShowSettings(true)} className="lg:hidden" style={{ color: 'var(--text-muted)' }}>
-              <Settings size={15} />
+              <PixIcon name="gear" size={16} />
             </button>
           </div>
         </div>
@@ -228,7 +229,7 @@ export default function Layout() {
               <button key={item.path} onClick={() => navigate(item.path)}
                 className="relative flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
                 style={{ color: active ? 'var(--accent)' : 'var(--text-muted)' }}>
-                <item.icon size={17} />
+                <PixIcon name={item.icon} size={18} />
                 {item.label}
                 {item.path === '/mail' && unreadMails > 0 && (
                   <span className="absolute right-3 top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[8px] font-bold"
@@ -242,7 +243,7 @@ export default function Layout() {
           <button onClick={() => setShowMore(true)}
             className="relative flex min-w-[54px] flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px]"
             style={{ color: MORE_NAV.some((i) => isActive(i.path)) ? 'var(--accent)' : 'var(--text-muted)' }}>
-            <MoreHorizontal size={17} />
+            <PixIcon name="dots" size={18} />
             更多
           </button>
         </nav>
@@ -269,7 +270,7 @@ export default function Layout() {
                         backgroundColor: active ? 'var(--bg-hover)' : 'transparent',
                         color: active ? 'var(--accent)' : 'var(--text-secondary)',
                       }}>
-                      <item.icon size={18} />
+                      <PixIcon name={item.icon} size={20} />
                       {item.label}
                     </button>
                   )

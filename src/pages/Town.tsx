@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Compass, Landmark, User as UserIcon } from 'lucide-react'
+import PixIcon from '@/components/PixIcon'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getExpNeed } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
 import { trpc } from '@/providers/trpc'
@@ -133,9 +133,11 @@ export default function Town() {
       <div className="grid gap-4 xl:grid-cols-[340px_1fr]">
         {/* 角色卡（仿 DD 左侧纸娃娃面板） */}
         <div className="game-card flex flex-col items-center rounded-xl p-4">
-          <div className="mx-auto mb-2 flex h-20 w-20 items-center justify-center rounded-full"
+          <div className="mx-auto mb-2 flex h-24 w-24 items-center justify-center overflow-hidden"
             style={{ backgroundColor: 'var(--bg-hover)', border: '2px solid var(--accent)' }}>
-            <UserIcon style={{ color: 'var(--accent)', width: 34, height: 34 }} />
+            {player?.classId
+              ? <img src={`/sprites/class_${player.classId}.png`} alt="" style={{ width: 88, height: 88, objectFit: 'contain', imageRendering: 'pixelated' }} />
+              : <PixIcon name="user" size={40} />}
           </div>
           <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{playerName}</h3>
           <span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[11px]" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--accent)' }}>
@@ -167,23 +169,28 @@ export default function Town() {
 
         {/* 右侧：剧情横幅 + 两个深渊入口大卡 */}
         <div className="flex flex-col gap-4">
-          {/* 场景横幅 */}
-          <div className="game-card rounded-xl px-4 py-3">
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。远处传来铁匠铺的锤击声，
-              空气中弥漫着淡淡的硫磺气息。镇子的边缘，一道漆黑的裂隙通向无尽的地下世界——
-              那是所有冒险者梦想与噩梦开始的地方。
-            </p>
+          {/* 像素场景横幅：深渊裂隙 + 篝火营地 */}
+          <div className="game-card relative overflow-hidden rounded-xl p-0" style={{ minHeight: 120 }}>
+            <img src="/images/town-banner.png" alt="深渊镇"
+              className="block w-full"
+              style={{ imageRendering: 'pixelated', objectFit: 'cover', maxHeight: 180 }} />
+            <div className="absolute bottom-0 left-0 right-0 px-4 py-2"
+              style={{ background: 'linear-gradient(transparent, rgba(21,15,30,0.9))' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)', textShadow: '0 1px 2px #000' }}>
+                你站在<strong style={{ color: 'var(--text-primary)' }}>深渊镇</strong>的石板广场上。镇子边缘，一道漆黑的裂隙通向无尽的地下世界——
+                那是所有冒险者梦想与噩梦开始的地方。
+              </p>
+            </div>
           </div>
           {/* 混乱深渊 */}
           <button onClick={() => navigate('/explore')}
             className="group relative flex-1 overflow-hidden rounded-xl border p-5 text-left transition-all duration-200 hover:scale-[1.005]"
             style={{ borderColor: 'var(--accent)', background: 'linear-gradient(135deg, rgba(201,168,76,0.14) 0%, var(--bg-card) 55%)', minHeight: 110 }}>
-            <Compass size={130} className="absolute -bottom-6 -right-4 opacity-[0.07] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" style={{ color: 'var(--accent)' }} />
+            <PixIcon name="abyss" size={110} className="absolute -bottom-4 -right-3 opacity-[0.12] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
             <div className="relative flex h-full flex-col justify-between gap-3">
               <div>
                 <div className="mb-1 flex items-center gap-2">
-                  <Compass size={19} style={{ color: 'var(--accent)' }} />
+                  <PixIcon name="abyss" size={20} />
                   <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>混乱深渊</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>随机遇敌 · 无限深入 · 离线也能持续战斗 · 100 波必遇 Boss</p>
@@ -204,11 +211,11 @@ export default function Town() {
           <button onClick={() => navigate('/lawful')}
             className="group relative flex-1 overflow-hidden rounded-xl border p-5 text-left transition-all duration-200 hover:scale-[1.005]"
             style={{ borderColor: 'var(--border-color)', background: 'linear-gradient(135deg, rgba(88,166,255,0.10) 0%, var(--bg-card) 55%)', minHeight: 110 }}>
-            <Landmark size={130} className="absolute -bottom-6 -right-4 opacity-[0.07] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" style={{ color: '#58A6FF' }} />
+            <PixIcon name="temple" size={110} className="absolute -bottom-4 -right-3 opacity-[0.12] transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
             <div className="relative flex h-full flex-col justify-between gap-3">
               <div>
                 <div className="mb-1 flex items-center gap-2">
-                  <Landmark size={19} style={{ color: '#58A6FF' }} />
+                  <PixIcon name="temple" size={20} />
                   <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>守序深渊</span>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>秩序守卫镇守的规则之地 · 稳定产出宝石与材料</p>
