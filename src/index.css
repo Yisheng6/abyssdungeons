@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══ 像素字体：缝合像素 12px（OFL 协议，简体中文版） ═══ */
+@font-face {
+  font-family: 'Fusion Pixel';
+  src: url('/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2') format('woff2');
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* 泰拉瑞亚式暖色暗夜配色 */
+    --bg-primary: #150F1E;
+    --bg-card: #1F1830;
+    --bg-hover: #2B2140;
+    --border-color: #4A3A66;
+    --border-hover: #6B5588;
+    --text-primary: #F0E6D2;
+    --text-secondary: #B8A8CC;
+    --text-muted: #6E5F85;
+    --accent: #FFC94D;
+    --accent-hover: #FFDA85;
+    --danger: #FF5566;
+    --success: #6EE86E;
+    --info: #6EB9FF;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Fusion Pixel', 'Courier New', monospace;
+    font-size: 14px;
+    /* 像素字禁用平滑，保持颗粒感 */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+  }
+
+  /* ═══ 全局去圆角：像素世界没有曲线 ═══ */
+  * {
+    border-radius: 0 !important;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  /* 像素边框：外描边 + 内高光 + 内阴影，模拟泰拉瑞亚面板的厚切边 */
+  .game-card, [style*="border"], .border {
+    image-rendering: pixelated;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border: 2px solid var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+  }
+
+  /* 图片与画布全部像素化渲染 */
+  img, canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* 数字等宽，状态栏更整齐 */
+  .tnum, input, button {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* 像素面板：2px 实边 + 内嵌高光/阴影的厚切感 */
+  .game-card {
+    @apply border p-4;
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    border-width: 2px;
+    box-shadow:
+      inset 2px 2px 0 rgba(255, 255, 255, 0.06),
+      inset -2px -2px 0 rgba(0, 0, 0, 0.35);
+  }
+  .game-card:hover {
+    border-color: var(--border-hover);
+  }
+  .game-btn-primary {
+    @apply border-2 px-4 py-2 font-medium;
+    background-color: var(--accent);
+    border-color: #8A6B1F;
+    color: #2B1D05;
+    box-shadow:
+      inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+      inset -2px -2px 0 rgba(0, 0, 0, 0.25),
+      3px 3px 0 rgba(0, 0, 0, 0.45);
+    transition: transform 60ms steps(2), box-shadow 60ms steps(2);
+  }
+  .game-btn-primary:hover {
+    background-color: var(--accent-hover);
+  }
+  .game-btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+      inset 2px 2px 0 rgba(0, 0, 0, 0.2),
+      1px 1px 0 rgba(0, 0, 0, 0.45);
+  }
+  .game-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .game-btn-secondary {
+    @apply border-2 px-4 py-2 font-medium;
+    background-color: var(--bg-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow:
+      inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+      inset -2px -2px 0 rgba(0, 0, 0, 0.3),
+      3px 3px 0 rgba(0, 0, 0, 0.45);
+    transition: transform 60ms steps(2), box-shadow 60ms steps(2), background-color 60ms steps(2), color 60ms steps(2);
+  }
+  .game-btn-secondary:hover {
+    background-color: var(--accent);
+    color: #2B1D05;
+  }
+  .game-btn-secondary:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+  }
+  .game-input {
+    @apply border-2 px-3 py-2 outline-none;
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.35);
+  }
+  .game-input:focus {
+    border-color: var(--accent);
+  }
+  .game-input::placeholder {
+    color: var(--text-muted);
+  }
+  /* 血蓝条：分段式像素渐变 */
+  .hp-bar { background: repeating-linear-gradient(90deg, #E33 0 4px, #C22 4px 8px); }
+  .mp-bar { background: repeating-linear-gradient(90deg, #39F 0 4px, #27D 4px 8px); }
+}
+
+/* ═══ 像素化通用调整 ═══ */
+/* 进度条底槽像素化 */
+.h-2.overflow-hidden, .h-1\.5, .h-1 {
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* 弹窗遮罩加一层轻微扫描线，增强复古感 */
+.fixed.inset-0.z-50 {
+  backdrop-filter: none;
+}
+
+/* 标题/加粗文字微微错位阴影，像街机字 */
+.font-bold {
+  letter-spacing: 0.02em;
+}
