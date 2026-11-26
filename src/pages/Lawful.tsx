@@ -77,7 +77,7 @@ export default function Lawful() {
     gs.setBattleMode('lawful')
     const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
-    gs.setCombatEnemies(room.enemies.map((e) => ({ ...e })))
+    gs.setCombatEnemies(room.enemies.map((e, i) => ({ ...e, uid: `${e.id}#${i}` })))
     let victory = false
 
     try {
@@ -122,12 +122,12 @@ export default function Lawful() {
             mods: snap.mods,
           },
           enemies: alive.map((e) => ({
-            id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
+            id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
             atk: e.atk, def: e.def, mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
             skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
             statuses: (e as any).statuses || [],
           })),
-          action: { type: action.type, targetId: alive[0].id, skillId: action.skillId },
+          action: { type: action.type, targetId: alive[0].uid ?? alive[0].id, skillId: action.skillId },
           turnSeed: Date.now() + round,
           layer: lawful.layer,
           enemyDropTables: alive.map((e) => ({ enemyId: e.id, dropTable: room.enemies.find((r2) => r2.id === e.id)?.dropTable })),
@@ -136,7 +136,7 @@ export default function Lawful() {
         result.logs.forEach((l) => addLog(l))
         const after = useGameStore.getState()
         after.setCombatEnemies(after.combatEnemies.map((e) => {
-          const u = result.enemies.find((r) => r.id === e.id)
+          const u = result.enemies.find((r) => (r.uid ?? r.id) === (e.uid ?? e.id))
           return u ? { ...e, ...u } : e
         }))
         after.updatePlayerHp(result.player.hp)

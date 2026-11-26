@@ -51,7 +51,7 @@ export default function Weekly() {
     gs.setBattleMode('weekly')
     const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
-    gs.setCombatEnemies([{ ...boss }])
+    gs.setCombatEnemies([{ ...boss, uid: `${boss.id}#0` }])
     addLog(`═══ 每周挑战 · ${boss.name} ═══`)
     addLog('规则：90 回合内尽量造成更多伤害，取本周最好成绩上榜')
 
@@ -98,12 +98,12 @@ export default function Weekly() {
             mods: snap.mods,
           },
           enemies: alive.map((e) => ({
-            id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
+            id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
             atk: e.atk, def: e.def, mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
             skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
             statuses: (e as any).statuses || [],
           })),
-          action: { type: action.type, targetId: alive[0].id, skillId: action.skillId },
+          action: { type: action.type, targetId: alive[0].uid ?? alive[0].id, skillId: action.skillId },
           turnSeed: Date.now() + round,
           layer: 60,
         })
@@ -113,7 +113,7 @@ export default function Weekly() {
         const bossNow = result.enemies.find((e) => e.id === boss.id)
         if (bossNow) damage = bossMaxHp - bossNow.hp
         const merged = after.combatEnemies.map((e) => {
-          const u = result.enemies.find((r) => r.id === e.id)
+          const u = result.enemies.find((r) => (r.uid ?? r.id) === (e.uid ?? e.id))
           return u ? { ...e, ...u } : e
         })
         after.setCombatEnemies(merged)

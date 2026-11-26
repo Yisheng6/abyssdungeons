@@ -272,6 +272,8 @@ export interface ClassSave {
 
 interface Enemy {
   id: string; name: string; hp: number; maxHp: number
+  /** 战斗实例唯一标识：同场多个同种怪时区分个体（如 slime#0），开战时分配 */
+  uid?: string
   mp: number; maxMp: number; atk: number; def: number
   mag: number; mdef: number; agi: number; luk: number
   skills: string[]; element: string; aiType?: string

@@ -31,6 +31,8 @@ export const STATUS_DEFS: Record<string, { name: string; kind: "physical" | "men
 
 export interface Combatant {
   id: string;
+  /** 战斗实例唯一标识：同一场出现多个同种怪时用于区分（前端生成，形如 slime#0） */
+  uid?: string;
   name: string;
   hp: number;
   maxHp: number;
@@ -336,7 +338,7 @@ export function resolveCombat(
     } else {
       switch (action.type) {
         case "attack": {
-          const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+          const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
           if (!target) break;
 
           if (checkDodge(effAgi(target), rng)) {
@@ -371,7 +373,7 @@ export function resolveCombat(
         case "skill": {
           if (hasStatus(player, "silence")) {
             logs.push("你处于沉默状态，无法施放技能！改为普通攻击。");
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
             if (target) {
               if (checkDodge(effAgi(target), rng)) {
                 logs.push(`${target.name} 闪避了你的攻击！`);
@@ -401,7 +403,7 @@ export function resolveCombat(
               player.cooldowns[skillId] = cd;
             }
             const effect = skillConfig.effect as Record<string, unknown>;
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0)
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0)
               || enemies.find((e) => e.hp > 0);
             const sm = modsOf(player);
 
@@ -553,7 +555,7 @@ export function resolveCombat(
           }
           // 技能不可用（冷却/蓝不足）→ 降级为普攻
           {
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
             if (target) {
               if (checkDodge(effAgi(target), rng)) {
                 logs.push(`${target.name} 闪避了你的攻击！`);

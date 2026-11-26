@@ -27,6 +27,9 @@ const enemyX = (i: number, n: number) => 58 + (n > 1 ? i * (30 / Math.max(1, n -
 
 let fxKey = 1
 
+// 敌人实例键：同场多个同种怪时以 uid 区分个体（模板 id 仅用于贴图）
+const ek = (e: { id: string; uid?: string }) => e.uid ?? e.id
+
 export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'rift' | 'weekly' | 'combat' }) {
   const player = useGameStore((s) => s.player)
   const enemies = useGameStore((s) => s.combatEnemies)
@@ -65,7 +68,7 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
     if (!player) return
     if (!inCombat) { prev.current = null; return }
     const curHpMap: Record<string, number> = {}
-    enemies.forEach((e) => { curHpMap[e.id] = e.hp })
+    enemies.forEach((e) => { curHpMap[ek(e)] = e.hp })
     const old = prev.current
     prev.current = { hp: player.hp, enemies: curHpMap, cds: { ...cooldowns } }
     if (!old) return // 战斗刚开始，只建立快照
@@ -74,8 +77,8 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
     const castId = Object.keys(cooldowns).find((k) => (cooldowns[k] || 0) > 0 && !(old.cds[k] > 0))
 
     const dmgToEnemies = enemies
-      .filter((e) => old.enemies[e.id] !== undefined && e.hp < old.enemies[e.id])
-      .map((e) => ({ id: e.id, amount: old.enemies[e.id] - e.hp, died: e.hp <= 0 }))
+      .filter((e) => old.enemies[ek(e)] !== undefined && e.hp < old.enemies[ek(e)])
+      .map((e) => ({ id: ek(e), amount: old.enemies[ek(e)] - e.hp, died: e.hp <= 0 }))
     const playerDelta = player.hp - old.hp
 
     if (dmgToEnemies.length === 0 && playerDelta === 0 && !castId) return
@@ -85,7 +88,7 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
 
     // ── 玩家行动阶段 ──
     if (dmgToEnemies.length > 0 || castId) {
-      const firstTargetIdx = Math.max(0, enemies.findIndex((e) => e.id === dmgToEnemies[0]?.id))
+      const firstTargetIdx = Math.max(0, enemies.findIndex((e) => ek(e) === dmgToEnemies[0]?.id))
       let castKind: string | undefined
       let castColor: string | undefined
       if (castId) {
@@ -105,7 +108,7 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
         const burstTargets = selfCast
           ? [{ x: PLAYER_X + 4, up: true }]
           : dmgToEnemies.length > 0
-            ? dmgToEnemies.map((d) => ({ x: enemyX(Math.max(0, enemies.findIndex((e) => e.id === d.id)), enemies.length) + 4, up: false }))
+            ? dmgToEnemies.map((d) => ({ x: enemyX(Math.max(0, enemies.findIndex((e) => ek(e) === d.id)), enemies.length) + 4, up: false }))
             : [{ x: enemyX(firstTargetIdx, enemies.length) + 4, up: false }]
         burstTargets.forEach((t, i) => {
           later(200 + i * 80, () => {
@@ -145,7 +148,7 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
     if (playerDelta < 0) {
       const attackers = enemies.filter((e) => e.hp > 0)
       attackers.forEach((e, i) => {
-        later(620 + i * 160, () => { setLunging(e.id); later(280, () => setLunging((l) => (l === e.id ? null : l))) })
+        later(620 + i * 160, () => { setLunging(ek(e)); later(280, () => setLunging((l) => (l === ek(e) ? null : l))) })
       })
       later(700 + attackers.length * 120, () => {
         flash('player')
@@ -192,8 +195,8 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
       {enemies.map((e, i) => {
         const dead = e.hp <= 0
         return (
-          <div key={e.id}
-            className={`bs-unit bs-enemy ${lunging === e.id ? 'bs-lunge-l' : ''} ${hits.has(e.id) ? 'bs-hit' : ''} ${dead ? 'bs-dead' : ''}`}
+          <div key={ek(e)}
+            className={`bs-unit bs-enemy ${lunging === ek(e) ? 'bs-lunge-l' : ''} ${hits.has(ek(e)) ? 'bs-hit' : ''} ${dead ? 'bs-dead' : ''}`}
             style={{ left: `${enemyX(i, n)}%` }}>
             <div className="bs-bars">
               <div className="bs-bar"><div className="bs-bar-fill" style={{ width: `${Math.max(0, (e.hp / e.maxHp) * 100)}%`, background: '#F85149' }} /></div>
@@ -236,7 +239,7 @@ export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'r
 
       {/* 伤害飘字 */}
       {floaters.map((f) => {
-        const idx = f.target === 'player' ? -1 : enemies.findIndex((e) => e.id === f.target)
+        const idx = f.target === 'player' ? -1 : enemies.findIndex((e) => ek(e) === f.target)
         const x = f.target === 'player' ? PLAYER_X + 4 : enemyX(Math.max(0, idx), n) + 3
         return (
           <div key={f.key} className={`bs-floater bs-f-${f.kind}`} style={{ left: `${x}%` }}>

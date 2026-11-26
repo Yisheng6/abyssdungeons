@@ -209,7 +209,7 @@ export const gameRouter = createRouter({
         }).optional(),
       }),
       enemies: z.array(z.object({
-        id: z.string(), name: z.string(), hp: z.number(), maxHp: z.number(),
+        id: z.string(), uid: z.string().optional(), name: z.string(), hp: z.number(), maxHp: z.number(),
         mp: z.number(), maxMp: z.number(), atk: z.number(), def: z.number(),
         mag: z.number(), mdef: z.number(), agi: z.number(), luk: z.number(),
         con: z.number().optional(), wil: z.number().optional(),
@@ -251,7 +251,7 @@ export const gameRouter = createRouter({
         logs,
         player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp, statuses: player.statuses || [] },
         enemies: enemies.map((e) => ({
-          id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
+          id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp,
           mp: e.mp, maxMp: e.maxMp, atk: e.atk, def: e.def,
           mag: e.mag, mdef: e.mdef, agi: e.agi, luk: e.luk,
           skills: e.skills, element: e.element, aiType: e.aiType,

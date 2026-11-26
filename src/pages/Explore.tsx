@@ -241,8 +241,8 @@ export default function Explore() {
     gs.setBattleMode('explore')
     const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
-    gs.setCombatEnemies(enemies.map((e) => ({
-      id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
+    gs.setCombatEnemies(enemies.map((e, i) => ({
+      id: e.id, uid: `${e.id}#${i}`, name: e.name, hp: e.hp, maxHp: e.maxHp,
       mp: e.mp ?? 0, maxMp: e.maxMp ?? 0,
       atk: e.atk ?? 10, def: e.def ?? 5,
       mag: e.mag ?? 0, mdef: e.mdef ?? 3,
@@ -306,13 +306,13 @@ export default function Explore() {
             mods: snap.mods,
           },
           enemies: aliveEnemies.map((e) => ({
-            id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
+            id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp,
             mp: e.mp || 0, maxMp: e.maxMp || 0, atk: e.atk, def: e.def,
             mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
             skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
             statuses: (e as any).statuses || [],
           })),
-          action: { type: action.type, targetId: aliveEnemies[0].id, skillId: action.skillId },
+          action: { type: action.type, targetId: aliveEnemies[0].uid ?? aliveEnemies[0].id, skillId: action.skillId },
           turnSeed: Date.now() + round,
           layer: currentLayerRef.current,
           enemyDropTables: aliveEnemies.map((e) => ({ enemyId: e.id, dropTable: (e as any).dropTable })),
@@ -325,7 +325,7 @@ export default function Explore() {
         // 否则已死亡敌人会从显示中消失，造成"数量对不上"的错觉
         const after = useGameStore.getState()
         const mergedEnemies = after.combatEnemies.map((e) => {
-          const u = result.enemies.find((r) => r.id === e.id)
+          const u = result.enemies.find((r) => (r.uid ?? r.id) === (e.uid ?? e.id))
           return u ? { ...e, ...u } : e
         })
         after.setCombatEnemies(mergedEnemies)

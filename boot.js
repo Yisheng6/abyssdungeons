@@ -64341,7 +64341,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
     } else {
       switch (action.type) {
         case "attack": {
-          const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+          const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
           if (!target) break;
           if (checkDodge(effAgi(target), rng)) {
             logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
@@ -64373,7 +64373,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
         case "skill": {
           if (hasStatus(player, "silence")) {
             logs.push("\u4F60\u5904\u4E8E\u6C89\u9ED8\u72B6\u6001\uFF0C\u65E0\u6CD5\u65BD\u653E\u6280\u80FD\uFF01\u6539\u4E3A\u666E\u901A\u653B\u51FB\u3002");
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
             if (target) {
               if (checkDodge(effAgi(target), rng)) {
                 logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
@@ -64401,7 +64401,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
               player.cooldowns[skillId] = cd;
             }
             const effect = skillConfig.effect;
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0) || enemies.find((e) => e.hp > 0);
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0) || enemies.find((e) => e.hp > 0);
             const sm = modsOf(player);
             if (effect.damage) {
               const dmgStr = effect.damage;
@@ -64528,7 +64528,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
             break;
           }
           {
-            const target = enemies.find((e) => e.id === action.targetId && e.hp > 0);
+            const target = enemies.find((e) => (e.uid ?? e.id) === action.targetId && e.hp > 0);
             if (target) {
               if (checkDodge(effAgi(target), rng)) {
                 logs.push(`${target.name} \u95EA\u907F\u4E86\u4F60\u7684\u653B\u51FB\uFF01`);
@@ -65112,6 +65112,7 @@ var gameRouter = createRouter({
     }),
     enemies: external_exports.array(external_exports.object({
       id: external_exports.string(),
+      uid: external_exports.string().optional(),
       name: external_exports.string(),
       hp: external_exports.number(),
       maxHp: external_exports.number(),
@@ -65168,6 +65169,7 @@ var gameRouter = createRouter({
       player: { hp: player.hp, mp: player.mp, maxHp: player.maxHp, maxMp: player.maxMp, statuses: player.statuses || [] },
       enemies: enemies.map((e) => ({
         id: e.id,
+        uid: e.uid,
         name: e.name,
         hp: e.hp,
         maxHp: e.maxHp,
