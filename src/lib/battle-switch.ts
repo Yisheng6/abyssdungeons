@@ -36,9 +36,10 @@ export function snapshotBattleStats() {
 }
 export type BattleSnap = ReturnType<typeof snapshotBattleStats>
 
-/** 当前战斗是否已被切换走（每回合开头检查） */
+/** 当前战斗是否已被切换走（每回合开头检查）。battleMode 为 null（波次间隙）不算被切换 */
 export function battleHijacked(mode: string): boolean {
-  return useGameStore.getState().battleMode !== mode
+  const bm = useGameStore.getState().battleMode
+  return bm !== null && bm !== mode
 }
 
 /** 战斗结束清理：只有自己仍是当前战斗时才清除状态，避免误清新战斗 */
