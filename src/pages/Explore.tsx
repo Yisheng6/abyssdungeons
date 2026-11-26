@@ -397,7 +397,7 @@ export default function Explore() {
           break
         }
 
-        await new Promise((r) => setTimeout(r, 1200))
+        await new Promise((r) => setTimeout(r, 2000))
       }
     } catch (err) {
       addLog(`战斗出错: ${err}`)

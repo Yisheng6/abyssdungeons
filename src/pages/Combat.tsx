@@ -230,7 +230,7 @@ export default function Combat() {
 
       // 继续下一回合
       if (!store.combatEnded && autoBattleRef.current) {
-        battleTimerRef.current = setTimeout(runAutoBattle, 1500)
+        battleTimerRef.current = setTimeout(runAutoBattle, 2000)
       }
     }
 

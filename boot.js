@@ -64429,7 +64429,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
                   if (isCrit) damage = Math.floor(damage * (effect.critDamage || 1.5 + (sm.critDmg || 0) / 100));
                   if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
                   t2.hp = Math.max(0, t2.hp - damage);
-                  logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}\uFF0C\u5BF9 ${t2.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3${isCrit ? "\uFF08\u66B4\u51FB\uFF09" : ""}\u3002`);
+                  logs.push(`\u4F60\u65BD\u653E\u4E86 ${skillConfig.name}${aoe ? "\uFF08\u7FA4\u653B\uFF09" : ""}\uFF0C\u5BF9 ${t2.name} \u9020\u6210 ${damage} \u70B9\u4F24\u5BB3${isCrit ? "\uFF08\u66B4\u51FB\uFF09" : ""}\u3002`);
                   const ls = (sm.lifesteal || 0) / 100 + (effect.lifesteal || 0);
                   if (ls > 0) {
                     const heal = Math.floor(damage * ls);

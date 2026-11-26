@@ -173,6 +173,8 @@ export default function Rift() {
           }
         }
         if (result.ended) break
+        // 回合节奏：留出攻击/技能动画播放时间
+        await new Promise((r) => setTimeout(r, 2000))
       }
     } finally {
       useGameStore.getState().setInCombat(false)

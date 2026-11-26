@@ -433,7 +433,7 @@ export function resolveCombat(
                   if (isCrit) damage = Math.floor(damage * ((effect.critDamage as number) || (1.5 + (sm.critDmg || 0) / 100)));
                   if (sm.elemDmg) damage += Math.floor(sm.elemDmg);
                   t.hp = Math.max(0, t.hp - damage);
-                  logs.push(`你施放了 ${skillConfig.name}，对 ${t.name} 造成 ${damage} 点伤害${isCrit ? "（暴击）" : ""}。`);
+                  logs.push(`你施放了 ${skillConfig.name}${aoe ? "（群攻）" : ""}，对 ${t.name} 造成 ${damage} 点伤害${isCrit ? "（暴击）" : ""}。`);
                   // 吸血（词条 + 技能自身 lifesteal）
                   const ls = ((sm.lifesteal || 0) as number) / 100 + ((effect.lifesteal as number) || 0);
                   if (ls > 0) {
