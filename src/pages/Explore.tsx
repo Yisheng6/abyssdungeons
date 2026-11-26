@@ -137,13 +137,15 @@ export default function Explore() {
 
   // ─── 探索主循环：一波接一波的随机遇敌 ───
   const exploreLoop = useCallback(async () => {
-    while (isRunningRef.current) {
+    while (isRunningRef.current && useGameStore.getState().isAutoExploring) {
+      // 战斗被切换到其他玩法：停止探索循环
+      if (battleHijacked('explore')) break
       // 朝深处探索的行进间隔
       setMoving(true)
       addLog('正在朝深处探索……')
       await new Promise((r) => setTimeout(r, 2000))
       setMoving(false)
-      if (!isRunningRef.current) break
+      if (!isRunningRef.current || !useGameStore.getState().isAutoExploring) break
 
       try {
         const enc = await encounterMut.mutateAsync({
@@ -220,6 +222,9 @@ export default function Explore() {
         await new Promise((r) => setTimeout(r, 3000))
       }
     }
+    // 循环退出（主动停止或战斗被切换走）：复位本地运行标记
+    setIsRunning(false)
+    isRunningRef.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addLog, collectLoot])
 
@@ -230,6 +235,8 @@ export default function Explore() {
 
     addLog(`── 战斗开始 ──`)
     const gs = useGameStore.getState()
+    // 探索已被停止/战斗被切换走：不再登记归属，避免回抢新战斗
+    if (!gs.isAutoExploring) { isBattlingRef.current = false; return false }
     gs.setInCombat(true)
     gs.setBattleMode('explore')
     const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
