@@ -17,6 +17,8 @@ export default function Leaderboard() {
   const [list, setList] = useState<RankEntry[]>([])
   const [myRank, setMyRank] = useState<number | null>(null)
   const player = useGameStore((s) => s.player)
+  const totalKills = useGameStore((s) => s.taskState.totals.kills)
+  const lawfulBest = useGameStore((s) => s.lawful.best)
   const playerName = localStorage.getItem('ad_user') || ''
   const getTopMut = trpc.lb.getTop.useQuery({ category: cat, count: 20 })
   const submitMut = trpc.lb.submitScore.useMutation()
@@ -26,13 +28,15 @@ export default function Leaderboard() {
   useEffect(() => {
     if (!playerName || !player) return
     const score = cat === 'deepest_layer' ? (player.maxLayer || 1)
+      : cat === 'lawful_layer' ? lawfulBest
       : cat === 'wealth' ? player.gold
+      : cat === 'kills' ? totalKills
       : 0
     if (score > 0) {
       submitMut.mutateAsync({ category: cat, playerId: playerName, playerName, score }).catch(() => {})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, playerName])
+  }, [cat, playerName, totalKills, lawfulBest])
 
   useEffect(() => { if (getTopMut.data) setList(getTopMut.data as RankEntry[]) }, [getTopMut.data])
   useEffect(() => { if (myRankQ.data) setMyRank(myRankQ.data.rank ?? null) }, [myRankQ.data])
