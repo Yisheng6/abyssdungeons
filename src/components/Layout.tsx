@@ -12,10 +12,19 @@ import Rift from '@/pages/Rift'
 import Weekly from '@/pages/Weekly'
 
 // 左侧竖排导航（桌面端，Dormant Dominion 风格）
-const SIDE_NAV = [
+// children 表示折叠分组：父项点击展开/收起，子项缩进显示
+const SIDE_NAV: Array<{
+  path?: string; label: string; icon: string
+  children?: Array<{ path: string; label: string; icon: string }>
+}> = [
   { path: '/', label: '主页', icon: 'home' },
-  { path: '/explore', label: '混乱深渊', icon: 'abyss' },
-  { path: '/lawful', label: '守序深渊', icon: 'temple' },
+  {
+    label: '深渊探索', icon: 'abyss',
+    children: [
+      { path: '/explore', label: '混乱深渊', icon: 'stairs' },
+      { path: '/lawful', label: '守序深渊', icon: 'temple' },
+    ],
+  },
   { path: '/rift', label: '每日秘境', icon: 'rift' },
   { path: '/weekly', label: '每周挑战', icon: 'crown' },
   { path: '/talents', label: '天赋', icon: 'talent' },
@@ -37,7 +46,10 @@ const PRIMARY_NAV = [
   { path: '/inventory', label: '背包', icon: 'bag' },
 ]
 
-const MORE_NAV = SIDE_NAV.filter((i) => !PRIMARY_NAV.some((p) => p.path === i.path))
+// 打平后的导航（供移动端「更多」抽屉过滤用）
+const FLAT_NAV = SIDE_NAV.flatMap((i) => (i.children ? i.children : [{ path: i.path!, label: i.label, icon: i.icon }]))
+
+const MORE_NAV = FLAT_NAV.filter((i) => !PRIMARY_NAV.some((p) => p.path === i.path))
 
 export default function Layout() {
   const navigate = useNavigate()
@@ -47,6 +59,10 @@ export default function Layout() {
   const exploreLayer = useGameStore((s) => s.exploreLayer)
   const [showSettings, setShowSettings] = useState(false)
   const [showMore, setShowMore] = useState(false)
+  // 「深渊探索」折叠分组：身处子页面时自动展开
+  const [abyssOpen, setAbyssOpen] = useState(
+    () => location.pathname.startsWith('/explore') || location.pathname.startsWith('/lawful'),
+  )
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const unreadQ = trpc.mail.unread.useQuery({ playerName }, { refetchInterval: 30000 })
   const unreadMails = unreadQ.data?.count || 0
@@ -63,6 +79,8 @@ export default function Layout() {
   useEffect(() => { if (onLawful) setLawfulMounted(true) }, [onLawful])
   useEffect(() => { if (onRift) setRiftMounted(true) }, [onRift])
   useEffect(() => { if (onWeekly) setWeeklyMounted(true) }, [onWeekly])
+  // 进入混乱/守序深渊时自动展开分组
+  useEffect(() => { if (onExplore || onLawful) setAbyssOpen(true) }, [onExplore, onLawful])
 
   const logout = () => {
     localStorage.removeItem('ad_token')
@@ -121,9 +139,54 @@ export default function Layout() {
         {/* 导航项 */}
         <nav className="flex-1 overflow-y-auto py-2">
           {SIDE_NAV.map((item) => {
-            const active = isActive(item.path)
+            // ── 折叠分组（深渊探索） ──
+            if (item.children) {
+              const groupActive = item.children.some((c) => isActive(c.path))
+              const open = item.label === '深渊探索' ? abyssOpen : groupActive
+              const toggle = () => { if (item.label === '深渊探索') setAbyssOpen((v) => !v) }
+              return (
+                <div key={item.label}>
+                  <button onClick={toggle}
+                    className="relative flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] transition-colors"
+                    style={{
+                      color: groupActive ? 'var(--accent)' : 'var(--text-secondary)',
+                      backgroundColor: 'transparent',
+                      fontWeight: groupActive ? 600 : 400,
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-hover)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}>
+                    <PixIcon name={item.icon} size={18} />
+                    {item.label}
+                    <span className="ml-auto text-[10px] transition-transform"
+                      style={{ color: 'var(--text-muted)', transform: open ? 'rotate(90deg)' : 'none' }}>
+                      ▶
+                    </span>
+                  </button>
+                  {open && item.children.map((child) => {
+                    const active = isActive(child.path)
+                    return (
+                      <button key={child.path} onClick={() => navigate(child.path)}
+                        className="relative flex w-full items-center gap-2.5 py-2 pl-9 pr-4 text-[12px] transition-colors"
+                        style={{
+                          color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                          backgroundColor: active ? 'var(--bg-hover)' : 'transparent',
+                          fontWeight: active ? 600 : 400,
+                        }}
+                        onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'var(--bg-hover)' }}
+                        onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}>
+                        {active && <span className="absolute left-0 top-0 h-full w-[3px]" style={{ backgroundColor: 'var(--accent)' }} />}
+                        <PixIcon name={child.icon} size={16} />
+                        {child.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            }
+            // ── 普通项 ──
+            const active = isActive(item.path!)
             return (
-              <button key={item.path} onClick={() => navigate(item.path)}
+              <button key={item.path} onClick={() => navigate(item.path!)}
                 className="relative flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] transition-colors"
                 style={{
                   color: active ? 'var(--accent)' : 'var(--text-secondary)',
