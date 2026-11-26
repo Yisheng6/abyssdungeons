@@ -202,7 +202,13 @@ export default function Lawful() {
     addLog(`═══ 第 ${lawful.layer} 层 · ${room.name} ═══`)
     addLog(`遭遇：${room.enemies.map((e) => e.name).join('、')}`)
     const won = await autoBattle(room)
-    if (battleHijacked('lawful')) return // 战斗已被切换走，不做胜负结算
+    if (battleHijacked('lawful')) {
+      // 战斗已被切换走：复位本地状态，不做胜负结算
+      battlingRef.current = false
+      setBattling(false)
+      useGameStore.setState({ lawfulInBattle: false })
+      return
+    }
     const after = useGameStore.getState()
     if (won) {
       // 奖励：基础经验 + 层数加成，Boss 双倍

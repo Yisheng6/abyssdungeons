@@ -197,7 +197,13 @@ export default function Rift() {
     addLog(`═══ ${data.name} ═══`)
     addLog(`遭遇：${data.enemies.map((e) => e.name).join('、')}`)
     const won = await autoBattle(data)
-    if (battleHijacked('rift')) return // 战斗已被切换走，不做结算
+    if (battleHijacked('rift')) {
+      // 战斗已被切换走：复位本地状态，不做结算
+      battlingRef.current = false
+      setBattling(false)
+      useGameStore.setState({ riftInBattle: false })
+      return
+    }
     const after = useGameStore.getState()
     if (won) {
       const utilMods = getPlayerMods().utility

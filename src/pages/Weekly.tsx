@@ -129,7 +129,12 @@ export default function Weekly() {
       releaseBattle('weekly')
     }
 
-    if (battleHijacked('weekly')) return // 战斗已被切换走，不做结算
+    if (battleHijacked('weekly')) {
+      // 战斗已被切换走：复位本地状态，不做结算
+      battlingRef.current = false
+      setBattling(false)
+      return
+    }
     // 结算
     damage = Math.max(0, Math.round(damage))
     addLog(`═══ 挑战结束：总伤害 ${damage} ═══`)
