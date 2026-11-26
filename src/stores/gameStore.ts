@@ -327,6 +327,8 @@ interface GameState {
 
   // ─── Combat ───
   inCombat: boolean; combatEnemies: Enemy[]; combatLogs: string[]
+  /** 当前战斗所属玩法（explore/lawful/rift/weekly/combat），用于战斗动画只在对应页面播放、切换战斗时中断旧战斗 */
+  battleMode: 'explore' | 'lawful' | 'rift' | 'weekly' | 'combat' | null
   combatEnded: boolean; combatVictory: boolean
   /** 玩家战斗中的异常状态（瞬态，不持久化） */
   playerStatuses: Array<{ id: string; name: string; kind: string; turns: number; data?: Record<string, number> }>
@@ -416,6 +418,7 @@ interface GameState {
 
   // Combat
   setInCombat: (v: boolean) => void
+  setBattleMode: (m: 'explore' | 'lawful' | 'rift' | 'weekly' | 'combat' | null) => void
   setSkillCooldowns: (cd: Record<string, number>) => void
   /** 调整已学技能顺序（即自动释放顺序），dir=-1 上移 / 1 下移 */
   moveSkill: (skillId: string, dir: -1 | 1) => void
@@ -535,7 +538,7 @@ export const useGameStore = create<GameState>()(
       currentDungeon: null, currentRoomId: 0, exploredRooms: new Set(),
       roomInfo: null, dungeonRooms: [],
       tempBag: [],
-      inCombat: false, combatEnemies: [], combatLogs: [],
+      inCombat: false, combatEnemies: [], combatLogs: [], battleMode: null,
       combatEnded: false, combatVictory: false,
       playerStatuses: [],
       skillCooldowns: {},
@@ -569,7 +572,6 @@ export const useGameStore = create<GameState>()(
       // ─── 天赋树 ───
       learnTalent: (nodeId) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法修改天赋' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const ranks = s.talents[p.classId] || {}
@@ -583,7 +585,6 @@ export const useGameStore = create<GameState>()(
 
       respecTalents: () => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法洗点' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const spent = getSpentTalentPoints(s.talents[p.classId])
@@ -597,7 +598,6 @@ export const useGameStore = create<GameState>()(
       // ─── 觉醒 ───
       awaken: () => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法觉醒' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         if (p.level < 100) return { success: false, message: `需要等级达到 100 级（当前 Lv.${p.level}）` }
@@ -677,7 +677,6 @@ export const useGameStore = create<GameState>()(
       // ─── Switch Class: backpack stays, equipment swaps ───
       switchClass: (targetClassId) => {
         const state = get()
-        if (state.inCombat) return { success: false, message: '战斗中无法更换职业' }
         const now = Date.now()
         const elapsed = now - state.lastClassSwitch
 
@@ -686,9 +685,6 @@ export const useGameStore = create<GameState>()(
         }
         if (targetClassId === state.activeClassId) {
           return { success: false, message: '已是当前职业' }
-        }
-        if (state.inCombat) {
-          return { success: false, message: '战斗中无法切换' }
         }
 
         // 1. Save current class: player + equipment (inventory stays shared, no save needed)
@@ -816,7 +812,6 @@ export const useGameStore = create<GameState>()(
 
       advanceTier: () => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法进阶' }
         const p = s.player
         if (!p) return { success: false, message: '尚未创建角色' }
         const cur = p.tier || 1
@@ -867,7 +862,6 @@ export const useGameStore = create<GameState>()(
       // ─── Equipment ───
       equipItem: (itemUid) => {
         const s = get()
-        if (s.inCombat) return // 战斗中无法更换装备
         const idx = s.inventory.findIndex((i) => i.uid === itemUid)
         if (idx === -1) return
         const item = s.inventory[idx]
@@ -919,7 +913,6 @@ export const useGameStore = create<GameState>()(
 
       unequipItem: (slot) => {
         const s = get()
-        if (s.inCombat) return // 战斗中无法卸下装备
         const item = s.equipment[slot]
         if (!item) return
 
@@ -987,7 +980,6 @@ export const useGameStore = create<GameState>()(
       // ─── 技能学习 ───
       learnSkill: (skillId) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法学习技能' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const skill = getSkillInfo(skillId)
@@ -1008,7 +1000,6 @@ export const useGameStore = create<GameState>()(
 
       learnSkillFromBook: (itemUid) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法学习技能' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
         const item = s.inventory.find((i) => i.uid === itemUid)
@@ -1074,7 +1065,6 @@ export const useGameStore = create<GameState>()(
 
       enhanceItem: (itemUid, options) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法强化装备' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
 
@@ -1183,7 +1173,6 @@ export const useGameStore = create<GameState>()(
 
       reforgeAffixes: (itemUid, useDiamond) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法重铸词条' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
 
@@ -1247,7 +1236,6 @@ export const useGameStore = create<GameState>()(
 
       socketGem: (itemUid, gemUid) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法镶嵌宝石' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
 
@@ -1295,7 +1283,6 @@ export const useGameStore = create<GameState>()(
 
       unsocketGem: (itemUid, gemIndex) => {
         const s = get()
-        if (s.inCombat) return { success: false, message: '战斗中无法拆卸宝石' }
         const p = s.player
         if (!p) return { success: false, message: '请先创建角色' }
 
@@ -1458,6 +1445,7 @@ export const useGameStore = create<GameState>()(
 
       // ─── Combat ───
       setInCombat: (v) => set(v ? { inCombat: v, skillCooldowns: {} } : { inCombat: v, skillCooldowns: {} }),
+      setBattleMode: (m) => set({ battleMode: m }),
 
       setSkillCooldowns: (cd) => set({ skillCooldowns: cd }),
 

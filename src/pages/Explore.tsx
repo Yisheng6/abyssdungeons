@@ -4,6 +4,7 @@ import { Swords, Home, Compass, Play, Pause, Zap, Skull, Coins, Heart, Shield } 
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getTierName } from '@/lib/catalog'
+import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { chooseAutoSkill } from '@/lib/battle-ai'
 import BattleStage from '@/components/BattleStage'
 
@@ -199,6 +200,8 @@ export default function Explore() {
           setLastEncounter(null)
           useGameStore.getState().setCombatEnemies([])
         } else {
+          // 战斗被切换到其他玩法：直接退出探索循环，不走战败流程
+          if (battleHijacked('explore')) break
           // 战败复活：等待 5 秒后满血复活，波次进度保留
           setStats((s) => ({ ...s, defeats: s.defeats + 1 }))
           addLog(`战败！5 秒后复活...`)
@@ -228,6 +231,8 @@ export default function Explore() {
     addLog(`── 战斗开始 ──`)
     const gs = useGameStore.getState()
     gs.setInCombat(true)
+    gs.setBattleMode('explore')
+    const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
     gs.setCombatEnemies(enemies.map((e) => ({
       id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
@@ -272,24 +277,26 @@ export default function Explore() {
         }
 
         const player = useGameStore.getState().player!
-        // 智能技能选择：按玩家排序，跳过冷却/蓝不足/满血治疗/重复增益/重复DoT
+        // 战斗已被切换到其他玩法：静默退出本场
+        if (battleHijacked('explore')) { addLog('已切换到其他战斗玩法') ; break }
+        // 智能技能选择：按玩家排序，跳过冷却/蓝不足/满血治疗/重复增益/重复DoT（技能取自开战快照）
         const firstEnemy = aliveEnemies[0] as unknown as { statuses?: Array<{ id: string }> }
         const sid = chooseAutoSkill(
-          { hp: player.hp, maxHp: player.maxHp, mp: player.mp, skills: player.skills || [],
+          { hp: player.hp, maxHp: snap.maxHp, mp: player.mp, skills: snap.skills || [],
             statuses: cur0.playerStatuses || [], cooldowns: cur0.skillCooldowns },
-          player.skills || [], firstEnemy?.statuses)
+          snap.skills || [], firstEnemy?.statuses)
         const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
-            id: player.id, name: player.name, hp: player.hp, maxHp: player.maxHp,
-            mp: player.mp, maxMp: player.maxMp, atk: player.atk, def: player.def,
-            mag: player.mag, mdef: player.mdef, agi: player.agi, luk: player.luk,
-            con: player.con || 0, wil: player.wil || 0,
-            skills: player.skills, element: player.element || 'none',
+            id: player.id, name: player.name, hp: player.hp, maxHp: snap.maxHp,
+            mp: player.mp, maxMp: snap.maxMp, atk: snap.atk, def: snap.def,
+            mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
+            con: snap.con, wil: snap.wil,
+            skills: snap.skills, element: snap.element,
             statuses: cur.playerStatuses || [],
             cooldowns: cur.skillCooldowns || {},
-            mods: getPlayerMods().combat,
+            mods: snap.mods,
           },
           enemies: aliveEnemies.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp,
@@ -403,7 +410,7 @@ export default function Explore() {
       addLog(`战斗出错: ${err}`)
     } finally {
       isBattlingRef.current = false
-      useGameStore.getState().setInCombat(false)
+      releaseBattle('explore')
     }
 
     if (!victory) {
@@ -420,10 +427,7 @@ export default function Explore() {
   const startExploring = useCallback(async () => {
     if (isRunningRef.current) return // 防重入
     const gs = useGameStore.getState()
-    if (gs.inCombat) {
-      addLog('另一场战斗正在进行中（守序深渊），结束后再来探索')
-      return
-    }
+    if ((gs.inCombat || gs.isAutoExploring) && !confirmSwitchBattle('explore')) return
     if (!gs.player) {
       addLog('请先创建角色')
       return
@@ -613,7 +617,7 @@ export default function Explore() {
       {/* Center: Main Area */}
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-4">
         {(store.inCombat || displayEnemies.length > 0) && (
-          <div className="mb-3 flex-shrink-0"><BattleStage /></div>
+          <div className="mb-3 flex-shrink-0"><BattleStage mode="explore" /></div>
         )}
 
         {/* 当前遭遇面板 */}

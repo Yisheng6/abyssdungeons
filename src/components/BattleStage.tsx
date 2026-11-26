@@ -27,11 +27,14 @@ const enemyX = (i: number, n: number) => 58 + (n > 1 ? i * (30 / Math.max(1, n -
 
 let fxKey = 1
 
-export default function BattleStage() {
+export default function BattleStage({ mode }: { mode?: 'explore' | 'lawful' | 'rift' | 'weekly' | 'combat' }) {
   const player = useGameStore((s) => s.player)
   const enemies = useGameStore((s) => s.combatEnemies)
   const inCombat = useGameStore((s) => s.inCombat)
   const cooldowns = useGameStore((s) => s.skillCooldowns)
+  const battleMode = useGameStore((s) => s.battleMode)
+  // 战斗动画只在发起当前战斗的页面播放：其他页面的舞台静默
+  const silent = !!battleMode && !!mode && battleMode !== mode
 
   const [floaters, setFloaters] = useState<Floater[]>([])
   const [lunging, setLunging] = useState<string | null>(null) // 'player' 或敌人 id
@@ -58,6 +61,7 @@ export default function BattleStage() {
 
   // ─── 回合差分驱动动画 ───
   useEffect(() => {
+    if (silent) { prev.current = null; return } // 非本页战斗：不播动画
     if (!player) return
     if (!inCombat) { prev.current = null; return }
     const curHpMap: Record<string, number> = {}
@@ -152,6 +156,17 @@ export default function BattleStage() {
   }, [enemies, player?.hp, cooldowns, inCombat])
 
   if (!player) return null
+  if (silent) {
+    return (
+      <div className="battle-stage">
+        <style>{CSS}</style>
+        <div className="bs-bg" />
+        <div className="flex h-full items-center justify-center text-xs" style={{ color: 'var(--text-muted)' }}>
+          另一场战斗正在进行中……
+        </div>
+      </div>
+    )
+  }
   const n = enemies.length
 
   return (

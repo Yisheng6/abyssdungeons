@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Sparkles, Swords, Coins, Gem, RotateCcw } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
+import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
@@ -61,10 +62,12 @@ export default function Rift() {
   const autoBattle = useCallback(async (d: RiftStageData): Promise<boolean> => {
     const gs = useGameStore.getState()
     gs.setInCombat(true)
+    gs.setBattleMode('rift')
+    const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
     gs.setCombatEnemies(d.enemies.map((e) => ({ ...e })))
     // 玩家增益词缀并入 mods
-    const baseMods = getPlayerMods().combat
+    const baseMods = snap.mods
     const riftMods = { ...baseMods }
     for (const m of d.modifiers) {
       for (const [k, v] of Object.entries(m.playerMods || {})) {
@@ -75,6 +78,7 @@ export default function Rift() {
 
     try {
       for (let round = 1; round <= 90; round++) {
+        if (battleHijacked('rift')) { addLog('已切换到其他战斗玩法'); break }
         const cur = useGameStore.getState()
         const alive = cur.combatEnemies.filter((e) => e.hp > 0)
         if (alive.length === 0) { victory = true; break }
@@ -98,17 +102,17 @@ export default function Rift() {
         const p = useGameStore.getState().player!
         const st0 = useGameStore.getState()
         const sid = chooseAutoSkill(
-          { hp: p.hp, maxHp: p.maxHp, mp: p.mp, skills: p.skills || [],
+          { hp: p.hp, maxHp: snap.maxHp, mp: p.mp, skills: snap.skills || [],
             statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
-          p.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
+          snap.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
         const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
-            id: p.id, name: p.name, hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp,
-            atk: p.atk, def: p.def, mag: p.mag, mdef: p.mdef, agi: p.agi, luk: p.luk,
-            con: p.con || 0, wil: p.wil || 0,
-            skills: p.skills, element: p.element || 'none',
+            id: p.id, name: p.name, hp: p.hp, maxHp: snap.maxHp, mp: p.mp, maxMp: snap.maxMp,
+            atk: snap.atk, def: snap.def, mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
+            con: snap.con, wil: snap.wil,
+            skills: snap.skills, element: snap.element,
             statuses: useGameStore.getState().playerStatuses || [],
             cooldowns: useGameStore.getState().skillCooldowns || {},
             mods: riftMods,
@@ -177,7 +181,7 @@ export default function Rift() {
         await new Promise((r) => setTimeout(r, 2000))
       }
     } finally {
-      useGameStore.getState().setInCombat(false)
+      releaseBattle('rift')
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,16 +190,14 @@ export default function Rift() {
   const challenge = async () => {
     if (battlingRef.current || !player || !data || done) return
     const gsNow = useGameStore.getState()
-    if (gsNow.inCombat || gsNow.isAutoExploring) {
-      addLog('有其他战斗/探索进行中，结束后再挑战秘境')
-      return
-    }
+    if ((gsNow.inCombat || gsNow.isAutoExploring) && !confirmSwitchBattle('rift')) return
     battlingRef.current = true
     setBattling(true)
     useGameStore.setState({ riftInBattle: true })
     addLog(`═══ ${data.name} ═══`)
     addLog(`遭遇：${data.enemies.map((e) => e.name).join('、')}`)
     const won = await autoBattle(data)
+    if (battleHijacked('rift')) return // 战斗已被切换走，不做结算
     const after = useGameStore.getState()
     if (won) {
       const utilMods = getPlayerMods().utility
@@ -312,7 +314,7 @@ export default function Rift() {
         )}
       </div>
 
-{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage /></div>}
+{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage mode="rift" /></div>}
             {/* 战斗日志 */}
       <div className="flex-1 overflow-y-auto px-4 pb-4">
         <div className="rounded-lg p-3 font-mono text-xs leading-relaxed" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', minHeight: 200 }}>

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Crown, Swords, Trophy, Skull } from 'lucide-react'
-import { useGameStore, getPlayerMods } from '@/stores/gameStore'
+import { useGameStore } from '@/stores/gameStore'
+import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
@@ -42,14 +43,13 @@ export default function Weekly() {
   const fight = async () => {
     if (battlingRef.current || !player || !boss) return
     const gs = useGameStore.getState()
-    if (gs.inCombat || gs.isAutoExploring) {
-      addLog('另一场战斗/探索进行中，结束后再挑战')
-      return
-    }
+    if ((gs.inCombat || gs.isAutoExploring) && !confirmSwitchBattle('weekly')) return
     battlingRef.current = true
     setBattling(true)
     useGameStore.setState({ lawfulInBattle: true })
     gs.setInCombat(true)
+    gs.setBattleMode('weekly')
+    const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
     gs.setCombatEnemies([{ ...boss }])
     addLog(`═══ 每周挑战 · ${boss.name} ═══`)
@@ -59,6 +59,7 @@ export default function Weekly() {
     const bossMaxHp = boss.maxHp
     try {
       for (let round = 1; round <= 90; round++) {
+        if (battleHijacked('weekly')) { addLog('已切换到其他战斗玩法'); break }
         const cur = useGameStore.getState()
         const alive = cur.combatEnemies.filter((e) => e.hp > 0)
         if (alive.length === 0) break
@@ -82,19 +83,19 @@ export default function Weekly() {
         const p = useGameStore.getState().player!
         const st0 = useGameStore.getState()
         const sid = chooseAutoSkill(
-          { hp: p.hp, maxHp: p.maxHp, mp: p.mp, skills: p.skills || [],
+          { hp: p.hp, maxHp: snap.maxHp, mp: p.mp, skills: snap.skills || [],
             statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
-          p.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
+          snap.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
         const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
-            id: p.id, name: p.name, hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp,
-            atk: p.atk, def: p.def, mag: p.mag, mdef: p.mdef, agi: p.agi, luk: p.luk,
-            con: p.con || 0, wil: p.wil || 0,
-            skills: p.skills, element: p.element || 'none',
+            id: p.id, name: p.name, hp: p.hp, maxHp: snap.maxHp, mp: p.mp, maxMp: snap.maxMp,
+            atk: snap.atk, def: snap.def, mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
+            con: snap.con, wil: snap.wil,
+            skills: snap.skills, element: snap.element,
             statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns || {},
-            mods: getPlayerMods().combat,
+            mods: snap.mods,
           },
           enemies: alive.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
@@ -125,10 +126,10 @@ export default function Weekly() {
         await new Promise((r) => setTimeout(r, 2000))
       }
     } finally {
-      useGameStore.getState().setInCombat(false)
-      useGameStore.setState({ lawfulInBattle: false })
+      releaseBattle('weekly')
     }
 
+    if (battleHijacked('weekly')) return // 战斗已被切换走，不做结算
     // 结算
     damage = Math.max(0, Math.round(damage))
     addLog(`═══ 挑战结束：总伤害 ${damage} ═══`)
@@ -220,7 +221,7 @@ export default function Weekly() {
         </div>
       </div>
 
-{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage /></div>}
+{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage mode="weekly" /></div>}
             {/* 战斗日志 */}
       <div className="game-card min-h-0 flex-1 overflow-y-auto p-3">
         {logs.length === 0 && (

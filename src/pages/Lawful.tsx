@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Skull, Swords, Coins, Crown } from 'lucide-react'
 import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
+import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
@@ -73,12 +74,15 @@ export default function Lawful() {
   const autoBattle = useCallback(async (room: LawfulRoom): Promise<boolean> => {
     const gs = useGameStore.getState()
     gs.setInCombat(true)
+    gs.setBattleMode('lawful')
+    const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
     gs.setCombatEnemies(room.enemies.map((e) => ({ ...e })))
     let victory = false
 
     try {
       for (let round = 1; round <= 90; round++) {
+        if (battleHijacked('lawful')) { addLog('已切换到其他战斗玩法'); break }
         const cur = useGameStore.getState()
         const alive = cur.combatEnemies.filter((e) => e.hp > 0)
         if (alive.length === 0) { victory = true; break }
@@ -102,20 +106,20 @@ export default function Lawful() {
         const p = useGameStore.getState().player!
         const st0 = useGameStore.getState()
         const sid = chooseAutoSkill(
-          { hp: p.hp, maxHp: p.maxHp, mp: p.mp, skills: p.skills || [],
+          { hp: p.hp, maxHp: snap.maxHp, mp: p.mp, skills: snap.skills || [],
             statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
-          p.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
+          snap.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
         const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
 
         const result = await combatTurnMut.mutateAsync({
           player: {
-            id: p.id, name: p.name, hp: p.hp, maxHp: p.maxHp, mp: p.mp, maxMp: p.maxMp,
-            atk: p.atk, def: p.def, mag: p.mag, mdef: p.mdef, agi: p.agi, luk: p.luk,
-            con: p.con || 0, wil: p.wil || 0,
-            skills: p.skills, element: p.element || 'none',
+            id: p.id, name: p.name, hp: p.hp, maxHp: snap.maxHp, mp: p.mp, maxMp: snap.maxMp,
+            atk: snap.atk, def: snap.def, mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
+            con: snap.con, wil: snap.wil,
+            skills: snap.skills, element: snap.element,
             statuses: useGameStore.getState().playerStatuses || [],
             cooldowns: useGameStore.getState().skillCooldowns || {},
-            mods: getPlayerMods().combat,
+            mods: snap.mods,
           },
           enemies: alive.map((e) => ({
             id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
@@ -182,7 +186,7 @@ export default function Lawful() {
         await new Promise((r) => setTimeout(r, 2000))
       }
     } finally {
-      useGameStore.getState().setInCombat(false)
+      releaseBattle('lawful')
     }
     return victory
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,16 +195,14 @@ export default function Lawful() {
   const enterRoom = async (room: LawfulRoom) => {
     if (battlingRef.current || !player) return
     const gsNow = useGameStore.getState()
-    if (gsNow.inCombat || gsNow.isAutoExploring) {
-      addLog('混乱深渊探索/战斗进行中，结束后再挑战守序深渊')
-      return
-    }
+    if ((gsNow.inCombat || gsNow.isAutoExploring) && !confirmSwitchBattle('lawful')) return
     battlingRef.current = true
     setBattling(true)
     useGameStore.setState({ lawfulInBattle: true })
     addLog(`═══ 第 ${lawful.layer} 层 · ${room.name} ═══`)
     addLog(`遭遇：${room.enemies.map((e) => e.name).join('、')}`)
     const won = await autoBattle(room)
+    if (battleHijacked('lawful')) return // 战斗已被切换走，不做胜负结算
     const after = useGameStore.getState()
     if (won) {
       // 奖励：基础经验 + 层数加成，Boss 双倍
@@ -315,7 +317,7 @@ export default function Lawful() {
         )}
       </div>
 
-{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage /></div>}
+{bsInCombat && <div className="mb-3 flex-shrink-0"><BattleStage mode="lawful" /></div>}
             {/* 战斗日志 */}
       <div className="game-card min-h-0 flex-1 overflow-y-auto p-3">
         {logs.length === 0 && (

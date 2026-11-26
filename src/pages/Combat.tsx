@@ -223,6 +223,7 @@ export default function Combat() {
   // 自动战斗循环
   useEffect(() => {
     if (!store.inCombat || store.combatEnded || !autoBattleRef.current) return
+    if (store.battleMode !== 'combat') return // 只驱动本页发起的战斗，避免与其他玩法双驱动
 
     const runAutoBattle = async () => {
       const action = selectAutoAction()
@@ -323,7 +324,7 @@ export default function Combat() {
       {/* Combat Area */}
       <div className="flex flex-1 flex-col items-center justify-center p-4">
         {store.combatEnemies.length > 0 && (
-          <div className="mb-4 w-full max-w-2xl"><BattleStage /></div>
+          <div className="mb-4 w-full max-w-2xl"><BattleStage mode="combat" /></div>
         )}
         {/* Enemies */}
         <div className="mb-6 flex flex-wrap justify-center gap-3">
