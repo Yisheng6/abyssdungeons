@@ -32,7 +32,15 @@ export default function CharacterPanel() {
     return onCatalogLoaded(() => setCatalogReady(true))
   }, [])
 
-  const player = store.player
+  const livePlayer = store.player
+  const inCombat = useGameStore((s) => s.inCombat)
+  // 战斗期间冻结面板：数值变化（掉血/耗蓝等）不影响角色页签显示，战斗结束后恢复实时
+  const [frozen, setFrozen] = useState<typeof livePlayer>(null)
+  useEffect(() => {
+    if (inCombat && useGameStore.getState().player) setFrozen(useGameStore.getState().player)
+    else setFrozen(null)
+  }, [inCombat])
+  const player = inCombat && frozen ? frozen : livePlayer
   const savedClassIds = store.getSavedClassIds()
   const allClasses = classesQuery.data || []
 
@@ -113,6 +121,11 @@ export default function CharacterPanel() {
             <div className="mt-1 text-sm" style={{ color: store.activeClassId ? CLASS_COLORS[store.activeClassId] || 'var(--accent)' : 'var(--accent)' }}>
               {player ? `Lv.${player.level} ${CLASS_NAMES[player.classId] || player.classId} · ${getTierName(player.classId, player.tier || 1)}` : '未选择职业'}
             </div>
+            {inCombat && (
+              <div className="mt-1 inline-block rounded px-2 py-0.5 text-[10px]" style={{ backgroundColor: 'rgba(255,201,77,0.12)', color: '#FFC94D', border: '1px solid rgba(255,201,77,0.35)' }}>
+                战斗中 · 面板为开战时属性，换装将于下一场战斗生效
+              </div>
+            )}
             {player && (
               <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
                 金币: {player.gold} | 钻石: {player.diamonds || 0}
