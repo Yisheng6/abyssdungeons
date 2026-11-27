@@ -49260,14 +49260,14 @@ var require_client2 = __commonJS({
        * @param {Object} auth - the auth parameters
        * @private
        */
-      connect(name, auth = {}) {
+      connect(name, auth2 = {}) {
         if (this.server._nsps.has(name)) {
           debug("connecting to namespace %s", name);
-          return this.doConnect(name, auth);
+          return this.doConnect(name, auth2);
         }
-        this.server._checkNamespace(name, auth, (dynamicNspName) => {
+        this.server._checkNamespace(name, auth2, (dynamicNspName) => {
           if (dynamicNspName) {
-            this.doConnect(name, auth);
+            this.doConnect(name, auth2);
           } else {
             debug("creation of namespace %s was denied", name);
             this._packet({
@@ -49288,9 +49288,9 @@ var require_client2 = __commonJS({
        *
        * @private
        */
-      doConnect(name, auth) {
+      doConnect(name, auth2) {
         const nsp = this.server.of(name);
-        nsp._add(this, auth, (socket) => {
+        nsp._add(this, auth2, (socket) => {
           this.sockets.set(socket.id, socket);
           this.nsps.set(nsp.name, socket);
           if (this.connectTimeout) {
@@ -50009,7 +50009,7 @@ var require_socket2 = __commonJS({
        * @param {Object} auth
        * @package
        */
-      constructor(nsp, client, auth, previousSession) {
+      constructor(nsp, client, auth2, previousSession) {
         super();
         this.nsp = nsp;
         this.client = client;
@@ -50043,7 +50043,7 @@ var require_socket2 = __commonJS({
             this.pid = base64id_1.default.generateId();
           }
         }
-        this.handshake = this.buildHandshake(auth);
+        this.handshake = this.buildHandshake(auth2);
         this.on("error", noop2);
       }
       /**
@@ -50051,7 +50051,7 @@ var require_socket2 = __commonJS({
        *
        * @private
        */
-      buildHandshake(auth) {
+      buildHandshake(auth2) {
         var _a, _b, _c, _d;
         return {
           headers: ((_a = this.request) === null || _a === void 0 ? void 0 : _a.headers) || {},
@@ -50064,7 +50064,7 @@ var require_socket2 = __commonJS({
           url: (_c = this.request) === null || _c === void 0 ? void 0 : _c.url,
           // @ts-ignore
           query: ((_d = this.request) === null || _d === void 0 ? void 0 : _d._query) || {},
-          auth
+          auth: auth2
         };
       }
       /**
@@ -51028,10 +51028,10 @@ var require_namespace = __commonJS({
        * @return {Socket}
        * @private
        */
-      async _add(client, auth, fn) {
+      async _add(client, auth2, fn) {
         var _a;
         debug("adding socket to nsp %s", this.name);
-        const socket = await this._createSocket(client, auth);
+        const socket = await this._createSocket(client, auth2);
         this._preConnectSockets.set(socket.id, socket);
         if (
           // @ts-ignore
@@ -51062,9 +51062,9 @@ var require_namespace = __commonJS({
           });
         });
       }
-      async _createSocket(client, auth) {
-        const sessionId = auth.pid;
-        const offset = auth.offset;
+      async _createSocket(client, auth2) {
+        const sessionId = auth2.pid;
+        const offset = auth2.offset;
         if (
           // @ts-ignore
           this.server.opts.connectionStateRecovery && typeof sessionId === "string" && typeof offset === "string"
@@ -51077,10 +51077,10 @@ var require_namespace = __commonJS({
           }
           if (session) {
             debug("connection state recovered for sid %s", session.sid);
-            return new socket_1.Socket(this, client, auth, session);
+            return new socket_1.Socket(this, client, auth2, session);
           }
         }
-        return new socket_1.Socket(this, client, auth);
+        return new socket_1.Socket(this, client, auth2);
       }
       _doConnect(socket, fn) {
         this._preConnectSockets.delete(socket.id);
@@ -52910,7 +52910,7 @@ var require_dist3 = __commonJS({
        *
        * @private
        */
-      _checkNamespace(name, auth, fn) {
+      _checkNamespace(name, auth2, fn) {
         if (this.parentNsps.size === 0)
           return fn(false);
         const keysIterator = this.parentNsps.keys();
@@ -52919,7 +52919,7 @@ var require_dist3 = __commonJS({
           if (nextFn.done) {
             return fn(false);
           }
-          nextFn.value(name, auth, (err, allow) => {
+          nextFn.value(name, auth2, (err, allow) => {
             if (err || !allow) {
               return run2();
             }
@@ -65424,6 +65424,55 @@ var accountRouter = createRouter({
   })
 });
 
+// api/routers/save-router.ts
+init_auth_service();
+init_redis_service();
+var SAVE_KEY = (u) => `save:${u.toLowerCase()}`;
+var MAX_SAVE_BYTES = 512 * 1024;
+var MIN_INTERVAL_MS = 5e3;
+var lastSaveAt = /* @__PURE__ */ new Map();
+async function auth(token) {
+  try {
+    return await requireAccount(token);
+  } catch {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+  }
+}
+var saveRouter = createRouter({
+  get: publicQuery.input(external_exports.object({ token: external_exports.string().min(1).max(128) })).query(async ({ input }) => {
+    const username = await auth(input.token);
+    const raw2 = await getRedis().get(SAVE_KEY(username));
+    if (!raw2) return { found: false };
+    try {
+      const rec = JSON.parse(raw2);
+      return { found: true, version: rec.v, data: rec.data, updatedAt: rec.t };
+    } catch {
+      return { found: false };
+    }
+  }),
+  put: publicQuery.input(external_exports.object({
+    token: external_exports.string().min(1).max(128),
+    baseVersion: external_exports.number().int().min(0),
+    data: external_exports.string().min(2).max(MAX_SAVE_BYTES)
+  })).mutation(async ({ input }) => {
+    const username = await auth(input.token);
+    const now = Date.now();
+    const last = lastSaveAt.get(username) || 0;
+    if (now - last < MIN_INTERVAL_MS) {
+      throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "\u4FDD\u5B58\u8FC7\u4E8E\u9891\u7E41" });
+    }
+    const key = SAVE_KEY(username);
+    const raw2 = await getRedis().get(key);
+    const curV = raw2 ? JSON.parse(raw2).v || 0 : 0;
+    if (input.baseVersion !== curV) {
+      return { success: false, conflict: true, version: curV };
+    }
+    await getRedis().set(key, JSON.stringify({ v: curV + 1, data: input.data, t: now }));
+    lastSaveAt.set(username, now);
+    return { success: true, conflict: false, version: curV + 1 };
+  })
+});
+
 // api/routers/chat-router.ts
 init_auth_service();
 init_redis_service();
@@ -65756,6 +65805,7 @@ var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
   account: accountRouter,
+  save: saveRouter,
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,

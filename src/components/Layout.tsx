@@ -5,6 +5,7 @@ import PixIcon from './PixIcon'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { getToken, clearAuth } from '@/lib/auth'
+import { loadCloudSave, startAutoSave, flushSave } from '@/lib/cloudsave'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
 import Explore from '@/pages/Explore'
@@ -71,6 +72,12 @@ export default function Layout() {
   useEffect(() => {
     if (meQ.error) { clearAuth(); window.location.href = '/login' }
   }, [meQ.error])
+  // 令牌有效后：拉取云存档覆盖本地，并开启自动同步
+  useEffect(() => {
+    if (meQ.data) {
+      void loadCloudSave().then(() => startAutoSave())
+    }
+  }, [meQ.data])
   const unreadQ = trpc.mail.unread.useQuery({ playerName, token }, { refetchInterval: 30000 })
   const unreadMails = unreadQ.data?.count || 0
   // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
@@ -91,9 +98,11 @@ export default function Layout() {
 
   const logoutMut = trpc.account.logout.useMutation()
   const logout = () => {
-    logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
-    clearAuth()
-    window.location.href = '/login' // 整页刷新，回到登录页后存档键随之切换
+    void flushSave().finally(() => {
+      logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
+      clearAuth()
+      window.location.href = '/login' // 整页刷新，回到登录页后存档键随之切换
+    })
   }
 
   const isActive = (path: string) =>

@@ -498,6 +498,7 @@ function resolveStorageKey(): string {
   return key
 }
 const STORAGE_KEY = resolveStorageKey()
+export { STORAGE_KEY }
 
 // ─── 初始技能：每个职业创建/切换时自动学会前两个职业技能 ───
 const STARTER_SKILLS: Record<string, string[]> = {
