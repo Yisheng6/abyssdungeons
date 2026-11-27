@@ -16,6 +16,7 @@ const client = createTRPCClient<AppRouter>({
 let version = 0 // 本地基于的服务端版本
 let dirty = false
 let started = false
+let failCount = 0 // 连续上传失败次数（≥3 才置 error，避免瞬时抖动打扰玩家）
 
 // ─── 同步状态（顶栏指示器用）───
 export type SyncStatus = 'synced' | 'pending' | 'error'
@@ -32,10 +33,14 @@ export function onSyncStatusChange(fn: (s: SyncStatus) => void): () => void {
   return () => listeners.delete(fn)
 }
 
-/** 登录后调用：拉取云存档覆盖本地。失败自动重试 3 次；最终失败则用本地缓存兜底显示 */
-export async function loadCloudSave(): Promise<boolean> {
+/**
+ * 登录后调用：拉取云存档覆盖本地。失败自动重试 3 次。
+ * 返回 'ok'（拿到云端存档或确认是新账号）/ 'fail'（服务器不可达，调用方应阻塞进入游戏）
+ * 注意：本游戏为全程联网游戏，失败时绝不允许用本地缓存继续玩
+ */
+export async function loadCloudSave(): Promise<'ok' | 'fail'> {
   const token = getToken()
-  if (!token) return false
+  if (!token) return 'fail'
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await client.save.get.query({ token })
@@ -45,20 +50,18 @@ export async function loadCloudSave(): Promise<boolean> {
         // 重新水合 store（复用 persist 的迁移/补全逻辑）
         await useGameStore.persist.rehydrate()
         setStatus('synced')
-        return true
+        return 'ok'
       }
-      // 云端无存档：本地（含旧共享存档迁移来的）将作为初始档，标记待上传
+      // 云端无存档 = 新账号：以本地初始档为准上传
       dirty = true
       setStatus('pending')
-      return false
+      return 'ok'
     } catch {
       if (attempt < 2) await new Promise((r) => setTimeout(r, 1000))
     }
   }
-  // 三次都失败：本地缓存兜底显示，状态置为 error 提示玩家；恢复后 autosave 会补传
-  dirty = true
   setStatus('error')
-  return false
+  return 'fail'
 }
 
 /** 立即上传存档（登出/切后台/关页前调用） */
@@ -72,6 +75,7 @@ export async function flushSave(): Promise<void> {
     if (r.success) {
       version = r.version
       dirty = false
+      failCount = 0
       setStatus('synced')
     } else if (r.conflict) {
       // 其他设备有更新存档：服务器为准，覆盖本地后刷新页面
@@ -83,7 +87,8 @@ export async function flushSave(): Promise<void> {
       }
     }
   } catch {
-    setStatus('error') // 失败等下个周期重试，同时让玩家可见
+    failCount++
+    if (failCount >= 3) setStatus('error') // 连续失败：阻塞提示网络异常
   }
 }
 

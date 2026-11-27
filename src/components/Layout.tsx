@@ -68,15 +68,22 @@ export default function Layout() {
   )
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const token = getToken()
-  // 启动校验令牌：失效则清除登录态并回登录页
+  // 启动校验令牌：401 = 令牌失效回登录页；其他错误（服务器不可达）= 阻塞提示网络失败
   const meQ = trpc.account.me.useQuery({ token }, { retry: false, staleTime: 60000 })
+  const [gate, setGate] = useState<'loading' | 'ok' | 'fail'>('loading')
   useEffect(() => {
-    if (meQ.error) { clearAuth(); window.location.href = '/login' }
+    if (!meQ.error) return
+    const httpStatus = (meQ.error as { data?: { httpStatus?: number } }).data?.httpStatus
+    if (httpStatus === 401) { clearAuth(); window.location.href = '/login' }
+    else setGate('fail')
   }, [meQ.error])
-  // 令牌有效后：拉取云存档覆盖本地，并开启自动同步
+  // 令牌有效后：必须从服务器拉到云存档才能进游戏（全程联网，不允许本地跑）
   useEffect(() => {
     if (meQ.data) {
-      void loadCloudSave().then(() => startAutoSave())
+      void loadCloudSave().then((r) => {
+        if (r === 'ok') { startAutoSave(); setGate('ok') }
+        else setGate('fail')
+      })
     }
   }, [meQ.data])
   const unreadQ = trpc.mail.unread.useQuery({ playerName, token }, { refetchInterval: 30000 })
@@ -146,6 +153,26 @@ export default function Layout() {
       </div>
     </div>
   )
+
+  // ─── 联网门禁：未通过服务器验证/存档拉取前，不渲染游戏 ───
+  if (gate === 'fail') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <PixIcon name="abyss" size={48} />
+        <div className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>网络连接失败</div>
+        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>无法连接游戏服务器，本游戏需要全程联网</div>
+        <button className="game-btn-primary px-6 py-2 text-sm" onClick={() => window.location.reload()}>重新连接</button>
+      </div>
+    )
+  }
+  if (gate === 'loading') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <PixIcon name="abyss" size={48} />
+        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>正在连接服务器……</div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -373,6 +400,21 @@ export default function Layout() {
           </div>
         )}
       </div>
+
+      {/* 游玩中云端连续同步失败：阻塞提示，防止进度丢失 */}
+      {syncStatus === 'error' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.75)' }}>
+          <div className="w-full max-w-xs rounded-lg border p-5 text-center" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <PixIcon name="abyss" size={40} />
+            <div className="mt-2 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>网络连接失败</div>
+            <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>与游戏服务器的连接已中断，进度暂未保存到云端</div>
+            <button className="game-btn-primary mt-4 w-full py-2 text-sm"
+              onClick={() => void flushSave()}>
+              重试连接
+            </button>
+          </div>
+        </div>
+      )}
 
       {settingsModal}
     </div>
