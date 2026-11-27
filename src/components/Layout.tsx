@@ -5,7 +5,8 @@ import PixIcon from './PixIcon'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { getToken, clearAuth } from '@/lib/auth'
-import { loadCloudSave, startAutoSave, flushSave } from '@/lib/cloudsave'
+import { loadCloudSave, startAutoSave, flushSave, getSyncStatus, onSyncStatusChange } from '@/lib/cloudsave'
+import type { SyncStatus } from '@/lib/cloudsave'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
 import Explore from '@/pages/Explore'
@@ -80,6 +81,9 @@ export default function Layout() {
   }, [meQ.data])
   const unreadQ = trpc.mail.unread.useQuery({ playerName, token }, { refetchInterval: 30000 })
   const unreadMails = unreadQ.data?.count || 0
+  // 云存档同步状态指示
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(getSyncStatus())
+  useEffect(() => onSyncStatusChange(setSyncStatus), [])
   // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
   const onExplore = location.pathname.startsWith('/explore')
   const onLawful = location.pathname.startsWith('/lawful')
@@ -257,6 +261,15 @@ export default function Layout() {
             <span className="hidden truncate text-xs sm:inline" style={{ color: 'var(--text-muted)' }}>{statusText}</span>
           </div>
           <div className="flex flex-shrink-0 items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+            {/* 云存档同步状态 */}
+            <span
+              className="flex items-center gap-1"
+              title={syncStatus === 'synced' ? '存档已同步到云端' : syncStatus === 'pending' ? '有待同步的进度' : '云端同步失败（会自动重试）'}
+              style={{ color: syncStatus === 'synced' ? '#3FB950' : syncStatus === 'pending' ? 'var(--accent)' : '#F85149', cursor: syncStatus === 'error' ? 'pointer' : 'default' }}
+              onClick={() => { if (syncStatus === 'error') void flushSave() }}>
+              <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'currentColor' }} />
+              <span className="hidden sm:inline">{syncStatus === 'synced' ? '已存档' : syncStatus === 'pending' ? '同步中' : '同步失败'}</span>
+            </span>
             <span>金币 <span className="font-bold" style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
             <span>钻石 <span className="font-bold" style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
             <button onClick={() => navigate('/mail')} className="relative" style={{ color: 'var(--text-muted)' }}>

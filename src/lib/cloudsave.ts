@@ -17,27 +17,48 @@ let version = 0 // 本地基于的服务端版本
 let dirty = false
 let started = false
 
-/** 登录后调用：拉取云存档覆盖本地。返回是否有云端存档 */
+// ─── 同步状态（顶栏指示器用）───
+export type SyncStatus = 'synced' | 'pending' | 'error'
+let status: SyncStatus = 'synced'
+const listeners = new Set<(s: SyncStatus) => void>()
+function setStatus(s: SyncStatus) {
+  if (status === s) return
+  status = s
+  listeners.forEach((fn) => fn(s))
+}
+export function getSyncStatus(): SyncStatus { return status }
+export function onSyncStatusChange(fn: (s: SyncStatus) => void): () => void {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
+
+/** 登录后调用：拉取云存档覆盖本地。失败自动重试 3 次；最终失败则用本地缓存兜底显示 */
 export async function loadCloudSave(): Promise<boolean> {
   const token = getToken()
   if (!token) return false
-  try {
-    const res = await client.save.get.query({ token })
-    if (res.found) {
-      version = res.version
-      localStorage.setItem(STORAGE_KEY, res.data)
-      // 重新水合 store（复用 persist 的迁移/补全逻辑）
-      await useGameStore.persist.rehydrate()
-      return true
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await client.save.get.query({ token })
+      if (res.found) {
+        version = res.version
+        localStorage.setItem(STORAGE_KEY, res.data)
+        // 重新水合 store（复用 persist 的迁移/补全逻辑）
+        await useGameStore.persist.rehydrate()
+        setStatus('synced')
+        return true
+      }
+      // 云端无存档：本地（含旧共享存档迁移来的）将作为初始档，标记待上传
+      dirty = true
+      setStatus('pending')
+      return false
+    } catch {
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 1000))
     }
-    // 云端无存档：本地（含旧共享存档迁移来的）将作为初始档，标记待上传
-    dirty = true
-    return false
-  } catch {
-    // 网络失败：用本地存档离线玩，恢复后自动补传
-    dirty = true
-    return false
   }
+  // 三次都失败：本地缓存兜底显示，状态置为 error 提示玩家；恢复后 autosave 会补传
+  dirty = true
+  setStatus('error')
+  return false
 }
 
 /** 立即上传存档（登出/切后台/关页前调用） */
@@ -51,6 +72,7 @@ export async function flushSave(): Promise<void> {
     if (r.success) {
       version = r.version
       dirty = false
+      setStatus('synced')
     } else if (r.conflict) {
       // 其他设备有更新存档：服务器为准，覆盖本地后刷新页面
       const res = await client.save.get.query({ token })
@@ -60,7 +82,9 @@ export async function flushSave(): Promise<void> {
         window.location.reload()
       }
     }
-  } catch { /* 失败等下个周期重试 */ }
+  } catch {
+    setStatus('error') // 失败等下个周期重试，同时让玩家可见
+  }
 }
 
 /** 开启自动同步（30s 周期 + 页面隐藏时） */
@@ -68,7 +92,7 @@ export function startAutoSave() {
   if (started) return
   started = true
   // store 任何变化都标脏（persist 已同步写 localStorage，这里只决定是否上传）
-  useGameStore.subscribe(() => { dirty = true })
+  useGameStore.subscribe(() => { dirty = true; if (status === 'synced') setStatus('pending') })
   window.setInterval(() => { if (dirty) void flushSave() }, 30000)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && dirty) void flushSave()
