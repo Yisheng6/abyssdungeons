@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Mail, MailOpen, Gift, Trash2, Inbox, Coins, Gem, Package } from 'lucide-react'
-import { useGameStore } from '@/stores/gameStore'
 import { getToken } from '@/lib/auth'
 import { trpc } from '@/providers/trpc'
+import { applyServerState } from '@/lib/char-api'
 
 interface MailItem {
   id: string; title: string; content: string
@@ -19,7 +19,6 @@ const attText = (a: { kind: string; amount?: number; itemId?: string; quantity?:
   a.kind === 'gold' ? `金币 ×${a.amount}` : a.kind === 'diamonds' ? `钻石 ×${a.amount}` : `${itemName || a.itemId} ×${a.quantity || 1}`
 
 export default function MailPage() {
-  const store = useGameStore()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
   const token = getToken()
   const listQ = trpc.mail.list.useQuery({ playerName, token }, { refetchInterval: 30000 })
@@ -43,18 +42,8 @@ export default function MailPage() {
     claimMut.mutate({ playerName, token, mailId: m.id }, {
       onSuccess: (r) => {
         if (!r.success) { setMsg(r.message); return }
-        if (r.gold > 0) store.addPlayerGold(r.gold)
-        if (r.diamonds > 0) store.addPlayerDiamonds(r.diamonds)
-        for (const it of r.items) {
-          store.addItem({
-            uid: '', id: it.itemId, name: it.name, type: (it.type || 'material') as never,
-            quality: (it.quality || 'common') as never, quantity: it.quantity,
-            desc: '', stats: it.stats, affixes: it.affixes, slot: it.slot as never,
-            setId: it.setId, setTier: it.setTier, value: it.value,
-            effect: it.effect as never,
-            learnSkillId: it.learnSkillId,
-          })
-        }
+        // 服务端已写入存档：应用返回的最新状态
+        if ('state' in r && r.state) applyServerState(r as never)
         setMsg(`领取成功：${[r.gold > 0 ? `金币×${r.gold}` : '', r.diamonds > 0 ? `钻石×${r.diamonds}` : '', r.items.length > 0 ? `道具×${r.items.reduce((a, i) => a + i.quantity, 0)}` : ''].filter(Boolean).join('、')}`)
         refresh()
       },

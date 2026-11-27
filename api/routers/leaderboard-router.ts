@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createRouter, publicQuery } from "../middleware";
 import { requireAccount } from "../services/auth-service";
+import { loadState } from "../services/char-state-service";
 import {
   addLeaderboardScore,
   getLeaderboardTop,
@@ -19,13 +20,30 @@ export const leaderboardRouter = createRouter({
       details: z.record(z.any()).optional(),
     }))
     .mutation(async ({ input }) => {
+      let username: string;
       try {
-        await requireAccount(input.token, input.playerId);
+        username = await requireAccount(input.token, input.playerId);
       } catch (e) {
         const msg = e instanceof Error ? e.message : "";
         throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "登录状态无效" });
       }
-      await addLeaderboardScore(input.category, input.playerId, input.score, {
+      // 服务端读分：击杀/守序层数/财富以存档为准，忽略客户端上报值
+      let score = input.score;
+      const rec = await loadState(username);
+      if (rec?.state) {
+        const st = rec.state;
+        const p = st.player as { gold?: number } | undefined;
+        if (input.category === "kills") {
+          score = Math.max(0, Math.floor((st.taskState as { totals?: { kills?: number } } | undefined)?.totals?.kills ?? 0));
+        } else if (input.category === "lawful_layer") {
+          score = Math.max(0, Math.floor((st.lawful as { best?: number } | undefined)?.best ?? 1));
+        } else if (input.category === "wealth") {
+          score = Math.max(0, Math.floor(p?.gold ?? 0));
+        } else if (input.category === "deepest_layer") {
+          score = Math.max(0, Math.floor((st.player as { maxLayer?: number } | undefined)?.maxLayer ?? 1));
+        }
+      }
+      await addLeaderboardScore(input.category, input.playerId, score, {
         name: input.playerName,
         ...input.details,
       });

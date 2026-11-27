@@ -6,6 +6,8 @@ import { trpc } from '@/providers/trpc'
 import { loadCatalogs, getItemInfo, getTierName } from '@/lib/catalog'
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { runServerBattle } from '@/lib/battle-client'
+import { charApi, applyServerState } from '@/lib/char-api'
+import { getToken } from '@/lib/auth'
 import BattleStage from '@/components/BattleStage'
 
 const ENCOUNTER_NAMES: Record<string, string> = { normal: '普通怪物', elite: '精英怪物', boss: 'Boss' }
@@ -61,6 +63,7 @@ export default function Explore() {
         agi: p.agi, luk: p.luk, con: p.con || 0, wil: p.wil || 0,
       },
       layer: currentLayerRef.current,
+      token: getToken(),
     }
   }, [])
 
@@ -83,57 +86,6 @@ export default function Explore() {
     setLogs((prev) => [`[${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}] ${msg}`, ...prev].slice(0, 100))
   }, [])
 
-  // ─── 拾取战利品（真实物品入包，货币自动兑换金币）───
-  const collectLoot = useCallback((loot: Array<{
-    itemId: string; name?: string; type?: string; quality?: string; quantity: number
-    slot?: string; stats?: Record<string, number>; affixes?: Record<string, number>
-    desc?: string; value?: number
-    setId?: string; setTier?: number; effect?: Record<string, unknown>; learnSkillId?: string
-  }>) => {
-    const gs = useGameStore.getState()
-    for (const l of loot) {
-      const cat = getItemInfo(l.itemId)
-      const type = (l.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-      const name = l.name || cat?.name || l.itemId
-      if (type === 'currency') {
-        const value = l.value ?? cat?.value ?? 1
-        const goldMult = 1 + (getPlayerMods().utility.goldGain || 0) / 100
-        const gold = Math.floor(l.quantity * value * goldMult)
-        gs.addPlayerGold(gold)
-        addLog(`拾取 ${name}×${l.quantity}（+${gold} 金币）`)
-        recordLoot([{ name, quantity: l.quantity, quality: l.quality || cat?.quality }])
-        continue
-      }
-      const item = {
-        uid: `loot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        id: l.itemId, name, type,
-        slot: (l.slot || cat?.slot) as never,
-        quality: (l.quality || cat?.quality || 'common') as never,
-        quantity: l.quantity,
-        desc: l.desc || cat?.desc || name,
-        stats: l.stats || cat?.stats,
-        affixes: l.affixes,
-        setId: l.setId || cat?.setId,
-        setTier: l.setTier || cat?.setTier,
-        value: l.value ?? cat?.value,
-        effect: l.effect || cat?.effect,
-        learnSkillId: l.learnSkillId || cat?.learnSkillId,
-      }
-      // 符合自动分解条件的装备直接分解为金币
-      if (shouldAutoDisassemble(item, gs.settings)) {
-        const gold = getDisassembleGold(item)
-        gs.addPlayerGold(gold)
-        addLog(`拾取 ${name}×${l.quantity} → 自动分解（+${gold} 金币）`)
-        recordLoot([{ name, quantity: l.quantity, quality: item.quality, note: `已分解 +${gold}金币` }])
-        continue
-      }
-      gs.addItem(item)
-      addLog(`拾取 ${name}×${l.quantity}`)
-      recordLoot([{ name, quantity: l.quantity, quality: item.quality }])
-    }
-    setStats((s) => ({ ...s, items: s.items + loot.length }))
-  }, [addLog, recordLoot])
-
   // ─── 探索主循环：一波接一波的随机遇敌 ───
   const exploreLoop = useCallback(async () => {
     while (isRunningRef.current && useGameStore.getState().isAutoExploring) {
@@ -148,6 +100,7 @@ export default function Explore() {
 
       try {
         const enc = await encounterMut.mutateAsync({
+          token: getToken(),
           layer: currentLayerRef.current,
           wavesSinceBoss: waveRef.current,
         })
@@ -155,7 +108,7 @@ export default function Explore() {
 
         setWave(enc.wave)
         setStats((s) => ({ ...s, waves: s.waves + 1 }))
-        useGameStore.getState().trackTaskEvent('rooms', 1)
+        void charApi.track('rooms', 1)
 
         const typeName = ENCOUNTER_NAMES[enc.type] || enc.type
         if (enc.type === 'boss') {
@@ -171,25 +124,26 @@ export default function Explore() {
 
         const won = await autoBattle(enc.enemies)
 
-        // 战利品
-        if (enc.loot && enc.loot.length > 0) collectLoot(enc.loot as never)
+        // 战利品：凭服务端凭证领取入库（防伪造掉落）
+        if ((enc as { lootVoucher?: string }).lootVoucher) {
+          const r = await charApi.claimLoot((enc as { lootVoucher?: string }).lootVoucher!)
+          if (r.success && (r as { items?: Array<{ name: string; quantity: number; quality?: string }> }).items?.length) {
+            const its = (r as { items: Array<{ name: string; quantity: number; quality?: string }> }).items
+            addLog(`拾取战利品：${its.map((d) => `${d.name}×${d.quantity}`).join('、')}`)
+            recordLoot(its)
+            setStats((s) => ({ ...s, items: s.items + its.length }))
+          }
+        }
 
         if (won) {
           if (enc.type === 'boss') {
-            // 通关恢复：HP/MP 各恢复 50%
-            const gsH = useGameStore.getState()
-            if (gsH.player) {
-              const healHp = Math.floor(gsH.player.maxHp * 0.5)
-              const healMp = Math.floor(gsH.player.maxMp * 0.5)
-              gsH.updatePlayerHp(Math.min(gsH.player.maxHp, gsH.player.hp + healHp))
-              gsH.updatePlayerMp(Math.min(gsH.player.maxMp, gsH.player.mp + healMp))
-              addLog(`通关恢复：HP +${healHp}，MP +${healMp}`)
-            }
-            useGameStore.getState().trackTaskEvent('bossKills', 1)
-            useGameStore.getState().trackTaskEvent('layers', 1)
+            // 通关恢复由服务端结算完成（见 passHeal）
+            addLog(`通关恢复：HP/MP 恢复 50%`)
+            void charApi.track('layers', 1)
             const nextLayer = currentLayerRef.current + 1
-            const prevMax = gsH.player?.maxLayer || 1
-            gsH.updateMaxLayer(nextLayer)
+            const prevMax = useGameStore.getState().player?.maxLayer || 1
+            void charApi.updateMaxLayer(nextLayer)
+            useGameStore.getState().updateMaxLayer(nextLayer)
             addLog(`═══ 已深入至第 ${nextLayer} 层 ═══`)
             if (nextLayer > prevMax) addLog(`新纪录！最深到达第 ${nextLayer} 层`)
             setCurrentLayer(nextLayer)
@@ -225,7 +179,7 @@ export default function Explore() {
     setIsRunning(false)
     isRunningRef.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addLog, collectLoot])
+  }, [addLog])
 
   // ─── 自动战斗（返回是否胜利）───
   const autoBattle = useCallback(async (enemies: any[]): Promise<boolean> => {
@@ -274,69 +228,23 @@ export default function Explore() {
       if (res.victory) {
         victory = true
         addLog(`── 战斗胜利！──`)
-        const after = useGameStore.getState()
         setStats((s) => ({ ...s, kills: s.kills + 1 }))
-        after.trackTaskEvent('kills', enemies.length)
-        // 经验由服务端结算，客户端仅叠加经验词条加成
-        const utilMods = getPlayerMods().utility
-        const expGain = Math.floor(res.expGain * (1 + (utilMods.expGain || 0) / 100))
-        after.addPlayerExp(expGain)
-        addLog(`获得经验 ${expGain}（当前 Lv.${useGameStore.getState().player?.level}）`)
-        // 击杀回复词条
-        const killHeal = (utilMods.killHeal || 0) * enemies.length
-        const killMp = (utilMods.killMp || 0) * enemies.length
-        if (killHeal > 0 && after.player) {
-          after.updatePlayerHp(Math.min(after.player.maxHp, after.player.hp + killHeal))
-          addLog(`击杀回复：恢复 ${killHeal} 点生命`)
-        }
-        if (killMp > 0 && after.player) {
-          after.updatePlayerMp(Math.min(after.player.maxMp, after.player.mp + killMp))
-        }
-        if (res.drops.length > 0) {
-          for (const drop of res.drops) {
-            const cat = getItemInfo(drop.itemId)
-            const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-            const dName = drop.name || cat?.name || drop.itemId
-            const dQuality = (drop.quality || cat?.quality || 'common') as string
-            if (type === 'currency') {
-              const goldMult = 1 + (getPlayerMods().utility.goldGain || 0) / 100
-              after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * goldMult))
-              recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality }])
-              continue
-            }
-            const item = {
-              uid: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-              id: drop.itemId, name: dName,
-              type,
-              slot: cat?.slot as never,
-              quality: dQuality as never,
-              quantity: drop.quantity,
-              desc: cat?.desc || drop.name,
-              stats: drop.stats || cat?.stats,
-              affixes: drop.affixes,
-              setId: cat?.setId,
-              setTier: cat?.setTier,
-              value: cat?.value,
-              effect: cat?.effect,
-              learnSkillId: cat?.learnSkillId,
-            }
-            // 符合自动分解条件的装备直接分解为金币
-            if (shouldAutoDisassemble(item, after.settings)) {
-              const gold = getDisassembleGold(item)
-              after.addPlayerGold(gold)
-              addLog(`${dName} 符合自动分解条件 → +${gold} 金币`)
-              recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality, note: `已分解 +${gold}金币` }])
-              continue
-            }
-            after.addItem(item)
-            recordLoot([{ name: dName, quantity: drop.quantity, quality: dQuality }])
+        // 奖励已由服务端写入存档：应用最新状态
+        const st = res.settle
+        if (st) {
+          applyServerState(st)
+          addLog(`获得经验 ${st.exp}（当前 Lv.${useGameStore.getState().player?.level}）`)
+          if (st.gold > 0) addLog(`获得金币 ${st.gold}`)
+          if (st.diamonds > 0) addLog(`获得钻石 ×${st.diamonds}`)
+          if (st.items.length > 0) {
+            addLog(`获得掉落：${st.items.map((d) => `${d.name}×${d.quantity}`).join('、')}`)
+            recordLoot(st.items)
+            setStats((s) => ({ ...s, items: s.items + st.items.length }))
           }
-          addLog(`获得掉落：${res.drops.map(d => `${d.name}×${d.quantity}`).join('、')}`)
-          setStats((s) => ({ ...s, items: s.items + res.drops.length }))
         }
         // 谢幕停顿：让最后一击的血条清空/怪物倒下动画播完再离开
         await new Promise((r) => setTimeout(r, 1600))
-      } else if (!res.aborted && !res.sessionLost) {
+            } else if (!res.aborted && !res.sessionLost) {
         // 战败同样停留，展示角色倒下的最终画面
         await new Promise((r) => setTimeout(r, 1600))
       }

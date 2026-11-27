@@ -1,19 +1,19 @@
-// 云存档同步：
-// - 登录校验通过后 loadCloudSave() 拉取服务端存档 → 写入本地键 → 触发 store 重新水合（迁移逻辑复用）
-// - startAutoSave() 后每 30s 检查脏标记并上传；切后台/关页/登出时强制 flush
-// - 版本号乐观锁：冲突说明别的设备存了更新的档 → 以服务器为准并刷新页面
-// - localStorage 保留为离线缓存：网络失败时游戏照玩，恢复后自动补传
+// 云存档（只读）：
+// - 服务器是存档唯一写方：所有数据变更通过 char.*/battle.* 服务端接口完成
+// - 登录后 loadCloudSave() 拉取服务端存档 → 写入本地键 → 触发 store 重新水合
+// - 本文件保留读取、版本同步与同步状态指示；不再有上传通道
 import { apiClient as client } from './api'
 import { getToken } from './auth'
 import { useGameStore, STORAGE_KEY } from '@/stores/gameStore'
 
 let version = 0 // 本地基于的服务端版本
-let dirty = false
-let started = false
-let failCount = 0 // 连续上传失败次数（≥3 才置 error，避免瞬时抖动打扰玩家）
+
+/** 服务端操作返回新版本号时同步（避免下次读取误判） */
+export function setCloudVersion(v: number) { version = v }
+export function getCloudVersion(): number { return version }
 
 // ─── 同步状态（顶栏指示器用）───
-export type SyncStatus = 'synced' | 'pending' | 'error'
+export type SyncStatus = 'synced' | 'syncing' | 'saved' | 'pending' | 'error'
 let status: SyncStatus = 'synced'
 const listeners = new Set<(s: SyncStatus) => void>()
 function setStatus(s: SyncStatus) {
@@ -21,6 +21,7 @@ function setStatus(s: SyncStatus) {
   status = s
   listeners.forEach((fn) => fn(s))
 }
+export function notifySyncStatus(s: SyncStatus) { setStatus(s) }
 export function getSyncStatus(): SyncStatus { return status }
 export function onSyncStatusChange(fn: (s: SyncStatus) => void): () => void {
   listeners.add(fn)
@@ -46,9 +47,8 @@ export async function loadCloudSave(): Promise<'ok' | 'fail'> {
         setStatus('synced')
         return 'ok'
       }
-      // 云端无存档 = 新账号：以本地初始档为准上传
-      dirty = true
-      setStatus('pending')
+      // 云端无存档 = 新账号：等待创建角色（创建走服务端接口）
+      setStatus('synced')
       return 'ok'
     } catch {
       if (attempt < 2) await new Promise((r) => setTimeout(r, 1000))
@@ -56,45 +56,4 @@ export async function loadCloudSave(): Promise<'ok' | 'fail'> {
   }
   setStatus('error')
   return 'fail'
-}
-
-/** 立即上传存档（登出/切后台/关页前调用） */
-export async function flushSave(): Promise<void> {
-  const token = getToken()
-  if (!token) return
-  const data = localStorage.getItem(STORAGE_KEY)
-  if (!data) return
-  try {
-    const r = await client.save.put.mutate({ token, baseVersion: version, data })
-    if (r.success) {
-      version = r.version
-      dirty = false
-      failCount = 0
-      setStatus('synced')
-    } else if (r.conflict) {
-      // 其他设备有更新存档：服务器为准，覆盖本地后刷新页面
-      const res = await client.save.get.query({ token })
-      if (res.found) {
-        version = res.version
-        localStorage.setItem(STORAGE_KEY, res.data)
-        window.location.reload()
-      }
-    }
-  } catch {
-    failCount++
-    if (failCount >= 3) setStatus('error') // 连续失败：阻塞提示网络异常
-  }
-}
-
-/** 开启自动同步（30s 周期 + 页面隐藏时） */
-export function startAutoSave() {
-  if (started) return
-  started = true
-  // store 任何变化都标脏（persist 已同步写 localStorage，这里只决定是否上传）
-  useGameStore.subscribe(() => { dirty = true; if (status === 'synced') setStatus('pending') })
-  window.setInterval(() => { if (dirty) void flushSave() }, 30000)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && dirty) void flushSave()
-  })
-  window.addEventListener('beforeunload', () => { void flushSave() })
 }

@@ -6,6 +6,7 @@ import { randomBytes } from "crypto";
 import { getRedis } from "./redis-service";
 import { resolveCombat, type Combatant, type CombatAction } from "./combat-service";
 import { getItemById } from "./config-service";
+import { settleBattle, type SettleResult } from "./battle-settle-service";
 
 const SESSION_TTL = 1800; // 30 分钟
 const TICK_MIN_INTERVAL = 800; // 服务端控速：每回合至少 800ms
@@ -58,7 +59,9 @@ export async function startBattle(username: string, init: {
 export type TickResult =
   | { ok: true; logs: string[]; player: { hp: number; mp: number; statuses: unknown[]; cooldowns: Record<string, number> };
       enemies: Array<{ uid?: string; id: string; name: string; hp: number; maxHp: number; statuses: unknown[]; dead: boolean }>;
-      ended: boolean; victory: boolean; fled: boolean; drops: unknown[]; expGain: number; round: number }
+      ended: boolean; victory: boolean; fled: boolean; drops: unknown[]; expGain: number; round: number;
+      /** 战斗结算：奖励已由服务端写入存档，客户端直接应用该状态 */
+      settle?: SettleResult | null }
   | { ok: false; code: "NO_BATTLE" | "STALE" | "TOO_FAST" | "MAX_ROUNDS" };
 
 export async function tickBattle(username: string, battleId: string, action: CombatAction): Promise<TickResult> {
@@ -107,8 +110,20 @@ export async function tickBattle(username: string, battleId: string, action: Com
       const base = Math.min(10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5), cap);
       return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base);
     }, 0));
-    await getRedis().del(key(username));
-  } else if (ended) {
+  }
+
+  // 战斗结算：胜利（或每周挑战结束）时由服务端把奖励直接写入存档
+  let settle: SettleResult | null = null;
+  if (ended && (victory || s.mode === "weekly")) {
+    try {
+      settle = await settleBattle(username, { mode: s.mode, layer: s.layer, enemies: s.enemies },
+        drops as never, { victory, baseExp: expGain });
+    } catch (e) {
+      console.error("[battle] settle failed:", e);
+    }
+  }
+
+  if (ended) {
     await getRedis().del(key(username));
   } else {
     await store(username, s);
@@ -118,7 +133,7 @@ export async function tickBattle(username: string, battleId: string, action: Com
     ok: true, logs,
     player: { hp: player.hp, mp: player.mp, statuses: player.statuses || [], cooldowns: player.cooldowns || {} },
     enemies: enemies.map((e) => ({ uid: e.uid, id: e.id, name: e.name, hp: e.hp, maxHp: e.maxHp, statuses: e.statuses || [], dead: e.hp <= 0 })),
-    ended, victory, fled, drops: drops as unknown[], expGain, round: s.round,
+    ended, victory, fled, drops: drops as unknown[], expGain, round: s.round, settle,
   };
 }
 

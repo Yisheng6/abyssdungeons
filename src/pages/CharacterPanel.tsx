@@ -4,6 +4,7 @@ import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Sta
 import { useGameStore, getEffectiveStats, getEquipScale, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
+import { charApi } from '@/lib/char-api'
 
 // 职业中文名映射
 const CLASS_NAMES: Record<string, string> = {
@@ -62,15 +63,16 @@ export default function CharacterPanel() {
 
   const playerClass = allClasses.find((c) => c.id === store.activeClassId)
 
-  const handleCreateClass = (classId: string) => {
+  const handleCreateClass = async (classId: string) => {
     const cls = allClasses.find((c) => c.id === classId)
     if (!cls) return
-    store.createPlayer(classId, cls.baseStats)
+    const r = await charApi.createPlayer(classId)
+    if (!r.success) setSwitchMsg(r.message)
   }
 
-  const handleSwitchClass = (classId: string) => {
-    const result = store.switchClass(classId)
-    setSwitchMsg(result.message)
+  const handleSwitchClass = async (classId: string) => {
+    const r = await charApi.switchClass(classId)
+    setSwitchMsg(r.message)
   }
 
   // Stat icons & names
@@ -424,7 +426,7 @@ export default function CharacterPanel() {
                             </div>
                             <button
                               disabled={!canLearn}
-                              onClick={() => setSwitchMsg(store.learnSkill(skill.id).message)}
+                              onClick={() => { void charApi.learnSkill(skill.id).then((r) => setSwitchMsg(r.message)) }}
                               className="flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold"
                               style={{
                                 backgroundColor: canLearn ? 'var(--accent)' : 'var(--bg-hover)',
@@ -581,8 +583,7 @@ export default function CharacterPanel() {
 
                     <button
                       onClick={() => {
-                        const r = store.advanceTier()
-                        setSwitchMsg(r.message)
+                        void charApi.advanceTier().then((r) => setSwitchMsg(r.message))
                       }}
                       disabled={!canAdvance}
                       className="mt-4 w-full rounded py-2 text-sm font-bold transition-opacity"
@@ -672,7 +673,7 @@ export default function CharacterPanel() {
                 <button
                   onClick={() => {
                     if (!window.confirm(`确定要觉醒吗？\n\n等级将重置为 Lv.1，继承 15% 属性，成长率 +${(count + 1) * 20}%。\n本职业天赋将重置。装备与等阶保留。`)) return
-                    setSwitchMsg(store.awaken().message)
+                    void charApi.awaken().then((r) => setSwitchMsg(r.message))
                   }}
                   disabled={!canAwaken}
                   className="w-full rounded py-2 text-sm font-bold transition-opacity"

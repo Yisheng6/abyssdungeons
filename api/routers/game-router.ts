@@ -8,6 +8,7 @@ import {
   getItems, getEquipmentSets, getSkills, getGlobalConfig,
 } from "../services/config-service";
 import { generateDungeon, getRoomDirections, generateEncounter } from "../services/mapgen-service";
+import { createLootVoucher } from "../services/loot-voucher-service";
 import { genLawfulRooms, LAWFUL_MAX_LAYER, isBossLayer } from "../services/lawful-service";
 import { genRiftStage, getDailyModifiers, RIFT_STAGES } from "../services/daily-service";
 import { resolveCombat } from "../services/combat-service";
@@ -22,6 +23,29 @@ const offlinePlayerSchema = z.object({
   atk: z.number(), def: z.number(), mag: z.number(), mdef: z.number(),
   agi: z.number(), luk: z.number(), con: z.number(), wil: z.number(),
 });
+
+type OfflinePlayer = z.infer<typeof offlinePlayerSchema>;
+
+/** 离线模拟优先使用服务端重算的角色属性（防客户端伪造快照） */
+async function serverSnapshot(playerName: string, fallback: OfflinePlayer, token?: string): Promise<OfflinePlayer> {
+  if (!token) return fallback;
+  try {
+    const { requireAccount } = await import("../services/auth-service");
+    const username = await requireAccount(token);
+    if (username.toLowerCase() !== playerName.toLowerCase()) return fallback;
+    const { computeCharacterSnapshot } = await import("../services/character-service");
+    const snap = await computeCharacterSnapshot(username);
+    if (!snap) return fallback;
+    const sp = snap.player as unknown as Record<string, number>;
+    return {
+      level: snap.level, hp: sp.hp, maxHp: sp.maxHp, mp: sp.mp, maxMp: sp.maxMp,
+      atk: sp.atk, def: sp.def, mag: sp.mag, mdef: sp.mdef,
+      agi: sp.agi, luk: sp.luk, con: sp.con ?? 0, wil: sp.wil ?? 0,
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 export const gameRouter = createRouter({
   // ─── Config APIs ───
@@ -128,8 +152,21 @@ export const gameRouter = createRouter({
     .input(z.object({
       layer: z.number().min(1).max(999999),
       wavesSinceBoss: z.number().min(0).max(999).default(0),
+      token: z.string().max(128).optional(),
     }))
-    .mutation(({ input }) => generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss })),
+    .mutation(async ({ input }) => {
+      const enc = generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss });
+      // 掉落凭证：战利品由服务端暂存，领取时入库，防止客户端伪造掉落
+      let lootVoucher: string | undefined;
+      if (enc.loot && enc.loot.length > 0 && input.token) {
+        try {
+          const { requireAccount } = await import("../services/auth-service");
+          const username = await requireAccount(input.token);
+          lootVoucher = await createLootVoucher(username, enc.loot as never);
+        } catch { /* 未登录则不掉落 */ }
+      }
+      return { ...enc, lootVoucher };
+    }),
 
   generateDungeon: publicQuery
     .input(z.object({
@@ -276,16 +313,16 @@ export const gameRouter = createRouter({
 
   // ─── 离线挂机探索 ───
   offlineStart: publicQuery
-    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number() }))
-    .mutation(({ input }) => {
-      offlineStart(input.playerName, input.player, input.layer);
+    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number(), token: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      offlineStart(input.playerName, await serverSnapshot(input.playerName, input.player, input.token), input.layer);
       return { ok: true, maxHours: OFFLINE_BASE_HOURS };
     }),
 
   offlineHeartbeat: publicQuery
-    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number() }))
-    .mutation(({ input }) => {
-      offlineHeartbeat(input.playerName, input.player, input.layer);
+    .input(z.object({ playerName: z.string(), player: offlinePlayerSchema, layer: z.number(), token: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      offlineHeartbeat(input.playerName, await serverSnapshot(input.playerName, input.player, input.token), input.layer);
       return { ok: true };
     }),
 
@@ -304,6 +341,51 @@ export const gameRouter = createRouter({
     })),
 
   offlineSettle: publicQuery
-    .input(z.object({ playerName: z.string() }))
-    .mutation(({ input }) => offlineSettle(input.playerName)),
+    .input(z.object({ playerName: z.string(), token: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      const r = offlineSettle(input.playerName);
+      if (!r.settled || r.rooms <= 0 || !input.token) return r;
+      // 奖励由服务端直接写入存档（服务器是唯一存档写入方）
+      try {
+        const { requireAccount } = await import("../services/auth-service");
+        const username = await requireAccount(input.token);
+        if (username.toLowerCase() !== input.playerName.toLowerCase()) return r;
+        const { loadState, writeState, addItemToInventory, serverUid } = await import("../services/char-state-service");
+        const { gainExp, applyRecompute } = await import("../services/character-service");
+        const { ensureTaskState, disassembleGold, shouldAutoDisassembleServer } = await import("../services/char-ops-service");
+        const rec = await loadState(username);
+        if (!rec || !rec.state.player) return r;
+        const s = rec.state as any;
+        const p = s.player;
+        const ups = gainExp(p, r.exp);
+        p.gold = (p.gold || 0) + r.gold;
+        p.diamonds = (p.diamonds || 0) + r.diamonds;
+        let disGold = 0;
+        let kept = 0;
+        s.inventory = s.inventory || [];
+        for (const it of r.items) {
+          const item = {
+            uid: serverUid('offline'), id: it.itemId, name: it.name, type: it.type,
+            quality: it.quality, quantity: it.quantity, slot: it.slot,
+            stats: it.stats, affixes: it.affixes, setId: it.setId, setTier: it.setTier, value: it.value,
+          };
+          if (shouldAutoDisassembleServer(item, s.settings)) {
+            disGold += disassembleGold(item) * it.quantity;
+          } else {
+            s.inventory = addItemToInventory(s.inventory, item);
+            kept += it.quantity;
+          }
+        }
+        p.gold += disGold;
+        if (r.finalLayer > (p.maxLayer || 1)) p.maxLayer = r.finalLayer;
+        const ts = ensureTaskState(s);
+        ts.daily.rooms += r.rooms; ts.totals.rooms += r.rooms;
+        ts.daily.kills += r.kills; ts.totals.kills += r.kills;
+        ts.daily.bossKills += r.bossKills; ts.totals.bossKills += r.bossKills;
+        if (ups > 0 || r.rooms > 0) applyRecompute(p, s.equipment || {}, s.talents || {});
+        const version = await writeState(username, s);
+        return { ...r, disassembledGold: disGold, keptCount: kept, state: s, version };
+      } catch { /* 存档写入失败时仍返回结算摘要 */ }
+      return r;
+    }),
 });

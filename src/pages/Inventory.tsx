@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
 import { useGameStore, type Item, getEffectiveStats, getEquipScale, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
+import { charApi } from '@/lib/char-api'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -98,33 +99,31 @@ export default function Inventory() {
     .filter(([, item]) => item !== null)
     .map(([slot, item]) => ({ slot, item: item! }))
 
-  const handleEquip = (item: Item) => {
+  const handleEquip = async (item: Item) => {
     if (item.type !== 'equipment') return
     if (store.inCombat) { setUseMsg('战斗中无法更换装备'); return }
-    store.equipItem(item.uid)
+    const r = await charApi.equip(item.uid)
+    if (!r.success) setUseMsg(r.message)
     setSelectedItem(null)
   }
 
-  const handleUnequip = (slot: string) => {
+  const handleUnequip = async (slot: string) => {
     if (store.inCombat) { setUseMsg('战斗中无法卸下装备'); return }
-    store.unequipItem(slot as keyof typeof equipment)
+    const r = await charApi.unequip(slot)
+    if (!r.success) setUseMsg(r.message)
   }
 
-  const handleUse = (item: Item) => {
-    if (item.type === 'consumable') {
-      const r = store.useConsumable(item.uid)
+  const handleUse = async (item: Item) => {
+    if (item.type === 'consumable' || item.type === 'skillbook') {
+      const r = await charApi.useItem(item.uid)
       setUseMsg(r.message)
       if (r.success) {
         setSelectedItem((prev) => {
           if (!prev) return prev
-          const still = store.inventory.find((i) => i.uid === prev.uid)
+          const still = useGameStore.getState().inventory.find((i) => i.uid === prev.uid)
           return still || null
         })
       }
-    } else if (item.type === 'skillbook') {
-      const r = store.learnSkillFromBook(item.uid)
-      setUseMsg(r.message)
-      if (r.success) setSelectedItem(null)
     }
   }
 
@@ -378,9 +377,10 @@ export default function Inventory() {
               )}
               {selectedItem.type === 'equipment' && (
                 <button onClick={() => {
-                  const r = store.disassembleItem(selectedItem.uid)
-                  setUseMsg(r.message)
-                  if (r.success) setSelectedItem(null)
+                  void charApi.disassemble([selectedItem.uid]).then((r) => {
+                    setUseMsg(r.message)
+                    if (r.success) setSelectedItem(null)
+                  })
                 }} className="game-btn-secondary flex-1 text-xs"
                   style={{ borderColor: '#C9A84C', color: '#C9A84C' }}>
                   分解（+{getDisassembleGold(selectedItem)} 金币）

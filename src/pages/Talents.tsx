@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sparkles, RotateCcw, Lock, Check } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
+import { charApi } from '@/lib/char-api'
 import {
   TALENT_TREES, getSpentTalentPoints, getBranchSpent, canLearnTalent,
   getRespecCost, getTalentMods, TALENT_NODE_DESC_KEYS, tierGate, type TalentNode,
@@ -10,8 +11,6 @@ export default function Talents() {
   const player = useGameStore((s) => s.player)
   const talents = useGameStore((s) => s.talents)
   const inCombat = useGameStore((s) => s.inCombat)
-  const learnTalent = useGameStore((s) => s.learnTalent)
-  const respecTalents = useGameStore((s) => s.respecTalents)
   const [msg, setMsg] = useState('')
 
   if (!player) {
@@ -29,14 +28,14 @@ export default function Talents() {
   const respecCost = getRespecCost(player.level)
   const mods = getTalentMods(ranks, player.classId)
 
-  const learn = (nodeId: string) => {
-    const r = learnTalent(nodeId)
+  const learn = async (nodeId: string) => {
+    const r = await charApi.learnTalent(nodeId)
     setMsg(r.message)
   }
 
-  const respec = () => {
+  const respec = async () => {
     if (!window.confirm(`重置全部天赋需要 ${respecCost} 金币，确定洗点？`)) return
-    const r = respecTalents()
+    const r = await charApi.respecTalents()
     setMsg(r.message)
   }
 

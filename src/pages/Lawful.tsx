@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Skull, Swords, Coins, Crown } from 'lucide-react'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
+import { useGameStore } from '@/stores/gameStore'
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
-import { getItemInfo } from '@/lib/catalog'
 import { runServerBattle } from '@/lib/battle-client'
+import { charApi, applyServerState } from '@/lib/char-api'
 import BattleStage from '@/components/BattleStage'
 
 interface LawfulEnemy {
@@ -35,7 +35,6 @@ export default function Lawful() {
     { layer: lawful.layer, classId: player?.classId || 'warrior', seed },
     { enabled: !!player && !cleared }
   )
-  const submitMut = trpc.lb.submitScore.useMutation()
 
   const addLog = (l: string) => setLogs((prev) => [...prev.slice(-80), l])
 
@@ -91,42 +90,13 @@ export default function Lawful() {
       })
       victory = res.victory
 
-      if (res.victory) {
-        // 掉落结算
-        const after = useGameStore.getState()
-        const utilMods = getPlayerMods().utility
-        for (const drop of res.drops) {
-          const cat = getItemInfo(drop.itemId)
-          const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-          const dName = drop.name || cat?.name || drop.itemId
-          if (type === 'currency') {
-            if (drop.itemId === 'gem_diamond') {
-              after.addPlayerDiamonds(drop.quantity)
-              addLog(`获得 钻石×${drop.quantity}`)
-            } else {
-              const mult = 1 + (utilMods.goldGain || 0) / 100
-              after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * mult))
-              addLog(`获得 ${dName}×${drop.quantity}`)
-            }
-            continue
-          }
-          const item = {
-            uid: `lawful_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-            id: drop.itemId, name: dName, type, quality: (drop.quality || 'common') as never,
-            quantity: drop.quantity,
-            slot: (cat?.slot) as never, stats: drop.stats, affixes: drop.affixes,
-            setId: cat?.setId, setTier: cat?.setTier,
-            effect: cat?.effect as never, value: cat?.value,
-          }
-          if (shouldAutoDisassemble(item as never, after.settings)) {
-            const g = getDisassembleGold(item as never)
-            after.addPlayerGold(g)
-            addLog(`${dName} 已自动分解 +${g}金币`)
-          } else {
-            after.addItem(item as never)
-            addLog(`获得 ${dName}×${drop.quantity}`)
-          }
-        }
+      if (res.settle) {
+        // 服务端结算：经验/金币/掉落已写入云端存档
+        const st = res.settle
+        applyServerState(st)
+        if (st.exp > 0) addLog(`获得经验 ${st.exp}${st.gold > 0 ? `、金币 ${st.gold}` : ''}${st.diamonds > 0 ? `、钻石 ${st.diamonds}` : ''}`)
+        if (st.levelUps > 0) addLog(`★ 升级！等级提升 ${st.levelUps} 级，全属性成长 ★`)
+        for (const it of st.items) addLog(`获得 ${it.name}×${it.quantity}`)
       }
     } finally {
       releaseBattle('lawful')
@@ -154,29 +124,13 @@ export default function Lawful() {
     }
     const after = useGameStore.getState()
     if (won) {
-      // 奖励：基础经验 + 层数加成，Boss 双倍
-      const utilMods = getPlayerMods().utility
-      const base = room.enemies.reduce((sum, e) => sum + 10 + lawful.layer * 3 + Math.ceil(e.maxHp / 20) + e.atk, 0)
-      const exp = Math.floor(base * (room.isBoss ? 2 : 1) * (1 + (utilMods.expGain || 0) / 100))
-      const gold = Math.floor((8 + lawful.layer * 4) * (room.isBoss ? 5 : 1) * (1 + (utilMods.goldGain || 0) / 100))
-      after.addPlayerExp(exp)
-      after.addPlayerGold(gold)
-      addLog(`获得经验 ${exp}、金币 ${gold}`)
-      after.trackTaskEvent('kills', room.enemies.length)
-      if (room.isBoss) after.trackTaskEvent('bossKills', 1)
-
       const next = lawful.layer + 1
       if (lawful.layer >= 100) {
         setCleared(true)
         addLog('★ 你通关了守序深渊 100 层！★')
       } else {
-        after.setLawfulLayer(next)
+        void charApi.setLawfulLayer(next)
         addLog(`═══ 进入第 ${next} 层 ═══`)
-      }
-      // 上榜
-      const playerName = localStorage.getItem('ad_user') || ''
-      if (playerName) {
-        submitMut.mutateAsync({ category: 'lawful_layer', playerId: playerName, playerName, score: lawful.layer }).catch(() => {})
       }
       refreshRooms()
     } else {

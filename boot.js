@@ -23,9 +23,9 @@ var __export = (target, all) => {
 };
 var __copyProps = (to, from, except2, desc2) => {
   if (from && typeof from === "object" || typeof from === "function") {
-    for (let key2 of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key2) && key2 !== except2)
-        __defProp(to, key2, { get: () => from[key2], enumerable: !(desc2 = __getOwnPropDesc(from, key2)) || desc2.enumerable });
+    for (let key3 of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key3) && key3 !== except2)
+        __defProp(to, key3, { get: () => from[key3], enumerable: !(desc2 = __getOwnPropDesc(from, key3)) || desc2.enumerable });
   }
   return to;
 };
@@ -79,9 +79,9 @@ var require_dist = __commonJS({
           index2 = str.lastIndexOf(";", eqIdx - 1) + 1;
           continue;
         }
-        const key2 = valueSlice(str, index2, eqIdx);
-        if (obj[key2] === void 0) {
-          obj[key2] = dec(valueSlice(str, eqIdx + 1, endIdx));
+        const key3 = valueSlice(str, index2, eqIdx);
+        if (obj[key3] === void 0) {
+          obj[key3] = dec(valueSlice(str, eqIdx + 1, endIdx));
         }
         index2 = endIdx + 1;
       } while (index2 < len);
@@ -3399,12 +3399,12 @@ var require_built = __commonJS({
       return keys;
     }
     exports.getKeyIndexes = getKeyIndexes;
-    function getExternalKeyNameLength(key2) {
-      if (typeof key2 !== "string") {
-        key2 = String(key2);
+    function getExternalKeyNameLength(key3) {
+      if (typeof key3 !== "string") {
+        key3 = String(key3);
       }
-      const hashPos = key2.indexOf("->");
-      return hashPos === -1 ? key2.length : hashPos;
+      const hashPos = key3.indexOf("->");
+      return hashPos === -1 ? key3.length : hashPos;
     }
   }
 });
@@ -4014,10 +4014,10 @@ var require_defaults = __commonJS({
           continue;
         }
         const source = sources[i];
-        for (const key2 in source) {
-          const value = object[key2];
-          if (value === void 0 || !objectProto.hasOwnProperty.call(object, key2) && eq2(value, objectProto[key2])) {
-            object[key2] = source[key2];
+        for (const key3 in source) {
+          const value = object[key3];
+          if (value === void 0 || !objectProto.hasOwnProperty.call(object, key3) && eq2(value, objectProto[key3])) {
+            object[key3] = source[key3];
           }
         }
       }
@@ -4200,8 +4200,8 @@ var require_common = __commonJS({
       createDebug.enabled = enabled;
       createDebug.humanize = require_ms();
       createDebug.destroy = destroy;
-      Object.keys(env2).forEach((key2) => {
-        createDebug[key2] = env2[key2];
+      Object.keys(env2).forEach((key3) => {
+        createDebug[key3] = env2[key3];
       });
       createDebug.names = [];
       createDebug.skips = [];
@@ -4751,13 +4751,13 @@ var require_node = __commonJS({
       }
     } catch (error) {
     }
-    exports.inspectOpts = Object.keys(process.env).filter((key2) => {
-      return /^debug_/i.test(key2);
-    }).reduce((obj, key2) => {
-      const prop = key2.substring(6).toLowerCase().replace(/_([a-z])/g, (_, k) => {
+    exports.inspectOpts = Object.keys(process.env).filter((key3) => {
+      return /^debug_/i.test(key3);
+    }).reduce((obj, key3) => {
+      const prop = key3.substring(6).toLowerCase().replace(/_([a-z])/g, (_, k) => {
         return k.toUpperCase();
       });
-      let val = process.env[key2];
+      let val = process.env[key3];
       if (/^(yes|on|true|enabled)$/i.test(val)) {
         val = true;
       } else if (/^(no|off|false|disabled)$/i.test(val)) {
@@ -5142,15 +5142,15 @@ var require_utils2 = __commonJS({
     exports.packObject = packObject;
     function timeout(callback, timeout2) {
       let timer = null;
-      const run2 = function() {
+      const run3 = function() {
         if (timer) {
           clearTimeout(timer);
           timer = null;
           callback.apply(this, arguments);
         }
       };
-      timer = setTimeout(run2, timeout2, new Error("timeout"));
-      return run2;
+      timer = setTimeout(run3, timeout2, new Error("timeout"));
+      return run3;
     }
     exports.timeout = timeout;
     function convertObjectToArray(obj) {
@@ -5165,8 +5165,8 @@ var require_utils2 = __commonJS({
     function convertMapToArray(map) {
       const result = [];
       let pos = 0;
-      map.forEach(function(value, key2) {
-        result[pos] = key2;
+      map.forEach(function(value, key3) {
+        result[pos] = key3;
         result[pos + 1] = value;
         pos += 2;
       });
@@ -5214,8 +5214,8 @@ var require_utils2 = __commonJS({
         if (qIdx !== -1) {
           const options2 = {};
           const params = new URLSearchParams(rawUrl.slice(qIdx + 1));
-          params.forEach((value, key2) => {
-            options2[key2] = parseURLQueryItem(key2, value);
+          params.forEach((value, key3) => {
+            options2[key3] = parseURLQueryItem(key3, value);
           });
           (0, lodash_1.defaults)(result2, options2);
         }
@@ -5230,8 +5230,8 @@ var require_utils2 = __commonJS({
         parsed = new URL("redis://" + rawUrl);
       }
       const options = {};
-      parsed.searchParams.forEach((value, key2) => {
-        options[key2] = parseURLQueryItem(key2, value);
+      parsed.searchParams.forEach((value, key3) => {
+        options[key3] = parseURLQueryItem(key3, value);
       });
       const result = {};
       if (parsed.username || parsed.password) {
@@ -5257,8 +5257,8 @@ var require_utils2 = __commonJS({
       return result;
     }
     exports.parseURL = parseURL;
-    function parseURLQueryItem(key2, value) {
-      if (key2 === "family") {
+    function parseURLQueryItem(key3, value) {
+      if (key3 === "family") {
         const intFamily = Number.parseInt(value, 10);
         if (!Number.isNaN(intFamily)) {
           return intFamily;
@@ -5300,8 +5300,8 @@ var require_utils2 = __commonJS({
     exports.CONNECTION_CLOSED_ERROR_MSG = "Connection is closed.";
     function zipMap(keys, values) {
       const map = /* @__PURE__ */ new Map();
-      keys.forEach((key2, index2) => {
-        map.set(key2, values[index2]);
+      keys.forEach((key3, index2) => {
+        map.set(key3, values[index2]);
       });
       return map;
     }
@@ -5422,16 +5422,16 @@ var require_Command = __commonJS({
         if (options.keyPrefix) {
           const isBufferKeyPrefix = options.keyPrefix instanceof Buffer;
           let keyPrefixBuffer = isBufferKeyPrefix ? options.keyPrefix : null;
-          this._iterateKeys((key2) => {
-            if (key2 instanceof Buffer) {
+          this._iterateKeys((key3) => {
+            if (key3 instanceof Buffer) {
               if (keyPrefixBuffer === null) {
                 keyPrefixBuffer = Buffer.from(options.keyPrefix);
               }
-              return Buffer.concat([keyPrefixBuffer, key2]);
+              return Buffer.concat([keyPrefixBuffer, key3]);
             } else if (isBufferKeyPrefix) {
-              return Buffer.concat([options.keyPrefix, Buffer.from(String(key2))]);
+              return Buffer.concat([options.keyPrefix, Buffer.from(String(key3))]);
             }
-            return options.keyPrefix + key2;
+            return options.keyPrefix + key3;
           });
         }
         if (options.readOnly) {
@@ -5465,8 +5465,8 @@ var require_Command = __commonJS({
       }
       getSlot() {
         if (typeof this.slot === "undefined") {
-          const key2 = this.getKeys()[0];
-          this.slot = key2 == null ? null : calculateSlot(key2);
+          const key3 = this.getKeys()[0];
+          this.slot = key3 == null ? null : calculateSlot(key3);
         }
         return this.slot;
       }
@@ -5639,7 +5639,7 @@ var require_Command = __commonJS({
       /**
        * Iterate through the command arguments that are considered keys.
        */
-      _iterateKeys(transform = (key2) => key2) {
+      _iterateKeys(transform = (key3) => key3) {
         if (typeof this.keys === "undefined") {
           this.keys = [];
           if ((0, commands_1.exists)(this.name, { caseInsensitive: true })) {
@@ -5745,17 +5745,17 @@ var require_Command = __commonJS({
       if (Array.isArray(result)) {
         const obj = {};
         for (let i = 0; i < result.length; i += 2) {
-          const key2 = result[i];
+          const key3 = result[i];
           const value = result[i + 1];
-          if (key2 in obj) {
-            Object.defineProperty(obj, key2, {
+          if (key3 in obj) {
+            Object.defineProperty(obj, key3, {
               value,
               configurable: true,
               enumerable: true,
               writable: true
             });
           } else {
-            obj[key2] = value;
+            obj[key3] = value;
           }
         }
         return obj;
@@ -6308,21 +6308,21 @@ var require_Pipeline = __commonJS({
             };
             const cluster = this.redis;
             cluster.handleError(commonError, this.leftRedirections, {
-              moved: function(_slot, key2) {
-                _this.preferKey = key2;
+              moved: function(_slot, key3) {
+                _this.preferKey = key3;
                 if (cluster.slots[errv[1]]) {
-                  if (cluster.slots[errv[1]][0] !== key2) {
-                    cluster.slots[errv[1]] = [key2];
+                  if (cluster.slots[errv[1]][0] !== key3) {
+                    cluster.slots[errv[1]] = [key3];
                   }
                 } else {
-                  cluster.slots[errv[1]] = [key2];
+                  cluster.slots[errv[1]] = [key3];
                 }
                 cluster._groupsBySlot[errv[1]] = cluster._groupsIds[cluster.slots[errv[1]].join(";")];
                 cluster.refreshSlotsCache();
                 _this.exec();
               },
-              ask: function(_slot, key2) {
-                _this.preferKey = key2;
+              ask: function(_slot, key3) {
+                _this.preferKey = key3;
                 _this.exec();
               },
               tryagain: exec,
@@ -6846,11 +6846,11 @@ var require_ClusterSubscriber = __commonJS({
           debug("subscriber has disconnected, selecting a new one...");
           this.selectSubscriber();
         };
-        this.connectionPool.on("-node", (_, key2) => {
+        this.connectionPool.on("-node", (_, key3) => {
           if (!this.started || !this.subscriber) {
             return;
           }
-          if ((0, util_1.getNodeKey)(this.subscriber.options) === key2) {
+          if ((0, util_1.getNodeKey)(this.subscriber.options) === key3) {
             debug("subscriber has left, selecting a new one...");
             this.selectSubscriber();
           }
@@ -7031,10 +7031,10 @@ var require_ConnectionPool = __commonJS({
       }
       getNodes(role = "all") {
         const nodes = this.nodes[role];
-        return Object.keys(nodes).map((key2) => nodes[key2]);
+        return Object.keys(nodes).map((key3) => nodes[key3]);
       }
-      getInstanceByKey(key2) {
-        return this.nodes.all[key2];
+      getInstanceByKey(key3) {
+        return this.nodes.all[key3];
       }
       getSampleInstance(role) {
         const keys = Object.keys(this.nodes[role]);
@@ -7046,11 +7046,11 @@ var require_ConnectionPool = __commonJS({
        * @param node
        */
       addMasterNode(node2) {
-        const key2 = (0, util_1.getNodeKey)(node2.options);
+        const key3 = (0, util_1.getNodeKey)(node2.options);
         const redis2 = this.createRedisFromOptions(node2, node2.options.readOnly);
         if (!node2.options.readOnly) {
-          this.nodes.all[key2] = redis2;
-          this.nodes.master[key2] = redis2;
+          this.nodes.all[key3] = redis2;
+          this.nodes.master[key3] = redis2;
           return true;
         }
         return false;
@@ -7080,43 +7080,43 @@ var require_ConnectionPool = __commonJS({
        * Find or create a connection to the node
        */
       findOrCreate(node2, readOnly = false) {
-        const key2 = (0, util_1.getNodeKey)(node2);
+        const key3 = (0, util_1.getNodeKey)(node2);
         readOnly = Boolean(readOnly);
-        if (this.specifiedOptions[key2]) {
-          Object.assign(node2, this.specifiedOptions[key2]);
+        if (this.specifiedOptions[key3]) {
+          Object.assign(node2, this.specifiedOptions[key3]);
         } else {
-          this.specifiedOptions[key2] = node2;
+          this.specifiedOptions[key3] = node2;
         }
         let redis2;
-        if (this.nodes.all[key2]) {
-          redis2 = this.nodes.all[key2];
+        if (this.nodes.all[key3]) {
+          redis2 = this.nodes.all[key3];
           if (redis2.options.readOnly !== readOnly) {
             redis2.options.readOnly = readOnly;
-            debug("Change role of %s to %s", key2, readOnly ? "slave" : "master");
+            debug("Change role of %s to %s", key3, readOnly ? "slave" : "master");
             redis2[readOnly ? "readonly" : "readwrite"]().catch(utils_1.noop);
             if (readOnly) {
-              delete this.nodes.master[key2];
-              this.nodes.slave[key2] = redis2;
+              delete this.nodes.master[key3];
+              this.nodes.slave[key3] = redis2;
             } else {
-              delete this.nodes.slave[key2];
-              this.nodes.master[key2] = redis2;
+              delete this.nodes.slave[key3];
+              this.nodes.master[key3] = redis2;
             }
           }
         } else {
-          debug("Connecting to %s as %s", key2, readOnly ? "slave" : "master");
+          debug("Connecting to %s as %s", key3, readOnly ? "slave" : "master");
           redis2 = this.createRedisFromOptions(node2, readOnly);
-          this.nodes.all[key2] = redis2;
-          this.nodes[readOnly ? "slave" : "master"][key2] = redis2;
+          this.nodes.all[key3] = redis2;
+          this.nodes[readOnly ? "slave" : "master"][key3] = redis2;
           redis2.once("end", () => {
-            this.removeNode(key2);
-            this.emit("-node", redis2, key2);
+            this.removeNode(key3);
+            this.emit("-node", redis2, key3);
             if (!Object.keys(this.nodes.all).length) {
               this.emit("drain");
             }
           });
-          this.emit("+node", redis2, key2);
+          this.emit("+node", redis2, key3);
           redis2.on("error", (error) => {
-            this.emit("nodeError", error, key2);
+            this.emit("nodeError", error, key3);
           });
         }
         return redis2;
@@ -7129,34 +7129,34 @@ var require_ConnectionPool = __commonJS({
         debug("Reset with %O", nodes);
         const newNodes = {};
         nodes.forEach((node2) => {
-          const key2 = (0, util_1.getNodeKey)(node2);
-          if (!(node2.readOnly && newNodes[key2])) {
-            newNodes[key2] = node2;
+          const key3 = (0, util_1.getNodeKey)(node2);
+          if (!(node2.readOnly && newNodes[key3])) {
+            newNodes[key3] = node2;
           }
         });
-        Object.keys(this.nodes.all).forEach((key2) => {
-          if (!newNodes[key2]) {
-            debug("Disconnect %s because the node does not hold any slot", key2);
-            this.nodes.all[key2].disconnect();
-            this.removeNode(key2);
+        Object.keys(this.nodes.all).forEach((key3) => {
+          if (!newNodes[key3]) {
+            debug("Disconnect %s because the node does not hold any slot", key3);
+            this.nodes.all[key3].disconnect();
+            this.removeNode(key3);
           }
         });
-        Object.keys(newNodes).forEach((key2) => {
-          const node2 = newNodes[key2];
+        Object.keys(newNodes).forEach((key3) => {
+          const node2 = newNodes[key3];
           this.findOrCreate(node2, node2.readOnly);
         });
       }
       /**
        * Remove a node from the pool.
        */
-      removeNode(key2) {
+      removeNode(key3) {
         const { nodes } = this;
-        if (nodes.all[key2]) {
-          debug("Remove %s from the pool", key2);
-          delete nodes.all[key2];
+        if (nodes.all[key3]) {
+          debug("Remove %s from the pool", key3);
+          delete nodes.all[key3];
         }
-        delete nodes.master[key2];
-        delete nodes.slave[key2];
+        delete nodes.master[key3];
+        delete nodes.slave[key3];
       }
     };
     exports.default = ConnectionPool;
@@ -8055,7 +8055,7 @@ var require_cluster = __commonJS({
           throw new Error('Invalid option scaleReads "' + this.options.scaleReads + '". Expected "all", "master", "slave" or a custom function');
         }
         this.connectionPool = new ConnectionPool_1.default((_a = this.options.redisOptions) !== null && _a !== void 0 ? _a : {}, this.options.clusterNodeRetryStrategy);
-        this.connectionPool.on("-node", (redis2, key2) => {
+        this.connectionPool.on("-node", (redis2, key3) => {
           this.emit("-node", redis2);
         });
         this.connectionPool.on("+node", (redis2) => {
@@ -8064,8 +8064,8 @@ var require_cluster = __commonJS({
         this.connectionPool.on("drain", () => {
           this.setStatus("close");
         });
-        this.connectionPool.on("nodeError", (error, key2) => {
-          this.emit("node error", error, key2);
+        this.connectionPool.on("nodeError", (error, key3) => {
+          this.emit("node error", error, key3);
         });
         this.subscriber = new ClusterSubscriber_1.default(this.connectionPool, this);
         if (this.options.scripts) {
@@ -8123,9 +8123,9 @@ var require_cluster = __commonJS({
               this.manuallyClosing = false;
               this.setStatus("connect");
               if (this.options.enableReadyCheck) {
-                this.readyCheck((err, fail) => {
-                  if (err || fail) {
-                    debug("Ready check failed (%s). Reconnecting...", err || fail);
+                this.readyCheck((err, fail2) => {
+                  if (err || fail2) {
+                    debug("Ready check failed (%s). Reconnecting...", err || fail2);
                     if (this.status === "connect") {
                       this.disconnect(true);
                     }
@@ -8295,8 +8295,8 @@ var require_cluster = __commonJS({
             return wrapper(error);
           }
           const node2 = nodes[index2];
-          const key2 = `${node2.options.host}:${node2.options.port}`;
-          debug("getting slot cache from %s", key2);
+          const key3 = `${node2.options.host}:${node2.options.port}`;
+          debug("getting slot cache from %s", key3);
           _this.getInfoFromNode(node2, function(err) {
             switch (_this.status) {
               case "close":
@@ -8306,7 +8306,7 @@ var require_cluster = __commonJS({
                 return wrapper(new Error("Cluster is disconnecting."));
             }
             if (err) {
-              _this.emit("node error", err, key2);
+              _this.emit("node error", err, key3);
               lastNodeError = err;
               tryNode(index2 + 1);
             } else {
@@ -8344,23 +8344,23 @@ var require_cluster = __commonJS({
           command.reject = function(err) {
             const partialTry = tryConnection.bind(null, true);
             _this.handleError(err, ttl, {
-              moved: function(slot, key2) {
-                debug("command %s is moved to %s", command.name, key2);
+              moved: function(slot, key3) {
+                debug("command %s is moved to %s", command.name, key3);
                 targetSlot = Number(slot);
                 if (_this.slots[slot]) {
-                  _this.slots[slot][0] = key2;
+                  _this.slots[slot][0] = key3;
                 } else {
-                  _this.slots[slot] = [key2];
+                  _this.slots[slot] = [key3];
                 }
                 _this._groupsBySlot[slot] = _this._groupsIds[_this.slots[slot].join(";")];
-                _this.connectionPool.findOrCreate(_this.natMapper(key2));
+                _this.connectionPool.findOrCreate(_this.natMapper(key3));
                 tryConnection();
                 debug("refreshing slot caches... (triggered by MOVED error)");
                 _this.refreshSlotsCache();
               },
-              ask: function(slot, key2) {
-                debug("command %s is required to ask %s:%s", command.name, key2);
-                const mapped = _this.natMapper(key2);
+              ask: function(slot, key3) {
+                debug("command %s is required to ask %s:%s", command.name, key3);
+                const mapped = _this.natMapper(key3);
                 _this.connectionPool.findOrCreate(mapped);
                 tryConnection(false, `${mapped.host}:${mapped.port}`);
               },
@@ -8417,8 +8417,8 @@ var require_cluster = __commonJS({
                 if (typeof targetSlot === "number" && _this.slots[targetSlot]) {
                   const nodeKeys = _this.slots[targetSlot];
                   if (typeof to === "function") {
-                    const nodes = nodeKeys.map(function(key2) {
-                      return _this.connectionPool.getInstanceByKey(key2);
+                    const nodes = nodeKeys.map(function(key3) {
+                      return _this.connectionPool.getInstanceByKey(key3);
                     });
                     redis2 = to(nodes, command);
                     if (Array.isArray(redis2)) {
@@ -8428,15 +8428,15 @@ var require_cluster = __commonJS({
                       redis2 = nodes[0];
                     }
                   } else {
-                    let key2;
+                    let key3;
                     if (to === "all") {
-                      key2 = (0, utils_1.sample)(nodeKeys);
+                      key3 = (0, utils_1.sample)(nodeKeys);
                     } else if (to === "slave" && nodeKeys.length > 1) {
-                      key2 = (0, utils_1.sample)(nodeKeys, 1);
+                      key3 = (0, utils_1.sample)(nodeKeys, 1);
                     } else {
-                      key2 = nodeKeys[0];
+                      key3 = nodeKeys[0];
                     }
-                    redis2 = _this.connectionPool.getInstanceByKey(key2);
+                    redis2 = _this.connectionPool.getInstanceByKey(key3);
                   }
                 }
                 if (asking) {
@@ -8472,23 +8472,23 @@ var require_cluster = __commonJS({
         }
         return command.promise;
       }
-      sscanStream(key2, options) {
-        return this.createScanStream("sscan", { key: key2, options });
+      sscanStream(key3, options) {
+        return this.createScanStream("sscan", { key: key3, options });
       }
-      sscanBufferStream(key2, options) {
-        return this.createScanStream("sscanBuffer", { key: key2, options });
+      sscanBufferStream(key3, options) {
+        return this.createScanStream("sscanBuffer", { key: key3, options });
       }
-      hscanStream(key2, options) {
-        return this.createScanStream("hscan", { key: key2, options });
+      hscanStream(key3, options) {
+        return this.createScanStream("hscan", { key: key3, options });
       }
-      hscanBufferStream(key2, options) {
-        return this.createScanStream("hscanBuffer", { key: key2, options });
+      hscanBufferStream(key3, options) {
+        return this.createScanStream("hscanBuffer", { key: key3, options });
       }
-      zscanStream(key2, options) {
-        return this.createScanStream("zscan", { key: key2, options });
+      zscanStream(key3, options) {
+        return this.createScanStream("zscan", { key: key3, options });
       }
-      zscanBufferStream(key2, options) {
-        return this.createScanStream("zscanBuffer", { key: key2, options });
+      zscanBufferStream(key3, options) {
+        return this.createScanStream("zscanBuffer", { key: key3, options });
       }
       /**
        * @ignore
@@ -8614,15 +8614,15 @@ var require_cluster = __commonJS({
         }
       }
       natMapper(nodeKey) {
-        const key2 = typeof nodeKey === "string" ? nodeKey : `${nodeKey.host}:${nodeKey.port}`;
+        const key3 = typeof nodeKey === "string" ? nodeKey : `${nodeKey.host}:${nodeKey.port}`;
         let mapped = null;
         if (this.options.natMap && typeof this.options.natMap === "function") {
-          mapped = this.options.natMap(key2);
+          mapped = this.options.natMap(key3);
         } else if (this.options.natMap && typeof this.options.natMap === "object") {
-          mapped = this.options.natMap[key2];
+          mapped = this.options.natMap[key3];
         }
         if (mapped) {
-          debug("NAT mapping %s -> %O", key2, mapped);
+          debug("NAT mapping %s -> %O", key3, mapped);
           return Object.assign({}, mapped);
         }
         return typeof nodeKey === "string" ? (0, util_1.nodeKeyToRedisOptions)(nodeKey) : nodeKey;
@@ -8740,7 +8740,7 @@ var require_cluster = __commonJS({
               if (!sortedKeys.length) {
                 return reject(err2);
               }
-              const key2 = sortedKeys[0], group = groupedRecords[key2], record = (0, util_1.weightSrvRecords)(group);
+              const key3 = sortedKeys[0], group = groupedRecords[key3], record = (0, util_1.weightSrvRecords)(group);
               if (!group.records.length) {
                 sortedKeys.shift();
               }
@@ -8794,10 +8794,10 @@ var require_cluster = __commonJS({
           return Object.assign({}, node2, { host: config });
         });
       }
-      createScanStream(command, { key: key2, options = {} }) {
+      createScanStream(command, { key: key3, options = {} }) {
         return new ScanStream_1.default({
           objectMode: true,
-          key: key2,
+          key: key3,
           redis: this,
           command,
           ...options
@@ -9174,12 +9174,12 @@ var require_SentinelConnector = __commonJS({
       sentinelNatResolve(item) {
         if (!item || !this.options.natMap)
           return item;
-        const key2 = `${item.host}:${item.port}`;
+        const key3 = `${item.host}:${item.port}`;
         let result = item;
         if (typeof this.options.natMap === "function") {
-          result = this.options.natMap(key2) || item;
+          result = this.options.natMap(key3) || item;
         } else if (typeof this.options.natMap === "object") {
-          result = this.options.natMap[key2] || item;
+          result = this.options.natMap[key3] || item;
         }
         return result;
       }
@@ -10768,23 +10768,23 @@ var require_Redis = __commonJS({
       scanBufferStream(options) {
         return this.createScanStream("scanBuffer", { options });
       }
-      sscanStream(key2, options) {
-        return this.createScanStream("sscan", { key: key2, options });
+      sscanStream(key3, options) {
+        return this.createScanStream("sscan", { key: key3, options });
       }
-      sscanBufferStream(key2, options) {
-        return this.createScanStream("sscanBuffer", { key: key2, options });
+      sscanBufferStream(key3, options) {
+        return this.createScanStream("sscanBuffer", { key: key3, options });
       }
-      hscanStream(key2, options) {
-        return this.createScanStream("hscan", { key: key2, options });
+      hscanStream(key3, options) {
+        return this.createScanStream("hscan", { key: key3, options });
       }
-      hscanBufferStream(key2, options) {
-        return this.createScanStream("hscanBuffer", { key: key2, options });
+      hscanBufferStream(key3, options) {
+        return this.createScanStream("hscanBuffer", { key: key3, options });
       }
-      zscanStream(key2, options) {
-        return this.createScanStream("zscan", { key: key2, options });
+      zscanStream(key3, options) {
+        return this.createScanStream("zscan", { key: key3, options });
       }
-      zscanBufferStream(key2, options) {
-        return this.createScanStream("zscanBuffer", { key: key2, options });
+      zscanBufferStream(key3, options) {
+        return this.createScanStream("zscanBuffer", { key: key3, options });
       }
       /**
        * Emit only when there's at least one listener.
@@ -10954,10 +10954,10 @@ var require_Redis = __commonJS({
         this.status = status;
         process.nextTick(this.emit.bind(this, status, arg));
       }
-      createScanStream(command, { key: key2, options = {} }) {
+      createScanStream(command, { key: key3, options = {} }) {
         return new ScanStream_1.default({
           objectMode: true,
-          key: key2,
+          key: key3,
           redis: this,
           command,
           ...options
@@ -11225,8 +11225,1492 @@ var init_redis_service = __esm({
   }
 });
 
+// api/services/config-service.ts
+import { readFileSync } from "fs";
+import { join } from "path";
+function loadRaw(filename) {
+  const path2 = join(CONFIG_DIR, filename);
+  return JSON.parse(readFileSync(path2, "utf-8"));
+}
+function getConfigSync(key3) {
+  if (memoryCache.has(key3)) return memoryCache.get(key3);
+  const data = loadRaw(CONFIG_FILES[key3]);
+  memoryCache.set(key3, data);
+  return data;
+}
+function getGlobalConfig() {
+  return getConfigSync("global");
+}
+function getClasses() {
+  const data = getConfigSync("classes");
+  return data.classes;
+}
+function getTierRules() {
+  const data = getConfigSync("classes");
+  return data.tierRules ?? null;
+}
+function getClassById(id) {
+  return getClasses().find((c) => c.id === id);
+}
+function getSkills() {
+  const data = getConfigSync("skills");
+  return data.skills;
+}
+function getSkillsByClass(classId) {
+  return getSkills().filter((s) => s.classId === classId);
+}
+function getSkillById(id) {
+  return getSkills().find((s) => s.id === id);
+}
+function getConsumables() {
+  const data = getConfigSync("items");
+  return data.consumables;
+}
+function getItems() {
+  const data = getConfigSync("items");
+  return data.items || [];
+}
+function getItemById(id) {
+  return getItems().find((i) => i.id === id);
+}
+function getEquipmentSets() {
+  const data = getConfigSync("items");
+  return data.equipmentSets || [];
+}
+function getEquipmentSetById(id) {
+  return getEquipmentSets().find((s) => s.id === id);
+}
+function getRoomLootTables() {
+  const data = getConfigSync("dungeons");
+  return data.roomLootTables || {};
+}
+function getMonsterSkills() {
+  const data = getConfigSync("monsters");
+  return data.monsterSkills || [];
+}
+function getMonsterSkillById(id) {
+  return getMonsterSkills().find((s) => s.id === id);
+}
+function getEnemies() {
+  const data = getConfigSync("monsters");
+  return data.enemies;
+}
+function getEnemiesByFamily(family, includeBoss = false) {
+  return getEnemies().filter((e) => e.family === family && (includeBoss || !e.isBoss));
+}
+function getBossByFamily(family) {
+  return getEnemies().find((e) => e.family === family && e.isBoss);
+}
+function getEnemyById(id) {
+  return getEnemies().find((e) => e.id === id);
+}
+function getGlobalDropPool() {
+  const data = getConfigSync("monsters");
+  return data.globalDropPool || [];
+}
+function rollDrops(enemyId, layer, rng = Math.random) {
+  const enemy = getEnemyById(enemyId);
+  if (!enemy) return [];
+  const drops = [];
+  const roll = (min, max) => Math.floor(min + rng() * (max - min + 1));
+  if (enemy.dropTable) {
+    for (const drop of enemy.dropTable) {
+      if (drop.minLayer && layer < drop.minLayer) continue;
+      if (rng() * 100 < drop.chance * 0.5) {
+        drops.push({
+          itemId: drop.itemId,
+          name: drop.name,
+          type: drop.type,
+          quantity: roll(drop.quantityMin, drop.quantityMax),
+          quality: drop.quality
+        });
+      }
+    }
+  }
+  const globalPool = getGlobalDropPool();
+  for (const drop of globalPool) {
+    if (drop.minLayer && layer < drop.minLayer) continue;
+    if (rng() * 100 < drop.chance * 0.5) {
+      drops.push({
+        itemId: drop.itemId,
+        name: drop.name,
+        type: drop.type,
+        quantity: roll(drop.quantityMin, drop.quantityMax),
+        quality: drop.quality
+      });
+    }
+  }
+  return drops;
+}
+function getRoomTypes() {
+  const data = getConfigSync("dungeons");
+  return data.roomTypes;
+}
+function getThemeByLayer(layer) {
+  const data = getConfigSync("dungeons");
+  return data.dungeonThemes.find((t2) => layer >= t2.layerMin && layer <= t2.layerMax);
+}
+function getElementMultiplier(attackerEl, defenderEl) {
+  const g = getGlobalConfig();
+  if (!attackerEl || !defenderEl || attackerEl === "none" || defenderEl === "none") return 1;
+  if (ELEMENT_WEAKNESS[defenderEl] === attackerEl) return g.combat.elementAdvantageMultiplier;
+  if (ELEMENT_WEAKNESS[attackerEl] === defenderEl) return g.combat.elementDisadvantageMultiplier;
+  return 1;
+}
+var CONFIG_DIR, CONFIG_FILES, memoryCache, ELEMENT_WEAKNESS;
+var init_config_service = __esm({
+  "api/services/config-service.ts"() {
+    init_redis_service();
+    CONFIG_DIR = join(process.cwd(), "game-configs");
+    CONFIG_FILES = {
+      refs: "references.json",
+      global: "global.json",
+      classes: "classes.json",
+      skills: "skills.json",
+      items: "items.json",
+      monsters: "monsters.json",
+      dungeons: "dungeons.json"
+    };
+    memoryCache = /* @__PURE__ */ new Map();
+    ELEMENT_WEAKNESS = {
+      fire: "wind",
+      wind: "earth",
+      earth: "water",
+      water: "fire",
+      light: "dark",
+      dark: "light"
+    };
+  }
+});
+
+// api/services/char-state-service.ts
+var char_state_service_exports = {};
+__export(char_state_service_exports, {
+  addItemToInventory: () => addItemToInventory,
+  loadState: () => loadState,
+  removeItemsById: () => removeItemsById,
+  serverUid: () => serverUid,
+  writeState: () => writeState
+});
+async function loadState(username) {
+  try {
+    const raw2 = await getRedis().get(key(username));
+    if (!raw2) return null;
+    const rec = JSON.parse(raw2);
+    const wrapped = JSON.parse(rec.data);
+    return { state: wrapped.state ?? wrapped, version: rec.v };
+  } catch {
+    return null;
+  }
+}
+async function writeState(username, state) {
+  const k = key(username);
+  let v = 0;
+  try {
+    const raw2 = await getRedis().get(k);
+    if (raw2) v = JSON.parse(raw2).v || 0;
+  } catch {
+  }
+  v += 1;
+  const data = JSON.stringify({ state, version: 0 });
+  await getRedis().set(k, JSON.stringify({ v, data, t: Date.now() }));
+  return v;
+}
+function serverUid(prefix) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+function removeItemsById(inventory2, itemId, count) {
+  const have = inventory2.filter((i) => i.id === itemId).reduce((n, i) => n + i.quantity, 0);
+  if (have < count) return { ok: false, inventory: inventory2 };
+  let left = count;
+  const out = inventory2.map((i) => {
+    if (i.id !== itemId || left <= 0) return i;
+    const take = Math.min(i.quantity, left);
+    left -= take;
+    return { ...i, quantity: i.quantity - take };
+  }).filter((i) => i.quantity > 0);
+  return { ok: true, inventory: out };
+}
+function addItemToInventory(inventory2, item) {
+  if (item.type !== "equipment") {
+    const exist = inventory2.find((i) => i.id === item.id && i.type !== "equipment");
+    if (exist) {
+      return inventory2.map((i) => i === exist ? { ...i, quantity: i.quantity + item.quantity } : i);
+    }
+  }
+  return [...inventory2, item];
+}
+var key;
+var init_char_state_service = __esm({
+  "api/services/char-state-service.ts"() {
+    init_redis_service();
+    key = (username) => `save:${username.toLowerCase()}`;
+  }
+});
+
+// src/lib/talents.ts
+function getTalentMods(ranks, classId) {
+  const combat = {};
+  const utility = {};
+  if (!ranks) return { combat, utility };
+  const tree = TALENT_TREES[classId] || [];
+  for (const branch of tree) {
+    for (const n of branch.nodes) {
+      const r = ranks[n.id] || 0;
+      if (r <= 0) continue;
+      for (const [k, v] of Object.entries(n.effect)) {
+        const eff = v * r;
+        if (TALENT_UTILITY_KEYS.includes(k)) utility[k] = (utility[k] || 0) + eff;
+        else combat[k] = (combat[k] || 0) + eff;
+      }
+    }
+  }
+  return { combat, utility };
+}
+function getSpentTalentPoints(ranks) {
+  if (!ranks) return 0;
+  return Object.values(ranks).reduce((s, r) => s + r, 0);
+}
+function getBranchSpent(ranks, classId, branchId) {
+  if (!ranks) return 0;
+  const branch = (TALENT_TREES[classId] || []).find((b) => b.id === branchId);
+  if (!branch) return 0;
+  return branch.nodes.reduce((s, n) => s + (ranks[n.id] || 0), 0);
+}
+function canLearnTalent(ranks, classId, nodeId, pointsAvailable) {
+  const tree = TALENT_TREES[classId] || [];
+  for (const branch of tree) {
+    const n = branch.nodes.find((x) => x.id === nodeId);
+    if (!n) continue;
+    const cur = ranks?.[n.id] || 0;
+    if (cur >= n.maxRank) return "\u5DF2\u6EE1\u7EA7";
+    if (pointsAvailable <= 0) return "\u5929\u8D4B\u70B9\u4E0D\u8DB3";
+    const need = tierGate(n.tier);
+    if (getBranchSpent(ranks, classId, branch.id) < need) return `\u9700\u8981\u5728\u8BE5\u5206\u652F\u6295\u5165 ${need} \u70B9`;
+    return null;
+  }
+  return "\u5929\u8D4B\u4E0D\u5B58\u5728";
+}
+var node, TALENT_TREES, TALENT_UTILITY_KEYS, tierGate, getRespecCost;
+var init_talents = __esm({
+  "src/lib/talents.ts"() {
+    node = (id, tier, name, desc2, effect, maxRank = 5) => ({ id, tier, name, desc: desc2, effect, maxRank });
+    TALENT_TREES = {
+      warrior: [
+        { id: "berserk", name: "\u72C2\u6218", theme: "#F85149", nodes: [
+          node("w_b1", 1, "\u55DC\u8840", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+          node("w_b2", 2, "\u5F31\u70B9\u6D1E\u6089", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+          node("w_b3", 3, "\u6495\u88C2\u91CD\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+          node("w_b4", 4, "\u8840\u6012", "\u5438\u8840 +1%", { lifesteal: 1 }),
+          node("w_b5", 5, "\u72C2\u66B4", "\u653B\u51FB\u529B +3%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 3, critRate: 1 }),
+          node("w_b6", 6, "\u6218\u795E\u964D\u4E34", "\u653B\u51FB\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { atkPct: 5, critDmg: 5 })
+        ] },
+        { id: "guard", name: "\u94C1\u58C1", theme: "#58A6FF", nodes: [
+          node("w_g1", 1, "\u575A\u97E7", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+          node("w_g2", 2, "\u77F3\u80A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+          node("w_g3", 3, "\u53CD\u7532", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+          node("w_g4", 4, "\u4E0D\u5C48", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+          node("w_g5", 5, "\u9B54\u6CD5\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +2%", { magRes: 2, mdefPct: 2 }),
+          node("w_g6", 6, "\u4E0D\u52A8\u5982\u5C71", "\u9632\u5FA1\u529B +5%\uFF0C\u7269\u7406\u51CF\u4F24 +2%", { defPct: 5, physRes: 2 })
+        ] },
+        { id: "warcry", name: "\u6218\u610F", theme: "#C9A84C", nodes: [
+          node("w_c1", 1, "\u5386\u7EC3", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+          node("w_c2", 2, "\u63A0\u593A", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("w_c3", 3, "\u6218\u543C", "\u653B\u51FB\u529B +2%\uFF0C\u9632\u5FA1\u529B +2%", { atkPct: 2, defPct: 2 }),
+          node("w_c4", 4, "\u51EF\u65CB", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+          node("w_c5", 5, "\u58EB\u6C14\u5982\u8679", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
+          node("w_c6", 6, "\u767E\u6218\u4F59\u751F", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 3, killMp: 2 })
+        ] }
+      ],
+      mage: [
+        { id: "element", name: "\u5143\u7D20", theme: "#F85149", nodes: [
+          node("m_e1", 1, "\u5143\u7D20\u4EB2\u548C", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+          node("m_e2", 2, "\u5143\u7D20\u589E\u5E45", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+          node("m_e3", 3, "\u5965\u672F\u66B4\u51FB", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+          node("m_e4", 4, "\u6BC1\u706D\u548F\u5531", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+          node("m_e5", 5, "\u5143\u7D20\u638C\u63A7", "\u5143\u7D20\u4F24\u5BB3 +3%\uFF0C\u9B54\u6CD5\u529B +2%", { elemDmg: 3, magPct: 2 }),
+          node("m_e6", 6, "\u5927\u9B54\u5BFC\u5E08", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
+        ] },
+        { id: "arcane", name: "\u79D8\u6CD5", theme: "#BC8CFF", nodes: [
+          node("m_a1", 1, "\u9B54\u6CD5\u5C4F\u969C", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+          node("m_a2", 2, "\u7CBE\u795E\u62A4\u58C1", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+          node("m_a3", 3, "\u6CD5\u529B\u56DE\u6D41", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+          node("m_a4", 4, "\u5965\u672F\u5F3A\u5316", "\u9B54\u6CD5\u529B +3%", { magPct: 3 }),
+          node("m_a5", 5, "\u6CD5\u529B\u62A4\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { magRes: 2, physRes: 1 }),
+          node("m_a6", 6, "\u79D8\u6CD5\u4E4B\u5FC3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +3\uFF0C\u9B54\u6CD5\u529B +3%", { killMp: 3, magPct: 3 })
+        ] },
+        { id: "wisdom", name: "\u542F\u8FEA", theme: "#C9A84C", nodes: [
+          node("m_w1", 1, "\u6C42\u77E5", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+          node("m_w2", 2, "\u70BC\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("m_w3", 3, "\u51A5\u60F3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +1", { killMp: 1, killHeal: 1 }),
+          node("m_w4", 4, "\u667A\u8005", "\u9B54\u6CD5\u529B +2%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +3%", { magPct: 2, expGain: 3 }),
+          node("m_w5", 5, "\u535A\u5B66\u8005", "\u7ECF\u9A8C\u83B7\u53D6 +4%", { expGain: 4 }),
+          node("m_w6", 6, "\u8D24\u8005", "\u9B54\u6CD5\u529B +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +5%", { magPct: 3, goldGain: 5 })
+        ] }
+      ],
+      assassin: [
+        { id: "lethal", name: "\u81F4\u547D", theme: "#F85149", nodes: [
+          node("a_l1", 1, "\u6DEC\u6BD2\u5229\u5203", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+          node("a_l2", 2, "\u80CC\u523A", "\u66B4\u51FB\u7387 +3%", { critRate: 3 }),
+          node("a_l3", 3, "\u5904\u51B3", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
+          node("a_l4", 4, "\u996E\u8840", "\u5438\u8840 +1%", { lifesteal: 1 }),
+          node("a_l5", 5, "\u51B7\u8840", "\u66B4\u51FB\u7387 +2%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +4%", { critRate: 2, critDmg: 4 }),
+          node("a_l6", 6, "\u6B7B\u795E\u4E4B\u821E", "\u653B\u51FB\u529B +5%\uFF0C\u5438\u8840 +2%", { atkPct: 5, lifesteal: 2 })
+        ] },
+        { id: "phantom", name: "\u5E7B\u5F71", theme: "#58A6FF", nodes: [
+          node("a_p1", 1, "\u7075\u5DE7\u8EAB\u6CD5", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
+          node("a_p2", 2, "\u70DF\u96FE\u5E87\u62A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+          node("a_p3", 3, "\u9B54\u6CD5\u6597\u7BF7", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+          node("a_p4", 4, "\u6697\u5F71\u53CD\u5236", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+          node("a_p5", 5, "\u865A\u5E7B\u6B65\u4F10", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+          node("a_p6", 6, "\u5E7D\u5F71\u5316\u8EAB", "\u9632\u5FA1\u529B +5%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 5, reflect: 3 })
+        ] },
+        { id: "hunter", name: "\u730E\u624B", theme: "#C9A84C", nodes: [
+          node("a_h1", 1, "\u8D4F\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("a_h2", 2, "\u8FFD\u8E2A", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+          node("a_h3", 3, "\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+          node("a_h4", 4, "\u730E\u6740\u672C\u80FD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 2, critRate: 1 }),
+          node("a_h5", 5, "\u65E0\u60C5\u8FFD\u730E", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
+          node("a_h6", 6, "\u4F20\u5947\u730E\u624B", "\u653B\u51FB\u529B +3%\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { atkPct: 3, killHeal: 2 })
+        ] }
+      ],
+      ranger: [
+        { id: "marksman", name: "\u795E\u5C04", theme: "#F85149", nodes: [
+          node("r_m1", 1, "\u5F3A\u5F13", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+          node("r_m2", 2, "\u9E70\u773C", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+          node("r_m3", 3, "\u5143\u7D20\u7BAD\u77E2", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+          node("r_m4", 4, "\u7A7F\u7532\u4E00\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+          node("r_m5", 5, "\u8FDE\u73E0\u7BAD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { atkPct: 2, critRate: 2 }),
+          node("r_m6", 6, "\u4E00\u7BAD\u7A7F\u5FC3", "\u653B\u51FB\u529B +4%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +6%", { atkPct: 4, critDmg: 6 })
+        ] },
+        { id: "survival", name: "\u751F\u5B58", theme: "#3FB950", nodes: [
+          node("r_s1", 1, "\u76AE\u7532\u7CBE\u901A", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
+          node("r_s2", 2, "\u91CE\u5916\u6C42\u751F", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+          node("r_s3", 3, "\u81EA\u7136\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+          node("r_s4", 4, "\u751F\u547D\u6C72\u53D6", "\u5438\u8840 +1%", { lifesteal: 1 }),
+          node("r_s5", 5, "\u91CE\u6027\u5F3A\u97E7", "\u9632\u5FA1\u529B +3%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { defPct: 3, physRes: 1 }),
+          node("r_s6", 6, "\u4E1B\u6797\u4E4B\u738B", "\u9632\u5FA1\u529B +4%\uFF0C\u5438\u8840 +1%", { defPct: 4, lifesteal: 1 })
+        ] },
+        { id: "tracker", name: "\u8FFD\u8E2A", theme: "#C9A84C", nodes: [
+          node("r_t1", 1, "\u5BFB\u8DEF", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+          node("r_t2", 2, "\u5BFB\u5B9D", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("r_t3", 3, "\u8865\u7ED9", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+          node("r_t4", 4, "\u8FDC\u884C\u8005", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { killMp: 2, expGain: 2 }),
+          node("r_t5", 5, "\u730E\u573A\u4E3B\u5BB0", "\u91D1\u5E01\u83B7\u53D6 +4%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { goldGain: 4, expGain: 2 }),
+          node("r_t6", 6, "\u6DF1\u6E0A\u5411\u5BFC", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 2, killMp: 2 })
+        ] }
+      ],
+      priest: [
+        { id: "holy", name: "\u795E\u5723", theme: "#F85149", nodes: [
+          node("p_h1", 1, "\u5723\u5149\u672F", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+          node("p_h2", 2, "\u795E\u7F5A", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+          node("p_h3", 3, "\u5929\u542F", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+          node("p_h4", 4, "\u5BA1\u5224", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+          node("p_h5", 5, "\u5723\u5149\u6D8C\u52A8", "\u9B54\u6CD5\u529B +2%\uFF0C\u5143\u7D20\u4F24\u5BB3 +2%", { magPct: 2, elemDmg: 2 }),
+          node("p_h6", 6, "\u795E\u5723\u5316\u8EAB", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
+        ] },
+        { id: "blessing", name: "\u5E87\u4F51", theme: "#58A6FF", nodes: [
+          node("p_b1", 1, "\u5B88\u62A4\u795D\u798F", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+          node("p_b2", 2, "\u5723\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+          node("p_b3", 3, "\u575A\u97E7\u7977\u8A00", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+          node("p_b4", 4, "\u795E\u5723\u5E87\u62A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+          node("p_b5", 5, "\u5149\u4E4B\u58C1\u5792", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+          node("p_b6", 6, "\u795E\u6069\u62A4\u4F53", "\u9632\u5FA1\u529B +4%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +4%", { defPct: 4, mdefPct: 4 })
+        ] },
+        { id: "grace", name: "\u6069\u60E0", theme: "#C9A84C", nodes: [
+          node("p_g1", 1, "\u6CBB\u6108\u7977\u8A00", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3", { killHeal: 3 }),
+          node("p_g2", 2, "\u6CD5\u529B\u8D50\u798F", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+          node("p_g3", 3, "\u4F20\u9053", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+          node("p_g4", 4, "\u5949\u732E", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("p_g5", 5, "\u6148\u7231", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { killHeal: 2, killMp: 1 }),
+          node("p_g6", 6, "\u795E\u8FF9", "\u7ECF\u9A8C\u83B7\u53D6 +4%\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { expGain: 4, goldGain: 4 })
+        ] }
+      ],
+      warlock: [
+        { id: "ruin", name: "\u6BC1\u706D", theme: "#F85149", nodes: [
+          node("k_r1", 1, "\u6697\u5F71\u7BAD", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+          node("k_r2", 2, "\u8150\u8680", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+          node("k_r3", 3, "\u707E\u53D8", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+          node("k_r4", 4, "\u672B\u65E5", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
+          node("k_r5", 5, "\u6E6E\u706D", "\u9B54\u6CD5\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { magPct: 2, critRate: 2 }),
+          node("k_r6", 6, "\u865A\u7A7A\u9886\u4E3B", "\u9B54\u6CD5\u529B +5%\uFF0C\u5143\u7D20\u4F24\u5BB3 +4%", { magPct: 5, elemDmg: 4 })
+        ] },
+        { id: "curse", name: "\u8BC5\u5492", theme: "#BC8CFF", nodes: [
+          node("k_c1", 1, "\u865A\u5F31\u8BC5\u5492", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+          node("k_c2", 2, "\u75DB\u82E6\u8BC5\u5492", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+          node("k_c3", 3, "\u8BC5\u5492\u53CD\u566C", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+          node("k_c4", 4, "\u6076\u9B54\u76AE\u80A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+          node("k_c5", 5, "\u6050\u60E7\u5149\u73AF", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+          node("k_c6", 6, "\u9B54\u738B\u5A01\u4EEA", "\u9632\u5FA1\u529B +4%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 4, reflect: 3 })
+        ] },
+        { id: "drain", name: "\u6C72\u53D6", theme: "#C9A84C", nodes: [
+          node("k_d1", 1, "\u751F\u547D\u8679\u5438", "\u5438\u8840 +1%", { lifesteal: 1 }),
+          node("k_d2", 2, "\u7075\u9B42\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+          node("k_d3", 3, "\u8840\u8089\u732E\u796D", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+          node("k_d4", 4, "\u9ED1\u6697\u4EA4\u6613", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+          node("k_d5", 5, "\u7075\u9B42\u69A8\u53D6", "\u5438\u8840 +1%\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { lifesteal: 1, killMp: 1 }),
+          node("k_d6", 6, "\u6DF1\u6E0A\u5951\u7EA6", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { killHeal: 2, goldGain: 4 })
+        ] }
+      ]
+    };
+    TALENT_UTILITY_KEYS = ["expGain", "goldGain", "killHeal", "killMp"];
+    tierGate = (tier) => (tier - 1) * 4;
+    getRespecCost = (level) => Math.max(500, level * 100);
+  }
+});
+
+// api/services/character-service.ts
+var character_service_exports = {};
+__export(character_service_exports, {
+  COMBAT_MOD_KEYS: () => COMBAT_MOD_KEYS,
+  UTILITY_MOD_KEYS: () => UTILITY_MOD_KEYS,
+  applyRecompute: () => applyRecompute,
+  computeCharacterSnapshot: () => computeCharacterSnapshot,
+  effectiveStats: () => effectiveStats,
+  equipLevelPenaltyScale: () => equipLevelPenaltyScale,
+  equipReqLevel: () => equipReqLevel,
+  gainExp: () => gainExp,
+  getExpNeed: () => getExpNeed,
+  recomputePlayer: () => recomputePlayer
+});
+function equipReqLevel(setTier) {
+  const rules = getTierRules();
+  const levelReq = rules?.levelReq ?? [10, 25, 45, 70, 100, 135, 175, 220, 270];
+  const st = setTier || 1;
+  if (st <= 1) return 1;
+  return levelReq[st - 2] ?? levelReq[levelReq.length - 1] ?? 1;
+}
+function equipLevelPenaltyScale(setTier, playerLevel) {
+  const g = getGlobalConfig().equipment || {};
+  const per = g.penaltyPerLevelPct ?? 3;
+  const minPct = g.penaltyMinPct ?? 30;
+  const req = equipReqLevel(setTier);
+  if (playerLevel >= req) return 1;
+  return Math.max(minPct / 100, 1 - (req - playerLevel) * per / 100);
+}
+function tierScale(setTier, playerTier) {
+  const st = setTier || 1;
+  if (st <= playerTier) return 1;
+  return Math.max(0.05, playerTier / st);
+}
+function effectiveStats(item, scale2) {
+  const lv = item.enhanceLevel || 0;
+  const out = {};
+  for (const [k, v] of Object.entries(item.stats || {})) {
+    if (typeof v !== "number" || !v) continue;
+    const sv = scale2 < 1 ? Math.max(1, Math.round(v * scale2)) : v;
+    out[k] = lv > 0 ? sv + Math.ceil(sv * 0.1 * lv) : sv;
+  }
+  for (const gid of item.gems || []) {
+    const def = getItemById(gid);
+    for (const [k, v] of Object.entries(def?.stats || {})) {
+      if (typeof v === "number" && v) out[k] = (out[k] || 0) + v;
+    }
+  }
+  return out;
+}
+function setBonuses(items) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const it of items) {
+    if (it?.setId) counts.set(it.setId, (counts.get(it.setId) || 0) + 1);
+  }
+  const total = {};
+  for (const [setId, count] of counts) {
+    const set = getEquipmentSetById(setId);
+    if (!set?.bonus) continue;
+    for (const b of set.bonus) {
+      if (count >= b.pieces) {
+        for (const [k, v] of Object.entries(b.stats)) total[k] = (total[k] || 0) + v;
+      }
+    }
+  }
+  return total;
+}
+function recomputePlayer(p, equipment, talents) {
+  const cls = getClassById(p.classId);
+  const awakenCount = p.awakenCount || 0;
+  const baseSrc = p.awakenBase || (awakenCount > 0 ? DEFAULT_CLASS_STATS[p.classId] || DEFAULT_CLASS_STATS.warrior : cls?.baseStats || DEFAULT_CLASS_STATS.warrior);
+  const stats = {
+    maxHp: baseSrc.maxHp ?? baseSrc.hp ?? 100,
+    maxMp: baseSrc.maxMp ?? baseSrc.mp ?? 50,
+    atk: baseSrc.atk ?? 10,
+    def: baseSrc.def ?? 10,
+    mag: baseSrc.mag ?? 10,
+    mdef: baseSrc.mdef ?? 8,
+    agi: baseSrc.agi ?? 10,
+    luk: baseSrc.luk ?? 5,
+    con: baseSrc.con ?? 6,
+    wil: baseSrc.wil ?? 6
+  };
+  const growth = CLASS_CON_WIL_GROWTH[p.classId] || { con: 1, wil: 1 };
+  const awakenMult = 1 + 0.2 * awakenCount;
+  const level = Math.max(1, Math.min(999, p.level || 1));
+  for (let l = 2; l <= level; l++) {
+    stats.con += Math.ceil(growth.con * awakenMult);
+    stats.wil += Math.ceil(growth.wil * awakenMult);
+    stats.maxHp += Math.round((10 + growth.con * 8) * awakenMult);
+    stats.maxMp += Math.round(5 * awakenMult);
+    stats.atk += Math.round(2 * awakenMult);
+    stats.def += Math.round(1 * awakenMult);
+    stats.mag += Math.round(1 * awakenMult);
+    stats.mdef += Math.round(1 * awakenMult);
+    stats.agi += Math.round(1 * awakenMult);
+  }
+  const tier = Math.max(1, Math.min(9, p.tier || 1));
+  const rules = getTierRules();
+  for (let t2 = 2; t2 <= tier; t2++) {
+    const r = rules?.rewards?.[t2 - 1];
+    if (!r) continue;
+    for (const [k, v] of Object.entries(r)) {
+      const key3 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+      if (key3 in stats && typeof v === "number") stats[key3] += v;
+    }
+  }
+  const equipped = Object.values(equipment || {}).filter(Boolean);
+  const combatMods = {};
+  const utilityMods = {};
+  for (const it of equipped) {
+    const scale2 = tierScale(it.setTier, tier) * equipLevelPenaltyScale(it.setTier, level);
+    const eff = effectiveStats(it, scale2);
+    for (const [k, v] of Object.entries(eff)) {
+      const key3 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+      if (key3 in stats) stats[key3] += v;
+    }
+    const lv = it.enhanceLevel || 0;
+    for (const [k, v] of Object.entries(it.affixes || {})) {
+      if (typeof v !== "number") continue;
+      const eff2 = v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0);
+      if (COMBAT_MOD_KEYS.includes(k)) combatMods[k] = (combatMods[k] || 0) + eff2;
+      else if (UTILITY_MOD_KEYS.includes(k)) utilityMods[k] = (utilityMods[k] || 0) + eff2;
+    }
+  }
+  for (const [k, v] of Object.entries(setBonuses(equipped))) {
+    const key3 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+    if (key3 in stats) stats[key3] += v;
+    else if (COMBAT_MOD_KEYS.includes(k)) combatMods[k] = (combatMods[k] || 0) + v;
+  }
+  const talentMods = getTalentMods(talents?.[p.classId], p.classId);
+  for (const [k, v] of Object.entries(talentMods.combat)) combatMods[k] = (combatMods[k] || 0) + v;
+  for (const [k, v] of Object.entries(talentMods.utility)) utilityMods[k] = (utilityMods[k] || 0) + v;
+  return { stats, combatMods, utilityMods };
+}
+function applyRecompute(p, equipment, talents) {
+  const r = recomputePlayer(p, equipment, talents);
+  for (const [k, v] of Object.entries(r.stats)) p[k] = v;
+  p.hp = Math.max(0, Math.min(p.maxHp, p.hp ?? p.maxHp));
+  p.mp = Math.max(0, Math.min(p.maxMp, p.mp ?? p.maxMp));
+  return r;
+}
+function gainExp(p, amount) {
+  p.exp = (p.exp || 0) + Math.max(0, Math.floor(amount));
+  const growth = CLASS_CON_WIL_GROWTH[p.classId] || { con: 1, wil: 1 };
+  const awakenMult = 1 + 0.2 * (p.awakenCount || 0);
+  let ups = 0;
+  while (p.exp >= getExpNeed(p.level)) {
+    p.exp -= getExpNeed(p.level);
+    p.level += 1;
+    ups += 1;
+    p.con = (p.con || 0) + Math.ceil(growth.con * awakenMult);
+    p.wil = (p.wil || 0) + Math.ceil(growth.wil * awakenMult);
+    p.maxHp += Math.round((10 + growth.con * 8) * awakenMult);
+    p.hp = p.maxHp;
+    p.maxMp += Math.round(5 * awakenMult);
+    p.mp = p.maxMp;
+    p.atk += Math.round(2 * awakenMult);
+    p.def += Math.round(1 * awakenMult);
+    p.mag += Math.round(1 * awakenMult);
+    p.mdef += Math.round(1 * awakenMult);
+    p.agi += Math.round(1 * awakenMult);
+  }
+  return ups;
+}
+async function computeCharacterSnapshot(username) {
+  const rec = await loadState(username);
+  const p = rec?.state?.player;
+  if (!rec || !p || !p.classId || !p.level) return null;
+  const r = recomputePlayer(p, rec.state.equipment || {}, rec.state.talents || {});
+  const player = {
+    id: p.id,
+    name: p.name,
+    hp: Math.max(1, Math.min(r.stats.maxHp, Math.round(p.hp || r.stats.maxHp))),
+    maxHp: r.stats.maxHp,
+    mp: Math.max(0, Math.min(r.stats.maxMp, Math.round(p.mp || 0))),
+    maxMp: r.stats.maxMp,
+    atk: r.stats.atk,
+    def: r.stats.def,
+    mag: r.stats.mag,
+    mdef: r.stats.mdef,
+    agi: r.stats.agi,
+    luk: r.stats.luk,
+    con: r.stats.con,
+    wil: r.stats.wil,
+    skills: Array.isArray(p.skills) ? p.skills : [],
+    element: p.element || "none",
+    statuses: [],
+    cooldowns: {},
+    mods: r.combatMods
+  };
+  return { player, level: p.level };
+}
+var DEFAULT_CLASS_STATS, CLASS_CON_WIL_GROWTH, COMBAT_MOD_KEYS, UTILITY_MOD_KEYS, getExpNeed;
+var init_character_service = __esm({
+  "api/services/character-service.ts"() {
+    init_config_service();
+    init_char_state_service();
+    init_talents();
+    DEFAULT_CLASS_STATS = {
+      warrior: { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5, con: 12, wil: 5 },
+      mage: { hp: 80, mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8, con: 4, wil: 14 },
+      assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10, con: 6, wil: 7 },
+      ranger: { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9, con: 8, wil: 8 },
+      priest: { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7, con: 6, wil: 14 },
+      warlock: { hp: 90, mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12, con: 5, wil: 12 }
+    };
+    CLASS_CON_WIL_GROWTH = {
+      warrior: { con: 2, wil: 1 },
+      mage: { con: 1, wil: 2 },
+      priest: { con: 1, wil: 2 },
+      warlock: { con: 1, wil: 2 },
+      assassin: { con: 1, wil: 1 },
+      ranger: { con: 1, wil: 1 }
+    };
+    COMBAT_MOD_KEYS = ["atkPct", "defPct", "magPct", "mdefPct", "critRate", "critDmg", "lifesteal", "reflect", "elemDmg", "physRes", "magRes"];
+    UTILITY_MOD_KEYS = ["expGain", "goldGain", "killHeal", "killMp"];
+    getExpNeed = (level) => Math.floor(60 * level + 1200 * Math.pow(level, 1.9));
+  }
+});
+
+// src/lib/tasks.ts
+var TASKS;
+var init_tasks = __esm({
+  "src/lib/tasks.ts"() {
+    TASKS = [
+      // ─── 每日任务 ───
+      { id: "d_rooms", scope: "daily", name: "\u4ECA\u65E5\u63A2\u7D22", desc: "\u63A2\u7D22 30 \u4E2A\u623F\u95F4", metric: "rooms", target: 30, exp: 150 },
+      { id: "d_kills", scope: "daily", name: "\u4ECA\u65E5\u730E\u6740", desc: "\u51FB\u6740 50 \u53EA\u602A\u7269", metric: "kills", target: 50, exp: 200 },
+      { id: "d_layers", scope: "daily", name: "\u4ECA\u65E5\u7A81\u7834", desc: "\u901A\u5173 2 \u5C42\u5730\u7262", metric: "layers", target: 2, exp: 300 },
+      // ─── 成就 ───
+      { id: "a_kills_100", scope: "achievement", name: "\u521D\u9732\u950B\u8292", desc: "\u7D2F\u8BA1\u51FB\u6740 100 \u53EA\u602A\u7269", metric: "kills", target: 100, exp: 300 },
+      { id: "a_kills_500", scope: "achievement", name: "\u730E\u624B\u672C\u8272", desc: "\u7D2F\u8BA1\u51FB\u6740 500 \u53EA\u602A\u7269", metric: "kills", target: 500, exp: 800 },
+      { id: "a_kills_2000", scope: "achievement", name: "\u6DF1\u6E0A\u6536\u5272\u8005", desc: "\u7D2F\u8BA1\u51FB\u6740 2000 \u53EA\u602A\u7269", metric: "kills", target: 2e3, exp: 2500 },
+      { id: "a_rooms_200", scope: "achievement", name: "\u8FF7\u5BAB\u884C\u8005", desc: "\u7D2F\u8BA1\u63A2\u7D22 200 \u4E2A\u623F\u95F4", metric: "rooms", target: 200, exp: 400 },
+      { id: "a_rooms_1000", scope: "achievement", name: "\u5730\u57CE\u5236\u56FE\u5E08", desc: "\u7D2F\u8BA1\u63A2\u7D22 1000 \u4E2A\u623F\u95F4", metric: "rooms", target: 1e3, exp: 1500 },
+      { id: "a_layers_10", scope: "achievement", name: "\u6DF1\u5165\u8179\u5730", desc: "\u7D2F\u8BA1\u901A\u5173 10 \u5C42", metric: "layers", target: 10, exp: 500 },
+      { id: "a_layers_50", scope: "achievement", name: "\u6DF1\u6E0A\u5E38\u5BA2", desc: "\u7D2F\u8BA1\u901A\u5173 50 \u5C42", metric: "layers", target: 50, exp: 2e3 },
+      { id: "a_boss_10", scope: "achievement", name: "Boss \u514B\u661F", desc: "\u7D2F\u8BA1\u51FB\u6740 10 \u53EA Boss", metric: "bossKills", target: 10, exp: 1200 }
+    ];
+  }
+});
+
+// src/lib/affixes.ts
+function getReforgeGoldCost(setTier, quality) {
+  const qMult = QUALITY_MULT2[quality] ?? 1;
+  return Math.round(setTier * 400 * qMult);
+}
+function rollAffixes(mainStats, quality, setTier, diamond, rng = Math.random) {
+  const maxAffixes = QUALITY_MAX_AFFIXES[quality] ?? 0;
+  if (maxAffixes <= 0) return {};
+  const count = diamond ? maxAffixes : 1 + Math.floor(rng() * maxAffixes);
+  const qMult = QUALITY_MULT2[quality] ?? 1;
+  const pool = AFFIX_POOL2.filter((a) => !(a.stat in mainStats));
+  const affixes = {};
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    const tw = pool.reduce((s, a2) => s + a2.weight, 0);
+    let wr = rng() * tw;
+    let idx = 0;
+    for (let j = 0; j < pool.length; j++) {
+      if (wr < pool[j].weight) {
+        idx = j;
+        break;
+      }
+      wr -= pool[j].weight;
+    }
+    const a = pool.splice(idx, 1)[0];
+    const lo = diamond ? 0.6 : 0;
+    const raw2 = a.min + (lo + rng() * (1 - lo)) * (a.max - a.min);
+    affixes[a.stat] = Math.max(1, Math.round(raw2 * (a.scaleTier ? setTier : 1) * qMult));
+  }
+  return affixes;
+}
+function extractMainStats(item) {
+  const main = { ...item.stats || {} };
+  for (const [k, v] of Object.entries(item.affixes || {})) {
+    if (k in main) main[k] -= v;
+  }
+  for (const k of Object.keys(main)) {
+    if (!main[k]) delete main[k];
+  }
+  return main;
+}
+var AFFIX_POOL2, QUALITY_MULT2, QUALITY_MAX_AFFIXES, REFORGE_DIAMOND_COST;
+var init_affixes = __esm({
+  "src/lib/affixes.ts"() {
+    AFFIX_POOL2 = [
+      { stat: "hp", min: 10, max: 20, scaleTier: true, weight: 12 },
+      { stat: "mp", min: 6, max: 14, scaleTier: true, weight: 8 },
+      { stat: "atk", min: 2, max: 5, scaleTier: true, weight: 10 },
+      { stat: "def", min: 2, max: 5, scaleTier: true, weight: 10 },
+      { stat: "mag", min: 2, max: 5, scaleTier: true, weight: 10 },
+      { stat: "mdef", min: 2, max: 5, scaleTier: true, weight: 10 },
+      { stat: "agi", min: 1, max: 4, scaleTier: true, weight: 6 },
+      { stat: "luk", min: 1, max: 4, scaleTier: true, weight: 6 },
+      { stat: "con", min: 1, max: 4, scaleTier: true, weight: 6 },
+      { stat: "wil", min: 1, max: 4, scaleTier: true, weight: 6 },
+      { stat: "atkPct", min: 3, max: 9, weight: 8 },
+      { stat: "magPct", min: 3, max: 9, weight: 8 },
+      { stat: "defPct", min: 3, max: 9, weight: 7 },
+      { stat: "mdefPct", min: 3, max: 9, weight: 7 },
+      { stat: "critRate", min: 2, max: 6, weight: 7 },
+      { stat: "critDmg", min: 10, max: 30, weight: 7 },
+      { stat: "lifesteal", min: 2, max: 6, weight: 5 },
+      { stat: "elemDmg", min: 4, max: 12, scaleTier: true, weight: 6 },
+      { stat: "reflect", min: 4, max: 12, weight: 4 },
+      { stat: "physRes", min: 3, max: 9, weight: 5 },
+      { stat: "magRes", min: 3, max: 9, weight: 5 },
+      { stat: "killHeal", min: 8, max: 20, scaleTier: true, weight: 4 },
+      { stat: "killMp", min: 5, max: 12, scaleTier: true, weight: 3 },
+      { stat: "goldGain", min: 5, max: 15, weight: 3 },
+      { stat: "expGain", min: 5, max: 15, weight: 3 }
+    ];
+    QUALITY_MULT2 = {
+      common: 1,
+      fine: 1,
+      rare: 1.2,
+      epic: 1.5,
+      legendary: 1.8,
+      mythic: 2.2,
+      eternal: 2.6
+    };
+    QUALITY_MAX_AFFIXES = {
+      common: 0,
+      fine: 2,
+      rare: 3,
+      epic: 4,
+      legendary: 5,
+      mythic: 6,
+      eternal: 7
+    };
+    REFORGE_DIAMOND_COST = 5;
+  }
+});
+
+// api/services/char-ops-service.ts
+var char_ops_service_exports = {};
+__export(char_ops_service_exports, {
+  disassembleGold: () => disassembleGold,
+  ensureTaskState: () => ensureTaskState,
+  opAdvanceTier: () => opAdvanceTier,
+  opAwaken: () => opAwaken,
+  opBuyItem: () => opBuyItem,
+  opClaimTask: () => opClaimTask,
+  opCreatePlayer: () => opCreatePlayer,
+  opDisassemble: () => opDisassemble,
+  opEnhance: () => opEnhance,
+  opEquip: () => opEquip,
+  opLearnSkill: () => opLearnSkill,
+  opLearnTalent: () => opLearnTalent,
+  opReforge: () => opReforge,
+  opRespecTalents: () => opRespecTalents,
+  opSetLawfulLayer: () => opSetLawfulLayer,
+  opSetRiftStage: () => opSetRiftStage,
+  opSocketGem: () => opSocketGem,
+  opSwitchClass: () => opSwitchClass,
+  opTrackEvent: () => opTrackEvent,
+  opUnequip: () => opUnequip,
+  opUnsocketGem: () => opUnsocketGem,
+  opUpdateMaxLayer: () => opUpdateMaxLayer,
+  opUpdateSettings: () => opUpdateSettings,
+  opUseConsumable: () => opUseConsumable,
+  shouldAutoDisassembleServer: () => shouldAutoDisassembleServer
+});
+import { randomBytes } from "crypto";
+function getEnhanceCost(level) {
+  if (level < 5) return { stoneId: "enhance_stone_low", stoneName: "\u4E0B\u7EA7\u5F3A\u5316\u77F3", count: level + 1 };
+  if (level < 10) return { stoneId: "enhance_stone_mid", stoneName: "\u4E2D\u7EA7\u5F3A\u5316\u77F3", count: level - 3 };
+  return { stoneId: "enhance_stone_high", stoneName: "\u4E0A\u7EA7\u5F3A\u5316\u77F3", count: level - 7 };
+}
+function fail(message2) {
+  return { success: false, message: message2 };
+}
+function ok(message2) {
+  return { success: true, message: message2 };
+}
+function requirePlayer(s) {
+  return s.player && s.player.classId ? s.player : null;
+}
+function syncClassSave(s) {
+  if (s.activeClassId && s.player) {
+    s.classSaves = { ...s.classSaves || {} };
+    s.classSaves[s.activeClassId] = { player: s.player, equipment: s.equipment };
+  }
+}
+function findEquipmentAnywhere(s, uid) {
+  const inv = s.inventory || [];
+  const invIdx = inv.findIndex((i) => i.uid === uid);
+  if (invIdx >= 0) return { item: inv[invIdx], invIdx, equipSlot: null };
+  for (const [slot, eq2] of Object.entries(s.equipment || {})) {
+    if (eq2 && eq2.uid === uid) return { item: eq2, invIdx: -1, equipSlot: slot };
+  }
+  return { item: null, invIdx: -1, equipSlot: null };
+}
+function opCreatePlayer(s, classId, playerName) {
+  const cls = getClassById(classId);
+  const stats = cls?.baseStats || DEFAULT_CLASS_STATS2[classId] || DEFAULT_CLASS_STATS2.warrior;
+  const name = s.playerName || playerName || "\u5192\u9669\u8005";
+  const newPlayer = {
+    id: `p_${Date.now()}`,
+    name,
+    classId,
+    level: 1,
+    hp: stats.hp || 100,
+    maxHp: stats.hp || 100,
+    mp: stats.mp || 50,
+    maxMp: stats.mp || 50,
+    atk: stats.atk || 10,
+    def: stats.def || 10,
+    mag: stats.mag || 10,
+    mdef: stats.mdef || 8,
+    agi: stats.agi || 10,
+    luk: stats.luk || 5,
+    con: stats.con ?? 6,
+    wil: stats.wil ?? 6,
+    skills: [...STARTER_SKILLS[classId] || []],
+    element: "none",
+    exp: 0,
+    gold: 100,
+    diamonds: 0,
+    tier: 1,
+    maxLayer: 1
+  };
+  s.player = newPlayer;
+  s.equipment = { ...DEFAULT_EQUIPMENT };
+  s.activeClassId = classId;
+  s.classSaves = { ...s.classSaves || {}, [classId]: { player: newPlayer, equipment: s.equipment } };
+  const starter = [
+    { id: "hp_small", name: "\u5C0F\u578B\u751F\u547D\u836F\u6C34", quantity: 5, desc: "\u6062\u590D 50 \u70B9 HP" },
+    { id: "mp_small", name: "\u5C0F\u578B\u6CD5\u529B\u836F\u6C34", quantity: 3, desc: "\u6062\u590D 30 \u70B9 MP" },
+    { id: "scroll_town", name: "\u56DE\u57CE\u5377\u8F74", quantity: 1, desc: "\u8FD4\u56DE\u57CE\u9547" }
+  ];
+  s.inventory = s.inventory || [];
+  for (const it of starter) {
+    const def = getItemById(it.id);
+    s.inventory = addItemToInventory(s.inventory, {
+      uid: serverUid("start"),
+      id: it.id,
+      name: def?.name || it.name,
+      type: "consumable",
+      quality: def?.quality || "common",
+      quantity: it.quantity,
+      desc: def?.desc || it.desc,
+      effect: def?.effect,
+      value: def?.value
+    });
+  }
+  const weapons = {
+    warrior: { id: "sword_trainee", stats: { atk: 3 } },
+    mage: { id: "wand_apprentice", stats: { mag: 3 } },
+    assassin: { id: "dagger_trainee", stats: { atk: 3, agi: 1 } },
+    ranger: { id: "bow_trainee", stats: { atk: 2, agi: 1 } },
+    priest: { id: "mace_trainee", stats: { atk: 1, mag: 2 } },
+    warlock: { id: "orb_trainee", stats: { mag: 3 } }
+  };
+  const w = weapons[classId] || weapons.warrior;
+  const wdef = getItemById(w.id);
+  s.inventory = addItemToInventory(s.inventory, {
+    uid: serverUid("start"),
+    id: w.id,
+    name: wdef?.name || w.id,
+    type: "equipment",
+    slot: "weapon",
+    quality: "common",
+    quantity: 1,
+    desc: wdef?.desc || "",
+    stats: w.stats,
+    value: wdef?.value
+  });
+  return ok("\u89D2\u8272\u521B\u5EFA\u6210\u529F");
+}
+function opSwitchClass(s, targetClassId) {
+  const now = Date.now();
+  const cooldown = s.switchCooldownMs ?? 36e5;
+  if (now - (s.lastClassSwitch || 0) < cooldown) {
+    return fail(`\u51B7\u5374\u4E2D\uFF0C\u8FD8\u9700 ${Math.ceil((cooldown - (now - (s.lastClassSwitch || 0))) / 1e3)} \u79D2`);
+  }
+  if (targetClassId === s.activeClassId) return fail("\u5DF2\u662F\u5F53\u524D\u804C\u4E1A");
+  const saves = { ...s.classSaves || {} };
+  if (s.activeClassId && s.player) {
+    saves[s.activeClassId] = { player: { ...s.player }, equipment: { ...s.equipment || {} } };
+  }
+  let target = saves[targetClassId];
+  if (!target) {
+    const stats = DEFAULT_CLASS_STATS2[targetClassId] || DEFAULT_CLASS_STATS2.warrior;
+    const p = {
+      id: `p_${Date.now()}`,
+      name: s.playerName || s.player?.name || "\u5192\u9669\u8005",
+      classId: targetClassId,
+      level: 1,
+      hp: stats.hp,
+      maxHp: stats.hp,
+      mp: stats.mp,
+      maxMp: stats.mp,
+      atk: stats.atk,
+      def: stats.def,
+      mag: stats.mag,
+      mdef: stats.mdef,
+      agi: stats.agi,
+      luk: stats.luk,
+      con: stats.con ?? 6,
+      wil: stats.wil ?? 6,
+      skills: [...STARTER_SKILLS[targetClassId] || []],
+      element: "none",
+      exp: 0,
+      gold: 0,
+      diamonds: 0,
+      tier: 1,
+      maxLayer: 1
+    };
+    target = { player: p, equipment: { ...DEFAULT_EQUIPMENT } };
+  }
+  s.classSaves = { ...saves, [targetClassId]: target };
+  s.activeClassId = targetClassId;
+  s.lastClassSwitch = now;
+  s.player = target.player;
+  s.equipment = target.equipment;
+  return ok("\u804C\u4E1A\u5207\u6362\u6210\u529F");
+}
+function opEquip(s, itemUid) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const inv = s.inventory || [];
+  const idx = inv.findIndex((i) => i.uid === itemUid);
+  if (idx === -1) return fail("\u7269\u54C1\u4E0D\u5B58\u5728");
+  const item = inv[idx];
+  if (item.type !== "equipment") return fail("\u53EA\u80FD\u7A7F\u6234\u88C5\u5907");
+  let slot = item.slot;
+  if (slot === "ring") slot = "ring1";
+  if (slot === "offhand") slot = "ring2";
+  if (!EQUIP_SLOTS.includes(slot)) return fail("\u65E0\u6CD5\u8BC6\u522B\u88C5\u5907\u90E8\u4F4D");
+  let newInv = [...inv];
+  newInv.splice(idx, 1);
+  const old = (s.equipment || {})[slot];
+  if (old) newInv.push(old);
+  s.equipment = { ...DEFAULT_EQUIPMENT, ...s.equipment || {}, [slot]: item };
+  s.inventory = newInv;
+  applyRecompute(p, s.equipment, s.talents);
+  syncClassSave(s);
+  return ok(`\u5DF2\u7A7F\u6234 ${item.name}`);
+}
+function opUnequip(s, slot) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  if (!EQUIP_SLOTS.includes(slot)) return fail("\u90E8\u4F4D\u65E0\u6548");
+  const item = (s.equipment || {})[slot];
+  if (!item) return fail("\u8BE5\u90E8\u4F4D\u6CA1\u6709\u88C5\u5907");
+  s.equipment = { ...s.equipment || {}, [slot]: null };
+  s.inventory = [...s.inventory || [], item];
+  applyRecompute(p, s.equipment, s.talents);
+  syncClassSave(s);
+  return ok(`\u5DF2\u5378\u4E0B ${item.name}`);
+}
+function opUseConsumable(s, itemUid) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const inv = s.inventory || [];
+  const item = inv.find((i) => i.uid === itemUid);
+  if (!item) return fail("\u7269\u54C1\u4E0D\u5B58\u5728");
+  if (item.type === "skillbook" && item.learnSkillId) {
+    const skill = getSkillById(item.learnSkillId);
+    if (!skill) return fail("\u6280\u80FD\u4E0D\u5B58\u5728");
+    if (skill.classId !== p.classId) return fail("\u804C\u4E1A\u4E0D\u7B26\uFF0C\u65E0\u6CD5\u5B66\u4E60");
+    if ((p.skills || []).includes(item.learnSkillId)) return fail("\u5DF2\u638C\u63E1\u8BE5\u6280\u80FD");
+    p.skills = [...p.skills || [], item.learnSkillId];
+    s.inventory = inv.map((i) => i.uid === itemUid ? { ...i, quantity: i.quantity - 1 } : i).filter((i) => i.quantity > 0);
+    syncClassSave(s);
+    return ok(`\u5B66\u4F1A\u4E86\u3010${skill.name}\u3011\uFF01`);
+  }
+  if (item.type !== "consumable") return fail("\u8BE5\u7269\u54C1\u65E0\u6CD5\u4F7F\u7528");
+  const effect = item.effect || getItemById(item.id)?.effect;
+  if (!effect) return fail("\u8BE5\u7269\u54C1\u65E0\u6CD5\u5728\u80CC\u5305\u4E2D\u4F7F\u7528");
+  let msg = "";
+  if (typeof effect.heal === "number") {
+    const before = p.hp;
+    p.hp = Math.min(p.maxHp, p.hp + effect.heal);
+    msg = `\u6062\u590D\u4E86 ${p.hp - before} \u70B9\u751F\u547D`;
+  } else if (typeof effect.restoreMp === "number") {
+    const before = p.mp;
+    p.mp = Math.min(p.maxMp, p.mp + effect.restoreMp);
+    msg = `\u6062\u590D\u4E86 ${p.mp - before} \u70B9\u6CD5\u529B`;
+  } else {
+    return fail("\u8BE5\u7269\u54C1\u9700\u8981\u5728\u6218\u6597\u4E2D\u4F7F\u7528");
+  }
+  s.inventory = inv.map((i) => i.uid === itemUid ? { ...i, quantity: i.quantity - 1 } : i).filter((i) => i.quantity > 0);
+  syncClassSave(s);
+  return ok(msg);
+}
+function disassembleGold(item) {
+  return (DISASSEMBLE_GOLD[item.quality] || 20) + (item.setTier || 0) * 100 + (item.enhanceLevel || 0) * 50;
+}
+function shouldAutoDisassembleServer(item, settings) {
+  if (!settings?.autoDisassemble || item?.type !== "equipment") return false;
+  const r = settings.autoDisassembleRules;
+  if (!r) {
+    return (QUALITY_RANK_S[item.quality] ?? 0) <= (QUALITY_RANK_S[settings.autoDisassembleMaxQuality] ?? 0);
+  }
+  if (r.qualities?.length > 0 && !r.qualities.includes(item.quality)) return false;
+  if (r.slots?.length > 0 && !r.slots.includes(item.slot || "")) return false;
+  if ((r.maxSetTier ?? -1) >= 0 && (item.setTier || 0) > r.maxSetTier) return false;
+  if ((r.maxEnhance ?? -1) >= 0 && (item.enhanceLevel || 0) > r.maxEnhance) return false;
+  if (r.keepAffixes?.length > 0 && item.affixes && r.keepAffixes.some((k) => k in item.affixes)) return false;
+  return true;
+}
+function opDisassemble(s, uids) {
+  const p = requirePlayer(s);
+  if (!p) return { ...fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272") };
+  let gold = 0;
+  let inv = s.inventory || [];
+  let count = 0;
+  for (const uid of uids) {
+    const item = inv.find((i) => i.uid === uid);
+    if (!item || item.type !== "equipment") continue;
+    gold += disassembleGold(item);
+    for (const gid of item.gems || []) {
+      const def = getItemById(gid);
+      if (def) {
+        inv = addItemToInventory(inv, {
+          uid: serverUid("gem"),
+          id: gid,
+          name: def.name,
+          type: "material",
+          quality: def.quality,
+          quantity: 1,
+          desc: def.desc || "",
+          value: def.value
+        });
+      }
+    }
+    inv = inv.filter((i) => i.uid !== uid);
+    count++;
+  }
+  if (count === 0) return { ...fail("\u6CA1\u6709\u53EF\u5206\u89E3\u7684\u88C5\u5907") };
+  p.gold = (p.gold || 0) + gold;
+  s.inventory = inv;
+  syncClassSave(s);
+  return { success: true, message: `\u5206\u89E3 ${count} \u4EF6\u88C5\u5907\uFF0C\u83B7\u5F97 ${gold} \u91D1\u5E01`, gold };
+}
+function opBuyItem(s, itemId, qty) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const def = getItemById(itemId);
+  if (!def || def.type !== "consumable") return fail("\u5546\u54C1\u4E0D\u5B58\u5728");
+  qty = Math.max(1, Math.min(99, Math.floor(qty)));
+  const price = (def.value ?? 10) * qty;
+  if ((p.gold || 0) < price) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${price}\uFF09`);
+  p.gold -= price;
+  s.inventory = addItemToInventory(s.inventory || [], {
+    uid: serverUid("shop"),
+    id: itemId,
+    name: def.name,
+    type: "consumable",
+    quality: def.quality || "common",
+    quantity: qty,
+    desc: def.desc || "",
+    effect: def.effect,
+    value: def.value
+  });
+  syncClassSave(s);
+  return ok(`\u8D2D\u4E70\u4E86 ${def.name} \xD7${qty}\uFF0C\u82B1\u8D39 ${price} \u91D1\u5E01`);
+}
+function opEnhance(s, itemUid, useProtect, useLucky) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const { item, invIdx, equipSlot } = findEquipmentAnywhere(s, itemUid);
+  if (!item) return fail("\u88C5\u5907\u4E0D\u5B58\u5728");
+  if (item.type !== "equipment") return fail("\u53EA\u80FD\u5F3A\u5316\u88C5\u5907");
+  const cur = item.enhanceLevel || 0;
+  if (cur >= ENHANCE_MAX_LEVEL) return fail("\u5DF2\u8FBE\u6700\u9AD8\u5F3A\u5316\u7B49\u7EA7");
+  const cost = getEnhanceCost(cur);
+  const goldCost = Math.max(10, Math.floor((item.value || 50) * (cur + 1) * 0.5));
+  let inv = s.inventory || [];
+  const r1 = removeItemsById(inv, cost.stoneId, 0);
+  const haveStone = inv.filter((i) => i.id === cost.stoneId).reduce((n, i) => n + i.quantity, 0);
+  if (haveStone < cost.count) return fail(`${cost.stoneName}\u4E0D\u8DB3\uFF08\u9700\u8981 ${cost.count}\uFF0C\u73B0\u6709 ${haveStone}\uFF09`);
+  if ((p.gold || 0) < goldCost) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${goldCost}\uFF09`);
+  if (useProtect && inv.filter((i) => i.id === "enhance_protect").reduce((n, i) => n + i.quantity, 0) < 1) return fail("\u6CA1\u6709\u5F3A\u5316\u4FDD\u62A4\u7B26");
+  if (useLucky && inv.filter((i) => i.id === "enhance_lucky").reduce((n, i) => n + i.quantity, 0) < 1) return fail("\u6CA1\u6709\u5E78\u8FD0\u5F3A\u5316\u77F3");
+  void r1;
+  let r = removeItemsById(inv, cost.stoneId, cost.count);
+  inv = r.inventory;
+  if (useLucky) {
+    r = removeItemsById(inv, "enhance_lucky", 1);
+    inv = r.inventory;
+  }
+  const rate = Math.min(100, ENHANCE_SUCCESS_RATES[cur] + (useLucky ? 15 : 0));
+  const roll = randomBytes(4).readUInt32BE(0) / 4294967295 * 100;
+  const success = roll < rate;
+  let newLevel = cur;
+  let protectedUsed = false;
+  let message2;
+  if (success) {
+    newLevel = cur + 1;
+    message2 = `\u5F3A\u5316\u6210\u529F\uFF01${item.name} +${newLevel}`;
+  } else if (cur >= 5) {
+    if (useProtect) {
+      protectedUsed = true;
+      const rr = removeItemsById(inv, "enhance_protect", 1);
+      inv = rr.inventory;
+      message2 = `\u5F3A\u5316\u5931\u8D25\uFF0C\u4FDD\u62A4\u7B26\u751F\u6548\uFF0C\u4FDD\u6301 +${cur}`;
+    } else {
+      newLevel = cur >= 10 ? cur - 2 : cur - 1;
+      message2 = `\u5F3A\u5316\u5931\u8D25\uFF01${item.name} \u964D\u4E3A +${newLevel}`;
+    }
+  } else {
+    message2 = `\u5F3A\u5316\u5931\u8D25\uFF0C\u7B49\u7EA7\u4FDD\u6301 +${cur}`;
+  }
+  const newItem = { ...item, enhanceLevel: newLevel };
+  if (invIdx >= 0) inv = inv.map((i) => i.uid === itemUid ? newItem : i);
+  if (equipSlot) s.equipment = { ...s.equipment || {}, [equipSlot]: newItem };
+  s.inventory = inv;
+  p.gold -= goldCost;
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`${message2}\uFF08\u6210\u529F\u7387 ${rate}%${protectedUsed ? "\uFF0C\u6D88\u8017\u4FDD\u62A4\u7B26\xD71" : ""}\uFF09`);
+}
+function opReforge(s, itemUid, useDiamond) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const { item, invIdx, equipSlot } = findEquipmentAnywhere(s, itemUid);
+  if (!item) return fail("\u88C5\u5907\u4E0D\u5B58\u5728");
+  if (item.type !== "equipment") return fail("\u53EA\u80FD\u91CD\u94F8\u88C5\u5907");
+  const maxAffixes = QUALITY_MAX_AFFIXES[item.quality] ?? 0;
+  if (maxAffixes <= 0) return fail("\u666E\u901A\u54C1\u8D28\u6CA1\u6709\u526F\u8BCD\u6761\uFF0C\u65E0\u6CD5\u91CD\u94F8");
+  const setTier = item.setTier || 1;
+  if (useDiamond) {
+    if ((p.diamonds || 0) < REFORGE_DIAMOND_COST) return fail(`\u94BB\u77F3\u4E0D\u8DB3\uFF08\u9700\u8981 ${REFORGE_DIAMOND_COST}\uFF09`);
+    p.diamonds -= REFORGE_DIAMOND_COST;
+  } else {
+    const goldCost = getReforgeGoldCost(setTier, item.quality);
+    if ((p.gold || 0) < goldCost) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${goldCost}\uFF09`);
+    p.gold -= goldCost;
+  }
+  const main = extractMainStats(item);
+  const affixes = rollAffixes(main, item.quality, setTier, !!useDiamond);
+  const stats = { ...main };
+  for (const [k, v] of Object.entries(affixes)) stats[k] = (stats[k] || 0) + v;
+  const newItem = { ...item, stats, affixes };
+  if (invIdx >= 0) s.inventory = (s.inventory || []).map((i) => i.uid === itemUid ? newItem : i);
+  if (equipSlot) s.equipment = { ...s.equipment || {}, [equipSlot]: newItem };
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u91CD\u94F8\u5B8C\u6210\uFF0C\u83B7\u5F97 ${Object.keys(affixes).length} \u6761\u65B0\u8BCD\u6761${useDiamond ? "\uFF08\u94BB\u77F3\u91CD\u94F8\xB7\u9AD8\u503C\uFF09" : ""}`);
+}
+function opSocketGem(s, itemUid, gemUid) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const { item, invIdx, equipSlot } = findEquipmentAnywhere(s, itemUid);
+  if (!item) return fail("\u88C5\u5907\u4E0D\u5B58\u5728");
+  if (item.type !== "equipment") return fail("\u53EA\u80FD\u7ED9\u88C5\u5907\u9576\u5D4C\u5B9D\u77F3");
+  const sockets = GEM_SOCKETS[item.quality] ?? 0;
+  if (sockets <= 0) return fail("\u8BE5\u54C1\u8D28\u6CA1\u6709\u5B54\u4F4D");
+  const gems = [...item.gems || []];
+  if (gems.length >= sockets) return fail("\u5B54\u4F4D\u5DF2\u6EE1");
+  const inv = s.inventory || [];
+  const gem = inv.find((i) => i.uid === gemUid);
+  if (!gem) return fail("\u5B9D\u77F3\u4E0D\u5B58\u5728");
+  const gemDef = getItemById(gem.id);
+  if (!gemDef?.stats || Object.keys(gemDef.stats).length === 0) return fail("\u8BE5\u7269\u54C1\u4E0D\u662F\u53EF\u9576\u5D4C\u5B9D\u77F3");
+  gems.push(gem.id);
+  const newItem = { ...item, gems };
+  let newInv = inv.map((i) => i.uid === gemUid ? { ...i, quantity: i.quantity - 1 } : i).filter((i) => i.quantity > 0);
+  if (invIdx >= 0) newInv = newInv.map((i) => i.uid === itemUid ? newItem : i);
+  if (equipSlot) s.equipment = { ...s.equipment || {}, [equipSlot]: newItem };
+  s.inventory = newInv;
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u9576\u5D4C\u6210\u529F\uFF1A${gem.name} \u2192 ${item.name}`);
+}
+function opUnsocketGem(s, itemUid, gemIndex) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const { item, invIdx, equipSlot } = findEquipmentAnywhere(s, itemUid);
+  if (!item || !item.gems || gemIndex < 0 || gemIndex >= item.gems.length) return fail("\u5B9D\u77F3\u4E0D\u5B58\u5728");
+  const gemId = item.gems[gemIndex];
+  const gemDef = getItemById(gemId);
+  const newItem = { ...item, gems: item.gems.filter((_, i) => i !== gemIndex) };
+  let newInv = [...s.inventory || []];
+  if (gemDef) {
+    newInv = addItemToInventory(newInv, {
+      uid: serverUid("gem"),
+      id: gemId,
+      name: gemDef.name,
+      type: "material",
+      quality: gemDef.quality,
+      quantity: 1,
+      desc: gemDef.desc || "",
+      value: gemDef.value
+    });
+  }
+  if (invIdx >= 0) newInv = newInv.map((i) => i.uid === itemUid ? newItem : i);
+  if (equipSlot) s.equipment = { ...s.equipment || {}, [equipSlot]: newItem };
+  s.inventory = newInv;
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u5DF2\u5378\u4E0B ${gemDef?.name || gemId}\uFF0C\u8FD4\u8FD8\u80CC\u5305`);
+}
+function opAdvanceTier(s) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u5C1A\u672A\u521B\u5EFA\u89D2\u8272");
+  const rules = getTierRules();
+  if (!rules) return fail("\u914D\u7F6E\u672A\u52A0\u8F7D");
+  const cur = p.tier || 1;
+  if (cur >= rules.maxTier) return fail("\u5DF2\u8FBE\u6700\u9AD8\u7B49\u9636");
+  const idx = cur;
+  const lvReq = rules.levelReq[idx] ?? 1;
+  const layerReq = rules.layerReq[idx] ?? 1;
+  const goldCost = rules.goldCost[idx] ?? 0;
+  const matReq = CLASS_TIER_MATS[p.classId]?.[idx] ?? rules.materialReq[idx];
+  if (p.level < lvReq) return fail(`\u7B49\u7EA7\u4E0D\u8DB3\uFF08\u9700\u8981 Lv.${lvReq}\uFF09`);
+  if ((p.maxLayer || 1) < layerReq) return fail(`\u63A2\u7D22\u5C42\u6570\u4E0D\u8DB3\uFF08\u9700\u8981\u5230\u8FBE\u7B2C ${layerReq} \u5C42\uFF09`);
+  if ((p.gold || 0) < goldCost) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${goldCost}\uFF09`);
+  if (matReq) {
+    const have = (s.inventory || []).filter((i) => i.id === matReq.id).reduce((n, i) => n + i.quantity, 0);
+    if (have < matReq.count) return fail(`\u6750\u6599\u4E0D\u8DB3\uFF1A${matReq.name} ${have}/${matReq.count}`);
+  }
+  if (matReq) {
+    const r = removeItemsById(s.inventory || [], matReq.id, matReq.count);
+    s.inventory = r.inventory;
+  }
+  p.gold -= goldCost;
+  p.tier = cur + 1;
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u8FDB\u9636\u6210\u529F\uFF01\u5F53\u524D\u7B49\u9636\uFF1A${cur + 1}`);
+}
+function opAwaken(s) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  if (p.level < 100) return fail(`\u9700\u8981\u7B49\u7EA7\u8FBE\u5230 100 \u7EA7\uFF08\u5F53\u524D Lv.${p.level}\uFF09`);
+  const count = (p.awakenCount || 0) + 1;
+  const base = DEFAULT_CLASS_STATS2[p.classId] || DEFAULT_CLASS_STATS2.warrior;
+  const inherit = (v) => Math.round(v * 0.15);
+  const total = recomputePlayer(p, s.equipment || {}, s.talents).stats;
+  p.level = 1;
+  p.exp = 0;
+  p.awakenCount = count;
+  p.maxHp = (base.hp || 100) + inherit(total.maxHp);
+  p.maxMp = (base.mp || 50) + inherit(total.maxMp);
+  p.atk = (base.atk || 10) + inherit(total.atk);
+  p.def = (base.def || 10) + inherit(total.def);
+  p.mag = (base.mag || 10) + inherit(total.mag);
+  p.mdef = (base.mdef || 8) + inherit(total.mdef);
+  p.agi = (base.agi || 10) + inherit(total.agi);
+  p.luk = (base.luk || 5) + inherit(total.luk);
+  p.con = (base.con ?? 6) + inherit(total.con || 0);
+  p.wil = (base.wil ?? 6) + inherit(total.wil || 0);
+  p.awakenBase = {
+    maxHp: p.maxHp,
+    maxMp: p.maxMp,
+    atk: p.atk,
+    def: p.def,
+    mag: p.mag,
+    mdef: p.mdef,
+    agi: p.agi,
+    luk: p.luk,
+    con: p.con,
+    wil: p.wil
+  };
+  p.hp = p.maxHp;
+  p.mp = p.maxMp;
+  s.talents = { ...s.talents || {}, [p.classId]: {} };
+  applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u89C9\u9192\u6210\u529F\uFF01\u7B2C ${count} \u6B21\u89C9\u9192\uFF1A\u7EE7\u627F 15% \u5C5E\u6027\uFF0C\u6210\u957F\u7387 +${count * 20}%`);
+}
+function opLearnTalent(s, nodeId) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const talents = { ...s.talents || {} };
+  const ranks = { ...talents[p.classId] || {} };
+  const spent = getSpentTalentPoints(ranks);
+  const available = p.level - spent;
+  const err = canLearnTalent(ranks, p.classId, nodeId, available);
+  if (err) return fail(err);
+  ranks[nodeId] = (ranks[nodeId] || 0) + 1;
+  talents[p.classId] = ranks;
+  s.talents = talents;
+  syncClassSave(s);
+  return ok("\u5929\u8D4B\u5DF2\u6FC0\u6D3B");
+}
+function opRespecTalents(s) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const spent = getSpentTalentPoints((s.talents || {})[p.classId]);
+  if (spent === 0) return fail("\u5C1A\u672A\u6295\u5165\u4EFB\u4F55\u5929\u8D4B\u70B9");
+  const cost = getRespecCost(p.level);
+  if ((p.gold || 0) < cost) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${cost}\uFF09`);
+  p.gold -= cost;
+  s.talents = { ...s.talents || {}, [p.classId]: {} };
+  syncClassSave(s);
+  return ok(`\u5DF2\u91CD\u7F6E\u5168\u90E8\u5929\u8D4B\uFF08\u82B1\u8D39 ${cost} \u91D1\u5E01\uFF09`);
+}
+function opLearnSkill(s, skillId) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const skill = getSkillById(skillId);
+  if (!skill) return fail("\u6280\u80FD\u4E0D\u5B58\u5728");
+  if (skill.classId !== p.classId) return fail("\u804C\u4E1A\u4E0D\u7B26\uFF0C\u65E0\u6CD5\u5B66\u4E60");
+  if ((p.skills || []).includes(skillId)) return fail("\u5DF2\u638C\u63E1\u8BE5\u6280\u80FD");
+  const reqLevel = skill.learnLevel || 1;
+  if (p.level < reqLevel) return fail(`\u9700\u8981\u7B49\u7EA7 ${reqLevel}`);
+  const cost = skill.learnCost || 0;
+  if ((p.gold || 0) < cost) return fail(`\u91D1\u5E01\u4E0D\u8DB3\uFF08\u9700\u8981 ${cost}\uFF09`);
+  p.gold -= cost;
+  p.skills = [...p.skills || [], skillId];
+  syncClassSave(s);
+  return ok(`\u5B66\u4F1A\u4E86\u3010${skill.name}\u3011\uFF01`);
+}
+function ensureTaskState(s) {
+  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const ts = s.taskState || {};
+  if (ts.dailyDate !== today) {
+    ts.dailyDate = today;
+    ts.daily = { ...EMPTY_PROGRESS };
+    ts.dailyClaimed = [];
+  }
+  ts.daily = { ...EMPTY_PROGRESS, ...ts.daily || {} };
+  ts.totals = { ...EMPTY_PROGRESS, ...ts.totals || {} };
+  ts.achClaimed = ts.achClaimed || [];
+  s.taskState = ts;
+  return ts;
+}
+function opClaimTask(s, taskId) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  const task = TASKS.find((t2) => t2.id === taskId);
+  if (!task) return fail("\u4EFB\u52A1\u4E0D\u5B58\u5728");
+  const ts = ensureTaskState(s);
+  const claimed = task.scope === "daily" ? ts.dailyClaimed : ts.achClaimed;
+  if (claimed.includes(taskId)) return fail("\u5DF2\u9886\u53D6\u8FC7\u8BE5\u5956\u52B1");
+  const progress = task.scope === "daily" ? ts.daily[task.metric] : ts.totals[task.metric];
+  if ((progress || 0) < task.target) return fail(`\u4EFB\u52A1\u672A\u5B8C\u6210\uFF08${progress || 0}/${task.target}\uFF09`);
+  claimed.push(taskId);
+  const ups = gainExp(p, task.exp);
+  if (ups > 0) applyRecompute(p, s.equipment || {}, s.talents);
+  syncClassSave(s);
+  return ok(`\u9886\u53D6\u5956\u52B1\uFF1A\u7ECF\u9A8C +${task.exp}${ups > 0 ? `\uFF0C\u8FDE\u5347 ${ups} \u7EA7\uFF01` : ""}`);
+}
+function opTrackEvent(s, kind, n) {
+  if (!["rooms", "kills", "layers", "bossKills"].includes(kind)) return fail("\u65E0\u6548\u7684\u8FDB\u5EA6\u7C7B\u578B");
+  const ts = ensureTaskState(s);
+  n = Math.max(1, Math.min(50, Math.floor(n)));
+  ts.daily[kind] += n;
+  ts.totals[kind] += n;
+  return ok("ok");
+}
+function opUpdateMaxLayer(s, layer) {
+  const p = requirePlayer(s);
+  if (!p) return fail("\u8BF7\u5148\u521B\u5EFA\u89D2\u8272");
+  layer = Math.floor(layer);
+  if (layer === (p.maxLayer || 1) + 1 && layer >= 1 && layer <= 1e3) {
+    p.maxLayer = layer;
+    syncClassSave(s);
+  }
+  return ok("ok");
+}
+function opSetLawfulLayer(s, layer) {
+  const cur = s.lawful || { layer: 1, best: 1 };
+  layer = Math.floor(layer);
+  if (layer === cur.layer + 1 && layer >= 2 && layer <= 101) {
+    s.lawful = { layer, best: Math.max(cur.best || 1, layer) };
+  }
+  return ok("ok");
+}
+function opSetRiftStage(s, stage, cleared) {
+  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const rift = s.rift && s.rift.date === today ? s.rift : { date: today, stage: 1 };
+  stage = Math.floor(stage);
+  if (cleared) {
+    s.rift = { date: today, stage: 6, clearedDate: today };
+  } else if (stage === rift.stage + 1 && stage >= 2 && stage <= 5) {
+    s.rift = { ...rift, stage };
+  }
+  return ok("ok");
+}
+function opUpdateSettings(s, patch) {
+  const allowed = ["autoPotion", "autoPotionThreshold", "autoDisassemble", "autoDisassembleMaxQuality", "autoDisassembleRules", "autoSell", "soundEnabled"];
+  const out = { ...s.settings || {} };
+  for (const k of allowed) {
+    if (k in patch) out[k] = patch[k];
+  }
+  s.settings = out;
+  return ok("ok");
+}
+var DEFAULT_CLASS_STATS2, STARTER_SKILLS, CLASS_TIER_MATS, ENHANCE_MAX_LEVEL, ENHANCE_SUCCESS_RATES, EQUIP_SLOTS, DEFAULT_EQUIPMENT, GEM_SOCKETS, DISASSEMBLE_GOLD, QUALITY_RANK_S, EMPTY_PROGRESS;
+var init_char_ops_service = __esm({
+  "api/services/char-ops-service.ts"() {
+    init_config_service();
+    init_character_service();
+    init_char_state_service();
+    init_tasks();
+    init_talents();
+    init_affixes();
+    DEFAULT_CLASS_STATS2 = {
+      warrior: { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5, con: 12, wil: 5 },
+      mage: { hp: 80, mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8, con: 4, wil: 14 },
+      assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10, con: 6, wil: 7 },
+      ranger: { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9, con: 8, wil: 8 },
+      priest: { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7, con: 6, wil: 14 },
+      warlock: { hp: 90, mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12, con: 5, wil: 12 }
+    };
+    STARTER_SKILLS = {
+      warrior: ["shield_bash", "heavy_strike"],
+      mage: ["fireball", "frostbolt"],
+      assassin: ["shadow_step", "backstab"],
+      ranger: ["aimed_shot", "multishot"],
+      priest: ["heal", "holy_light"],
+      warlock: ["corruption", "life_drain"]
+    };
+    CLASS_TIER_MATS = {
+      warrior: [null, null, null, null, null, { id: "war_blood", name: "\u6218\u795E\u4E4B\u8840", count: 3 }, { id: "war_blood", name: "\u6218\u795E\u4E4B\u8840", count: 6 }, { id: "war_soul", name: "\u4E0D\u706D\u6218\u9B42", count: 3 }, { id: "war_soul", name: "\u4E0D\u706D\u6218\u9B42", count: 6 }],
+      mage: [null, null, null, null, null, { id: "elemental_crystal", name: "\u5143\u7D20\u9B54\u6676", count: 3 }, { id: "elemental_crystal", name: "\u5143\u7D20\u9B54\u6676", count: 6 }, { id: "arcane_essence", name: "\u5965\u672F\u4E4B\u6E90", count: 3 }, { id: "arcane_essence", name: "\u5965\u672F\u4E4B\u6E90", count: 6 }],
+      assassin: [null, null, null, null, null, { id: "shadow_fang", name: "\u6697\u5F71\u4E4B\u7259", count: 3 }, { id: "shadow_fang", name: "\u6697\u5F71\u4E4B\u7259", count: 6 }, { id: "void_soul", name: "\u865A\u65E0\u4E4B\u9B42", count: 3 }, { id: "void_soul", name: "\u865A\u65E0\u4E4B\u9B42", count: 6 }],
+      ranger: [null, null, null, null, null, { id: "storm_feather", name: "\u98CE\u66B4\u7FCE\u7FBD", count: 3 }, { id: "storm_feather", name: "\u98CE\u66B4\u7FCE\u7FBD", count: 6 }, { id: "beast_spirit", name: "\u4E07\u517D\u4E4B\u9B44", count: 3 }, { id: "beast_spirit", name: "\u4E07\u517D\u4E4B\u9B44", count: 6 }],
+      priest: [null, null, null, null, null, { id: "holy_crystal", name: "\u5723\u5149\u7ED3\u6676", count: 3 }, { id: "holy_crystal", name: "\u5723\u5149\u7ED3\u6676", count: 6 }, { id: "divine_grace", name: "\u795E\u6069\u4E4B\u9732", count: 3 }, { id: "divine_grace", name: "\u795E\u6069\u4E4B\u9732", count: 6 }],
+      warlock: [null, null, null, null, null, { id: "demon_horn", name: "\u6076\u9B54\u4E4B\u89D2", count: 3 }, { id: "demon_horn", name: "\u6076\u9B54\u4E4B\u89D2", count: 6 }, { id: "abyss_core", name: "\u6DF1\u6E0A\u4E4B\u6838", count: 3 }, { id: "abyss_core", name: "\u6DF1\u6E0A\u4E4B\u6838", count: 6 }]
+    };
+    ENHANCE_MAX_LEVEL = 15;
+    ENHANCE_SUCCESS_RATES = [100, 100, 100, 90, 90, 80, 75, 70, 60, 50, 45, 40, 35, 30, 25];
+    EQUIP_SLOTS = ["weapon", "helmet", "armor", "leggings", "boots", "necklace", "ring1", "ring2"];
+    DEFAULT_EQUIPMENT = {
+      weapon: null,
+      helmet: null,
+      armor: null,
+      leggings: null,
+      boots: null,
+      necklace: null,
+      ring1: null,
+      ring2: null
+    };
+    GEM_SOCKETS = { common: 0, fine: 1, rare: 1, epic: 2, legendary: 2, mythic: 3, eternal: 3 };
+    DISASSEMBLE_GOLD = { common: 20, fine: 50, rare: 120, epic: 300, legendary: 800, mythic: 2e3, eternal: 4e3 };
+    QUALITY_RANK_S = { common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, eternal: 6 };
+    EMPTY_PROGRESS = { rooms: 0, kills: 0, layers: 0, bossKills: 0 };
+  }
+});
+
 // api/services/auth-service.ts
-import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
+var auth_service_exports = {};
+__export(auth_service_exports, {
+  USERNAME_RE: () => USERNAME_RE,
+  checkLoginRateLimit: () => checkLoginRateLimit,
+  checkRegisterRateLimit: () => checkRegisterRateLimit,
+  clientIp: () => clientIp,
+  loginAccount: () => loginAccount,
+  logoutToken: () => logoutToken,
+  registerAccount: () => registerAccount,
+  requireAccount: () => requireAccount,
+  verifyToken: () => verifyToken
+});
+import { randomBytes as randomBytes3, scryptSync, timingSafeEqual } from "crypto";
 function hashPassword(password, salt) {
   return scryptSync(password, salt, 32).toString("hex");
 }
@@ -11238,20 +12722,20 @@ async function registerAccount(username, password) {
     return { ok: false, message: "\u5BC6\u7801\u9700 8-32 \u4F4D" };
   }
   const r = getRedis();
-  const key2 = `acc:${username.toLowerCase()}`;
-  const claimed = await r.set(key2, "RESERVED", "EX", 60, "NX");
+  const key3 = `acc:${username.toLowerCase()}`;
+  const claimed = await r.set(key3, "RESERVED", "EX", 60, "NX");
   if (!claimed) return { ok: false, message: "\u8BE5\u7528\u6237\u540D\u5DF2\u88AB\u6CE8\u518C" };
-  const salt = randomBytes(16).toString("hex");
+  const salt = randomBytes3(16).toString("hex");
   const rec = { salt, hash: hashPassword(password, salt), createdAt: Date.now() };
-  await r.set(key2, JSON.stringify(rec));
+  await r.set(key3, JSON.stringify(rec));
   return { ok: true, username };
 }
 async function checkLoginRateLimit(ip) {
   try {
     const r = getRedis();
-    const key2 = `loginfail:${ip}`;
-    const fails = await r.incr(key2);
-    if (fails === 1) await r.expire(key2, LOGIN_FAIL_WINDOW);
+    const key3 = `loginfail:${ip}`;
+    const fails = await r.incr(key3);
+    if (fails === 1) await r.expire(key3, LOGIN_FAIL_WINDOW);
     return fails <= LOGIN_FAIL_LIMIT;
   } catch {
     return true;
@@ -11260,9 +12744,9 @@ async function checkLoginRateLimit(ip) {
 async function checkRegisterRateLimit(ip) {
   try {
     const r = getRedis();
-    const key2 = `reglimit:${ip}`;
-    const n = await r.incr(key2);
-    if (n === 1) await r.expire(key2, REGISTER_WINDOW);
+    const key3 = `reglimit:${ip}`;
+    const n = await r.incr(key3);
+    if (n === 1) await r.expire(key3, REGISTER_WINDOW);
     return n <= REGISTER_LIMIT;
   } catch {
     return true;
@@ -11283,7 +12767,7 @@ async function loginAccount(username, password) {
   if (candidate.length !== stored.length || !timingSafeEqual(candidate, stored)) {
     return { ok: false, message: "\u7528\u6237\u540D\u6216\u5BC6\u7801\u9519\u8BEF" };
   }
-  const token = randomBytes(32).toString("hex");
+  const token = randomBytes3(32).toString("hex");
   await r.setex(`tok:${token}`, TOKEN_TTL, rec ? username : username);
   return { ok: true, token, username };
 }
@@ -11369,7 +12853,7 @@ var require_main = __commonJS({
       lines = lines.replace(/\r\n?/mg, "\n");
       let match2;
       while ((match2 = LINE.exec(lines)) != null) {
-        const key2 = match2[1];
+        const key3 = match2[1];
         let value = match2[2] || "";
         value = value.trim();
         const maybeQuote = value[0];
@@ -11378,7 +12862,7 @@ var require_main = __commonJS({
           value = value.replace(/\\n/g, "\n");
           value = value.replace(/\\r/g, "\r");
         }
-        obj[key2] = value;
+        obj[key3] = value;
       }
       return obj;
     }
@@ -11397,8 +12881,8 @@ var require_main = __commonJS({
       let decrypted;
       for (let i = 0; i < length; i++) {
         try {
-          const key2 = keys[i].trim();
-          const attrs = _instructions(result, key2);
+          const key3 = keys[i].trim();
+          const attrs = _instructions(result, key3);
           decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
           break;
         } catch (error) {
@@ -11439,8 +12923,8 @@ var require_main = __commonJS({
         }
         throw error;
       }
-      const key2 = uri.password;
-      if (!key2) {
+      const key3 = uri.password;
+      if (!key3) {
         const err = new Error("INVALID_DOTENV_KEY: Missing key part");
         err.code = "INVALID_DOTENV_KEY";
         throw err;
@@ -11458,7 +12942,7 @@ var require_main = __commonJS({
         err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
         throw err;
       }
-      return { ciphertext, key: key2 };
+      return { ciphertext, key: key3 };
     }
     function _vaultPath(options) {
       let possibleVaultPath = null;
@@ -11574,13 +13058,13 @@ var require_main = __commonJS({
       return DotenvModule._configVault(options);
     }
     function decrypt(encrypted, keyStr) {
-      const key2 = Buffer.from(keyStr.slice(-64), "hex");
+      const key3 = Buffer.from(keyStr.slice(-64), "hex");
       let ciphertext = Buffer.from(encrypted, "base64");
       const nonce = ciphertext.subarray(0, 12);
       const authTag = ciphertext.subarray(-16);
       ciphertext = ciphertext.subarray(12, -16);
       try {
-        const aesgcm = crypto4.createDecipheriv("aes-256-gcm", key2, nonce);
+        const aesgcm = crypto4.createDecipheriv("aes-256-gcm", key3, nonce);
         aesgcm.setAuthTag(authTag);
         return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
       } catch (error) {
@@ -11609,22 +13093,22 @@ var require_main = __commonJS({
         err.code = "OBJECT_REQUIRED";
         throw err;
       }
-      for (const key2 of Object.keys(parsed)) {
-        if (Object.prototype.hasOwnProperty.call(processEnv, key2)) {
+      for (const key3 of Object.keys(parsed)) {
+        if (Object.prototype.hasOwnProperty.call(processEnv, key3)) {
           if (override === true) {
-            processEnv[key2] = parsed[key2];
-            populated[key2] = parsed[key2];
+            processEnv[key3] = parsed[key3];
+            populated[key3] = parsed[key3];
           }
           if (debug) {
             if (override === true) {
-              _debug(`"${key2}" is already defined and WAS overwritten`);
+              _debug(`"${key3}" is already defined and WAS overwritten`);
             } else {
-              _debug(`"${key2}" is already defined and was NOT overwritten`);
+              _debug(`"${key3}" is already defined and was NOT overwritten`);
             }
           }
         } else {
-          processEnv[key2] = parsed[key2];
-          populated[key2] = parsed[key2];
+          processEnv[key3] = parsed[key3];
+          populated[key3] = parsed[key3];
         }
       }
       return populated;
@@ -11916,13 +13400,13 @@ var require_lib2 = __commonJS({
         return "";
       let sql2 = "";
       for (let i = 0; i < keysLength; i++) {
-        const key2 = keys[i];
-        const value = object[key2];
+        const key3 = keys[i];
+        const value = object[key3];
         if (typeof value === "function")
           continue;
         if (sql2.length > 0)
           sql2 += ", ";
-        sql2 += (0, exports.escapeId)(key2);
+        sql2 += (0, exports.escapeId)(key3);
         sql2 += " = ";
         sql2 += (0, exports.escape)(value, true, timezone);
       }
@@ -12738,17 +14222,17 @@ var require_connection_config = __commonJS({
           options = _ConnectionConfig.parseUrl(options);
         } else if (options && options.uri) {
           const uriOptions = _ConnectionConfig.parseUrl(options.uri);
-          for (const key2 in uriOptions) {
-            if (!Object.prototype.hasOwnProperty.call(uriOptions, key2)) continue;
-            if (options[key2]) continue;
-            options[key2] = uriOptions[key2];
+          for (const key3 in uriOptions) {
+            if (!Object.prototype.hasOwnProperty.call(uriOptions, key3)) continue;
+            if (options[key3]) continue;
+            options[key3] = uriOptions[key3];
           }
         }
-        for (const key2 in options) {
-          if (!Object.prototype.hasOwnProperty.call(options, key2)) continue;
-          if (validOptions[key2] !== 1) {
+        for (const key3 in options) {
+          if (!Object.prototype.hasOwnProperty.call(options, key3)) continue;
+          if (validOptions[key3] !== 1) {
             console.error(
-              `Ignoring invalid configuration option passed to Connection: ${key2}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`
+              `Ignoring invalid configuration option passed to Connection: ${key3}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`
             );
           }
         }
@@ -12901,14 +14385,14 @@ var require_connection_config = __commonJS({
           user: decodeURIComponent(parsedUrl.username),
           password: decodeURIComponent(parsedUrl.password)
         };
-        for (const [key2, value] of parsedUrl.searchParams) {
-          if (key2 in options) {
+        for (const [key3, value] of parsedUrl.searchParams) {
+          if (key3 in options) {
             continue;
           }
           try {
-            options[key2] = JSON.parse(value);
+            options[key3] = JSON.parse(value);
           } catch {
-            options[key2] = value;
+            options[key3] = value;
           }
         }
         return options;
@@ -12963,9 +14447,9 @@ var require_lib4 = __commonJS({
         const newKeyList = new Array(preserve);
         const newValList = new Array(preserve);
         for (let i = 0; i < remove; i++) {
-          const key2 = keyList[head];
-          onEviction === null || onEviction === void 0 ? void 0 : onEviction(key2, valList[head]);
-          keyMap.delete(key2);
+          const key3 = keyList[head];
+          onEviction === null || onEviction === void 0 ? void 0 : onEviction(key3, valList[head]);
+          keyMap.delete(key3);
           head = next[head];
         }
         for (let i = preserve - 1; i >= 0; i--) {
@@ -13003,10 +14487,10 @@ var require_lib4 = __commonJS({
       };
       return {
         /** Adds a key-value pair to the cache. Updates the value if the key already exists. */
-        set(key2, value) {
-          if (key2 === void 0)
+        set(key3, value) {
+          if (key3 === void 0)
             return;
-          let index2 = keyMap.get(key2);
+          let index2 = keyMap.get(key3);
           if (index2 === void 0) {
             if (size === max) {
               index2 = head;
@@ -13019,22 +14503,22 @@ var require_lib4 = __commonJS({
               index2 = free.length > 0 ? free.pop() : size;
               size++;
             }
-            keyMap.set(key2, index2);
-            keyList[index2] = key2;
+            keyMap.set(key3, index2);
+            keyList[index2] = key3;
             valList[index2] = value;
             if (size === 1)
               head = tail = index2;
             else
               linkTail(index2);
           } else {
-            onEviction === null || onEviction === void 0 ? void 0 : onEviction(key2, valList[index2]);
+            onEviction === null || onEviction === void 0 ? void 0 : onEviction(key3, valList[index2]);
             valList[index2] = value;
             moveToTail(index2);
           }
         },
         /** Retrieves the value for a given key and moves the key to the most recent position. */
-        get(key2) {
-          const index2 = keyMap.get(key2);
+        get(key3) {
+          const index2 = keyMap.get(key3);
           if (index2 === void 0)
             return;
           if (index2 !== tail)
@@ -13042,12 +14526,12 @@ var require_lib4 = __commonJS({
           return valList[index2];
         },
         /** Retrieves the value for a given key without changing its position. */
-        peek: (key2) => {
-          const index2 = keyMap.get(key2);
+        peek: (key3) => {
+          const index2 = keyMap.get(key3);
           return index2 !== void 0 ? valList[index2] : void 0;
         },
         /** Checks if a key exists in the cache. */
-        has: (key2) => keyMap.has(key2),
+        has: (key3) => keyMap.has(key3),
         /** Iterates over all keys in the cache, from most recent to least recent. */
         *keys() {
           let current = tail;
@@ -13076,19 +14560,19 @@ var require_lib4 = __commonJS({
         forEach: (callback) => {
           let current = tail;
           for (let i = 0; i < size; i++) {
-            const key2 = keyList[current];
+            const key3 = keyList[current];
             const value = valList[current];
-            callback(value, key2);
+            callback(value, key3);
             current = prev[current];
           }
         },
         /** Deletes a key-value pair from the cache. */
-        delete(key2) {
-          const index2 = keyMap.get(key2);
+        delete(key3) {
+          const index2 = keyMap.get(key3);
           if (index2 === void 0)
             return false;
-          onEviction === null || onEviction === void 0 ? void 0 : onEviction(key2, valList[index2]);
-          keyMap.delete(key2);
+          onEviction === null || onEviction === void 0 ? void 0 : onEviction(key3, valList[index2]);
+          keyMap.delete(key3);
           free.push(index2);
           keyList[index2] = void 0;
           valList[index2] = void 0;
@@ -13110,9 +14594,9 @@ var require_lib4 = __commonJS({
           let toPrune = Math.min(number, size);
           while (toPrune > 0) {
             const evictHead = head;
-            const key2 = keyList[evictHead];
-            onEviction === null || onEviction === void 0 ? void 0 : onEviction(key2, valList[evictHead]);
-            keyMap.delete(key2);
+            const key3 = keyList[evictHead];
+            onEviction === null || onEviction === void 0 ? void 0 : onEviction(key3, valList[evictHead]);
+            keyMap.delete(key3);
             keyList[evictHead] = void 0;
             valList[evictHead] = void 0;
             head = next[evictHead];
@@ -13206,13 +14690,13 @@ var require_parser_cache = __commonJS({
       return JSON.stringify(res, null, 0);
     }
     function getParser(type, fields, options, config, compiler) {
-      const key2 = keyFromFields(type, fields, options, config);
-      let parser = parserCache.get(key2);
+      const key3 = keyFromFields(type, fields, options, config);
+      let parser = parserCache.get(key3);
       if (parser) {
         return parser;
       }
       parser = compiler(fields, options, config);
-      parserCache.set(key2, parser);
+      parserCache.set(key3, parser);
       return parser;
     }
     function setMaxCache(max) {
@@ -18164,17 +19648,17 @@ var require_safer = __commonJS({
     var buffer = __require("buffer");
     var Buffer2 = buffer.Buffer;
     var safer = {};
-    var key2;
-    for (key2 in buffer) {
-      if (!buffer.hasOwnProperty(key2)) continue;
-      if (key2 === "SlowBuffer" || key2 === "Buffer") continue;
-      safer[key2] = buffer[key2];
+    var key3;
+    for (key3 in buffer) {
+      if (!buffer.hasOwnProperty(key3)) continue;
+      if (key3 === "SlowBuffer" || key3 === "Buffer") continue;
+      safer[key3] = buffer[key3];
     }
     var Safer = safer.Buffer = {};
-    for (key2 in Buffer2) {
-      if (!Buffer2.hasOwnProperty(key2)) continue;
-      if (key2 === "allocUnsafe" || key2 === "allocUnsafeSlow") continue;
-      Safer[key2] = Buffer2[key2];
+    for (key3 in Buffer2) {
+      if (!Buffer2.hasOwnProperty(key3)) continue;
+      if (key3 === "allocUnsafe" || key3 === "allocUnsafeSlow") continue;
+      Safer[key3] = Buffer2[key3];
     }
     safer.Buffer.prototype = Buffer2.prototype;
     if (!Safer.from || Safer.from === Uint8Array.from) {
@@ -18277,9 +19761,9 @@ var require_merge_exports = __commonJS({
     "use strict";
     var hasOwn = typeof Object.hasOwn === "undefined" ? Function.call.bind(Object.prototype.hasOwnProperty) : Object.hasOwn;
     function mergeModules(target, module2) {
-      for (var key2 in module2) {
-        if (hasOwn(module2, key2)) {
-          target[key2] = module2[key2];
+      for (var key3 in module2) {
+        if (hasOwn(module2, key3)) {
+          target[key3] = module2[key3];
         }
       }
     }
@@ -21867,8 +23351,8 @@ var require_lib5 = __commonJS({
             enc = codecDef;
             break;
           case "object":
-            for (var key2 in codecDef) {
-              codecOptions[key2] = codecDef[key2];
+            for (var key3 in codecDef) {
+              codecOptions[key3] = codecDef[key3];
             }
             if (!codecOptions.encodingName) {
               codecOptions.encodingName = enc;
@@ -24914,7 +26398,7 @@ var require_resultset_header = __commonJS({
           if (this.serverStatus & ServerSatusFlags.SERVER_SESSION_STATE_CHANGED) {
             let len = packet.offset < packet.end ? packet.readLengthCodedNumber() : 0;
             const end = packet.offset + len;
-            let type, key2, stateEnd;
+            let type, key3, stateEnd;
             if (len > 0) {
               stateChanges = {
                 systemVariables: {},
@@ -24928,18 +26412,18 @@ var require_resultset_header = __commonJS({
               len = packet.readLengthCodedNumber();
               stateEnd = packet.offset + len;
               if (type === sessionInfoTypes.SYSTEM_VARIABLES) {
-                key2 = packet.readLengthCodedString(encoding);
+                key3 = packet.readLengthCodedString(encoding);
                 const val = packet.readLengthCodedString(encoding);
-                stateChanges.systemVariables[key2] = val;
-                if (key2 === "character_set_client") {
+                stateChanges.systemVariables[key3] = val;
+                if (key3 === "character_set_client") {
                   const charsetNumber = EncodingToCharset[val];
                   if (typeof charsetNumber !== "undefined") {
                     connection.config.charsetNumber = charsetNumber;
                   }
                 }
               } else if (type === sessionInfoTypes.SCHEMA) {
-                key2 = packet.readLengthCodedString(encoding);
-                stateChanges.schema = key2;
+                key3 = packet.readLengthCodedString(encoding);
+                stateChanges.schema = key3;
               } else if (type === sessionInfoTypes.STATE_CHANGE) {
                 stateChanges.trackStateChange = packet.readLengthCodedString(encoding);
               } else if (type === sessionInfoTypes.STATE_GTIDS) {
@@ -25256,11 +26740,11 @@ var require_sha256_password = __commonJS({
     var STATE_INITIAL = 0;
     var STATE_WAIT_SERVER_KEY = 1;
     var STATE_FINAL = -1;
-    function encrypt(password, scramble, key2) {
+    function encrypt(password, scramble, key3) {
       const stage1 = xorRotating(Buffer.from(`${password}\0`, "utf8"), scramble);
       return crypto4.publicEncrypt(
         {
-          key: key2,
+          key: key3,
           oaepHash: "sha1"
         },
         stage1
@@ -25333,11 +26817,11 @@ var require_caching_sha2_password = __commonJS({
       const stage3 = sha256(Buffer.concat([stage2, scramble]));
       return xor(stage1, stage3);
     }
-    function encrypt(password, scramble, key2) {
+    function encrypt(password, scramble, key3) {
       const stage1 = xorRotating(Buffer.from(`${password}\0`, "utf8"), scramble);
       return crypto4.publicEncrypt(
         {
-          key: key2,
+          key: key3,
           oaepHash: "sha1",
           padding: crypto4.constants.RSA_PKCS1_OAEP_PADDING
         },
@@ -26323,14 +27807,14 @@ var require_generate_function = __commonJS({
       line.toFunction = function(scope) {
         if (!scope) scope = {};
         var src = "return (" + line.toString() + ")";
-        Object.keys(line.scope).forEach(function(key2) {
-          if (!scope[key2]) scope[key2] = line.scope[key2];
+        Object.keys(line.scope).forEach(function(key3) {
+          if (!scope[key3]) scope[key3] = line.scope[key3];
         });
-        var keys = Object.keys(scope).map(function(key2) {
-          return key2;
+        var keys = Object.keys(scope).map(function(key3) {
+          return key3;
         });
-        var vals = keys.map(function(key2) {
-          return scope[key2];
+        var vals = keys.map(function(key3) {
+          return scope[key3];
         });
         return Function.apply(null, keys.concat(src)).apply(null, vals);
       };
@@ -27336,11 +28820,11 @@ var require_static_binary_parser = __commonJS({
             if (options.rowsAsArray) {
               result[i] = value;
             } else if (typeof options.nestTables === "string") {
-              const key2 = helpers.fieldEscape(
+              const key3 = helpers.fieldEscape(
                 field.table + options.nestTables + field.name,
                 false
               );
-              result[key2] = value;
+              result[key3] = value;
             } else if (options.nestTables === true) {
               const tableName = helpers.fieldEscape(field.table, false);
               if (!result[tableName]) {
@@ -27349,8 +28833,8 @@ var require_static_binary_parser = __commonJS({
               const fieldName = helpers.fieldEscape(field.name, false);
               result[tableName][fieldName] = value;
             } else {
-              const key2 = helpers.fieldEscape(field.name, false);
-              result[key2] = value;
+              const key3 = helpers.fieldEscape(field.name, false);
+              result[key3] = value;
             }
             currentFieldNullBit *= 2;
             if (currentFieldNullBit === 256) {
@@ -27680,10 +29164,10 @@ var require_binlog_query_statusvars = __commonJS({
     module.exports = function parseStatusVars(buffer) {
       const result = {};
       let offset = 0;
-      let key2, length, prevOffset;
+      let key3, length, prevOffset;
       while (offset < buffer.length) {
-        key2 = buffer[offset++];
-        switch (key2) {
+        key3 = buffer[offset++];
+        switch (key3) {
           case keys.FLAGS2:
             result.flags = buffer.readUInt32LE(offset);
             offset += 4;
@@ -28834,10 +30318,10 @@ var require_connection = __commonJS({
         } else {
           options.sql = sql2;
         }
-        const key2 = _BaseConnection.statementKey(options);
-        const stmt = this._statements.get(key2);
+        const key3 = _BaseConnection.statementKey(options);
+        const stmt = this._statements.get(key3);
         if (stmt) {
-          this._statements.delete(key2);
+          this._statements.delete(key3);
           stmt.close();
         }
         return stmt;
@@ -30216,11 +31700,11 @@ var require_pool_cluster = __commonJS({
         if (!makeSelector[selector] === "undefined") {
           selector = this._defaultSelector;
         }
-        const key2 = pattern + selector;
-        if (typeof this._namespaces[key2] === "undefined") {
-          this._namespaces[key2] = new PoolNamespace(this, pattern, selector);
+        const key3 = pattern + selector;
+        if (typeof this._namespaces[key3] === "undefined") {
+          this._namespaces[key3] = new PoolNamespace(this, pattern, selector);
         }
-        return this._namespaces[key2];
+        return this._namespaces[key3];
       }
       add(id, config) {
         if (typeof id === "object") {
@@ -30844,10 +32328,10 @@ var init_dist = __esm({
       const headerRecord = [];
       const rawHeaders = incoming.rawHeaders;
       for (let i = 0; i < rawHeaders.length; i += 2) {
-        const { [i]: key2, [i + 1]: value } = rawHeaders;
-        if (key2.charCodeAt(0) !== /*:*/
+        const { [i]: key3, [i + 1]: value } = rawHeaders;
+        if (key3.charCodeAt(0) !== /*:*/
         58) {
-          headerRecord.push([key2, value]);
+          headerRecord.push([key3, value]);
         }
       }
       return new Headers(headerRecord);
@@ -31192,8 +32676,8 @@ var init_dist = __esm({
         hasContentLength = headerObj.has("content-length");
         header = buildOutgoingHttpHeaders(headerObj);
       } else {
-        for (const key2 in header) {
-          if (key2.length === 14 && key2.toLowerCase() === "content-length") {
+        for (const key3 in header) {
+          if (key3.length === 14 && key3.toLowerCase() === "content-length") {
             hasContentLength = true;
             break;
           }
@@ -31971,14 +33455,14 @@ var require_mediaType = __commonJS({
         var kvps = splitParameters(match2[3]).map(splitKeyValuePair);
         for (var j = 0; j < kvps.length; j++) {
           var pair = kvps[j];
-          var key2 = pair[0].toLowerCase();
+          var key3 = pair[0].toLowerCase();
           var val = pair[1];
           var value = val && val[0] === '"' && val[val.length - 1] === '"' ? val.substr(1, val.length - 2) : val;
-          if (key2 === "q") {
+          if (key3 === "q") {
             q = parseFloat(value);
             break;
           }
-          params[key2] = value;
+          params[key3] = value;
         }
       }
       return {
@@ -32064,15 +33548,15 @@ var require_mediaType = __commonJS({
     }
     function splitKeyValuePair(str) {
       var index2 = str.indexOf("=");
-      var key2;
+      var key3;
       var val;
       if (index2 === -1) {
-        key2 = str;
+        key3 = str;
       } else {
-        key2 = str.substr(0, index2);
+        key3 = str.substr(0, index2);
         val = str.substr(index2 + 1);
       }
-      return [key2, val];
+      return [key3, val];
     }
     function splitMediaTypes(accept) {
       var accepts = accept.split(",");
@@ -40941,8 +42425,8 @@ var require_commons = __commonJS({
     PACKET_TYPES["noop"] = "6";
     var PACKET_TYPES_REVERSE = /* @__PURE__ */ Object.create(null);
     exports.PACKET_TYPES_REVERSE = PACKET_TYPES_REVERSE;
-    Object.keys(PACKET_TYPES).forEach((key2) => {
-      PACKET_TYPES_REVERSE[PACKET_TYPES[key2]] = key2;
+    Object.keys(PACKET_TYPES).forEach((key3) => {
+      PACKET_TYPES_REVERSE[PACKET_TYPES[key3]] = key3;
     });
     var ERROR_PACKET = { type: "error", data: "parser error" };
     exports.ERROR_PACKET = ERROR_PACKET;
@@ -42784,8 +44268,8 @@ var require_cookie = __commonJS({
         }
         var keyStartIdx = startIndex(str, index2, eqIdx);
         var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
-        var key2 = str.slice(keyStartIdx, keyEndIdx);
-        if (!__hasOwnProperty.call(obj, key2)) {
+        var key3 = str.slice(keyStartIdx, keyEndIdx);
+        if (!__hasOwnProperty.call(obj, key3)) {
           var valStartIdx = startIndex(str, eqIdx + 1, endIdx);
           var valEndIdx = endIndex(str, endIdx, valStartIdx);
           if (str.charCodeAt(valStartIdx) === 34 && str.charCodeAt(valEndIdx - 1) === 34) {
@@ -42793,7 +44277,7 @@ var require_cookie = __commonJS({
             valEndIdx--;
           }
           var val = str.slice(valStartIdx, valEndIdx);
-          obj[key2] = tryDecode3(val, dec);
+          obj[key3] = tryDecode3(val, dec);
         }
         index2 = endIdx + 1;
       } while (index2 < len);
@@ -43248,44 +44732,44 @@ var require_permessage_deflate = __commonJS({
        */
       normalizeParams(configurations) {
         configurations.forEach((params) => {
-          Object.keys(params).forEach((key2) => {
-            let value = params[key2];
+          Object.keys(params).forEach((key3) => {
+            let value = params[key3];
             if (value.length > 1) {
-              throw new Error(`Parameter "${key2}" must have only a single value`);
+              throw new Error(`Parameter "${key3}" must have only a single value`);
             }
             value = value[0];
-            if (key2 === "client_max_window_bits") {
+            if (key3 === "client_max_window_bits") {
               if (value !== true) {
                 const num = +value;
                 if (!Number.isInteger(num) || num < 8 || num > 15) {
                   throw new TypeError(
-                    `Invalid value for parameter "${key2}": ${value}`
+                    `Invalid value for parameter "${key3}": ${value}`
                   );
                 }
                 value = num;
               } else if (!this._isServer) {
                 throw new TypeError(
-                  `Invalid value for parameter "${key2}": ${value}`
+                  `Invalid value for parameter "${key3}": ${value}`
                 );
               }
-            } else if (key2 === "server_max_window_bits") {
+            } else if (key3 === "server_max_window_bits") {
               const num = +value;
               if (!Number.isInteger(num) || num < 8 || num > 15) {
                 throw new TypeError(
-                  `Invalid value for parameter "${key2}": ${value}`
+                  `Invalid value for parameter "${key3}": ${value}`
                 );
               }
               value = num;
-            } else if (key2 === "client_no_context_takeover" || key2 === "server_no_context_takeover") {
+            } else if (key3 === "client_no_context_takeover" || key3 === "server_no_context_takeover") {
               if (value !== true) {
                 throw new TypeError(
-                  `Invalid value for parameter "${key2}": ${value}`
+                  `Invalid value for parameter "${key3}": ${value}`
                 );
               }
             } else {
-              throw new Error(`Unknown parameter "${key2}"`);
+              throw new Error(`Unknown parameter "${key3}"`);
             }
-            params[key2] = value;
+            params[key3] = value;
           });
         });
         return configurations;
@@ -43333,8 +44817,8 @@ var require_permessage_deflate = __commonJS({
       _decompress(data, fin, callback) {
         const endpoint = this._isServer ? "client" : "server";
         if (!this._inflate) {
-          const key2 = `${endpoint}_max_window_bits`;
-          const windowBits = typeof this.params[key2] !== "number" ? zlib.Z_DEFAULT_WINDOWBITS : this.params[key2];
+          const key3 = `${endpoint}_max_window_bits`;
+          const windowBits = typeof this.params[key3] !== "number" ? zlib.Z_DEFAULT_WINDOWBITS : this.params[key3];
           this._inflate = zlib.createInflateRaw({
             ...this._options.zlibInflateOptions,
             windowBits
@@ -43384,8 +44868,8 @@ var require_permessage_deflate = __commonJS({
       _compress(data, fin, callback) {
         const endpoint = this._isServer ? "server" : "client";
         if (!this._deflate) {
-          const key2 = `${endpoint}_max_window_bits`;
-          const windowBits = typeof this.params[key2] !== "number" ? zlib.Z_DEFAULT_WINDOWBITS : this.params[key2];
+          const key3 = `${endpoint}_max_window_bits`;
+          const windowBits = typeof this.params[key3] !== "number" ? zlib.Z_DEFAULT_WINDOWBITS : this.params[key3];
           this._deflate = zlib.createDeflateRaw({
             ...this._options.zlibDeflateOptions,
             windowBits
@@ -45154,7 +46638,7 @@ var require_websocket2 = __commonJS({
     var http = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes: randomBytes3, createHash } = __require("crypto");
+    var { randomBytes: randomBytes5, createHash } = __require("crypto");
     var { Duplex, Readable: Readable3 } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
@@ -45692,7 +47176,7 @@ var require_websocket2 = __commonJS({
         }
       }
       const defaultPort = isSecure ? 443 : 80;
-      const key2 = randomBytes3(16).toString("base64");
+      const key3 = randomBytes5(16).toString("base64");
       const request = isSecure ? https.request : http.request;
       const protocolSet = /* @__PURE__ */ new Set();
       let perMessageDeflate;
@@ -45703,7 +47187,7 @@ var require_websocket2 = __commonJS({
       opts.headers = {
         ...opts.headers,
         "Sec-WebSocket-Version": opts.protocolVersion,
-        "Sec-WebSocket-Key": key2,
+        "Sec-WebSocket-Key": key3,
         Connection: "Upgrade",
         Upgrade: "websocket"
       };
@@ -45754,8 +47238,8 @@ var require_websocket2 = __commonJS({
           const headers = options && options.headers;
           options = { ...options, headers: {} };
           if (headers) {
-            for (const [key3, value] of Object.entries(headers)) {
-              options.headers[key3.toLowerCase()] = value;
+            for (const [key4, value] of Object.entries(headers)) {
+              options.headers[key4.toLowerCase()] = value;
             }
           }
         } else if (websocket.listenerCount("redirect") === 0) {
@@ -45822,7 +47306,7 @@ var require_websocket2 = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash("sha1").update(key2 + GUID).digest("base64");
+        const digest = createHash("sha1").update(key3 + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -46390,7 +47874,7 @@ var require_websocket_server = __commonJS({
        */
       handleUpgrade(req, socket, head, cb) {
         socket.on("error", socketOnError);
-        const key2 = req.headers["sec-websocket-key"];
+        const key3 = req.headers["sec-websocket-key"];
         const upgrade = req.headers.upgrade;
         const version2 = +req.headers["sec-websocket-version"];
         if (req.method !== "GET") {
@@ -46403,7 +47887,7 @@ var require_websocket_server = __commonJS({
           abortHandshakeOrEmitwsClientError(this, req, socket, 400, message2);
           return;
         }
-        if (key2 === void 0 || !keyRegex.test(key2)) {
+        if (key3 === void 0 || !keyRegex.test(key3)) {
           const message2 = "Missing or invalid Sec-WebSocket-Key header";
           abortHandshakeOrEmitwsClientError(this, req, socket, 400, message2);
           return;
@@ -46463,7 +47947,7 @@ var require_websocket_server = __commonJS({
               }
               this.completeUpgrade(
                 extensions,
-                key2,
+                key3,
                 protocols,
                 req,
                 socket,
@@ -46475,7 +47959,7 @@ var require_websocket_server = __commonJS({
           }
           if (!this.options.verifyClient(info)) return abortHandshake(socket, 401);
         }
-        this.completeUpgrade(extensions, key2, protocols, req, socket, head, cb);
+        this.completeUpgrade(extensions, key3, protocols, req, socket, head, cb);
       }
       /**
        * Upgrade the connection to WebSocket.
@@ -46490,7 +47974,7 @@ var require_websocket_server = __commonJS({
        * @throws {Error} If called more than once with the same socket
        * @private
        */
-      completeUpgrade(extensions, key2, protocols, req, socket, head, cb) {
+      completeUpgrade(extensions, key3, protocols, req, socket, head, cb) {
         if (!socket.readable || !socket.writable) return socket.destroy();
         if (socket[kWebSocket]) {
           throw new Error(
@@ -46498,7 +47982,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash("sha1").update(key2 + GUID).digest("base64");
+        const digest = createHash("sha1").update(key3 + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -46661,9 +48145,9 @@ var require_object_assign = __commonJS({
       var symbols;
       for (var s = 1; s < arguments.length; s++) {
         from = Object(arguments[s]);
-        for (var key2 in from) {
-          if (hasOwnProperty.call(from, key2)) {
-            to[key2] = from[key2];
+        for (var key3 in from) {
+          if (hasOwnProperty.call(from, key3)) {
+            to[key3] = from[key3];
           }
         }
         if (getOwnPropertySymbols) {
@@ -46987,8 +48471,8 @@ var require_server2 = __commonJS({
       } catch (e) {
       }
     }
-    function hasOwn(obj, key2) {
-      return Object.prototype.hasOwnProperty.call(obj, key2);
+    function hasOwn(obj, key3) {
+      return Object.prototype.hasOwnProperty.call(obj, key3);
     }
     var BaseServer = class extends events_1.EventEmitter {
       /**
@@ -47414,8 +48898,8 @@ var require_server2 = __commonJS({
             }
             this.emit("headers", additionalHeaders, req);
             debug("writing headers: %j", additionalHeaders);
-            Object.keys(additionalHeaders).forEach((key2) => {
-              headersArray.push(`${key2}: ${additionalHeaders[key2]}`);
+            Object.keys(additionalHeaders).forEach((key3) => {
+              headersArray.push(`${key3}: ${additionalHeaders[key3]}`);
             });
           });
         }
@@ -48043,8 +49527,8 @@ var require_polling2 = __commonJS({
           "Content-Type": "text/html"
         };
         this.headers(req, headers);
-        for (let key2 in headers) {
-          res.writeHeader(key2, String(headers[key2]));
+        for (let key3 in headers) {
+          res.writeHeader(key3, String(headers[key3]));
         }
         const onEnd = (buffer2) => {
           this.onData(buffer2.toString());
@@ -48180,8 +49664,8 @@ var require_polling2 = __commonJS({
         const respond = (data2) => {
           this.headers(this.req, headers);
           this.res.cork(() => {
-            Object.keys(headers).forEach((key2) => {
-              this.res.writeHeader(key2, String(headers[key2]));
+            Object.keys(headers).forEach((key3) => {
+              this.res.writeHeader(key3, String(headers[key3]));
             });
             this.res.end(data2);
           });
@@ -48392,8 +49876,8 @@ var require_userver = __commonJS({
         const params = new URLSearchParams(req.getQuery());
         req._query = Object.fromEntries(params.entries());
         req.headers = {};
-        req.forEach((key2, value) => {
-          req.headers[key2] = value;
+        req.forEach((key3, value) => {
+          req.headers[key3] = value;
         });
         req.connection = {
           remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString()
@@ -48519,8 +50003,8 @@ var require_userver = __commonJS({
           }
           this.emit("headers", additionalHeaders, req);
           req.res.writeStatus("101 Switching Protocols");
-          Object.keys(additionalHeaders).forEach((key2) => {
-            req.res.writeHeader(key2, additionalHeaders[key2]);
+          Object.keys(additionalHeaders).forEach((key3) => {
+            req.res.writeHeader(key3, additionalHeaders[key3]);
           });
           res.upgrade({
             transport
@@ -48562,13 +50046,13 @@ var require_userver = __commonJS({
       writeHead(status) {
         this.statusCode = status;
       }
-      setHeader(key2, value) {
+      setHeader(key3, value) {
         if (Array.isArray(value)) {
           value.forEach((val) => {
-            this.writeHeader(key2, val);
+            this.writeHeader(key3, val);
           });
         } else {
-          this.writeHeader(key2, value);
+          this.writeHeader(key3, value);
         }
       }
       removeHeader() {
@@ -48584,21 +50068,21 @@ var require_userver = __commonJS({
         this.writeBufferedHeaders();
         return this;
       }
-      writeHeader(key2, value) {
+      writeHeader(key3, value) {
         if (this.isAborted)
           return;
-        if (key2 === "Content-Length") {
+        if (key3 === "Content-Length") {
           return;
         }
         if (this.statusWritten) {
-          this.res.writeHeader(key2, value);
+          this.res.writeHeader(key3, value);
         } else {
-          this.headers.push([key2, value]);
+          this.headers.push([key3, value]);
         }
       }
       writeBufferedHeaders() {
-        this.headers.forEach(([key2, value]) => {
-          this.res.writeHeader(key2, value);
+        this.headers.forEach(([key3, value]) => {
+          this.res.writeHeader(key3, value);
         });
       }
       end(data) {
@@ -48693,8 +50177,8 @@ var require_cjs2 = __commonJS({
       if (obj) return mixin(obj);
     }
     function mixin(obj) {
-      for (var key2 in Emitter.prototype) {
-        obj[key2] = Emitter.prototype[key2];
+      for (var key3 in Emitter.prototype) {
+        obj[key3] = Emitter.prototype[key3];
       }
       return obj;
     }
@@ -48797,8 +50281,8 @@ var require_is_binary = __commonJS({
       if (obj.toJSON && typeof obj.toJSON === "function" && arguments.length === 1) {
         return hasBinary(obj.toJSON(), true);
       }
-      for (const key2 in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key2) && hasBinary(obj[key2])) {
+      for (const key3 in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key3) && hasBinary(obj[key3])) {
           return true;
         }
       }
@@ -48838,9 +50322,9 @@ var require_binary = __commonJS({
         return newData;
       } else if (typeof data === "object" && !(data instanceof Date)) {
         const newData = {};
-        for (const key2 in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key2)) {
-            newData[key2] = _deconstructPacket(data[key2], buffers);
+        for (const key3 in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key3)) {
+            newData[key3] = _deconstructPacket(data[key3], buffers);
           }
         }
         return newData;
@@ -48867,9 +50351,9 @@ var require_binary = __commonJS({
           data[i] = _reconstructPacket(data[i], buffers);
         }
       } else if (typeof data === "object") {
-        for (const key2 in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key2)) {
-            data[key2] = _reconstructPacket(data[key2], buffers);
+        for (const key3 in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key3)) {
+            data[key3] = _reconstructPacket(data[key3], buffers);
           }
         }
       }
@@ -49260,14 +50744,14 @@ var require_client2 = __commonJS({
        * @param {Object} auth - the auth parameters
        * @private
        */
-      connect(name, auth3 = {}) {
+      connect(name, auth4 = {}) {
         if (this.server._nsps.has(name)) {
           debug("connecting to namespace %s", name);
-          return this.doConnect(name, auth3);
+          return this.doConnect(name, auth4);
         }
-        this.server._checkNamespace(name, auth3, (dynamicNspName) => {
+        this.server._checkNamespace(name, auth4, (dynamicNspName) => {
           if (dynamicNspName) {
-            this.doConnect(name, auth3);
+            this.doConnect(name, auth4);
           } else {
             debug("creation of namespace %s was denied", name);
             this._packet({
@@ -49288,9 +50772,9 @@ var require_client2 = __commonJS({
        *
        * @private
        */
-      doConnect(name, auth3) {
+      doConnect(name, auth4) {
         const nsp = this.server.of(name);
-        nsp._add(this, auth3, (socket) => {
+        nsp._add(this, auth4, (socket) => {
           this.sockets.set(socket.id, socket);
           this.nsps.set(nsp.name, socket);
           if (this.connectTimeout) {
@@ -50009,7 +51493,7 @@ var require_socket2 = __commonJS({
        * @param {Object} auth
        * @package
        */
-      constructor(nsp, client, auth3, previousSession) {
+      constructor(nsp, client, auth4, previousSession) {
         super();
         this.nsp = nsp;
         this.client = client;
@@ -50043,7 +51527,7 @@ var require_socket2 = __commonJS({
             this.pid = base64id_1.default.generateId();
           }
         }
-        this.handshake = this.buildHandshake(auth3);
+        this.handshake = this.buildHandshake(auth4);
         this.on("error", noop2);
       }
       /**
@@ -50051,7 +51535,7 @@ var require_socket2 = __commonJS({
        *
        * @private
        */
-      buildHandshake(auth3) {
+      buildHandshake(auth4) {
         var _a, _b, _c, _d;
         return {
           headers: ((_a = this.request) === null || _a === void 0 ? void 0 : _a.headers) || {},
@@ -50064,7 +51548,7 @@ var require_socket2 = __commonJS({
           url: (_c = this.request) === null || _c === void 0 ? void 0 : _c.url,
           // @ts-ignore
           query: ((_d = this.request) === null || _d === void 0 ? void 0 : _d._query) || {},
-          auth: auth3
+          auth: auth4
         };
       }
       /**
@@ -50648,16 +52132,16 @@ var require_socket2 = __commonJS({
         if (!this.fns.length)
           return fn();
         const fns = this.fns.slice(0);
-        function run2(i) {
+        function run3(i) {
           fns[i](event, (err) => {
             if (err)
               return fn(err);
             if (!fns[i + 1])
               return fn();
-            run2(i + 1);
+            run3(i + 1);
           });
         }
-        run2(0);
+        run3(0);
       }
       /**
        * Whether the socket is currently disconnected
@@ -50954,16 +52438,16 @@ var require_namespace = __commonJS({
         if (!this._fns.length)
           return fn();
         const fns = this._fns.slice(0);
-        function run2(i) {
+        function run3(i) {
           fns[i](socket, (err) => {
             if (err)
               return fn(err);
             if (!fns[i + 1])
               return fn();
-            run2(i + 1);
+            run3(i + 1);
           });
         }
-        run2(0);
+        run3(0);
       }
       /**
        * Targets a room when emitting.
@@ -51028,10 +52512,10 @@ var require_namespace = __commonJS({
        * @return {Socket}
        * @private
        */
-      async _add(client, auth3, fn) {
+      async _add(client, auth4, fn) {
         var _a;
         debug("adding socket to nsp %s", this.name);
-        const socket = await this._createSocket(client, auth3);
+        const socket = await this._createSocket(client, auth4);
         this._preConnectSockets.set(socket.id, socket);
         if (
           // @ts-ignore
@@ -51062,9 +52546,9 @@ var require_namespace = __commonJS({
           });
         });
       }
-      async _createSocket(client, auth3) {
-        const sessionId = auth3.pid;
-        const offset = auth3.offset;
+      async _createSocket(client, auth4) {
+        const sessionId = auth4.pid;
+        const offset = auth4.offset;
         if (
           // @ts-ignore
           this.server.opts.connectionStateRecovery && typeof sessionId === "string" && typeof offset === "string"
@@ -51077,10 +52561,10 @@ var require_namespace = __commonJS({
           }
           if (session) {
             debug("connection state recovered for sid %s", session.sid);
-            return new socket_1.Socket(this, client, auth3, session);
+            return new socket_1.Socket(this, client, auth4, session);
           }
         }
-        return new socket_1.Socket(this, client, auth3);
+        return new socket_1.Socket(this, client, auth4);
       }
       _doConnect(socket, fn) {
         this._preConnectSockets.delete(socket.id);
@@ -52683,15 +54167,15 @@ var require_uws = __commonJS({
         const arrayBufferChunk = toArrayBuffer(chunk);
         res.cork(() => {
           const lastOffset = res.getWriteOffset();
-          const [ok, done] = res.tryEnd(arrayBufferChunk, size);
-          if (!done && !ok) {
+          const [ok2, done] = res.tryEnd(arrayBufferChunk, size);
+          if (!done && !ok2) {
             readStream.pause();
             res.onWritable((offset) => {
-              const [ok2, done2] = res.tryEnd(arrayBufferChunk.slice(offset - lastOffset), size);
-              if (!done2 && ok2) {
+              const [ok3, done2] = res.tryEnd(arrayBufferChunk.slice(offset - lastOffset), size);
+              if (!done2 && ok3) {
                 readStream.resume();
               }
-              return ok2;
+              return ok3;
             });
           }
         });
@@ -52910,18 +54394,18 @@ var require_dist3 = __commonJS({
        *
        * @private
        */
-      _checkNamespace(name, auth3, fn) {
+      _checkNamespace(name, auth4, fn) {
         if (this.parentNsps.size === 0)
           return fn(false);
         const keysIterator = this.parentNsps.keys();
-        const run2 = () => {
+        const run3 = () => {
           const nextFn = keysIterator.next();
           if (nextFn.done) {
             return fn(false);
           }
-          nextFn.value(name, auth3, (err, allow) => {
+          nextFn.value(name, auth4, (err, allow) => {
             if (err || !allow) {
-              return run2();
+              return run3();
             }
             if (this._nsps.has(name)) {
               debug("dynamic namespace %s already exists", name);
@@ -52932,7 +54416,7 @@ var require_dist3 = __commonJS({
             fn(namespace);
           });
         };
-        run2();
+        run3();
       }
       path(v) {
         if (!arguments.length)
@@ -53533,8 +55017,8 @@ var require_dist3 = __commonJS({
       }
     };
     exports.Server = Server2;
-    var emitterMethods = Object.keys(events_1.EventEmitter.prototype).filter(function(key2) {
-      return typeof events_1.EventEmitter.prototype[key2] === "function";
+    var emitterMethods = Object.keys(events_1.EventEmitter.prototype).filter(function(key3) {
+      return typeof events_1.EventEmitter.prototype[key3] === "function";
     });
     emitterMethods.forEach(function(fn) {
       Server2.prototype[fn] = function() {
@@ -53776,47 +55260,47 @@ async function parseFormData(request, options) {
 }
 function convertFormDataToBodyData(formData, options) {
   const form = /* @__PURE__ */ Object.create(null);
-  formData.forEach((value, key2) => {
-    const shouldParseAllValues = options.all || key2.endsWith("[]");
+  formData.forEach((value, key3) => {
+    const shouldParseAllValues = options.all || key3.endsWith("[]");
     if (!shouldParseAllValues) {
-      form[key2] = value;
+      form[key3] = value;
     } else {
-      handleParsingAllValues(form, key2, value);
+      handleParsingAllValues(form, key3, value);
     }
   });
   if (options.dot) {
-    Object.entries(form).forEach(([key2, value]) => {
-      const shouldParseDotValues = key2.includes(".");
+    Object.entries(form).forEach(([key3, value]) => {
+      const shouldParseDotValues = key3.includes(".");
       if (shouldParseDotValues) {
-        handleParsingNestedValues(form, key2, value);
-        delete form[key2];
+        handleParsingNestedValues(form, key3, value);
+        delete form[key3];
       }
     });
   }
   return form;
 }
-var handleParsingAllValues = (form, key2, value) => {
-  if (form[key2] !== void 0) {
-    if (Array.isArray(form[key2])) {
+var handleParsingAllValues = (form, key3, value) => {
+  if (form[key3] !== void 0) {
+    if (Array.isArray(form[key3])) {
       ;
-      form[key2].push(value);
+      form[key3].push(value);
     } else {
-      form[key2] = [form[key2], value];
+      form[key3] = [form[key3], value];
     }
   } else {
-    if (!key2.endsWith("[]")) {
-      form[key2] = value;
+    if (!key3.endsWith("[]")) {
+      form[key3] = value;
     } else {
-      form[key2] = [value];
+      form[key3] = [value];
     }
   }
 };
-var handleParsingNestedValues = (form, key2, value) => {
-  if (/(?:^|\.)__proto__\./.test(key2)) {
+var handleParsingNestedValues = (form, key3, value) => {
+  if (/(?:^|\.)__proto__\./.test(key3)) {
     return;
   }
   let nestedForm = form;
-  const keys = key2.split(".");
+  const keys = key3.split(".");
   keys.forEach((key22, index2) => {
     if (index2 === keys.length - 1) {
       nestedForm[key22] = value;
@@ -53960,26 +55444,26 @@ var _decodeURI = (value) => {
   }
   return value.indexOf("%") !== -1 ? tryDecode(value, decodeURIComponent_) : value;
 };
-var _getQueryParam = (url, key2, multiple) => {
+var _getQueryParam = (url, key3, multiple) => {
   let encoded;
-  if (!multiple && key2 && !/[%+]/.test(key2)) {
+  if (!multiple && key3 && !/[%+]/.test(key3)) {
     let keyIndex2 = url.indexOf("?", 8);
     if (keyIndex2 === -1) {
       return void 0;
     }
-    if (!url.startsWith(key2, keyIndex2 + 1)) {
-      keyIndex2 = url.indexOf(`&${key2}`, keyIndex2 + 1);
+    if (!url.startsWith(key3, keyIndex2 + 1)) {
+      keyIndex2 = url.indexOf(`&${key3}`, keyIndex2 + 1);
     }
     while (keyIndex2 !== -1) {
-      const trailingKeyCode = url.charCodeAt(keyIndex2 + key2.length + 1);
+      const trailingKeyCode = url.charCodeAt(keyIndex2 + key3.length + 1);
       if (trailingKeyCode === 61) {
-        const valueIndex = keyIndex2 + key2.length + 2;
+        const valueIndex = keyIndex2 + key3.length + 2;
         const endIndex = url.indexOf("&", valueIndex);
         return _decodeURI(url.slice(valueIndex, endIndex === -1 ? void 0 : endIndex));
       } else if (trailingKeyCode == 38 || isNaN(trailingKeyCode)) {
         return "";
       }
-      keyIndex2 = url.indexOf(`&${key2}`, keyIndex2 + 1);
+      keyIndex2 = url.indexOf(`&${key3}`, keyIndex2 + 1);
     }
     encoded = /[%+]/.test(url);
     if (!encoded) {
@@ -54025,11 +55509,11 @@ var _getQueryParam = (url, key2, multiple) => {
       results[name] ??= value;
     }
   }
-  return key2 ? results[key2] : results;
+  return key3 ? results[key3] : results;
 };
 var getQueryParam = _getQueryParam;
-var getQueryParams = (url, key2) => {
-  return _getQueryParam(url, key2, true);
+var getQueryParams = (url, key3) => {
+  return _getQueryParam(url, key3, true);
 };
 var decodeURIComponent_ = decodeURIComponent;
 
@@ -54075,21 +55559,21 @@ var HonoRequest = class {
     this.#matchResult = matchResult;
     this.#validatedData = {};
   }
-  param(key2) {
-    return key2 ? this.#getDecodedParam(key2) : this.#getAllDecodedParams();
+  param(key3) {
+    return key3 ? this.#getDecodedParam(key3) : this.#getAllDecodedParams();
   }
-  #getDecodedParam(key2) {
-    const paramKey = this.#matchResult[0][this.routeIndex][1][key2];
+  #getDecodedParam(key3) {
+    const paramKey = this.#matchResult[0][this.routeIndex][1][key3];
     const param = this.#getParamValue(paramKey);
     return param && /\%/.test(param) ? tryDecodeURIComponent(param) : param;
   }
   #getAllDecodedParams() {
     const decoded = {};
     const keys = Object.keys(this.#matchResult[0][this.routeIndex][1]);
-    for (const key2 of keys) {
-      const value = this.#getParamValue(this.#matchResult[0][this.routeIndex][1][key2]);
+    for (const key3 of keys) {
+      const value = this.#getParamValue(this.#matchResult[0][this.routeIndex][1][key3]);
       if (value !== void 0) {
-        decoded[key2] = /\%/.test(value) ? tryDecodeURIComponent(value) : value;
+        decoded[key3] = /\%/.test(value) ? tryDecodeURIComponent(value) : value;
       }
     }
     return decoded;
@@ -54097,28 +55581,28 @@ var HonoRequest = class {
   #getParamValue(paramKey) {
     return this.#matchResult[1] ? this.#matchResult[1][paramKey] : paramKey;
   }
-  query(key2) {
-    return getQueryParam(this.url, key2);
+  query(key3) {
+    return getQueryParam(this.url, key3);
   }
-  queries(key2) {
-    return getQueryParams(this.url, key2);
+  queries(key3) {
+    return getQueryParams(this.url, key3);
   }
   header(name) {
     if (name) {
       return this.raw.headers.get(name) ?? void 0;
     }
     const headerData = {};
-    this.raw.headers.forEach((value, key2) => {
-      headerData[key2] = value;
+    this.raw.headers.forEach((value, key3) => {
+      headerData[key3] = value;
     });
     return headerData;
   }
   async parseBody(options) {
     return parseBody(this, options);
   }
-  #cachedBody = (key2) => {
+  #cachedBody = (key3) => {
     const { bodyCache, raw: raw2 } = this;
-    const cachedBody = bodyCache[key2];
+    const cachedBody = bodyCache[key3];
     if (cachedBody) {
       return cachedBody;
     }
@@ -54128,10 +55612,10 @@ var HonoRequest = class {
         if (anyCachedKey === "json") {
           body = JSON.stringify(body);
         }
-        return new Response(body)[key2]();
+        return new Response(body)[key3]();
       });
     }
-    return bodyCache[key2] = raw2[key2]();
+    return bodyCache[key3] = raw2[key3]();
   };
   /**
    * `.json()` can parse Request body of type `application/json`
@@ -54593,9 +56077,9 @@ var Context = class {
    * })
    * ```
    */
-  set = (key2, value) => {
+  set = (key3, value) => {
     this.#var ??= /* @__PURE__ */ new Map();
-    this.#var.set(key2, value);
+    this.#var.set(key3, value);
   };
   /**
    * `.get()` can use the value specified by the key.
@@ -54610,8 +56094,8 @@ var Context = class {
    * })
    * ```
    */
-  get = (key2) => {
-    return this.#var ? this.#var.get(key2) : void 0;
+  get = (key3) => {
+    return this.#var ? this.#var.get(key3) : void 0;
   };
   /**
    * `.var` can access the value of a variable.
@@ -54634,11 +56118,11 @@ var Context = class {
     const responseHeaders = this.#res ? new Headers(this.#res.headers) : this.#preparedHeaders ?? new Headers();
     if (typeof arg === "object" && "headers" in arg) {
       const argHeaders = arg.headers instanceof Headers ? arg.headers : new Headers(arg.headers);
-      for (const [key2, value] of argHeaders) {
-        if (key2.toLowerCase() === "set-cookie") {
-          responseHeaders.append(key2, value);
+      for (const [key3, value] of argHeaders) {
+        if (key3.toLowerCase() === "set-cookie") {
+          responseHeaders.append(key3, value);
         } else {
-          responseHeaders.set(key2, value);
+          responseHeaders.set(key3, value);
         }
       }
     }
@@ -55383,8 +56867,8 @@ function buildMatcherFromPreprocessedRoutes(routes) {
       const paramIndexMap = /* @__PURE__ */ Object.create(null);
       paramCount -= 1;
       for (; paramCount >= 0; paramCount--) {
-        const [key2, value] = paramAssoc[paramCount];
-        paramIndexMap[key2] = value;
+        const [key3, value] = paramAssoc[paramCount];
+        paramIndexMap[key3] = value;
       }
       return [h, paramIndexMap];
     });
@@ -55604,20 +57088,20 @@ var Node2 = class _Node2 {
       const p = parts[i];
       const nextP = parts[i + 1];
       const pattern = getPattern(p, nextP);
-      const key2 = Array.isArray(pattern) ? pattern[0] : p;
-      if (key2 in curNode.#children) {
-        curNode = curNode.#children[key2];
+      const key3 = Array.isArray(pattern) ? pattern[0] : p;
+      if (key3 in curNode.#children) {
+        curNode = curNode.#children[key3];
         if (pattern) {
           possibleKeys.push(pattern[1]);
         }
         continue;
       }
-      curNode.#children[key2] = new _Node2();
+      curNode.#children[key3] = new _Node2();
       if (pattern) {
         curNode.#patterns.push(pattern);
         possibleKeys.push(pattern[1]);
       }
-      curNode = curNode.#children[key2];
+      curNode = curNode.#children[key3];
     }
     curNode.#methods.push({
       [method]: {
@@ -55638,9 +57122,9 @@ var Node2 = class _Node2 {
         handlerSets.push(handlerSet);
         if (nodeParams !== emptyParams || params && params !== emptyParams) {
           for (let i2 = 0, len2 = handlerSet.possibleKeys.length; i2 < len2; i2++) {
-            const key2 = handlerSet.possibleKeys[i2];
+            const key3 = handlerSet.possibleKeys[i2];
             const processed = processedSet[handlerSet.score];
-            handlerSet.params[key2] = params?.[key2] && !processed ? params[key2] : nodeParams[key2] ?? params?.[key2];
+            handlerSet.params[key3] = params?.[key3] && !processed ? params[key3] : nodeParams[key3] ?? params?.[key3];
             processedSet[handlerSet.score] = true;
           }
         }
@@ -55686,11 +57170,11 @@ var Node2 = class _Node2 {
             }
             continue;
           }
-          const [key2, name, matcher] = pattern;
+          const [key3, name, matcher] = pattern;
           if (!part && !(matcher instanceof RegExp)) {
             continue;
           }
-          const child = node2.#children[key2];
+          const child = node2.#children[key3];
           if (matcher instanceof RegExp) {
             if (partOffsets === null) {
               partOffsets = new Array(len);
@@ -55836,9 +57320,9 @@ var bodyLimit = (options) => {
 // node_modules/@trpc/server/dist/codes-DagpWZLc.mjs
 function mergeWithoutOverrides(obj1, ...objs) {
   const newObj = Object.assign(emptyObject(), obj1);
-  for (const overrides of objs) for (const key2 in overrides) {
-    if (key2 in newObj && newObj[key2] !== overrides[key2]) throw new Error(`Duplicate key ${key2}`);
-    newObj[key2] = overrides[key2];
+  for (const overrides of objs) for (const key3 in overrides) {
+    if (key3 in newObj && newObj[key3] !== overrides[key3]) throw new Error(`Duplicate key ${key3}`);
+    newObj[key3] = overrides[key3];
   }
   return newObj;
 }
@@ -55935,11 +57419,11 @@ var __commonJS2 = (cb, mod) => function() {
   return mod || (0, cb[__getOwnPropNames2(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __copyProps2 = (to, from, except2, desc2) => {
-  if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i = 0, n = keys.length, key2; i < n; i++) {
-    key2 = keys[i];
-    if (!__hasOwnProp2.call(to, key2) && key2 !== except2) __defProp2(to, key2, {
-      get: ((k) => from[k]).bind(null, key2),
-      enumerable: !(desc2 = __getOwnPropDesc2(from, key2)) || desc2.enumerable
+  if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i = 0, n = keys.length, key3; i < n; i++) {
+    key3 = keys[i];
+    if (!__hasOwnProp2.call(to, key3) && key3 !== except2) __defProp2(to, key3, {
+      get: ((k) => from[k]).bind(null, key3),
+      enumerable: !(desc2 = __getOwnPropDesc2(from, key3)) || desc2.enumerable
     });
   }
   return to;
@@ -55957,9 +57441,9 @@ function createInnerProxy(callback, path2, memo2) {
   var _memo$cacheKey;
   const cacheKey2 = path2.join(".");
   (_memo$cacheKey = memo2[cacheKey2]) !== null && _memo$cacheKey !== void 0 || (memo2[cacheKey2] = new Proxy(noop, {
-    get(_obj, key2) {
-      if (typeof key2 !== "string" || key2 === "then") return void 0;
-      return createInnerProxy(callback, [...path2, key2], memo2);
+    get(_obj, key3) {
+      if (typeof key3 !== "string" || key3 === "then") return void 0;
+      return createInnerProxy(callback, [...path2, key3], memo2);
     },
     apply(_1, _2, args) {
       const lastOfPath = path2[path2.length - 1];
@@ -56252,28 +57736,28 @@ function createRouterFactory(config) {
     }
     function step(from, path2 = []) {
       const aggregate = emptyObject();
-      for (const [key2, item] of Object.entries(from !== null && from !== void 0 ? from : {})) {
+      for (const [key3, item] of Object.entries(from !== null && from !== void 0 ? from : {})) {
         if (isLazy(item)) {
-          lazy$1[[...path2, key2].join(".")] = createLazyLoader({
+          lazy$1[[...path2, key3].join(".")] = createLazyLoader({
             path: path2,
             ref: item,
-            key: key2,
+            key: key3,
             aggregate
           });
           continue;
         }
         if (isRouter(item)) {
-          aggregate[key2] = step(item._def.record, [...path2, key2]);
+          aggregate[key3] = step(item._def.record, [...path2, key3]);
           continue;
         }
         if (!isProcedure(item)) {
-          aggregate[key2] = step(item, [...path2, key2]);
+          aggregate[key3] = step(item, [...path2, key3]);
           continue;
         }
-        const newPath = [...path2, key2].join(".");
+        const newPath = [...path2, key3].join(".");
         if (procedures[newPath]) throw new Error(`Duplicate key: ${newPath}`);
         procedures[newPath] = item;
-        aggregate[key2] = item;
+        aggregate[key3] = item;
       }
       return aggregate;
     }
@@ -56299,9 +57783,9 @@ async function getProcedureAtPath(router, path2) {
   const { _def } = router;
   let procedure = _def.procedures[path2];
   while (!procedure) {
-    const key2 = Object.keys(_def.lazy).find((key$1) => path2.startsWith(key$1));
-    if (!key2) return null;
-    const lazyRouter = _def.lazy[key2];
+    const key3 = Object.keys(_def.lazy).find((key$1) => path2.startsWith(key$1));
+    if (!key3) return null;
+    const lazyRouter = _def.lazy[key3];
     await lazyRouter.load();
     procedure = _def.procedures[path2];
   }
@@ -56454,7 +57938,7 @@ function parseConnectionParamsFromUnknown(parsed) {
     if (parsed === null) return null;
     if (!isObject(parsed)) throw new Error("Expected object");
     const nonStringValues = Object.entries(parsed).filter(([_key, value]) => typeof value !== "string");
-    if (nonStringValues.length > 0) throw new Error(`Expected connectionParams to be string values. Got ${nonStringValues.map(([key2, value]) => `${key2}: ${typeof value}`).join(", ")}`);
+    if (nonStringValues.length > 0) throw new Error(`Expected connectionParams to be string values. Got ${nonStringValues.map(([key3, value]) => `${key3}: ${typeof value}`).join(", ")}`);
     return parsed;
   } catch (cause) {
     throw new TRPCError({
@@ -57489,19 +58973,19 @@ function _createBatchStreamProducer() {
       if (!isPlainObject(value)) return [[value]];
       const newObj = emptyObject();
       const asyncValues = [];
-      for (const [key2, item] of Object.entries(value)) {
-        const transformed = encodeAsync(item, [...path2, key2]);
+      for (const [key3, item] of Object.entries(value)) {
+        const transformed = encodeAsync(item, [...path2, key3]);
         if (!transformed) {
-          newObj[key2] = item;
+          newObj[key3] = item;
           continue;
         }
-        newObj[key2] = placeholder;
-        asyncValues.push([key2, ...transformed]);
+        newObj[key3] = placeholder;
+        asyncValues.push([key3, ...transformed]);
       }
       return [[newObj], ...asyncValues];
     }
     const newHead = emptyObject();
-    for (const [key2, item] of Object.entries(data)) newHead[key2] = encode3(item, [key2]);
+    for (const [key3, item] of Object.entries(data)) newHead[key3] = encode3(item, [key3]);
     yield newHead;
     let iterable = mergedIterables;
     if (opts.pingMs) iterable = withPing(mergedIterables, opts.pingMs);
@@ -57722,10 +59206,10 @@ function initResponse(initOpts) {
     })) === null || _info$calls$find === void 0 || (_info$calls$find = _info$calls$find.procedure) === null || _info$calls$find === void 0 ? void 0 : _info$calls$find._def.type) !== null && _info$calls$find$proc !== void 0 ? _info$calls$find$proc : "unknown"
   })) !== null && _responseMeta !== void 0 ? _responseMeta : {};
   if (meta.headers) {
-    if (meta.headers instanceof Headers) for (const [key2, value] of meta.headers.entries()) headers.append(key2, value);
+    if (meta.headers instanceof Headers) for (const [key3, value] of meta.headers.entries()) headers.append(key3, value);
     else
-      for (const [key2, value] of Object.entries(meta.headers)) if (Array.isArray(value)) for (const v of value) headers.append(key2, v);
-      else if (typeof value === "string") headers.set(key2, value);
+      for (const [key3, value] of Object.entries(meta.headers)) if (Array.isArray(value)) for (const v of value) headers.append(key3, v);
+      else if (typeof value === "string") headers.set(key3, value);
   }
   if (meta.status) status = meta.status;
   return { status };
@@ -57955,7 +59439,7 @@ async function resolveResponse(opts) {
               return shape;
             }
           }));
-          for (const [key2, value] of Object.entries(sseHeaders)) headers.set(key2, value);
+          for (const [key3, value] of Object.entries(sseHeaders)) headers.set(key3, value);
           const headResponse$1 = initResponse({
             ctx: ctxManager.valueOrUndefined(),
             info,
@@ -58152,10 +59636,10 @@ async function fetchRequestHandler(opts) {
       var _opts$responseMeta;
       const meta = (_opts$responseMeta = opts.responseMeta) === null || _opts$responseMeta === void 0 ? void 0 : _opts$responseMeta.call(opts, data);
       if (meta === null || meta === void 0 ? void 0 : meta.headers) {
-        if (meta.headers instanceof Headers) for (const [key2, value] of meta.headers.entries()) resHeaders.append(key2, value);
+        if (meta.headers instanceof Headers) for (const [key3, value] of meta.headers.entries()) resHeaders.append(key3, value);
         else
-          for (const [key2, value] of Object.entries(meta.headers)) if (Array.isArray(value)) for (const v of value) resHeaders.append(key2, v);
-          else if (typeof value === "string") resHeaders.set(key2, value);
+          for (const [key3, value] of Object.entries(meta.headers)) if (Array.isArray(value)) for (const v of value) resHeaders.append(key3, v);
+          else if (typeof value === "string") resHeaders.set(key3, value);
       }
       return {
         headers: resHeaders,
@@ -58510,12 +59994,12 @@ var DoubleIndexedKV = class {
     this.keyToValue = /* @__PURE__ */ new Map();
     this.valueToKey = /* @__PURE__ */ new Map();
   }
-  set(key2, value) {
-    this.keyToValue.set(key2, value);
-    this.valueToKey.set(value, key2);
+  set(key3, value) {
+    this.keyToValue.set(key3, value);
+    this.valueToKey.set(value, key3);
   }
-  getByKey(key2) {
-    return this.keyToValue.get(key2);
+  getByKey(key3) {
+    return this.keyToValue.get(key3);
   }
   getByValue(value) {
     return this.valueToKey.get(value);
@@ -58579,9 +60063,9 @@ function valuesOfObj(record) {
     return Object.values(record);
   }
   const values = [];
-  for (const key2 in record) {
-    if (record.hasOwnProperty(key2)) {
-      values.push(record[key2]);
+  for (const key3 in record) {
+    if (record.hasOwnProperty(key3)) {
+      values.push(record[key3]);
     }
   }
   return values;
@@ -58600,8 +60084,8 @@ function find(record, predicate) {
   }
   return void 0;
 }
-function forEach(record, run2) {
-  Object.entries(record).forEach(([key2, value]) => run2(value, key2));
+function forEach(record, run3) {
+  Object.entries(record).forEach(([key3, value]) => run3(value, key3));
 }
 function includes(arr, value) {
   return arr.indexOf(value) !== -1;
@@ -58664,7 +60148,7 @@ var isTypedArray = (payload) => ArrayBuffer.isView(payload) && !(payload instanc
 var isURL = (payload) => payload instanceof URL;
 
 // node_modules/superjson/dist/pathstringifier.js
-var escapeKey = (key2) => key2.replace(/\\/g, "\\\\").replace(/\./g, "\\.");
+var escapeKey = (key3) => key3.replace(/\\/g, "\\\\").replace(/\./g, "\\.");
 var stringifyPath = (path2) => path2.map(String).map(escapeKey).join(".");
 var parsePath = (string, legacyPaths) => {
   const result = [];
@@ -58926,11 +60410,11 @@ function validatePath(path2) {
 var getDeep = (object, path2) => {
   validatePath(path2);
   for (let i = 0; i < path2.length; i++) {
-    const key2 = path2[i];
+    const key3 = path2[i];
     if (isSet(object)) {
-      object = getNthKey(object, +key2);
+      object = getNthKey(object, +key3);
     } else if (isMap(object)) {
-      const row = +key2;
+      const row = +key3;
       const type = +path2[++i] === 0 ? "key" : "value";
       const keyOfRow = getNthKey(object, row);
       switch (type) {
@@ -58942,7 +60426,7 @@ var getDeep = (object, path2) => {
           break;
       }
     } else {
-      object = object[key2];
+      object = object[key3];
     }
   }
   return object;
@@ -58954,21 +60438,21 @@ var setDeep = (object, path2, mapper) => {
   }
   let parent = object;
   for (let i = 0; i < path2.length - 1; i++) {
-    const key2 = path2[i];
+    const key3 = path2[i];
     if (isArray(parent)) {
-      const index2 = +key2;
+      const index2 = +key3;
       parent = parent[index2];
     } else if (isPlainObject2(parent)) {
-      parent = parent[key2];
+      parent = parent[key3];
     } else if (isSet(parent)) {
-      const row = +key2;
+      const row = +key3;
       parent = getNthKey(parent, row);
     } else if (isMap(parent)) {
       const isEnd = i === path2.length - 2;
       if (isEnd) {
         break;
       }
-      const row = +key2;
+      const row = +key3;
       const type = +path2[++i] === 0 ? "key" : "value";
       const keyOfRow = getNthKey(parent, row);
       switch (type) {
@@ -59025,18 +60509,18 @@ function traverse(tree, walker2, version2, origin = []) {
   }
   const legacyPaths = enableLegacyPaths(version2);
   if (!isArray(tree)) {
-    forEach(tree, (subtree, key2) => traverse(subtree, walker2, version2, [
+    forEach(tree, (subtree, key3) => traverse(subtree, walker2, version2, [
       ...origin,
-      ...parsePath(key2, legacyPaths)
+      ...parsePath(key3, legacyPaths)
     ]));
     return;
   }
   const [nodeValue, children] = tree;
   if (children) {
-    forEach(children, (child, key2) => {
+    forEach(children, (child, key3) => {
       traverse(child, walker2, version2, [
         ...origin,
-        ...parsePath(key2, legacyPaths)
+        ...parsePath(key3, legacyPaths)
       ]);
     });
   }
@@ -59147,8 +60631,8 @@ var walker = (object, identities, superJson, dedupe, path2 = [], objectsInThisPa
     if (isArray(recursiveResult.annotations)) {
       innerAnnotations[escapeKey(index2)] = recursiveResult.annotations;
     } else if (isPlainObject2(recursiveResult.annotations)) {
-      forEach(recursiveResult.annotations, (tree, key2) => {
-        innerAnnotations[escapeKey(index2) + "." + key2] = tree;
+      forEach(recursiveResult.annotations, (tree, key3) => {
+        innerAnnotations[escapeKey(index2) + "." + key3] = tree;
       });
     }
   });
@@ -59184,12 +60668,12 @@ function isPlainObject3(payload) {
 }
 
 // node_modules/copy-anything/dist/index.js
-function assignProp(carry, key2, newVal, originalObject, includeNonenumerable) {
-  const propType = {}.propertyIsEnumerable.call(originalObject, key2) ? "enumerable" : "nonenumerable";
+function assignProp(carry, key3, newVal, originalObject, includeNonenumerable) {
+  const propType = {}.propertyIsEnumerable.call(originalObject, key3) ? "enumerable" : "nonenumerable";
   if (propType === "enumerable")
-    carry[key2] = newVal;
+    carry[key3] = newVal;
   if (includeNonenumerable && propType === "nonenumerable") {
-    Object.defineProperty(carry, key2, {
+    Object.defineProperty(carry, key3, {
       value: newVal,
       enumerable: false,
       writable: true,
@@ -59206,15 +60690,15 @@ function copy(target, options = {}) {
   }
   const props = Object.getOwnPropertyNames(target);
   const symbols = Object.getOwnPropertySymbols(target);
-  return [...props, ...symbols].reduce((carry, key2) => {
-    if (key2 === "__proto__")
+  return [...props, ...symbols].reduce((carry, key3) => {
+    if (key3 === "__proto__")
       return carry;
-    if (isArray2(options.props) && !options.props.includes(key2)) {
+    if (isArray2(options.props) && !options.props.includes(key3)) {
       return carry;
     }
-    const val = target[key2];
+    const val = target[key3];
     const newVal = copy(val, options);
-    assignProp(carry, key2, newVal, target, options.nonenumerable);
+    assignProp(carry, key3, newVal, target, options.nonenumerable);
     return carry;
   }, {});
 }
@@ -59502,9 +60986,9 @@ var util;
   };
   util2.objectKeys = typeof Object.keys === "function" ? (obj) => Object.keys(obj) : (object) => {
     const keys = [];
-    for (const key2 in object) {
-      if (Object.prototype.hasOwnProperty.call(object, key2)) {
-        keys.push(key2);
+    for (const key3 in object) {
+      if (Object.prototype.hasOwnProperty.call(object, key3)) {
+        keys.push(key3);
       }
     }
     return keys;
@@ -59904,10 +61388,10 @@ var ParseStatus = class _ParseStatus {
   static async mergeObjectAsync(status, pairs) {
     const syncPairs = [];
     for (const pair of pairs) {
-      const key2 = await pair.key;
+      const key3 = await pair.key;
       const value = await pair.value;
       syncPairs.push({
-        key: key2,
+        key: key3,
         value
       });
     }
@@ -59916,17 +61400,17 @@ var ParseStatus = class _ParseStatus {
   static mergeObjectSync(status, pairs) {
     const finalObject = {};
     for (const pair of pairs) {
-      const { key: key2, value } = pair;
-      if (key2.status === "aborted")
+      const { key: key3, value } = pair;
+      if (key3.status === "aborted")
         return INVALID;
       if (value.status === "aborted")
         return INVALID;
-      if (key2.status === "dirty")
+      if (key3.status === "dirty")
         status.dirty();
       if (value.status === "dirty")
         status.dirty();
-      if (key2.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
-        finalObject[key2.value] = value.value;
+      if (key3.value !== "__proto__" && (typeof value.value !== "undefined" || pair.alwaysSet)) {
+        finalObject[key3.value] = value.value;
       }
     }
     return { status: status.value, value: finalObject };
@@ -59951,12 +61435,12 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path2, key2) {
+  constructor(parent, value, path2, key3) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
     this._path = path2;
-    this._key = key2;
+    this._key = key3;
   }
   get path() {
     if (!this._cachedPath.length) {
@@ -61701,9 +63185,9 @@ ZodArray.create = (schema, params) => {
 function deepPartialify(schema) {
   if (schema instanceof ZodObject) {
     const newShape = {};
-    for (const key2 in schema.shape) {
-      const fieldSchema = schema.shape[key2];
-      newShape[key2] = ZodOptional.create(deepPartialify(fieldSchema));
+    for (const key3 in schema.shape) {
+      const fieldSchema = schema.shape[key3];
+      newShape[key3] = ZodOptional.create(deepPartialify(fieldSchema));
     }
     return new ZodObject({
       ...schema._def,
@@ -61754,29 +63238,29 @@ var ZodObject = class _ZodObject extends ZodType {
     const { shape, keys: shapeKeys } = this._getCached();
     const extraKeys = [];
     if (!(this._def.catchall instanceof ZodNever && this._def.unknownKeys === "strip")) {
-      for (const key2 in ctx.data) {
-        if (!shapeKeys.includes(key2)) {
-          extraKeys.push(key2);
+      for (const key3 in ctx.data) {
+        if (!shapeKeys.includes(key3)) {
+          extraKeys.push(key3);
         }
       }
     }
     const pairs = [];
-    for (const key2 of shapeKeys) {
-      const keyValidator = shape[key2];
-      const value = ctx.data[key2];
+    for (const key3 of shapeKeys) {
+      const keyValidator = shape[key3];
+      const value = ctx.data[key3];
       pairs.push({
-        key: { status: "valid", value: key2 },
-        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key2)),
-        alwaysSet: key2 in ctx.data
+        key: { status: "valid", value: key3 },
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key3)),
+        alwaysSet: key3 in ctx.data
       });
     }
     if (this._def.catchall instanceof ZodNever) {
       const unknownKeys = this._def.unknownKeys;
       if (unknownKeys === "passthrough") {
-        for (const key2 of extraKeys) {
+        for (const key3 of extraKeys) {
           pairs.push({
-            key: { status: "valid", value: key2 },
-            value: { status: "valid", value: ctx.data[key2] }
+            key: { status: "valid", value: key3 },
+            value: { status: "valid", value: ctx.data[key3] }
           });
         }
       } else if (unknownKeys === "strict") {
@@ -61793,15 +63277,15 @@ var ZodObject = class _ZodObject extends ZodType {
       }
     } else {
       const catchall = this._def.catchall;
-      for (const key2 of extraKeys) {
-        const value = ctx.data[key2];
+      for (const key3 of extraKeys) {
+        const value = ctx.data[key3];
         pairs.push({
-          key: { status: "valid", value: key2 },
+          key: { status: "valid", value: key3 },
           value: catchall._parse(
-            new ParseInputLazyPath(ctx, value, ctx.path, key2)
+            new ParseInputLazyPath(ctx, value, ctx.path, key3)
             //, ctx.child(key), value, getParsedType(value)
           ),
-          alwaysSet: key2 in ctx.data
+          alwaysSet: key3 in ctx.data
         });
       }
     }
@@ -61809,10 +63293,10 @@ var ZodObject = class _ZodObject extends ZodType {
       return Promise.resolve().then(async () => {
         const syncPairs = [];
         for (const pair of pairs) {
-          const key2 = await pair.key;
+          const key3 = await pair.key;
           const value = await pair.value;
           syncPairs.push({
-            key: key2,
+            key: key3,
             value,
             alwaysSet: pair.alwaysSet
           });
@@ -61937,8 +63421,8 @@ var ZodObject = class _ZodObject extends ZodType {
   //   }) as any;
   //   return merged;
   // }
-  setKey(key2, schema) {
-    return this.augment({ [key2]: schema });
+  setKey(key3, schema) {
+    return this.augment({ [key3]: schema });
   }
   // merge<Incoming extends AnyZodObject>(
   //   merging: Incoming
@@ -61969,9 +63453,9 @@ var ZodObject = class _ZodObject extends ZodType {
   }
   pick(mask) {
     const shape = {};
-    for (const key2 of util.objectKeys(mask)) {
-      if (mask[key2] && this.shape[key2]) {
-        shape[key2] = this.shape[key2];
+    for (const key3 of util.objectKeys(mask)) {
+      if (mask[key3] && this.shape[key3]) {
+        shape[key3] = this.shape[key3];
       }
     }
     return new _ZodObject({
@@ -61981,9 +63465,9 @@ var ZodObject = class _ZodObject extends ZodType {
   }
   omit(mask) {
     const shape = {};
-    for (const key2 of util.objectKeys(this.shape)) {
-      if (!mask[key2]) {
-        shape[key2] = this.shape[key2];
+    for (const key3 of util.objectKeys(this.shape)) {
+      if (!mask[key3]) {
+        shape[key3] = this.shape[key3];
       }
     }
     return new _ZodObject({
@@ -61999,12 +63483,12 @@ var ZodObject = class _ZodObject extends ZodType {
   }
   partial(mask) {
     const newShape = {};
-    for (const key2 of util.objectKeys(this.shape)) {
-      const fieldSchema = this.shape[key2];
-      if (mask && !mask[key2]) {
-        newShape[key2] = fieldSchema;
+    for (const key3 of util.objectKeys(this.shape)) {
+      const fieldSchema = this.shape[key3];
+      if (mask && !mask[key3]) {
+        newShape[key3] = fieldSchema;
       } else {
-        newShape[key2] = fieldSchema.optional();
+        newShape[key3] = fieldSchema.optional();
       }
     }
     return new _ZodObject({
@@ -62014,16 +63498,16 @@ var ZodObject = class _ZodObject extends ZodType {
   }
   required(mask) {
     const newShape = {};
-    for (const key2 of util.objectKeys(this.shape)) {
-      if (mask && !mask[key2]) {
-        newShape[key2] = this.shape[key2];
+    for (const key3 of util.objectKeys(this.shape)) {
+      if (mask && !mask[key3]) {
+        newShape[key3] = this.shape[key3];
       } else {
-        const fieldSchema = this.shape[key2];
+        const fieldSchema = this.shape[key3];
         let newField = fieldSchema;
         while (newField instanceof ZodOptional) {
           newField = newField._def.innerType;
         }
-        newShape[key2] = newField;
+        newShape[key3] = newField;
       }
     }
     return new _ZodObject({
@@ -62267,14 +63751,14 @@ function mergeValues(a, b) {
     return { valid: true, data: a };
   } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
     const bKeys = util.objectKeys(b);
-    const sharedKeys = util.objectKeys(a).filter((key2) => bKeys.indexOf(key2) !== -1);
+    const sharedKeys = util.objectKeys(a).filter((key3) => bKeys.indexOf(key3) !== -1);
     const newObj = { ...a, ...b };
-    for (const key2 of sharedKeys) {
-      const sharedValue = mergeValues(a[key2], b[key2]);
+    for (const key3 of sharedKeys) {
+      const sharedValue = mergeValues(a[key3], b[key3]);
       if (!sharedValue.valid) {
         return { valid: false };
       }
-      newObj[key2] = sharedValue.data;
+      newObj[key3] = sharedValue.data;
     }
     return { valid: true, data: newObj };
   } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
@@ -62438,11 +63922,11 @@ var ZodRecord = class _ZodRecord extends ZodType {
     const pairs = [];
     const keyType = this._def.keyType;
     const valueType = this._def.valueType;
-    for (const key2 in ctx.data) {
+    for (const key3 in ctx.data) {
       pairs.push({
-        key: keyType._parse(new ParseInputLazyPath(ctx, key2, ctx.path, key2)),
-        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key2], ctx.path, key2)),
-        alwaysSet: key2 in ctx.data
+        key: keyType._parse(new ParseInputLazyPath(ctx, key3, ctx.path, key3)),
+        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key3], ctx.path, key3)),
+        alwaysSet: key3 in ctx.data
       });
     }
     if (ctx.common.async) {
@@ -62490,9 +63974,9 @@ var ZodMap = class extends ZodType {
     }
     const keyType = this._def.keyType;
     const valueType = this._def.valueType;
-    const pairs = [...ctx.data.entries()].map(([key2, value], index2) => {
+    const pairs = [...ctx.data.entries()].map(([key3, value], index2) => {
       return {
-        key: keyType._parse(new ParseInputLazyPath(ctx, key2, ctx.path, [index2, "key"])),
+        key: keyType._parse(new ParseInputLazyPath(ctx, key3, ctx.path, [index2, "key"])),
         value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index2, "value"]))
       };
     });
@@ -62500,30 +63984,30 @@ var ZodMap = class extends ZodType {
       const finalMap = /* @__PURE__ */ new Map();
       return Promise.resolve().then(async () => {
         for (const pair of pairs) {
-          const key2 = await pair.key;
+          const key3 = await pair.key;
           const value = await pair.value;
-          if (key2.status === "aborted" || value.status === "aborted") {
+          if (key3.status === "aborted" || value.status === "aborted") {
             return INVALID;
           }
-          if (key2.status === "dirty" || value.status === "dirty") {
+          if (key3.status === "dirty" || value.status === "dirty") {
             status.dirty();
           }
-          finalMap.set(key2.value, value.value);
+          finalMap.set(key3.value, value.value);
         }
         return { status: status.value, value: finalMap };
       });
     } else {
       const finalMap = /* @__PURE__ */ new Map();
       for (const pair of pairs) {
-        const key2 = pair.key;
+        const key3 = pair.key;
         const value = pair.value;
-        if (key2.status === "aborted" || value.status === "aborted") {
+        if (key3.status === "aborted" || value.status === "aborted") {
           return INVALID;
         }
-        if (key2.status === "dirty" || value.status === "dirty") {
+        if (key3.status === "dirty" || value.status === "dirty") {
           status.dirty();
         }
-        finalMap.set(key2.value, value.value);
+        finalMap.set(key3.value, value.value);
       }
       return { status: status.value, value: finalMap };
     }
@@ -63397,163 +64881,15 @@ var coerce = {
 };
 var NEVER = INVALID;
 
-// api/services/config-service.ts
-init_redis_service();
-import { readFileSync } from "fs";
-import { join } from "path";
-var CONFIG_DIR = join(process.cwd(), "game-configs");
-var CONFIG_FILES = {
-  refs: "references.json",
-  global: "global.json",
-  classes: "classes.json",
-  skills: "skills.json",
-  items: "items.json",
-  monsters: "monsters.json",
-  dungeons: "dungeons.json"
-};
-var memoryCache = /* @__PURE__ */ new Map();
-function loadRaw(filename) {
-  const path2 = join(CONFIG_DIR, filename);
-  return JSON.parse(readFileSync(path2, "utf-8"));
-}
-function getConfigSync(key2) {
-  if (memoryCache.has(key2)) return memoryCache.get(key2);
-  const data = loadRaw(CONFIG_FILES[key2]);
-  memoryCache.set(key2, data);
-  return data;
-}
-function getGlobalConfig() {
-  return getConfigSync("global");
-}
-function getClasses() {
-  const data = getConfigSync("classes");
-  return data.classes;
-}
-function getTierRules() {
-  const data = getConfigSync("classes");
-  return data.tierRules ?? null;
-}
-function getClassById(id) {
-  return getClasses().find((c) => c.id === id);
-}
-function getSkills() {
-  const data = getConfigSync("skills");
-  return data.skills;
-}
-function getSkillsByClass(classId) {
-  return getSkills().filter((s) => s.classId === classId);
-}
-function getSkillById(id) {
-  return getSkills().find((s) => s.id === id);
-}
-function getConsumables() {
-  const data = getConfigSync("items");
-  return data.consumables;
-}
-function getItems() {
-  const data = getConfigSync("items");
-  return data.items || [];
-}
-function getItemById(id) {
-  return getItems().find((i) => i.id === id);
-}
-function getEquipmentSets() {
-  const data = getConfigSync("items");
-  return data.equipmentSets || [];
-}
-function getEquipmentSetById(id) {
-  return getEquipmentSets().find((s) => s.id === id);
-}
-function getRoomLootTables() {
-  const data = getConfigSync("dungeons");
-  return data.roomLootTables || {};
-}
-function getMonsterSkills() {
-  const data = getConfigSync("monsters");
-  return data.monsterSkills || [];
-}
-function getMonsterSkillById(id) {
-  return getMonsterSkills().find((s) => s.id === id);
-}
-function getEnemies() {
-  const data = getConfigSync("monsters");
-  return data.enemies;
-}
-function getEnemiesByFamily(family, includeBoss = false) {
-  return getEnemies().filter((e) => e.family === family && (includeBoss || !e.isBoss));
-}
-function getBossByFamily(family) {
-  return getEnemies().find((e) => e.family === family && e.isBoss);
-}
-function getEnemyById(id) {
-  return getEnemies().find((e) => e.id === id);
-}
-function getGlobalDropPool() {
-  const data = getConfigSync("monsters");
-  return data.globalDropPool || [];
-}
-function rollDrops(enemyId, layer, rng = Math.random) {
-  const enemy = getEnemyById(enemyId);
-  if (!enemy) return [];
-  const drops = [];
-  const roll = (min, max) => Math.floor(min + rng() * (max - min + 1));
-  if (enemy.dropTable) {
-    for (const drop of enemy.dropTable) {
-      if (drop.minLayer && layer < drop.minLayer) continue;
-      if (rng() * 100 < drop.chance * 0.5) {
-        drops.push({
-          itemId: drop.itemId,
-          name: drop.name,
-          type: drop.type,
-          quantity: roll(drop.quantityMin, drop.quantityMax),
-          quality: drop.quality
-        });
-      }
-    }
-  }
-  const globalPool = getGlobalDropPool();
-  for (const drop of globalPool) {
-    if (drop.minLayer && layer < drop.minLayer) continue;
-    if (rng() * 100 < drop.chance * 0.5) {
-      drops.push({
-        itemId: drop.itemId,
-        name: drop.name,
-        type: drop.type,
-        quantity: roll(drop.quantityMin, drop.quantityMax),
-        quality: drop.quality
-      });
-    }
-  }
-  return drops;
-}
-function getRoomTypes() {
-  const data = getConfigSync("dungeons");
-  return data.roomTypes;
-}
-function getThemeByLayer(layer) {
-  const data = getConfigSync("dungeons");
-  return data.dungeonThemes.find((t2) => layer >= t2.layerMin && layer <= t2.layerMax);
-}
-var ELEMENT_WEAKNESS = {
-  fire: "wind",
-  wind: "earth",
-  earth: "water",
-  water: "fire",
-  light: "dark",
-  dark: "light"
-};
-function getElementMultiplier(attackerEl, defenderEl) {
-  const g = getGlobalConfig();
-  if (!attackerEl || !defenderEl || attackerEl === "none" || defenderEl === "none") return 1;
-  if (ELEMENT_WEAKNESS[defenderEl] === attackerEl) return g.combat.elementAdvantageMultiplier;
-  if (ELEMENT_WEAKNESS[attackerEl] === defenderEl) return g.combat.elementDisadvantageMultiplier;
-  return 1;
-}
+// api/routers/game-router.ts
+init_config_service();
 
 // api/services/mapgen-service.ts
+init_config_service();
 import crypto2 from "crypto";
 
 // api/services/equipgen-service.ts
+init_config_service();
 var AFFIX_POOL = [
   // ─── 生命/法力（D3：+最大生命 / +法力）───
   { stat: "hp", min: 10, max: 20, scaleTier: true, weight: 12 },
@@ -64014,7 +65350,69 @@ function getRoomDirections(rooms, roomId) {
   return directions;
 }
 
+// api/services/loot-voucher-service.ts
+init_redis_service();
+init_config_service();
+init_char_state_service();
+init_char_ops_service();
+init_character_service();
+import { randomBytes as randomBytes2 } from "crypto";
+var VOUCHER_TTL = 600;
+async function createLootVoucher(username, loot) {
+  const id = randomBytes2(12).toString("hex");
+  await getRedis().setex(`lootv:${username.toLowerCase()}:${id}`, VOUCHER_TTL, JSON.stringify(loot));
+  return id;
+}
+async function claimLootVoucher(username, voucherId) {
+  const key3 = `lootv:${username.toLowerCase()}:${voucherId}`;
+  const raw2 = await getRedis().get(key3);
+  if (!raw2) return { success: false, message: "\u6218\u5229\u54C1\u5DF2\u8FC7\u671F\u6216\u5DF2\u9886\u53D6" };
+  await getRedis().del(key3);
+  const rec = await loadState(username);
+  if (!rec || !rec.state.player) return { success: false, message: "\u5B58\u6863\u4E0D\u5B58\u5728" };
+  const s = rec.state;
+  const p = s.player;
+  const { utilityMods } = recomputePlayer(p, s.equipment || {}, s.talents || {});
+  const goldMult = 1 + (utilityMods.goldGain || 0) / 100;
+  const items = [];
+  let gold = 0;
+  for (const l of JSON.parse(raw2)) {
+    const cat = getItemById(l.itemId);
+    const type = l.type || cat?.type || "material";
+    const name = l.name || cat?.name || l.itemId;
+    const quantity = Math.max(1, Math.min(99, Math.floor(l.quantity || 1)));
+    if (type === "currency") {
+      gold += Math.floor(quantity * (l.value ?? cat?.value ?? 1) * goldMult);
+      items.push({ name, quantity, quality: l.quality || cat?.quality });
+      continue;
+    }
+    s.inventory = addItemToInventory(s.inventory || [], {
+      uid: serverUid("loot"),
+      id: l.itemId,
+      name,
+      type,
+      slot: l.slot || cat?.slot,
+      quality: l.quality || cat?.quality || "common",
+      quantity,
+      desc: l.desc || cat?.desc || name,
+      stats: l.stats || cat?.stats,
+      affixes: l.affixes,
+      setId: l.setId || cat?.setId,
+      setTier: l.setTier ?? cat?.setTier,
+      value: l.value ?? cat?.value,
+      effect: l.effect || cat?.effect,
+      learnSkillId: l.learnSkillId || cat?.learnSkillId
+    });
+    items.push({ name, quantity, quality: l.quality || cat?.quality });
+  }
+  if (gold > 0) p.gold = (p.gold || 0) + gold;
+  ensureTaskState(s);
+  const version2 = await writeState(username, s);
+  return { success: true, message: "ok", state: s, version: version2, items };
+}
+
 // api/services/lawful-service.ts
+init_config_service();
 var LAWFUL_MAX_LAYER = 100;
 var LAWFUL_BOSSES = [
   { layer: 10, id: "boss_dagon", name: "\u8FBE\u8D21", title: "\u6DF1\u6F5C\u8005\u4E4B\u738B", element: "water", skills: ["toxic_splash", "web_trap"], aiType: "aggressive" },
@@ -64144,6 +65542,7 @@ function genLawfulRooms(layer, classId, seed = Date.now()) {
 }
 
 // api/services/daily-service.ts
+init_config_service();
 var RIFT_STAGES = 5;
 var MODIFIER_POOL = [
   { id: "frenzy", name: "\u72C2\u66B4", desc: "\u79D8\u5883\u602A\u7269\u653B\u51FB +25%\uFF0C\u5956\u52B1 +20%", enemyAtkMult: 1.25, rewardBonus: 20 },
@@ -64180,6 +65579,9 @@ function getDailyModifiers(date2) {
   let second = MODIFIER_POOL[Math.floor(rng() * MODIFIER_POOL.length)];
   while (second.id === first.id) second = MODIFIER_POOL[Math.floor(rng() * MODIFIER_POOL.length)];
   return [first, second];
+}
+function getDailyRewardBonus(date2) {
+  return getDailyModifiers(date2).reduce((s, m) => s + m.rewardBonus, 0);
 }
 function scaleStats(base, pseudoLayer, atkMult, hpMult) {
   const lm = 1 + (pseudoLayer - 1) * 0.1;
@@ -64253,6 +65655,7 @@ function genRiftStage(date2, classId, level, stage) {
 }
 
 // api/services/combat-service.ts
+init_config_service();
 var STATUS_DEFS = {
   bleed: { name: "\u6D41\u8840", kind: "physical" },
   poison: { name: "\u4E2D\u6BD2", kind: "physical" },
@@ -64325,10 +65728,10 @@ function applyPlayerDefense(player, damage, logs, rng, attacker) {
   }
   return damage;
 }
-function statusSum(c, key2) {
+function statusSum(c, key3) {
   let sum = 0;
   for (const s of c.statuses || []) {
-    const v = s.data?.[key2];
+    const v = s.data?.[key3];
     if (typeof v === "number") sum += v;
   }
   return sum;
@@ -64811,6 +66214,7 @@ function resolveCombat(player, enemies, action, turnSeed, options) {
 }
 
 // api/services/offline-service.ts
+init_config_service();
 import { existsSync, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "fs";
 import { join as join2 } from "path";
 var OFFLINE_BASE_HOURS = 12;
@@ -64913,10 +66317,10 @@ function simulateBattle(player, enemies, layer, rng, st) {
         });
         continue;
       }
-      const key2 = d.itemId;
-      const existing = st.itemMap.get(key2);
+      const key3 = d.itemId;
+      const existing = st.itemMap.get(key3);
       if (existing) existing.quantity += d.quantity;
-      else st.itemMap.set(key2, {
+      else st.itemMap.set(key3, {
         itemId: d.itemId,
         name: d.name || cat?.name || d.itemId,
         type,
@@ -65061,6 +66465,35 @@ var offlinePlayerSchema = external_exports.object({
   con: external_exports.number(),
   wil: external_exports.number()
 });
+async function serverSnapshot(playerName, fallback, token) {
+  if (!token) return fallback;
+  try {
+    const { requireAccount: requireAccount2 } = await Promise.resolve().then(() => (init_auth_service(), auth_service_exports));
+    const username = await requireAccount2(token);
+    if (username.toLowerCase() !== playerName.toLowerCase()) return fallback;
+    const { computeCharacterSnapshot: computeCharacterSnapshot2 } = await Promise.resolve().then(() => (init_character_service(), character_service_exports));
+    const snap = await computeCharacterSnapshot2(username);
+    if (!snap) return fallback;
+    const sp = snap.player;
+    return {
+      level: snap.level,
+      hp: sp.hp,
+      maxHp: sp.maxHp,
+      mp: sp.mp,
+      maxMp: sp.maxMp,
+      atk: sp.atk,
+      def: sp.def,
+      mag: sp.mag,
+      mdef: sp.mdef,
+      agi: sp.agi,
+      luk: sp.luk,
+      con: sp.con ?? 0,
+      wil: sp.wil ?? 0
+    };
+  } catch {
+    return fallback;
+  }
+}
 var gameRouter = createRouter({
   // ─── Config APIs ───
   getClasses: publicQuery.query(() => {
@@ -65152,8 +66585,21 @@ var gameRouter = createRouter({
   // 混乱深渊·随机遇敌（波次模式）：Boss 1%，满 100 波必出 Boss
   randomEncounter: publicQuery.input(external_exports.object({
     layer: external_exports.number().min(1).max(999999),
-    wavesSinceBoss: external_exports.number().min(0).max(999).default(0)
-  })).mutation(({ input }) => generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss })),
+    wavesSinceBoss: external_exports.number().min(0).max(999).default(0),
+    token: external_exports.string().max(128).optional()
+  })).mutation(async ({ input }) => {
+    const enc = generateEncounter({ layer: input.layer, wavesSinceBoss: input.wavesSinceBoss });
+    let lootVoucher;
+    if (enc.loot && enc.loot.length > 0 && input.token) {
+      try {
+        const { requireAccount: requireAccount2 } = await Promise.resolve().then(() => (init_auth_service(), auth_service_exports));
+        const username = await requireAccount2(input.token);
+        lootVoucher = await createLootVoucher(username, enc.loot);
+      } catch {
+      }
+    }
+    return { ...enc, lootVoucher };
+  }),
   generateDungeon: publicQuery.input(external_exports.object({
     globalSeed: external_exports.string().default("default"),
     layer: external_exports.number().min(1).max(999999),
@@ -65341,12 +66787,12 @@ var gameRouter = createRouter({
     };
   }),
   // ─── 离线挂机探索 ───
-  offlineStart: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number() })).mutation(({ input }) => {
-    offlineStart(input.playerName, input.player, input.layer);
+  offlineStart: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number(), token: external_exports.string().optional() })).mutation(async ({ input }) => {
+    offlineStart(input.playerName, await serverSnapshot(input.playerName, input.player, input.token), input.layer);
     return { ok: true, maxHours: OFFLINE_BASE_HOURS };
   }),
-  offlineHeartbeat: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number() })).mutation(({ input }) => {
-    offlineHeartbeat(input.playerName, input.player, input.layer);
+  offlineHeartbeat: publicQuery.input(external_exports.object({ playerName: external_exports.string(), player: offlinePlayerSchema, layer: external_exports.number(), token: external_exports.string().optional() })).mutation(async ({ input }) => {
+    offlineHeartbeat(input.playerName, await serverSnapshot(input.playerName, input.player, input.token), input.layer);
     return { ok: true };
   }),
   offlineStop: publicQuery.input(external_exports.object({ playerName: external_exports.string() })).mutation(({ input }) => {
@@ -65357,11 +66803,69 @@ var gameRouter = createRouter({
     ...offlineStatus(input.playerName),
     maxHours: OFFLINE_BASE_HOURS
   })),
-  offlineSettle: publicQuery.input(external_exports.object({ playerName: external_exports.string() })).mutation(({ input }) => offlineSettle(input.playerName))
+  offlineSettle: publicQuery.input(external_exports.object({ playerName: external_exports.string(), token: external_exports.string().optional() })).mutation(async ({ input }) => {
+    const r = offlineSettle(input.playerName);
+    if (!r.settled || r.rooms <= 0 || !input.token) return r;
+    try {
+      const { requireAccount: requireAccount2 } = await Promise.resolve().then(() => (init_auth_service(), auth_service_exports));
+      const username = await requireAccount2(input.token);
+      if (username.toLowerCase() !== input.playerName.toLowerCase()) return r;
+      const { loadState: loadState2, writeState: writeState2, addItemToInventory: addItemToInventory2, serverUid: serverUid2 } = await Promise.resolve().then(() => (init_char_state_service(), char_state_service_exports));
+      const { gainExp: gainExp2, applyRecompute: applyRecompute2 } = await Promise.resolve().then(() => (init_character_service(), character_service_exports));
+      const { ensureTaskState: ensureTaskState2, disassembleGold: disassembleGold2, shouldAutoDisassembleServer: shouldAutoDisassembleServer2 } = await Promise.resolve().then(() => (init_char_ops_service(), char_ops_service_exports));
+      const rec = await loadState2(username);
+      if (!rec || !rec.state.player) return r;
+      const s = rec.state;
+      const p = s.player;
+      const ups = gainExp2(p, r.exp);
+      p.gold = (p.gold || 0) + r.gold;
+      p.diamonds = (p.diamonds || 0) + r.diamonds;
+      let disGold = 0;
+      let kept = 0;
+      s.inventory = s.inventory || [];
+      for (const it of r.items) {
+        const item = {
+          uid: serverUid2("offline"),
+          id: it.itemId,
+          name: it.name,
+          type: it.type,
+          quality: it.quality,
+          quantity: it.quantity,
+          slot: it.slot,
+          stats: it.stats,
+          affixes: it.affixes,
+          setId: it.setId,
+          setTier: it.setTier,
+          value: it.value
+        };
+        if (shouldAutoDisassembleServer2(item, s.settings)) {
+          disGold += disassembleGold2(item) * it.quantity;
+        } else {
+          s.inventory = addItemToInventory2(s.inventory, item);
+          kept += it.quantity;
+        }
+      }
+      p.gold += disGold;
+      if (r.finalLayer > (p.maxLayer || 1)) p.maxLayer = r.finalLayer;
+      const ts = ensureTaskState2(s);
+      ts.daily.rooms += r.rooms;
+      ts.totals.rooms += r.rooms;
+      ts.daily.kills += r.kills;
+      ts.totals.kills += r.kills;
+      ts.daily.bossKills += r.bossKills;
+      ts.totals.bossKills += r.bossKills;
+      if (ups > 0 || r.rooms > 0) applyRecompute2(p, s.equipment || {}, s.talents || {});
+      const version2 = await writeState2(username, s);
+      return { ...r, disassembledGold: disGold, keptCount: kept, state: s, version: version2 };
+    } catch {
+    }
+    return r;
+  })
 });
 
 // api/routers/leaderboard-router.ts
 init_auth_service();
+init_char_state_service();
 init_redis_service();
 var leaderboardRouter = createRouter({
   submitScore: publicQuery.input(external_exports.object({
@@ -65372,13 +66876,29 @@ var leaderboardRouter = createRouter({
     token: external_exports.string().min(1).max(128),
     details: external_exports.record(external_exports.any()).optional()
   })).mutation(async ({ input }) => {
+    let username;
     try {
-      await requireAccount(input.token, input.playerId);
+      username = await requireAccount(input.token, input.playerId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
     }
-    await addLeaderboardScore(input.category, input.playerId, input.score, {
+    let score = input.score;
+    const rec = await loadState(username);
+    if (rec?.state) {
+      const st = rec.state;
+      const p = st.player;
+      if (input.category === "kills") {
+        score = Math.max(0, Math.floor(st.taskState?.totals?.kills ?? 0));
+      } else if (input.category === "lawful_layer") {
+        score = Math.max(0, Math.floor(st.lawful?.best ?? 1));
+      } else if (input.category === "wealth") {
+        score = Math.max(0, Math.floor(p?.gold ?? 0));
+      } else if (input.category === "deepest_layer") {
+        score = Math.max(0, Math.floor(st.player?.maxLayer ?? 1));
+      }
+    }
+    await addLeaderboardScore(input.category, input.playerId, score, {
       name: input.playerName,
       ...input.details
     });
@@ -65439,9 +66959,6 @@ var accountRouter = createRouter({
 init_auth_service();
 init_redis_service();
 var SAVE_KEY = (u) => `save:${u.toLowerCase()}`;
-var MAX_SAVE_BYTES = 512 * 1024;
-var MIN_INTERVAL_MS = 5e3;
-var lastSaveAt = /* @__PURE__ */ new Map();
 async function auth(token) {
   try {
     return await requireAccount(token);
@@ -65460,27 +66977,6 @@ var saveRouter = createRouter({
     } catch {
       return { found: false };
     }
-  }),
-  put: publicQuery.input(external_exports.object({
-    token: external_exports.string().min(1).max(128),
-    baseVersion: external_exports.number().int().min(0),
-    data: external_exports.string().min(2).max(MAX_SAVE_BYTES)
-  })).mutation(async ({ input }) => {
-    const username = await auth(input.token);
-    const now = Date.now();
-    const last = lastSaveAt.get(username) || 0;
-    if (now - last < MIN_INTERVAL_MS) {
-      throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "\u4FDD\u5B58\u8FC7\u4E8E\u9891\u7E41" });
-    }
-    const key2 = SAVE_KEY(username);
-    const raw2 = await getRedis().get(key2);
-    const curV = raw2 ? JSON.parse(raw2).v || 0 : 0;
-    if (input.baseVersion !== curV) {
-      return { success: false, conflict: true, version: curV };
-    }
-    await getRedis().set(key2, JSON.stringify({ v: curV + 1, data: input.data, t: now }));
-    lastSaveAt.set(username, now);
-    return { success: true, conflict: false, version: curV + 1 };
   })
 });
 
@@ -65489,25 +66985,212 @@ init_auth_service();
 
 // api/services/battle-service.ts
 init_redis_service();
-import { randomBytes as randomBytes2 } from "crypto";
+import { randomBytes as randomBytes4 } from "crypto";
+init_config_service();
+
+// api/services/battle-settle-service.ts
+init_char_state_service();
+init_character_service();
+init_config_service();
+init_char_ops_service();
+
+// api/services/weekly-service.ts
+var WEEKLY_BOSSES = [
+  { id: "wboss_cthulhu", name: "\u514B\u82CF\u9C81", title: "\u62C9\u83B1\u8036\u4E4B\u4E3B", element: "water", skills: ["toxic_splash", "mind_rend", "entropic_field"], aiType: "cunning" },
+  { id: "wboss_tsath", name: "\u6492\u6258\u53E4\u4E9A", title: "\u87FE\u4E4B\u795E", element: "earth", skills: ["slam", "poison_bite", "soul_drain"], aiType: "defensive" },
+  { id: "wboss_yig", name: "\u4F0A\u683C", title: "\u4F17\u86C7\u4E4B\u7236", element: "wind", skills: ["poison_bite", "web_trap", "void_scream"], aiType: "aggressive" },
+  { id: "wboss_atlach", name: "\u963F\u7279\u62C9\u514B", title: "\u86DB\u7F51\u7F16\u7EC7\u8005", element: "ice", skills: ["web_trap", "ice_lance", "mind_rend"], aiType: "cunning" }
+];
+function currentWeekId(now = Date.now()) {
+  const tz = 8 * 36e5;
+  const t2 = new Date(now + tz);
+  const day2 = (t2.getUTCDay() + 6) % 7;
+  const monday = new Date(t2.getTime() - day2 * 864e5);
+  monday.setUTCHours(0, 0, 0, 0);
+  const endsAt = monday.getTime() + 7 * 864e5 - tz;
+  const jan4 = new Date(Date.UTC(t2.getUTCFullYear(), 0, 4));
+  const jan4Day = (jan4.getUTCDay() + 6) % 7;
+  const week1Monday = jan4.getTime() - jan4Day * 864e5;
+  const week2 = Math.floor((monday.getTime() - week1Monday) / (7 * 864e5)) + 1;
+  return { weekId: `${t2.getUTCFullYear()}w${week2}`, endsAt };
+}
+function getWeeklyBoss(now = Date.now()) {
+  const { weekId, endsAt } = currentWeekId(now);
+  const idx = Math.abs([...weekId].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 7)) % WEEKLY_BOSSES.length;
+  const def = WEEKLY_BOSSES[idx];
+  const boss = {
+    id: def.id,
+    name: `${def.title}\xB7${def.name}`,
+    hp: 12558,
+    maxHp: 12558,
+    mp: 400,
+    maxMp: 400,
+    atk: 263,
+    def: 187,
+    mag: 219,
+    mdef: 187,
+    agi: 41,
+    luk: 20,
+    skills: def.skills,
+    element: def.element,
+    aiType: def.aiType
+  };
+  return { weekId, endsAt, boss };
+}
+var weeklyCategory = (weekId) => `weekly_boss_${weekId}`;
+
+// api/services/battle-settle-service.ts
+init_redis_service();
+function todayStr() {
+  const d = /* @__PURE__ */ new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+async function settleBattle(username, session, drops, opts) {
+  let settlePassHeal;
+  let weeklyDmg;
+  const rec = await loadState(username);
+  if (!rec || !rec.state.player) return null;
+  const s = rec.state;
+  const p = s.player;
+  const equipment = s.equipment || {};
+  const { utilityMods } = recomputePlayer(p, equipment, s.talents || {});
+  const ts = ensureTaskState(s);
+  const items = [];
+  let gold = 0, diamonds = 0;
+  const isBoss = session.enemies.some((e) => (e.maxHp || 0) >= 500);
+  const rewardMult = session.mode === "rift" ? 1 + getDailyRewardBonus(todayStr()) / 100 : 1;
+  if (opts.victory) {
+    const expGainTotal = Math.floor(opts.baseExp * rewardMult * (1 + (utilityMods.expGain || 0) / 100));
+    const levelUps = gainExp(p, expGainTotal);
+    var exp = expGainTotal;
+    var ups = levelUps;
+    const killHeal = (utilityMods.killHeal || 0) * session.enemies.length;
+    const killMp = (utilityMods.killMp || 0) * session.enemies.length;
+    if (killHeal > 0) p.hp = Math.min(p.maxHp, p.hp + killHeal);
+    if (killMp > 0) p.mp = Math.min(p.maxMp, p.mp + killMp);
+    if (session.mode === "lawful") {
+      gold += Math.floor((8 + session.layer * 4) * (isBoss ? 5 : 1) * (1 + (utilityMods.goldGain || 0) / 100));
+    } else if (session.mode === "rift") {
+      gold += Math.floor((10 + (p.level || 1) * 5) * (isBoss ? 5 : 1) * rewardMult * (1 + (utilityMods.goldGain || 0) / 100));
+      if (isBoss) {
+        diamonds += 3;
+        const gemIds = ["ruby", "sapphire", "emerald", "topaz", "onyx", "amethyst"];
+        const gid = `gem_${gemIds[Math.floor(Math.random() * gemIds.length)]}_2`;
+        const gdef = getItemById(gid);
+        if (gdef) {
+          s.inventory = addItemToInventory(s.inventory || [], {
+            uid: serverUid("rift_gem"),
+            id: gid,
+            name: gdef.name,
+            type: "material",
+            quality: gdef.quality,
+            quantity: 1,
+            desc: gdef.desc || "",
+            value: gdef.value
+          });
+          items.push({ name: gdef.name, quantity: 1, quality: gdef.quality, note: "\u79D8\u5883\u901A\u5173\u5956\u52B1" });
+        }
+      }
+    }
+    for (const drop of drops || []) {
+      const cat = getItemById(drop.itemId);
+      const type = drop.type || cat?.type || "material";
+      const dName = drop.name || cat?.name || drop.itemId;
+      if (type === "currency") {
+        if (drop.itemId === "gem_diamond") {
+          diamonds += drop.quantity;
+        } else {
+          const mult = 1 + (utilityMods.goldGain || 0) / 100;
+          gold += Math.floor(drop.quantity * (cat?.value ?? 1) * mult);
+        }
+        items.push({ name: dName, quantity: drop.quantity, quality: drop.quality || cat?.quality });
+        continue;
+      }
+      const item = {
+        uid: serverUid("drop"),
+        id: drop.itemId,
+        name: dName,
+        type,
+        slot: cat?.slot,
+        quality: drop.quality || cat?.quality || "common",
+        quantity: drop.quantity,
+        desc: cat?.desc || drop.name,
+        stats: drop.stats || cat?.stats,
+        affixes: drop.affixes,
+        setId: cat?.setId,
+        setTier: cat?.setTier,
+        value: cat?.value,
+        effect: cat?.effect,
+        learnSkillId: cat?.learnSkillId
+      };
+      s.inventory = addItemToInventory(s.inventory || [], item);
+      items.push({ name: dName, quantity: drop.quantity, quality: item.quality });
+    }
+    if (session.mode === "explore" && isBoss) {
+      const healHp = Math.floor(p.maxHp * 0.5);
+      const healMp = Math.floor(p.maxMp * 0.5);
+      p.hp = Math.min(p.maxHp, p.hp + healHp);
+      p.mp = Math.min(p.maxMp, p.mp + healMp);
+      settlePassHeal = { hp: healHp, mp: healMp };
+    }
+    ts.daily.kills += session.enemies.length;
+    ts.totals.kills += session.enemies.length;
+    if (isBoss) {
+      ts.daily.bossKills += 1;
+      ts.totals.bossKills += 1;
+    }
+  } else {
+    var exp = 0;
+    var ups = 0;
+  }
+  if (session.mode === "weekly") {
+    const damage = Math.max(0, Math.round(session.enemies.reduce((sum, e) => sum + ((e.maxHp || 0) - Math.max(0, e.hp || 0)), 0)));
+    if (damage > 0) {
+      weeklyDmg = damage;
+      const wExp = Math.floor(damage * 0.5);
+      const wGold = Math.floor(damage * 1.5);
+      ups += gainExp(p, wExp);
+      exp += wExp;
+      gold += wGold;
+      ts.daily.bossKills += 1;
+      ts.totals.bossKills += 1;
+      try {
+        const { weekId } = getWeeklyBoss();
+        await addLeaderboardScore(weeklyCategory(weekId), username, damage, { name: p.name || username });
+      } catch {
+      }
+    }
+  }
+  if (ups > 0 || opts.victory) applyRecompute(p, equipment, s.talents || {});
+  p.gold = (p.gold || 0) + gold;
+  p.diamonds = (p.diamonds || 0) + diamonds;
+  if (s.activeClassId) {
+    s.classSaves = { ...s.classSaves || {} };
+    s.classSaves[s.activeClassId] = { player: p, equipment };
+  }
+  const version2 = await writeState(username, s);
+  return { exp, gold, diamonds, levelUps: ups, items, weeklyDamage: weeklyDmg, passHeal: settlePassHeal, state: s, version: version2 };
+}
+
+// api/services/battle-service.ts
 var SESSION_TTL = 1800;
 var TICK_MIN_INTERVAL = 800;
 var MAX_ROUNDS = 90;
-var key = (username) => `battle:${username.toLowerCase()}`;
+var key2 = (username) => `battle:${username.toLowerCase()}`;
 async function load(username) {
   try {
-    const raw2 = await getRedis().get(key(username));
+    const raw2 = await getRedis().get(key2(username));
     return raw2 ? JSON.parse(raw2) : null;
   } catch {
     return null;
   }
 }
 async function store(username, s) {
-  await getRedis().setex(key(username), SESSION_TTL, JSON.stringify(s));
+  await getRedis().setex(key2(username), SESSION_TTL, JSON.stringify(s));
 }
 async function startBattle(username, init) {
   const session = {
-    id: randomBytes2(12).toString("hex"),
+    id: randomBytes4(12).toString("hex"),
     mode: init.mode,
     layer: init.layer,
     round: 0,
@@ -65526,7 +67209,7 @@ async function tickBattle(username, battleId, action) {
   const now = Date.now();
   if (now - s.lastTickAt < TICK_MIN_INTERVAL) return { ok: false, code: "TOO_FAST" };
   if (s.round >= MAX_ROUNDS) {
-    await getRedis().del(key(username));
+    await getRedis().del(key2(username));
     return { ok: false, code: "MAX_ROUNDS" };
   }
   let potionLog = null;
@@ -65561,9 +67244,22 @@ async function tickBattle(username, battleId, action) {
       const base = Math.min(10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5), cap);
       return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base);
     }, 0));
-    await getRedis().del(key(username));
-  } else if (ended) {
-    await getRedis().del(key(username));
+  }
+  let settle = null;
+  if (ended && (victory || s.mode === "weekly")) {
+    try {
+      settle = await settleBattle(
+        username,
+        { mode: s.mode, layer: s.layer, enemies: s.enemies },
+        drops,
+        { victory, baseExp: expGain }
+      );
+    } catch (e) {
+      console.error("[battle] settle failed:", e);
+    }
+  }
+  if (ended) {
+    await getRedis().del(key2(username));
   } else {
     await store(username, s);
   }
@@ -65577,372 +67273,19 @@ async function tickBattle(username, battleId, action) {
     fled,
     drops,
     expGain,
-    round: s.round
+    round: s.round,
+    settle
   };
 }
 async function abandonBattle(username) {
   try {
-    await getRedis().del(key(username));
+    await getRedis().del(key2(username));
   } catch {
   }
-}
-
-// api/services/character-service.ts
-init_redis_service();
-
-// src/lib/talents.ts
-var node = (id, tier, name, desc2, effect, maxRank = 5) => ({ id, tier, name, desc: desc2, effect, maxRank });
-var TALENT_TREES = {
-  warrior: [
-    { id: "berserk", name: "\u72C2\u6218", theme: "#F85149", nodes: [
-      node("w_b1", 1, "\u55DC\u8840", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
-      node("w_b2", 2, "\u5F31\u70B9\u6D1E\u6089", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
-      node("w_b3", 3, "\u6495\u88C2\u91CD\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
-      node("w_b4", 4, "\u8840\u6012", "\u5438\u8840 +1%", { lifesteal: 1 }),
-      node("w_b5", 5, "\u72C2\u66B4", "\u653B\u51FB\u529B +3%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 3, critRate: 1 }),
-      node("w_b6", 6, "\u6218\u795E\u964D\u4E34", "\u653B\u51FB\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { atkPct: 5, critDmg: 5 })
-    ] },
-    { id: "guard", name: "\u94C1\u58C1", theme: "#58A6FF", nodes: [
-      node("w_g1", 1, "\u575A\u97E7", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
-      node("w_g2", 2, "\u77F3\u80A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
-      node("w_g3", 3, "\u53CD\u7532", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
-      node("w_g4", 4, "\u4E0D\u5C48", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
-      node("w_g5", 5, "\u9B54\u6CD5\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +2%", { magRes: 2, mdefPct: 2 }),
-      node("w_g6", 6, "\u4E0D\u52A8\u5982\u5C71", "\u9632\u5FA1\u529B +5%\uFF0C\u7269\u7406\u51CF\u4F24 +2%", { defPct: 5, physRes: 2 })
-    ] },
-    { id: "warcry", name: "\u6218\u610F", theme: "#C9A84C", nodes: [
-      node("w_c1", 1, "\u5386\u7EC3", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
-      node("w_c2", 2, "\u63A0\u593A", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("w_c3", 3, "\u6218\u543C", "\u653B\u51FB\u529B +2%\uFF0C\u9632\u5FA1\u529B +2%", { atkPct: 2, defPct: 2 }),
-      node("w_c4", 4, "\u51EF\u65CB", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
-      node("w_c5", 5, "\u58EB\u6C14\u5982\u8679", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
-      node("w_c6", 6, "\u767E\u6218\u4F59\u751F", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 3, killMp: 2 })
-    ] }
-  ],
-  mage: [
-    { id: "element", name: "\u5143\u7D20", theme: "#F85149", nodes: [
-      node("m_e1", 1, "\u5143\u7D20\u4EB2\u548C", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
-      node("m_e2", 2, "\u5143\u7D20\u589E\u5E45", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
-      node("m_e3", 3, "\u5965\u672F\u66B4\u51FB", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
-      node("m_e4", 4, "\u6BC1\u706D\u548F\u5531", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
-      node("m_e5", 5, "\u5143\u7D20\u638C\u63A7", "\u5143\u7D20\u4F24\u5BB3 +3%\uFF0C\u9B54\u6CD5\u529B +2%", { elemDmg: 3, magPct: 2 }),
-      node("m_e6", 6, "\u5927\u9B54\u5BFC\u5E08", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
-    ] },
-    { id: "arcane", name: "\u79D8\u6CD5", theme: "#BC8CFF", nodes: [
-      node("m_a1", 1, "\u9B54\u6CD5\u5C4F\u969C", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
-      node("m_a2", 2, "\u7CBE\u795E\u62A4\u58C1", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
-      node("m_a3", 3, "\u6CD5\u529B\u56DE\u6D41", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
-      node("m_a4", 4, "\u5965\u672F\u5F3A\u5316", "\u9B54\u6CD5\u529B +3%", { magPct: 3 }),
-      node("m_a5", 5, "\u6CD5\u529B\u62A4\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { magRes: 2, physRes: 1 }),
-      node("m_a6", 6, "\u79D8\u6CD5\u4E4B\u5FC3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +3\uFF0C\u9B54\u6CD5\u529B +3%", { killMp: 3, magPct: 3 })
-    ] },
-    { id: "wisdom", name: "\u542F\u8FEA", theme: "#C9A84C", nodes: [
-      node("m_w1", 1, "\u6C42\u77E5", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
-      node("m_w2", 2, "\u70BC\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("m_w3", 3, "\u51A5\u60F3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +1", { killMp: 1, killHeal: 1 }),
-      node("m_w4", 4, "\u667A\u8005", "\u9B54\u6CD5\u529B +2%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +3%", { magPct: 2, expGain: 3 }),
-      node("m_w5", 5, "\u535A\u5B66\u8005", "\u7ECF\u9A8C\u83B7\u53D6 +4%", { expGain: 4 }),
-      node("m_w6", 6, "\u8D24\u8005", "\u9B54\u6CD5\u529B +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +5%", { magPct: 3, goldGain: 5 })
-    ] }
-  ],
-  assassin: [
-    { id: "lethal", name: "\u81F4\u547D", theme: "#F85149", nodes: [
-      node("a_l1", 1, "\u6DEC\u6BD2\u5229\u5203", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
-      node("a_l2", 2, "\u80CC\u523A", "\u66B4\u51FB\u7387 +3%", { critRate: 3 }),
-      node("a_l3", 3, "\u5904\u51B3", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
-      node("a_l4", 4, "\u996E\u8840", "\u5438\u8840 +1%", { lifesteal: 1 }),
-      node("a_l5", 5, "\u51B7\u8840", "\u66B4\u51FB\u7387 +2%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +4%", { critRate: 2, critDmg: 4 }),
-      node("a_l6", 6, "\u6B7B\u795E\u4E4B\u821E", "\u653B\u51FB\u529B +5%\uFF0C\u5438\u8840 +2%", { atkPct: 5, lifesteal: 2 })
-    ] },
-    { id: "phantom", name: "\u5E7B\u5F71", theme: "#58A6FF", nodes: [
-      node("a_p1", 1, "\u7075\u5DE7\u8EAB\u6CD5", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
-      node("a_p2", 2, "\u70DF\u96FE\u5E87\u62A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
-      node("a_p3", 3, "\u9B54\u6CD5\u6597\u7BF7", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
-      node("a_p4", 4, "\u6697\u5F71\u53CD\u5236", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
-      node("a_p5", 5, "\u865A\u5E7B\u6B65\u4F10", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
-      node("a_p6", 6, "\u5E7D\u5F71\u5316\u8EAB", "\u9632\u5FA1\u529B +5%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 5, reflect: 3 })
-    ] },
-    { id: "hunter", name: "\u730E\u624B", theme: "#C9A84C", nodes: [
-      node("a_h1", 1, "\u8D4F\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("a_h2", 2, "\u8FFD\u8E2A", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
-      node("a_h3", 3, "\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
-      node("a_h4", 4, "\u730E\u6740\u672C\u80FD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 2, critRate: 1 }),
-      node("a_h5", 5, "\u65E0\u60C5\u8FFD\u730E", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
-      node("a_h6", 6, "\u4F20\u5947\u730E\u624B", "\u653B\u51FB\u529B +3%\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { atkPct: 3, killHeal: 2 })
-    ] }
-  ],
-  ranger: [
-    { id: "marksman", name: "\u795E\u5C04", theme: "#F85149", nodes: [
-      node("r_m1", 1, "\u5F3A\u5F13", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
-      node("r_m2", 2, "\u9E70\u773C", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
-      node("r_m3", 3, "\u5143\u7D20\u7BAD\u77E2", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
-      node("r_m4", 4, "\u7A7F\u7532\u4E00\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
-      node("r_m5", 5, "\u8FDE\u73E0\u7BAD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { atkPct: 2, critRate: 2 }),
-      node("r_m6", 6, "\u4E00\u7BAD\u7A7F\u5FC3", "\u653B\u51FB\u529B +4%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +6%", { atkPct: 4, critDmg: 6 })
-    ] },
-    { id: "survival", name: "\u751F\u5B58", theme: "#3FB950", nodes: [
-      node("r_s1", 1, "\u76AE\u7532\u7CBE\u901A", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
-      node("r_s2", 2, "\u91CE\u5916\u6C42\u751F", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
-      node("r_s3", 3, "\u81EA\u7136\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
-      node("r_s4", 4, "\u751F\u547D\u6C72\u53D6", "\u5438\u8840 +1%", { lifesteal: 1 }),
-      node("r_s5", 5, "\u91CE\u6027\u5F3A\u97E7", "\u9632\u5FA1\u529B +3%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { defPct: 3, physRes: 1 }),
-      node("r_s6", 6, "\u4E1B\u6797\u4E4B\u738B", "\u9632\u5FA1\u529B +4%\uFF0C\u5438\u8840 +1%", { defPct: 4, lifesteal: 1 })
-    ] },
-    { id: "tracker", name: "\u8FFD\u8E2A", theme: "#C9A84C", nodes: [
-      node("r_t1", 1, "\u5BFB\u8DEF", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
-      node("r_t2", 2, "\u5BFB\u5B9D", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("r_t3", 3, "\u8865\u7ED9", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
-      node("r_t4", 4, "\u8FDC\u884C\u8005", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { killMp: 2, expGain: 2 }),
-      node("r_t5", 5, "\u730E\u573A\u4E3B\u5BB0", "\u91D1\u5E01\u83B7\u53D6 +4%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { goldGain: 4, expGain: 2 }),
-      node("r_t6", 6, "\u6DF1\u6E0A\u5411\u5BFC", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 2, killMp: 2 })
-    ] }
-  ],
-  priest: [
-    { id: "holy", name: "\u795E\u5723", theme: "#F85149", nodes: [
-      node("p_h1", 1, "\u5723\u5149\u672F", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
-      node("p_h2", 2, "\u795E\u7F5A", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
-      node("p_h3", 3, "\u5929\u542F", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
-      node("p_h4", 4, "\u5BA1\u5224", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
-      node("p_h5", 5, "\u5723\u5149\u6D8C\u52A8", "\u9B54\u6CD5\u529B +2%\uFF0C\u5143\u7D20\u4F24\u5BB3 +2%", { magPct: 2, elemDmg: 2 }),
-      node("p_h6", 6, "\u795E\u5723\u5316\u8EAB", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
-    ] },
-    { id: "blessing", name: "\u5E87\u4F51", theme: "#58A6FF", nodes: [
-      node("p_b1", 1, "\u5B88\u62A4\u795D\u798F", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
-      node("p_b2", 2, "\u5723\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
-      node("p_b3", 3, "\u575A\u97E7\u7977\u8A00", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
-      node("p_b4", 4, "\u795E\u5723\u5E87\u62A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
-      node("p_b5", 5, "\u5149\u4E4B\u58C1\u5792", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
-      node("p_b6", 6, "\u795E\u6069\u62A4\u4F53", "\u9632\u5FA1\u529B +4%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +4%", { defPct: 4, mdefPct: 4 })
-    ] },
-    { id: "grace", name: "\u6069\u60E0", theme: "#C9A84C", nodes: [
-      node("p_g1", 1, "\u6CBB\u6108\u7977\u8A00", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3", { killHeal: 3 }),
-      node("p_g2", 2, "\u6CD5\u529B\u8D50\u798F", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
-      node("p_g3", 3, "\u4F20\u9053", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
-      node("p_g4", 4, "\u5949\u732E", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("p_g5", 5, "\u6148\u7231", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { killHeal: 2, killMp: 1 }),
-      node("p_g6", 6, "\u795E\u8FF9", "\u7ECF\u9A8C\u83B7\u53D6 +4%\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { expGain: 4, goldGain: 4 })
-    ] }
-  ],
-  warlock: [
-    { id: "ruin", name: "\u6BC1\u706D", theme: "#F85149", nodes: [
-      node("k_r1", 1, "\u6697\u5F71\u7BAD", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
-      node("k_r2", 2, "\u8150\u8680", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
-      node("k_r3", 3, "\u707E\u53D8", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
-      node("k_r4", 4, "\u672B\u65E5", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
-      node("k_r5", 5, "\u6E6E\u706D", "\u9B54\u6CD5\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { magPct: 2, critRate: 2 }),
-      node("k_r6", 6, "\u865A\u7A7A\u9886\u4E3B", "\u9B54\u6CD5\u529B +5%\uFF0C\u5143\u7D20\u4F24\u5BB3 +4%", { magPct: 5, elemDmg: 4 })
-    ] },
-    { id: "curse", name: "\u8BC5\u5492", theme: "#BC8CFF", nodes: [
-      node("k_c1", 1, "\u865A\u5F31\u8BC5\u5492", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
-      node("k_c2", 2, "\u75DB\u82E6\u8BC5\u5492", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
-      node("k_c3", 3, "\u8BC5\u5492\u53CD\u566C", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
-      node("k_c4", 4, "\u6076\u9B54\u76AE\u80A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
-      node("k_c5", 5, "\u6050\u60E7\u5149\u73AF", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
-      node("k_c6", 6, "\u9B54\u738B\u5A01\u4EEA", "\u9632\u5FA1\u529B +4%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 4, reflect: 3 })
-    ] },
-    { id: "drain", name: "\u6C72\u53D6", theme: "#C9A84C", nodes: [
-      node("k_d1", 1, "\u751F\u547D\u8679\u5438", "\u5438\u8840 +1%", { lifesteal: 1 }),
-      node("k_d2", 2, "\u7075\u9B42\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
-      node("k_d3", 3, "\u8840\u8089\u732E\u796D", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
-      node("k_d4", 4, "\u9ED1\u6697\u4EA4\u6613", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
-      node("k_d5", 5, "\u7075\u9B42\u69A8\u53D6", "\u5438\u8840 +1%\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { lifesteal: 1, killMp: 1 }),
-      node("k_d6", 6, "\u6DF1\u6E0A\u5951\u7EA6", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { killHeal: 2, goldGain: 4 })
-    ] }
-  ]
-};
-var TALENT_UTILITY_KEYS = ["expGain", "goldGain", "killHeal", "killMp"];
-function getTalentMods(ranks, classId) {
-  const combat = {};
-  const utility = {};
-  if (!ranks) return { combat, utility };
-  const tree = TALENT_TREES[classId] || [];
-  for (const branch of tree) {
-    for (const n of branch.nodes) {
-      const r = ranks[n.id] || 0;
-      if (r <= 0) continue;
-      for (const [k, v] of Object.entries(n.effect)) {
-        const eff = v * r;
-        if (TALENT_UTILITY_KEYS.includes(k)) utility[k] = (utility[k] || 0) + eff;
-        else combat[k] = (combat[k] || 0) + eff;
-      }
-    }
-  }
-  return { combat, utility };
-}
-
-// api/services/character-service.ts
-var DEFAULT_CLASS_STATS = {
-  warrior: { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5, con: 12, wil: 5 },
-  mage: { hp: 80, mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8, con: 4, wil: 14 },
-  assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10, con: 6, wil: 7 },
-  ranger: { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9, con: 8, wil: 8 },
-  priest: { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7, con: 6, wil: 14 },
-  warlock: { hp: 90, mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12, con: 5, wil: 12 }
-};
-var CLASS_CON_WIL_GROWTH = {
-  warrior: { con: 2, wil: 1 },
-  mage: { con: 1, wil: 2 },
-  priest: { con: 1, wil: 2 },
-  warlock: { con: 1, wil: 2 },
-  assassin: { con: 1, wil: 1 },
-  ranger: { con: 1, wil: 1 }
-};
-var COMBAT_MOD_KEYS = ["atkPct", "defPct", "magPct", "mdefPct", "critRate", "critDmg", "lifesteal", "reflect", "elemDmg", "physRes", "magRes"];
-function equipReqLevel(setTier, levelReq) {
-  const st = setTier || 1;
-  if (st <= 1) return 1;
-  return levelReq[st - 2] ?? levelReq[levelReq.length - 1] ?? 1;
-}
-function equipLevelPenaltyScale(setTier, playerLevel) {
-  const g = getGlobalConfig().equipment || {};
-  const per = g.penaltyPerLevelPct ?? 3;
-  const minPct = g.penaltyMinPct ?? 30;
-  const rules = getTierRules();
-  const req = equipReqLevel(setTier, rules?.levelReq ?? [10, 25, 45, 70, 100, 135, 175, 220, 270]);
-  if (playerLevel >= req) return 1;
-  return Math.max(minPct / 100, 1 - (req - playerLevel) * per / 100);
-}
-function tierScale(setTier, playerTier) {
-  const st = setTier || 1;
-  if (st <= playerTier) return 1;
-  return Math.max(0.05, playerTier / st);
-}
-function effectiveStats(item, scale2) {
-  const lv = item.enhanceLevel || 0;
-  const out = {};
-  for (const [k, v] of Object.entries(item.stats || {})) {
-    if (typeof v !== "number" || !v) continue;
-    const sv = scale2 < 1 ? Math.max(1, Math.round(v * scale2)) : v;
-    out[k] = lv > 0 ? sv + Math.ceil(sv * 0.1 * lv) : sv;
-  }
-  for (const gid of item.gems || []) {
-    const def = getItemById(gid);
-    for (const [k, v] of Object.entries(def?.stats || {})) {
-      if (typeof v === "number" && v) out[k] = (out[k] || 0) + v;
-    }
-  }
-  return out;
-}
-function setBonuses(items) {
-  const counts = /* @__PURE__ */ new Map();
-  for (const it of items) {
-    if (itemHasSet(it)) counts.set(it.setId, (counts.get(it.setId) || 0) + 1);
-  }
-  const total = {};
-  for (const [setId, count] of counts) {
-    const set = getEquipmentSetById(setId);
-    if (!set?.bonus) continue;
-    for (const b of set.bonus) {
-      if (count >= b.pieces) {
-        for (const [k, v] of Object.entries(b.stats)) total[k] = (total[k] || 0) + v;
-      }
-    }
-  }
-  return total;
-}
-function itemHasSet(it) {
-  return !!it && typeof it.setId === "string" && it.setId.length > 0;
-}
-async function computeCharacterSnapshot(username) {
-  let save = null;
-  try {
-    const raw2 = await getRedis().get(`save:${username.toLowerCase()}`);
-    if (raw2) save = JSON.parse(raw2);
-  } catch {
-    return null;
-  }
-  const rawData = save?.data;
-  const wrapped = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
-  const data = wrapped?.state ?? wrapped;
-  const p = data?.player;
-  if (!data || !p || !p.classId || !p.level) return null;
-  const cls = getClassById(p.classId);
-  const awakenCount = p.awakenCount || 0;
-  const baseSrc = p.awakenBase || (awakenCount > 0 ? DEFAULT_CLASS_STATS[p.classId] || DEFAULT_CLASS_STATS.warrior : cls?.baseStats || DEFAULT_CLASS_STATS.warrior);
-  const stats = {
-    maxHp: baseSrc.maxHp ?? baseSrc.hp ?? 100,
-    maxMp: baseSrc.maxMp ?? baseSrc.mp ?? 50,
-    atk: baseSrc.atk ?? 10,
-    def: baseSrc.def ?? 10,
-    mag: baseSrc.mag ?? 10,
-    mdef: baseSrc.mdef ?? 8,
-    agi: baseSrc.agi ?? 10,
-    luk: baseSrc.luk ?? 5,
-    con: baseSrc.con ?? 6,
-    wil: baseSrc.wil ?? 6
-  };
-  const growth = CLASS_CON_WIL_GROWTH[p.classId] || { con: 1, wil: 1 };
-  const awakenMult = 1 + 0.2 * awakenCount;
-  const level = Math.max(1, Math.min(999, p.level));
-  for (let l = 2; l <= level; l++) {
-    stats.con += Math.ceil(growth.con * awakenMult);
-    stats.wil += Math.ceil(growth.wil * awakenMult);
-    stats.maxHp += Math.round((10 + growth.con * 8) * awakenMult);
-    stats.maxMp += Math.round(5 * awakenMult);
-    stats.atk += Math.round(2 * awakenMult);
-    stats.def += Math.round(1 * awakenMult);
-    stats.mag += Math.round(1 * awakenMult);
-    stats.mdef += Math.round(1 * awakenMult);
-    stats.agi += Math.round(1 * awakenMult);
-  }
-  const tier = Math.max(1, Math.min(9, p.tier || 1));
-  const rules = getTierRules();
-  for (let t2 = 2; t2 <= tier; t2++) {
-    const r = rules?.rewards?.[t2 - 1];
-    if (!r) continue;
-    for (const [k, v] of Object.entries(r)) {
-      const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
-      if (key2 in stats && typeof v === "number") stats[key2] += v;
-    }
-  }
-  const equipment = data.equipment || {};
-  const equipped = Object.values(equipment).filter(Boolean);
-  const mods = {};
-  for (const it of equipped) {
-    const scale2 = tierScale(it.setTier, tier) * equipLevelPenaltyScale(it.setTier, level);
-    const eff = effectiveStats(it, scale2);
-    for (const [k, v] of Object.entries(eff)) {
-      const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
-      if (key2 in stats) stats[key2] += v;
-    }
-    const lv = it.enhanceLevel || 0;
-    for (const [k, v] of Object.entries(it.affixes || {})) {
-      if (!COMBAT_MOD_KEYS.includes(k) || typeof v !== "number") continue;
-      mods[k] = (mods[k] || 0) + v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0);
-    }
-  }
-  for (const [k, v] of Object.entries(setBonuses(equipped))) {
-    const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
-    if (key2 in stats) stats[key2] += v;
-    else if (COMBAT_MOD_KEYS.includes(k)) mods[k] = (mods[k] || 0) + v;
-  }
-  const talentMods = getTalentMods(data.talents?.[p.classId], p.classId);
-  for (const [k, v] of Object.entries(talentMods.combat)) mods[k] = (mods[k] || 0) + v;
-  const player = {
-    id: p.id,
-    name: p.name,
-    hp: Math.max(1, Math.min(stats.maxHp, Math.round(p.hp || stats.maxHp))),
-    maxHp: stats.maxHp,
-    mp: Math.max(0, Math.min(stats.maxMp, Math.round(p.mp || 0))),
-    maxMp: stats.maxMp,
-    atk: stats.atk,
-    def: stats.def,
-    mag: stats.mag,
-    mdef: stats.mdef,
-    agi: stats.agi,
-    luk: stats.luk,
-    con: stats.con,
-    wil: stats.wil,
-    skills: Array.isArray(p.skills) ? p.skills : [],
-    element: p.element || "none",
-    statuses: [],
-    cooldowns: {},
-    mods
-  };
-  return { player, level };
 }
 
 // api/routers/battle-router.ts
+init_character_service();
 var statusSchema = external_exports.object({ id: external_exports.string(), name: external_exports.string(), kind: external_exports.string(), turns: external_exports.number() });
 var combatantSchema = external_exports.object({
   id: external_exports.string(),
@@ -66055,6 +67398,63 @@ var battleRouter = createRouter({
   })
 });
 
+// api/routers/char-router.ts
+init_auth_service();
+init_char_state_service();
+init_char_ops_service();
+async function auth3(token) {
+  try {
+    return await requireAccount(token);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+  }
+}
+async function run2(token, fn, allowNew = false) {
+  const username = await auth3(token);
+  const rec = await loadState(username);
+  if (!rec && !allowNew) throw new TRPCError({ code: "BAD_REQUEST", message: "\u5B58\u6863\u4E0D\u5B58\u5728" });
+  const state = rec?.state ?? {};
+  const r = fn(state, username);
+  let version2 = rec?.version ?? 0;
+  if (r.success) version2 = await writeState(username, state);
+  return { ...r, state, version: version2 };
+}
+var charRouter = createRouter({
+  // ─── 角色 ───
+  createPlayer: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s, username) => opCreatePlayer(s, input.classId, username), true)),
+  switchClass: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opSwitchClass(s, input.classId))),
+  // ─── 装备 ───
+  equip: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opEquip(s, input.uid))),
+  unequip: publicQuery.input(external_exports.object({ token: external_exports.string(), slot: external_exports.string().max(16) })).mutation(({ input }) => run2(input.token, (s) => opUnequip(s, input.slot))),
+  useItem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opUseConsumable(s, input.uid))),
+  disassemble: publicQuery.input(external_exports.object({ token: external_exports.string(), uids: external_exports.array(external_exports.string().max(64)).min(1).max(50) })).mutation(({ input }) => run2(input.token, (s) => opDisassemble(s, input.uids))),
+  buy: publicQuery.input(external_exports.object({ token: external_exports.string(), itemId: external_exports.string().max(64), qty: external_exports.number().int().min(1).max(99) })).mutation(({ input }) => run2(input.token, (s) => opBuyItem(s, input.itemId, input.qty))),
+  // ─── 铁匠铺 ───
+  enhance: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useProtect: external_exports.boolean().optional(), useLucky: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opEnhance(s, input.uid, !!input.useProtect, !!input.useLucky))),
+  reforge: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useDiamond: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opReforge(s, input.uid, !!input.useDiamond))),
+  socketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemUid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opSocketGem(s, input.uid, input.gemUid))),
+  unsocketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemIndex: external_exports.number().int().min(0).max(5) })).mutation(({ input }) => run2(input.token, (s) => opUnsocketGem(s, input.uid, input.gemIndex))),
+  // ─── 成长 ───
+  advanceTier: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opAdvanceTier(s))),
+  awaken: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opAwaken(s))),
+  learnTalent: publicQuery.input(external_exports.object({ token: external_exports.string(), nodeId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opLearnTalent(s, input.nodeId))),
+  respecTalents: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opRespecTalents(s))),
+  learnSkill: publicQuery.input(external_exports.object({ token: external_exports.string(), skillId: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opLearnSkill(s, input.skillId))),
+  claimTask: publicQuery.input(external_exports.object({ token: external_exports.string(), taskId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opClaimTask(s, input.taskId))),
+  // ─── 进度（探索计数/层数/秘境阶段/设置） ───
+  track: publicQuery.input(external_exports.object({ token: external_exports.string(), kind: external_exports.enum(["rooms", "kills", "layers", "bossKills"]), n: external_exports.number().int().min(1).max(50).optional() })).mutation(({ input }) => run2(input.token, (s) => opTrackEvent(s, input.kind, input.n ?? 1))),
+  updateMaxLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(1e3) })).mutation(({ input }) => run2(input.token, (s) => opUpdateMaxLayer(s, input.layer))),
+  setLawfulLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(101) })).mutation(({ input }) => run2(input.token, (s) => opSetLawfulLayer(s, input.layer))),
+  setRiftStage: publicQuery.input(external_exports.object({ token: external_exports.string(), stage: external_exports.number().int().min(1).max(6), cleared: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opSetRiftStage(s, input.stage, !!input.cleared))),
+  /** 领取探索掉落（凭证制，服务端暂存的战利品入库） */
+  claimLoot: publicQuery.input(external_exports.object({ token: external_exports.string(), voucher: external_exports.string().max(64) })).mutation(async ({ input }) => {
+    const username = await auth3(input.token);
+    return claimLootVoucher(username, input.voucher);
+  }),
+  updateSettings: publicQuery.input(external_exports.object({ token: external_exports.string(), patch: external_exports.record(external_exports.unknown()) })).mutation(({ input }) => run2(input.token, (s) => opUpdateSettings(s, input.patch)))
+});
+
 // api/routers/chat-router.ts
 init_auth_service();
 init_redis_service();
@@ -66090,53 +67490,6 @@ var chatRouter = createRouter({
 
 // api/routers/weekly-router.ts
 init_auth_service();
-
-// api/services/weekly-service.ts
-var WEEKLY_BOSSES = [
-  { id: "wboss_cthulhu", name: "\u514B\u82CF\u9C81", title: "\u62C9\u83B1\u8036\u4E4B\u4E3B", element: "water", skills: ["toxic_splash", "mind_rend", "entropic_field"], aiType: "cunning" },
-  { id: "wboss_tsath", name: "\u6492\u6258\u53E4\u4E9A", title: "\u87FE\u4E4B\u795E", element: "earth", skills: ["slam", "poison_bite", "soul_drain"], aiType: "defensive" },
-  { id: "wboss_yig", name: "\u4F0A\u683C", title: "\u4F17\u86C7\u4E4B\u7236", element: "wind", skills: ["poison_bite", "web_trap", "void_scream"], aiType: "aggressive" },
-  { id: "wboss_atlach", name: "\u963F\u7279\u62C9\u514B", title: "\u86DB\u7F51\u7F16\u7EC7\u8005", element: "ice", skills: ["web_trap", "ice_lance", "mind_rend"], aiType: "cunning" }
-];
-function currentWeekId(now = Date.now()) {
-  const tz = 8 * 36e5;
-  const t2 = new Date(now + tz);
-  const day2 = (t2.getUTCDay() + 6) % 7;
-  const monday = new Date(t2.getTime() - day2 * 864e5);
-  monday.setUTCHours(0, 0, 0, 0);
-  const endsAt = monday.getTime() + 7 * 864e5 - tz;
-  const jan4 = new Date(Date.UTC(t2.getUTCFullYear(), 0, 4));
-  const jan4Day = (jan4.getUTCDay() + 6) % 7;
-  const week1Monday = jan4.getTime() - jan4Day * 864e5;
-  const week2 = Math.floor((monday.getTime() - week1Monday) / (7 * 864e5)) + 1;
-  return { weekId: `${t2.getUTCFullYear()}w${week2}`, endsAt };
-}
-function getWeeklyBoss(now = Date.now()) {
-  const { weekId, endsAt } = currentWeekId(now);
-  const idx = Math.abs([...weekId].reduce((h, c) => h * 31 + c.charCodeAt(0) | 0, 7)) % WEEKLY_BOSSES.length;
-  const def = WEEKLY_BOSSES[idx];
-  const boss = {
-    id: def.id,
-    name: `${def.title}\xB7${def.name}`,
-    hp: 12558,
-    maxHp: 12558,
-    mp: 400,
-    maxMp: 400,
-    atk: 263,
-    def: 187,
-    mag: 219,
-    mdef: 187,
-    agi: 41,
-    luk: 20,
-    skills: def.skills,
-    element: def.element,
-    aiType: def.aiType
-  };
-  return { weekId, endsAt, boss };
-}
-var weeklyCategory = (weekId) => `weekly_boss_${weekId}`;
-
-// api/routers/weekly-router.ts
 init_redis_service();
 var weeklyRouter = createRouter({
   // 本周 Boss 信息
@@ -66172,6 +67525,7 @@ var weeklyRouter = createRouter({
 });
 
 // api/services/mail-service.ts
+init_config_service();
 import { existsSync as existsSync2, mkdirSync as mkdirSync2, readFileSync as readFileSync3, writeFileSync as writeFileSync2 } from "fs";
 import { join as join3 } from "path";
 var DATA_DIR2 = join3(process.cwd(), "data");
@@ -66267,15 +67621,15 @@ function deleteMail(to, mailId) {
 }
 function claimAttachments(to, mailId) {
   loadMails();
-  const fail = (message2) => ({ success: false, message: message2, gold: 0, diamonds: 0, items: [] });
+  const fail2 = (message2) => ({ success: false, message: message2, gold: 0, diamonds: 0, items: [] });
   const m = mails.get(mailId);
-  if (!m || m.to !== to) return fail("\u90AE\u4EF6\u4E0D\u5B58\u5728");
+  if (!m || m.to !== to) return fail2("\u90AE\u4EF6\u4E0D\u5B58\u5728");
   if (m.expiresAt <= Date.now()) {
     mails.delete(mailId);
     saveMails();
-    return fail("\u90AE\u4EF6\u5DF2\u8FC7\u671F");
+    return fail2("\u90AE\u4EF6\u5DF2\u8FC7\u671F");
   }
-  if (m.claimed) return fail("\u9644\u4EF6\u5DF2\u9886\u53D6");
+  if (m.claimed) return fail2("\u9644\u4EF6\u5DF2\u9886\u53D6");
   let gold = 0, diamonds = 0;
   const items = [];
   for (const att of m.attachments) {
@@ -66374,7 +67728,37 @@ var mailRouter = createRouter({
   }),
   claim: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
     await guard(input.playerName, input.token);
-    return claimAttachments(input.playerName, input.mailId);
+    const { loadState: loadState2, writeState: writeState2, addItemToInventory: addItemToInventory2, serverUid: serverUid2 } = await Promise.resolve().then(() => (init_char_state_service(), char_state_service_exports));
+    const cur = await loadState2(input.playerName);
+    if (!cur || !cur.state.player) {
+      return { success: false, message: "\u8BF7\u5148\u5728\u89D2\u8272\u9762\u677F\u521B\u5EFA\u89D2\u8272\u540E\u518D\u9886\u53D6", gold: 0, diamonds: 0, items: [] };
+    }
+    const r = claimAttachments(input.playerName, input.mailId);
+    if (!r.success) return r;
+    const s = cur.state;
+    s.player.gold = (s.player.gold || 0) + r.gold;
+    s.player.diamonds = (s.player.diamonds || 0) + r.diamonds;
+    s.inventory = s.inventory || [];
+    for (const it of r.items) {
+      s.inventory = addItemToInventory2(s.inventory, {
+        uid: serverUid2("mail"),
+        id: it.itemId,
+        name: it.name,
+        type: it.type || "material",
+        quality: it.quality || "common",
+        quantity: it.quantity,
+        stats: it.stats,
+        affixes: it.affixes,
+        slot: it.slot,
+        setId: it.setId,
+        setTier: it.setTier,
+        value: it.value,
+        effect: it.effect,
+        learnSkillId: it.learnSkillId
+      });
+    }
+    const version2 = await writeState2(input.playerName, s);
+    return { ...r, state: s, version: version2 };
   }),
   remove: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
     await guard(input.playerName, input.token);
@@ -66389,6 +67773,7 @@ var appRouter = createRouter({
   account: accountRouter,
   save: saveRouter,
   battle: battleRouter,
+  char: charRouter,
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,
@@ -66417,9 +67802,9 @@ var _serialize = (name, value, opt = {}) => {
       throw new Error("__Host- Cookie must not have Domain attributes");
     }
   }
-  for (const key2 of ["domain", "path", "sameSite", "priority"]) {
-    if (opt[key2] && /[;\r\n]/.test(opt[key2])) {
-      throw new Error(`${key2} must not contain ";", "\\r", or "\\n"`);
+  for (const key3 of ["domain", "path", "sameSite", "priority"]) {
+    if (opt[key3] && /[;\r\n]/.test(opt[key3])) {
+      throw new Error(`${key3} must not contain ";", "\\r", or "\\n"`);
     }
   }
   if (opt && typeof opt.maxAge === "number" && opt.maxAge >= 0) {
@@ -66674,20 +68059,20 @@ function getNamedCurve(alg) {
       throw new Error("unreachable");
   }
 }
-function checkUsage(key2, usage) {
-  if (usage && !key2.usages.includes(usage)) {
+function checkUsage(key3, usage) {
+  if (usage && !key3.usages.includes(usage)) {
     throw new TypeError(`CryptoKey does not support this operation, its usages must include ${usage}.`);
   }
 }
-function checkSigCryptoKey(key2, alg, usage) {
+function checkSigCryptoKey(key3, alg, usage) {
   switch (alg) {
     case "HS256":
     case "HS384":
     case "HS512": {
-      if (!isAlgorithm(key2.algorithm, "HMAC"))
+      if (!isAlgorithm(key3.algorithm, "HMAC"))
         throw unusable("HMAC");
       const expected = parseInt(alg.slice(2), 10);
-      const actual = getHashLength(key2.algorithm.hash);
+      const actual = getHashLength(key3.algorithm.hash);
       if (actual !== expected)
         throw unusable(`SHA-${expected}`, "algorithm.hash");
       break;
@@ -66695,10 +68080,10 @@ function checkSigCryptoKey(key2, alg, usage) {
     case "RS256":
     case "RS384":
     case "RS512": {
-      if (!isAlgorithm(key2.algorithm, "RSASSA-PKCS1-v1_5"))
+      if (!isAlgorithm(key3.algorithm, "RSASSA-PKCS1-v1_5"))
         throw unusable("RSASSA-PKCS1-v1_5");
       const expected = parseInt(alg.slice(2), 10);
-      const actual = getHashLength(key2.algorithm.hash);
+      const actual = getHashLength(key3.algorithm.hash);
       if (actual !== expected)
         throw unusable(`SHA-${expected}`, "algorithm.hash");
       break;
@@ -66706,34 +68091,34 @@ function checkSigCryptoKey(key2, alg, usage) {
     case "PS256":
     case "PS384":
     case "PS512": {
-      if (!isAlgorithm(key2.algorithm, "RSA-PSS"))
+      if (!isAlgorithm(key3.algorithm, "RSA-PSS"))
         throw unusable("RSA-PSS");
       const expected = parseInt(alg.slice(2), 10);
-      const actual = getHashLength(key2.algorithm.hash);
+      const actual = getHashLength(key3.algorithm.hash);
       if (actual !== expected)
         throw unusable(`SHA-${expected}`, "algorithm.hash");
       break;
     }
     case "Ed25519":
     case "EdDSA": {
-      if (!isAlgorithm(key2.algorithm, "Ed25519"))
+      if (!isAlgorithm(key3.algorithm, "Ed25519"))
         throw unusable("Ed25519");
       break;
     }
     case "ML-DSA-44":
     case "ML-DSA-65":
     case "ML-DSA-87": {
-      if (!isAlgorithm(key2.algorithm, alg))
+      if (!isAlgorithm(key3.algorithm, alg))
         throw unusable(alg);
       break;
     }
     case "ES256":
     case "ES384":
     case "ES512": {
-      if (!isAlgorithm(key2.algorithm, "ECDSA"))
+      if (!isAlgorithm(key3.algorithm, "ECDSA"))
         throw unusable("ECDSA");
       const expected = getNamedCurve(alg);
-      const actual = key2.algorithm.namedCurve;
+      const actual = key3.algorithm.namedCurve;
       if (actual !== expected)
         throw unusable(expected, "algorithm.namedCurve");
       break;
@@ -66741,7 +68126,7 @@ function checkSigCryptoKey(key2, alg, usage) {
     default:
       throw new TypeError("CryptoKey does not support this operation");
   }
-  checkUsage(key2, usage);
+  checkUsage(key3, usage);
 }
 
 // node_modules/jose/dist/webapi/lib/invalid_key_input.js
@@ -66770,17 +68155,17 @@ var invalidKeyInput = (actual, ...types) => message("Key must be ", actual, ...t
 var withAlg = (alg, actual, ...types) => message(`Key for the ${alg} algorithm must be `, actual, ...types);
 
 // node_modules/jose/dist/webapi/lib/is_key_like.js
-var isCryptoKey = (key2) => {
-  if (key2?.[Symbol.toStringTag] === "CryptoKey")
+var isCryptoKey = (key3) => {
+  if (key3?.[Symbol.toStringTag] === "CryptoKey")
     return true;
   try {
-    return key2 instanceof CryptoKey;
+    return key3 instanceof CryptoKey;
   } catch {
     return false;
   }
 };
-var isKeyObject = (key2) => key2?.[Symbol.toStringTag] === "KeyObject";
-var isKeyLike = (key2) => isCryptoKey(key2) || isKeyObject(key2);
+var isKeyObject = (key3) => key3?.[Symbol.toStringTag] === "KeyObject";
+var isKeyLike = (key3) => isCryptoKey(key3) || isKeyObject(key3);
 
 // node_modules/jose/dist/webapi/lib/is_disjoint.js
 function isDisjoint(...headers) {
@@ -66822,9 +68207,9 @@ function isObject2(input) {
 }
 
 // node_modules/jose/dist/webapi/lib/check_key_length.js
-function checkKeyLength(alg, key2) {
+function checkKeyLength(alg, key3) {
   if (alg.startsWith("RS") || alg.startsWith("PS")) {
-    const { modulusLength } = key2.algorithm;
+    const { modulusLength } = key3.algorithm;
     if (typeof modulusLength !== "number" || modulusLength < 2048) {
       throw new TypeError(`${alg} requires key modulusLength to be 2048 bits or larger`);
     }
@@ -67020,24 +68405,24 @@ function validateAlgorithms(option, algorithms) {
 }
 
 // node_modules/jose/dist/webapi/lib/is_jwk.js
-var isJWK = (key2) => isObject2(key2) && typeof key2.kty === "string";
-var isPrivateJWK = (key2) => key2.kty !== "oct" && (key2.kty === "AKP" && typeof key2.priv === "string" || typeof key2.d === "string");
-var isPublicJWK = (key2) => key2.kty !== "oct" && key2.d === void 0 && key2.priv === void 0;
-var isSecretJWK = (key2) => key2.kty === "oct" && typeof key2.k === "string";
+var isJWK = (key3) => isObject2(key3) && typeof key3.kty === "string";
+var isPrivateJWK = (key3) => key3.kty !== "oct" && (key3.kty === "AKP" && typeof key3.priv === "string" || typeof key3.d === "string");
+var isPublicJWK = (key3) => key3.kty !== "oct" && key3.d === void 0 && key3.priv === void 0;
+var isSecretJWK = (key3) => key3.kty === "oct" && typeof key3.k === "string";
 
 // node_modules/jose/dist/webapi/lib/normalize_key.js
 var cache;
-var handleJWK = async (key2, jwk, alg, freeze = false) => {
+var handleJWK = async (key3, jwk, alg, freeze = false) => {
   cache ||= /* @__PURE__ */ new WeakMap();
-  let cached = cache.get(key2);
+  let cached = cache.get(key3);
   if (cached?.[alg]) {
     return cached[alg];
   }
   const cryptoKey = await jwkToKey({ ...jwk, alg });
   if (freeze)
-    Object.freeze(key2);
+    Object.freeze(key3);
   if (!cached) {
-    cache.set(key2, { [alg]: cryptoKey });
+    cache.set(key3, { [alg]: cryptoKey });
   } else {
     cached[alg] = cryptoKey;
   }
@@ -67164,42 +68549,42 @@ var handleKeyObject = (keyObject, alg) => {
   }
   return cryptoKey;
 };
-async function normalizeKey(key2, alg) {
-  if (key2 instanceof Uint8Array) {
-    return key2;
+async function normalizeKey(key3, alg) {
+  if (key3 instanceof Uint8Array) {
+    return key3;
   }
-  if (isCryptoKey(key2)) {
-    return key2;
+  if (isCryptoKey(key3)) {
+    return key3;
   }
-  if (isKeyObject(key2)) {
-    if (key2.type === "secret") {
-      return key2.export();
+  if (isKeyObject(key3)) {
+    if (key3.type === "secret") {
+      return key3.export();
     }
-    if ("toCryptoKey" in key2 && typeof key2.toCryptoKey === "function") {
+    if ("toCryptoKey" in key3 && typeof key3.toCryptoKey === "function") {
       try {
-        return handleKeyObject(key2, alg);
+        return handleKeyObject(key3, alg);
       } catch (err) {
         if (err instanceof TypeError) {
           throw err;
         }
       }
     }
-    let jwk = key2.export({ format: "jwk" });
-    return handleJWK(key2, jwk, alg);
+    let jwk = key3.export({ format: "jwk" });
+    return handleJWK(key3, jwk, alg);
   }
-  if (isJWK(key2)) {
-    if (key2.k) {
-      return decode(key2.k);
+  if (isJWK(key3)) {
+    if (key3.k) {
+      return decode(key3.k);
     }
-    return handleJWK(key2, key2, alg, true);
+    return handleJWK(key3, key3, alg, true);
   }
   throw new Error("unreachable");
 }
 
 // node_modules/jose/dist/webapi/lib/check_key_type.js
-var tag = (key2) => key2?.[Symbol.toStringTag];
-var jwkMatchesOp = (alg, key2, usage) => {
-  if (key2.use !== void 0) {
+var tag = (key3) => key3?.[Symbol.toStringTag];
+var jwkMatchesOp = (alg, key3, usage) => {
+  if (key3.use !== void 0) {
     let expected;
     switch (usage) {
       case "sign":
@@ -67211,14 +68596,14 @@ var jwkMatchesOp = (alg, key2, usage) => {
         expected = "enc";
         break;
     }
-    if (key2.use !== expected) {
+    if (key3.use !== expected) {
       throw new TypeError(`Invalid key for this operation, its "use" must be "${expected}" when present`);
     }
   }
-  if (key2.alg !== void 0 && key2.alg !== alg) {
+  if (key3.alg !== void 0 && key3.alg !== alg) {
     throw new TypeError(`Invalid key for this operation, its "alg" must be "${alg}" when present`);
   }
-  if (Array.isArray(key2.key_ops)) {
+  if (Array.isArray(key3.key_ops)) {
     let expectedKeyOp;
     switch (true) {
       case (usage === "sign" || usage === "verify"):
@@ -67243,76 +68628,76 @@ var jwkMatchesOp = (alg, key2, usage) => {
         expectedKeyOp = alg.startsWith("RSA") ? "unwrapKey" : "deriveBits";
         break;
     }
-    if (expectedKeyOp && key2.key_ops?.includes?.(expectedKeyOp) === false) {
+    if (expectedKeyOp && key3.key_ops?.includes?.(expectedKeyOp) === false) {
       throw new TypeError(`Invalid key for this operation, its "key_ops" must include "${expectedKeyOp}" when present`);
     }
   }
   return true;
 };
-var symmetricTypeCheck = (alg, key2, usage) => {
-  if (key2 instanceof Uint8Array)
+var symmetricTypeCheck = (alg, key3, usage) => {
+  if (key3 instanceof Uint8Array)
     return;
-  if (isJWK(key2)) {
-    if (isSecretJWK(key2) && jwkMatchesOp(alg, key2, usage))
+  if (isJWK(key3)) {
+    if (isSecretJWK(key3) && jwkMatchesOp(alg, key3, usage))
       return;
     throw new TypeError(`JSON Web Key for symmetric algorithms must have JWK "kty" (Key Type) equal to "oct" and the JWK "k" (Key Value) present`);
   }
-  if (!isKeyLike(key2)) {
-    throw new TypeError(withAlg(alg, key2, "CryptoKey", "KeyObject", "JSON Web Key", "Uint8Array"));
+  if (!isKeyLike(key3)) {
+    throw new TypeError(withAlg(alg, key3, "CryptoKey", "KeyObject", "JSON Web Key", "Uint8Array"));
   }
-  if (key2.type !== "secret") {
-    throw new TypeError(`${tag(key2)} instances for symmetric algorithms must be of type "secret"`);
+  if (key3.type !== "secret") {
+    throw new TypeError(`${tag(key3)} instances for symmetric algorithms must be of type "secret"`);
   }
 };
-var asymmetricTypeCheck = (alg, key2, usage) => {
-  if (isJWK(key2)) {
+var asymmetricTypeCheck = (alg, key3, usage) => {
+  if (isJWK(key3)) {
     switch (usage) {
       case "decrypt":
       case "sign":
-        if (isPrivateJWK(key2) && jwkMatchesOp(alg, key2, usage))
+        if (isPrivateJWK(key3) && jwkMatchesOp(alg, key3, usage))
           return;
         throw new TypeError(`JSON Web Key for this operation must be a private JWK`);
       case "encrypt":
       case "verify":
-        if (isPublicJWK(key2) && jwkMatchesOp(alg, key2, usage))
+        if (isPublicJWK(key3) && jwkMatchesOp(alg, key3, usage))
           return;
         throw new TypeError(`JSON Web Key for this operation must be a public JWK`);
     }
   }
-  if (!isKeyLike(key2)) {
-    throw new TypeError(withAlg(alg, key2, "CryptoKey", "KeyObject", "JSON Web Key"));
+  if (!isKeyLike(key3)) {
+    throw new TypeError(withAlg(alg, key3, "CryptoKey", "KeyObject", "JSON Web Key"));
   }
-  if (key2.type === "secret") {
-    throw new TypeError(`${tag(key2)} instances for asymmetric algorithms must not be of type "secret"`);
+  if (key3.type === "secret") {
+    throw new TypeError(`${tag(key3)} instances for asymmetric algorithms must not be of type "secret"`);
   }
-  if (key2.type === "public") {
+  if (key3.type === "public") {
     switch (usage) {
       case "sign":
-        throw new TypeError(`${tag(key2)} instances for asymmetric algorithm signing must be of type "private"`);
+        throw new TypeError(`${tag(key3)} instances for asymmetric algorithm signing must be of type "private"`);
       case "decrypt":
-        throw new TypeError(`${tag(key2)} instances for asymmetric algorithm decryption must be of type "private"`);
+        throw new TypeError(`${tag(key3)} instances for asymmetric algorithm decryption must be of type "private"`);
     }
   }
-  if (key2.type === "private") {
+  if (key3.type === "private") {
     switch (usage) {
       case "verify":
-        throw new TypeError(`${tag(key2)} instances for asymmetric algorithm verifying must be of type "public"`);
+        throw new TypeError(`${tag(key3)} instances for asymmetric algorithm verifying must be of type "public"`);
       case "encrypt":
-        throw new TypeError(`${tag(key2)} instances for asymmetric algorithm encryption must be of type "public"`);
+        throw new TypeError(`${tag(key3)} instances for asymmetric algorithm encryption must be of type "public"`);
     }
   }
 };
-function checkKeyType(alg, key2, usage) {
+function checkKeyType(alg, key3, usage) {
   switch (alg.substring(0, 2)) {
     case "A1":
     case "A2":
     case "di":
     case "HS":
     case "PB":
-      symmetricTypeCheck(alg, key2, usage);
+      symmetricTypeCheck(alg, key3, usage);
       break;
     default:
-      asymmetricTypeCheck(alg, key2, usage);
+      asymmetricTypeCheck(alg, key3, usage);
   }
 }
 
@@ -67349,20 +68734,20 @@ function subtleAlgorithm(alg, algorithm) {
 }
 
 // node_modules/jose/dist/webapi/lib/get_sign_verify_key.js
-async function getSigKey(alg, key2, usage) {
-  if (key2 instanceof Uint8Array) {
+async function getSigKey(alg, key3, usage) {
+  if (key3 instanceof Uint8Array) {
     if (!alg.startsWith("HS")) {
-      throw new TypeError(invalidKeyInput(key2, "CryptoKey", "KeyObject", "JSON Web Key"));
+      throw new TypeError(invalidKeyInput(key3, "CryptoKey", "KeyObject", "JSON Web Key"));
     }
-    return crypto.subtle.importKey("raw", key2, { hash: `SHA-${alg.slice(-3)}`, name: "HMAC" }, false, [usage]);
+    return crypto.subtle.importKey("raw", key3, { hash: `SHA-${alg.slice(-3)}`, name: "HMAC" }, false, [usage]);
   }
-  checkSigCryptoKey(key2, alg, usage);
-  return key2;
+  checkSigCryptoKey(key3, alg, usage);
+  return key3;
 }
 
 // node_modules/jose/dist/webapi/lib/verify.js
-async function verify(alg, key2, signature, data) {
-  const cryptoKey = await getSigKey(alg, key2, "verify");
+async function verify(alg, key3, signature, data) {
+  const cryptoKey = await getSigKey(alg, key3, "verify");
   checkKeyLength(alg, cryptoKey);
   const algorithm = subtleAlgorithm(alg, cryptoKey.algorithm);
   try {
@@ -67373,7 +68758,7 @@ async function verify(alg, key2, signature, data) {
 }
 
 // node_modules/jose/dist/webapi/jws/flattened/verify.js
-async function flattenedVerify(jws, key2, options) {
+async function flattenedVerify(jws, key3, options) {
   if (!isObject2(jws)) {
     throw new JWSInvalid("Flattened JWS must be an object");
   }
@@ -67432,11 +68817,11 @@ async function flattenedVerify(jws, key2, options) {
     throw new JWSInvalid("JWS Payload must be a string or an Uint8Array instance");
   }
   let resolvedKey = false;
-  if (typeof key2 === "function") {
-    key2 = await key2(parsedProt, jws);
+  if (typeof key3 === "function") {
+    key3 = await key3(parsedProt, jws);
     resolvedKey = true;
   }
-  checkKeyType(alg, key2, "verify");
+  checkKeyType(alg, key3, "verify");
   const data = concat(jws.protected !== void 0 ? encode(jws.protected) : new Uint8Array(), encode("."), typeof jws.payload === "string" ? b64 ? encode(jws.payload) : encoder.encode(jws.payload) : jws.payload);
   let signature;
   try {
@@ -67444,7 +68829,7 @@ async function flattenedVerify(jws, key2, options) {
   } catch {
     throw new JWSInvalid("Failed to base64url decode the signature");
   }
-  const k = await normalizeKey(key2, alg);
+  const k = await normalizeKey(key3, alg);
   const verified = await verify(alg, k, signature, data);
   if (!verified) {
     throw new JWSSignatureVerificationFailed();
@@ -67475,7 +68860,7 @@ async function flattenedVerify(jws, key2, options) {
 }
 
 // node_modules/jose/dist/webapi/jws/compact/verify.js
-async function compactVerify(jws, key2, options) {
+async function compactVerify(jws, key3, options) {
   if (jws instanceof Uint8Array) {
     jws = decoder.decode(jws);
   }
@@ -67486,9 +68871,9 @@ async function compactVerify(jws, key2, options) {
   if (length !== 3) {
     throw new JWSInvalid("Invalid Compact JWS");
   }
-  const verified = await flattenedVerify({ payload, protected: protectedHeader, signature }, key2, options);
+  const verified = await flattenedVerify({ payload, protected: protectedHeader, signature }, key3, options);
   const result = { payload: verified.payload, protectedHeader: verified.protectedHeader };
-  if (typeof key2 === "function") {
+  if (typeof key3 === "function") {
     return { ...result, key: verified.key };
   }
   return result;
@@ -67720,22 +69105,22 @@ var JWTClaimsBuilder = class {
 };
 
 // node_modules/jose/dist/webapi/jwt/verify.js
-async function jwtVerify(jwt, key2, options) {
-  const verified = await compactVerify(jwt, key2, options);
+async function jwtVerify(jwt, key3, options) {
+  const verified = await compactVerify(jwt, key3, options);
   if (verified.protectedHeader.crit?.includes("b64") && verified.protectedHeader.b64 === false) {
     throw new JWTInvalid("JWTs MUST NOT use unencoded payload");
   }
   const payload = validateClaimsSet(verified.protectedHeader, verified.payload, options);
   const result = { payload, protectedHeader: verified.protectedHeader };
-  if (typeof key2 === "function") {
+  if (typeof key3 === "function") {
     return { ...result, key: verified.key };
   }
   return result;
 }
 
 // node_modules/jose/dist/webapi/lib/sign.js
-async function sign(alg, key2, data) {
-  const cryptoKey = await getSigKey(alg, key2, "sign");
+async function sign(alg, key3, data) {
+  const cryptoKey = await getSigKey(alg, key3, "sign");
   checkKeyLength(alg, cryptoKey);
   const signature = await crypto.subtle.sign(subtleAlgorithm(alg, cryptoKey.algorithm), cryptoKey, data);
   return new Uint8Array(signature);
@@ -67766,7 +69151,7 @@ var FlattenedSign = class {
     this.#unprotectedHeader = unprotectedHeader;
     return this;
   }
-  async sign(key2, options) {
+  async sign(key3, options) {
     if (!this.#protectedHeader && !this.#unprotectedHeader) {
       throw new JWSInvalid("either setProtectedHeader or setUnprotectedHeader must be called before #sign()");
     }
@@ -67789,7 +69174,7 @@ var FlattenedSign = class {
     if (typeof alg !== "string" || !alg) {
       throw new JWSInvalid('JWS "alg" (Algorithm) Header Parameter missing or invalid');
     }
-    checkKeyType(alg, key2, "sign");
+    checkKeyType(alg, key3, "sign");
     let payloadS;
     let payloadB;
     if (b64) {
@@ -67809,7 +69194,7 @@ var FlattenedSign = class {
       protectedHeaderBytes = new Uint8Array();
     }
     const data = concat(protectedHeaderBytes, encode("."), payloadB);
-    const k = await normalizeKey(key2, alg);
+    const k = await normalizeKey(key3, alg);
     const signature = await sign(alg, k, data);
     const jws = {
       signature: encode2(signature),
@@ -67835,8 +69220,8 @@ var CompactSign = class {
     this.#flattened.setProtectedHeader(protectedHeader);
     return this;
   }
-  async sign(key2, options) {
-    const jws = await this.#flattened.sign(key2, options);
+  async sign(key3, options) {
+    const jws = await this.#flattened.sign(key3, options);
     if (jws.payload === void 0) {
       throw new TypeError("use the flattened module for creating JWS with b64: false");
     }
@@ -67883,13 +69268,13 @@ var SignJWT = class {
     this.#protectedHeader = protectedHeader;
     return this;
   }
-  async sign(key2, options) {
+  async sign(key3, options) {
     const sig = new CompactSign(this.#jwt.data());
     sig.setProtectedHeader(this.#protectedHeader);
     if (Array.isArray(this.#protectedHeader?.crit) && this.#protectedHeader.crit.includes("b64") && this.#protectedHeader.b64 === false) {
       throw new JWTInvalid("JWTs MUST NOT use unencoded payload");
     }
-    return sig.sign(key2, options);
+    return sig.sign(key3, options);
   }
 };
 
@@ -67912,8 +69297,8 @@ function getKtyFromAlg(alg) {
 function isJWKSLike(jwks2) {
   return jwks2 && typeof jwks2 === "object" && Array.isArray(jwks2.keys) && jwks2.keys.every(isJWKLike);
 }
-function isJWKLike(key2) {
-  return isObject2(key2);
+function isJWKLike(key3) {
+  return isObject2(key3);
 }
 var LocalJWKSet = class {
   #jwks;
@@ -67986,11 +69371,11 @@ var LocalJWKSet = class {
 async function importWithAlgCache(cache2, jwk, alg) {
   const cached = cache2.get(jwk) || cache2.set(jwk, {}).get(jwk);
   if (cached[alg] === void 0) {
-    const key2 = await importJWK({ ...jwk, ext: true }, alg);
-    if (key2 instanceof Uint8Array || key2.type !== "public") {
+    const key3 = await importJWK({ ...jwk, ext: true }, alg);
+    if (key3 instanceof Uint8Array || key3.type !== "public") {
       throw new JWKSInvalid("JSON Web Key Set members must be public keys");
     }
-    cached[alg] = key2;
+    cached[alg] = key3;
   }
   return cached[alg];
 }
@@ -69439,9 +70824,9 @@ var TableAliasProxyHandler = class {
         return columns;
       }
       const proxiedColumns = {};
-      Object.keys(columns).map((key2) => {
-        proxiedColumns[key2] = new Proxy(
-          columns[key2],
+      Object.keys(columns).map((key3) => {
+        proxiedColumns[key3] = new Proxy(
+          columns[key3],
           new ColumnAliasProxyHandler(new Proxy(target, this))
         );
       });
@@ -69645,19 +71030,19 @@ function haveSameKeys(left, right) {
   if (leftKeys.length !== rightKeys.length) {
     return false;
   }
-  for (const [index2, key2] of leftKeys.entries()) {
-    if (key2 !== rightKeys[index2]) {
+  for (const [index2, key3] of leftKeys.entries()) {
+    if (key3 !== rightKeys[index2]) {
       return false;
     }
   }
   return true;
 }
 function mapUpdateSet(table, values) {
-  const entries = Object.entries(values).filter(([, value]) => value !== void 0).map(([key2, value]) => {
+  const entries = Object.entries(values).filter(([, value]) => value !== void 0).map(([key3, value]) => {
     if (is(value, SQL) || is(value, Column)) {
-      return [key2, value];
+      return [key3, value];
     } else {
-      return [key2, new Param(value, table[Table.Symbol.Columns][key2])];
+      return [key3, new Param(value, table[Table.Symbol.Columns][key3])];
     }
   });
   if (entries.length === 0) {
@@ -69992,13 +71377,13 @@ function extractTablesRelationalConfig(schema, configHelpers) {
   const tableNamesMap = {};
   const relationsBuffer = {};
   const tablesConfig = {};
-  for (const [key2, value] of Object.entries(schema)) {
+  for (const [key3, value] of Object.entries(schema)) {
     if (is(value, Table)) {
       const dbName = getTableUniqueName(value);
       const bufferedRelations = relationsBuffer[dbName];
-      tableNamesMap[dbName] = key2;
-      tablesConfig[key2] = {
-        tsName: key2,
+      tableNamesMap[dbName] = key3;
+      tablesConfig[key3] = {
+        tsName: key3,
         dbName: value[Table.Symbol.Name],
         schema: value[Table.Symbol.Schema],
         columns: value[Table.Symbol.Columns],
@@ -70009,14 +71394,14 @@ function extractTablesRelationalConfig(schema, configHelpers) {
         value[Table.Symbol.Columns]
       )) {
         if (column.primary) {
-          tablesConfig[key2].primaryKey.push(column);
+          tablesConfig[key3].primaryKey.push(column);
         }
       }
       const extraConfig = value[Table.Symbol.ExtraConfigBuilder]?.(value[Table.Symbol.ExtraConfigColumns]);
       if (extraConfig) {
         for (const configEntry of Object.values(extraConfig)) {
           if (is(configEntry, PrimaryKeyBuilder)) {
-            tablesConfig[key2].primaryKey.push(...configEntry.columns);
+            tablesConfig[key3].primaryKey.push(...configEntry.columns);
           }
         }
       }
@@ -71731,11 +73116,11 @@ var CasingCache = class {
     if (!column.keyAsName) return column.name;
     const schema = column.table[Table.Symbol.Schema] ?? "public";
     const tableName = column.table[Table.Symbol.OriginalName];
-    const key2 = `${schema}.${tableName}.${column.name}`;
-    if (!this.cache[key2]) {
+    const key3 = `${schema}.${tableName}.${column.name}`;
+    if (!this.cache[key3]) {
       this.cacheTable(column.table);
     }
-    return this.cache[key2];
+    return this.cache[key3];
   }
   cacheTable(table) {
     const schema = table[Table.Symbol.Schema] ?? "public";
@@ -72201,9 +73586,9 @@ var MySqlDialect = class {
     const joins = [];
     if (config === true) {
       const selectionEntries = Object.entries(tableConfig.columns);
-      selection = selectionEntries.map(([key2, value]) => ({
+      selection = selectionEntries.map(([key3, value]) => ({
         dbKey: value.name,
-        tsKey: key2,
+        tsKey: key3,
         field: aliasedTableColumn(value, tableAlias),
         relationTableTsKey: void 0,
         isJson: false,
@@ -72211,8 +73596,8 @@ var MySqlDialect = class {
       }));
     } else {
       const aliasedColumns = Object.fromEntries(
-        Object.entries(tableConfig.columns).map(([key2, value]) => [
-          key2,
+        Object.entries(tableConfig.columns).map(([key3, value]) => [
+          key3,
           aliasedTableColumn(value, tableAlias)
         ])
       );
@@ -72237,7 +73622,7 @@ var MySqlDialect = class {
         }
         if (selectedColumns.length > 0) {
           selectedColumns = isIncludeMode ? selectedColumns.filter((c) => config.columns?.[c] === true) : Object.keys(tableConfig.columns).filter(
-            (key2) => !selectedColumns.includes(key2)
+            (key3) => !selectedColumns.includes(key3)
           );
         }
       } else {
@@ -72451,9 +73836,9 @@ var MySqlDialect = class {
     let limit, offset, orderBy = [], where;
     if (config === true) {
       const selectionEntries = Object.entries(tableConfig.columns);
-      selection = selectionEntries.map(([key2, value]) => ({
+      selection = selectionEntries.map(([key3, value]) => ({
         dbKey: value.name,
-        tsKey: key2,
+        tsKey: key3,
         field: aliasedTableColumn(value, tableAlias),
         relationTableTsKey: void 0,
         isJson: false,
@@ -72461,8 +73846,8 @@ var MySqlDialect = class {
       }));
     } else {
       const aliasedColumns = Object.fromEntries(
-        Object.entries(tableConfig.columns).map(([key2, value]) => [
-          key2,
+        Object.entries(tableConfig.columns).map(([key3, value]) => [
+          key3,
           aliasedTableColumn(value, tableAlias)
         ])
       );
@@ -72487,7 +73872,7 @@ var MySqlDialect = class {
         }
         if (selectedColumns.length > 0) {
           selectedColumns = isIncludeMode ? selectedColumns.filter((c) => config.columns?.[c] === true) : Object.keys(tableConfig.columns).filter(
-            (key2) => !selectedColumns.includes(key2)
+            (key3) => !selectedColumns.includes(key3)
           );
         }
       } else {
@@ -72716,7 +74101,7 @@ var MySqlSelectBuilder = class {
       fields = this.fields;
     } else if (is(source, Subquery)) {
       fields = Object.fromEntries(
-        Object.keys(source._.selectedFields).map((key2) => [key2, source[key2]])
+        Object.keys(source._.selectedFields).map((key3) => [key3, source[key3]])
       );
     } else if (is(source, MySqlViewBase)) {
       fields = source[ViewBaseConfig].selectedFields;
@@ -72850,7 +74235,7 @@ var MySqlSelectQueryBuilderBase = class extends TypedQueryBuilder {
           }
           case "right": {
             this.joinsNotNullableMap = Object.fromEntries(
-              Object.entries(this.joinsNotNullableMap).map(([key2]) => [key2, false])
+              Object.entries(this.joinsNotNullableMap).map(([key3]) => [key3, false])
             );
             this.joinsNotNullableMap[tableName] = true;
             break;
@@ -73678,9 +75063,9 @@ var MySqlInsertBase = class extends QueryPromise {
   }
   $returningId() {
     const returning = [];
-    for (const [key2, value] of Object.entries(this.config.table[Table.Symbol.Columns])) {
+    for (const [key3, value] of Object.entries(this.config.table[Table.Symbol.Columns])) {
       if (value.primary) {
-        returning.push({ field: value, path: [key2] });
+        returning.push({ field: value, path: [key3] });
       }
     }
     this.config.returning = returning;
@@ -74510,13 +75895,13 @@ var MySql2PreparedQuery = class extends MySqlPreparedQuery {
         let j = 0;
         for (let i = insertId; i < insertId + affectedRows; i++) {
           for (const column of returningIds) {
-            const key2 = returningIds[0].path[0];
+            const key3 = returningIds[0].path[0];
             if (is(column.field, Column)) {
               if (column.field.primary && column.field.autoIncrement) {
-                returningResponse.push({ [key2]: i });
+                returningResponse.push({ [key3]: i });
               }
               if (column.field.defaultFn && generatedIds) {
-                returningResponse.push({ [key2]: generatedIds[j][key2] });
+                returningResponse.push({ [key3]: generatedIds[j][key3] });
               }
             }
           }

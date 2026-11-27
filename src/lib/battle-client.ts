@@ -53,12 +53,23 @@ import { chooseAutoSkill } from './battle-ai'
 import { getItemInfo } from './catalog'
 import type { snapshotBattleStats } from './battle-switch'
 
+export interface BattleSettle {
+  exp: number; gold: number; diamonds: number; levelUps: number
+  items: Array<{ name: string; quantity: number; quality?: string; note?: string }>
+  weeklyDamage?: number
+  passHeal?: { hp: number; mp: number }
+  state?: Record<string, unknown>
+  version?: number
+}
+
 export interface RunBattleResult {
   victory: boolean
   aborted: boolean      // 被停止/被切换走
   sessionLost: boolean  // 服务端会话丢失（如服务器重启）
-  expGain: number       // 服务端结算的基础经验（客户端可乘经验词条）
+  expGain: number       // 服务端结算的基础经验
   drops: Array<{ itemId: string; name?: string; type?: string; quantity: number; quality?: string; stats?: Record<string, number>; affixes?: Record<string, number> }>
+  /** 服务端结算结果：奖励已写入存档，客户端应用 state 即可 */
+  settle: BattleSettle | null
 }
 
 export async function runServerBattle(opts: {
@@ -84,9 +95,10 @@ export async function runServerBattle(opts: {
   let victory = false
   let expGain = 0
   let drops: RunBattleResult['drops'] = []
+  let settle: RunBattleResult['settle'] = null
 
   for (let round = 1; round <= 90; round++) {
-    if (isAborted()) { void battleAbandon(); return { victory: false, aborted: true, sessionLost: false, expGain: 0, drops: [] } }
+    if (isAborted()) { void battleAbandon(); return { victory: false, aborted: true, sessionLost: false, expGain: 0, drops: [], settle: null } }
 
     const cur = useGameStore.getState()
     if (!cur.player || cur.player.hp <= 0) break
@@ -128,7 +140,7 @@ export async function runServerBattle(opts: {
       // NO_BATTLE 等：会话丢失（服务器重启等）
       onLog('⚠ 战斗连接中断（会话已失效）')
       void battleAbandon()
-      return { victory: false, aborted: false, sessionLost: true, expGain: 0, drops: [] }
+      return { victory: false, aborted: false, sessionLost: true, expGain: 0, drops: [], settle: null }
     }
 
     result.logs.forEach(onLog)
@@ -150,11 +162,12 @@ export async function runServerBattle(opts: {
       victory = result.victory
       expGain = result.expGain || 0
       drops = (result.drops || []) as RunBattleResult['drops']
+      settle = (result.settle || null) as RunBattleResult['settle']
       break
     }
 
     await new Promise((r) => setTimeout(r, roundDelay))
   }
 
-  return { victory, aborted: false, sessionLost: false, expGain, drops }
+  return { victory, aborted: false, sessionLost: false, expGain, drops, settle }
 }

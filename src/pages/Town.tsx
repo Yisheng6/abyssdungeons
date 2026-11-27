@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import PixIcon from '@/components/PixIcon'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getExpNeed } from '@/stores/gameStore'
+import { useGameStore, getExpNeed } from '@/stores/gameStore'
 import { loadCatalogs, getTierName } from '@/lib/catalog'
 import { trpc } from '@/providers/trpc'
+import { getToken } from '@/lib/auth'
+import { applyServerState } from '@/lib/char-api'
 
 const CLASS_NAMES: Record<string, string> = {
   warrior: '战士', mage: '法师', assassin: '刺客',
@@ -51,43 +53,19 @@ export default function Town() {
   // 预加载物品/技能目录（套装加成计算等依赖）
   useEffect(() => { loadCatalogs() }, [])
 
-  // 离线挂机结算：上线时领取离线期间的探索收益
+  // 离线挂机结算：上线时领取离线期间的探索收益（服务端已写入存档）
   useEffect(() => {
     const name = localStorage.getItem('ad_user')
     if (!name) return
-    offlineSettleMut.mutateAsync({ playerName: name }).then((r) => {
+    offlineSettleMut.mutateAsync({ playerName: name, token: getToken() }).then((r) => {
       if (!r.settled || r.rooms <= 0) return
-      const gs = useGameStore.getState()
-      if (r.exp > 0) gs.addPlayerExp(r.exp)
-      if (r.gold > 0) gs.addPlayerGold(r.gold)
-      if (r.diamonds > 0) gs.addPlayerDiamonds(r.diamonds)
-      if (r.finalLayer > (gs.player?.maxLayer || 1)) gs.updateMaxLayer(r.finalLayer)
-      // 物品入包；符合自动分解条件的装备直接折算金币
-      let disassembledGold = 0
-      let kept = 0
-      for (const it of r.items) {
-        const item = {
-          uid: `offline_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          id: it.itemId, name: it.name,
-          type: it.type as never,
-          quality: it.quality as never,
-          quantity: it.quantity,
-          slot: it.slot as never,
-          stats: it.stats,
-          affixes: it.affixes,
-          setId: it.setId,
-          setTier: it.setTier,
-          value: it.value,
-        }
-        if (shouldAutoDisassemble(item, gs.settings)) {
-          disassembledGold += getDisassembleGold(item) * it.quantity
-        } else {
-          gs.addItem(item)
-          kept += it.quantity
-        }
-      }
-      if (disassembledGold > 0) gs.addPlayerGold(disassembledGold)
-      setOfflineResult({ ...r, disassembledGold, keptCount: kept })
+      // 应用服务端写入后的最新存档
+      if ('state' in r && r.state) applyServerState(r as never)
+      setOfflineResult({
+        ...r,
+        disassembledGold: (r as { disassembledGold?: number }).disassembledGold ?? 0,
+        keptCount: (r as { keptCount?: number }).keptCount ?? r.items.reduce((a, i) => a + i.quantity, 0),
+      })
     }).catch(() => { /* 结算失败不影响进入游戏 */ })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

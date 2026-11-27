@@ -2,35 +2,23 @@ import { useEffect, useState } from 'react'
 import { FlaskConical, Coins } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { loadCatalogs, getItemInfo } from '@/lib/catalog'
+import { charApi } from '@/lib/char-api'
 
 /** 商店出售的药水（价格 = 物品 value） */
 const SHOP_ITEMS = ['hp_small', 'hp_medium', 'hp_large', 'mp_small', 'mp_medium']
 
 export default function Shop() {
   const player = useGameStore((s) => s.player)
-  const spendGold = useGameStore((s) => s.spendGold)
-  const addItem = useGameStore((s) => s.addItem)
   const [msg, setMsg] = useState('')
 
   useEffect(() => { loadCatalogs() }, [])
 
-  const buy = (itemId: string, qty: number) => {
+  const buy = async (itemId: string, qty: number) => {
     const cat = getItemInfo(itemId)
     if (!cat) return
-    const price = (cat.value ?? 10) * qty
     if (!player) { setMsg('请先创建角色'); return }
-    if (!spendGold(price)) { setMsg(`金币不足（需要 ${price}）`); return }
-    addItem({
-      uid: `shop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      id: itemId,
-      name: cat.name,
-      type: 'consumable',
-      quality: (cat.quality || 'common') as never,
-      quantity: qty,
-      effect: cat.effect as never,
-      value: cat.value,
-    } as never)
-    setMsg(`购买了 ${cat.name} ×${qty}，花费 ${price} 金币`)
+    const r = await charApi.buy(itemId, qty)
+    setMsg(r.message)
   }
 
   return (

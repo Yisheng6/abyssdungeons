@@ -8,6 +8,7 @@ import {
 } from '@/stores/gameStore'
 import { loadCatalogs, getItemInfo } from '@/lib/catalog'
 import { getReforgeGoldCost, REFORGE_DIAMOND_COST, QUALITY_MAX_AFFIXES } from '@/lib/affixes'
+import { charApi } from '@/lib/char-api'
 
 const qualityColors: Record<string, string> = {
   common: '#8B949E', fine: '#3FB950', rare: '#58A6FF', epic: '#A371F7', legendary: '#C9A84C', mythic: '#F85149', eternal: '#7EE7F5',
@@ -66,30 +67,30 @@ export default function Blacksmith() {
 
   const stoneHave = cost ? store.countItemById(cost.stoneId) : 0
 
-  const doEnhance = () => {
+  const doEnhance = async () => {
     if (!selected) return
-    const r = store.enhanceItem(selected.item.uid, { useProtect, useLucky })
+    const r = await charApi.enhance(selected.item.uid, useProtect, useLucky)
     setMsg(r.message)
     setMsgOk(r.success)
   }
 
-  const doReforge = (useDiamond: boolean) => {
+  const doReforge = async (useDiamond: boolean) => {
     if (!selected) return
-    const r = store.reforgeAffixes(selected.item.uid, useDiamond)
+    const r = await charApi.reforge(selected.item.uid, useDiamond)
     setMsg(r.message)
     setMsgOk(r.success)
   }
 
-  const doSocket = (gemUid: string) => {
+  const doSocket = async (gemUid: string) => {
     if (!selected) return
-    const r = store.socketGem(selected.item.uid, gemUid)
+    const r = await charApi.socketGem(selected.item.uid, gemUid)
     setMsg(r.message)
     setMsgOk(r.success)
   }
 
-  const doUnsocket = (gemIndex: number) => {
+  const doUnsocket = async (gemIndex: number) => {
     if (!selected) return
-    const r = store.unsocketGem(selected.item.uid, gemIndex)
+    const r = await charApi.unsocketGem(selected.item.uid, gemIndex)
     setMsg(r.message)
     setMsgOk(r.success)
   }
@@ -97,8 +98,8 @@ export default function Blacksmith() {
   // 背包中的可镶嵌宝石
   const bagGems = inventory.filter((i) => getItemInfo(i.id)?.gem)
 
-  const doDisassemble = (item: Item) => {
-    const r = store.disassembleItem(item.uid)
+  const doDisassemble = async (item: Item) => {
+    const r = await charApi.disassemble([item.uid])
     setMsg(r.message)
     setMsgOk(r.success)
   }

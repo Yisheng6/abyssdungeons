@@ -5,7 +5,7 @@ import PixIcon from './PixIcon'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { getToken, clearAuth } from '@/lib/auth'
-import { loadCloudSave, startAutoSave, flushSave, getSyncStatus, onSyncStatusChange } from '@/lib/cloudsave'
+import { loadCloudSave, getSyncStatus, onSyncStatusChange } from '@/lib/cloudsave'
 import type { SyncStatus } from '@/lib/cloudsave'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
@@ -81,7 +81,7 @@ export default function Layout() {
   useEffect(() => {
     if (meQ.data) {
       void loadCloudSave().then((r) => {
-        if (r === 'ok') { startAutoSave(); setGate('ok') }
+        if (r === 'ok') { setGate('ok') }
         else setGate('fail')
       })
     }
@@ -109,11 +109,10 @@ export default function Layout() {
 
   const logoutMut = trpc.account.logout.useMutation()
   const logout = () => {
-    void flushSave().finally(() => {
-      logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
-      clearAuth()
-      window.location.href = '/login' // 整页刷新，回到登录页后存档键随之切换
-    })
+    // 存档全在服务端，登出无需上传
+    logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
+    clearAuth()
+    window.location.href = '/login' // 整页刷新，回到登录页后存档键随之切换
   }
 
   const isActive = (path: string) =>
@@ -291,11 +290,10 @@ export default function Layout() {
             {/* 云存档同步状态 */}
             <span
               className="flex items-center gap-1"
-              title={syncStatus === 'synced' ? '存档已同步到云端' : syncStatus === 'pending' ? '有待同步的进度' : '云端同步失败（会自动重试）'}
-              style={{ color: syncStatus === 'synced' ? '#3FB950' : syncStatus === 'pending' ? 'var(--accent)' : '#F85149', cursor: syncStatus === 'error' ? 'pointer' : 'default' }}
-              onClick={() => { if (syncStatus === 'error') void flushSave() }}>
+              title={syncStatus === 'error' ? '与服务器连接失败（请刷新重试）' : '角色数据实时保存在服务器'}
+              style={{ color: syncStatus === 'error' ? '#F85149' : '#3FB950' }}>
               <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'currentColor' }} />
-              <span className="hidden sm:inline">{syncStatus === 'synced' ? '已存档' : syncStatus === 'pending' ? '同步中' : '同步失败'}</span>
+              <span className="hidden sm:inline">{syncStatus === 'error' ? '连接失败' : '云端存档'}</span>
             </span>
             <span>金币 <span className="font-bold" style={{ color: '#C9A84C' }}>{player?.gold ?? 0}</span></span>
             <span>钻石 <span className="font-bold" style={{ color: '#79C0FF' }}>{player?.diamonds ?? 0}</span></span>
@@ -407,10 +405,10 @@ export default function Layout() {
           <div className="w-full max-w-xs rounded-lg border p-5 text-center" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
             <PixIcon name="abyss" size={40} />
             <div className="mt-2 text-sm font-bold" style={{ color: 'var(--text-primary)' }}>网络连接失败</div>
-            <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>与游戏服务器的连接已中断，进度暂未保存到云端</div>
+            <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>与游戏服务器的连接已中断（角色数据安全保存在服务器，不会丢失）</div>
             <button className="game-btn-primary mt-4 w-full py-2 text-sm"
-              onClick={() => void flushSave()}>
-              重试连接
+              onClick={() => window.location.reload()}>
+              重新连接
             </button>
           </div>
         </div>

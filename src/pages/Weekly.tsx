@@ -3,9 +3,8 @@ import { Crown, Swords, Trophy, Skull } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
-import { getToken } from '@/lib/auth'
-import { getItemInfo } from '@/lib/catalog'
 import { runServerBattle } from '@/lib/battle-client'
+import { applyServerState } from '@/lib/char-api'
 import BattleStage from '@/components/BattleStage'
 
 const ELEMENT_NAMES: Record<string, string> = {
@@ -22,7 +21,6 @@ export default function Weekly() {
 
   const bossQ = trpc.weekly.boss.useQuery(undefined, { refetchInterval: 60000 })
   const topQ = trpc.weekly.top.useQuery({ count: 10 })
-  const submitMut = trpc.weekly.submit.useMutation()
 
   const addLog = (l: string) => setLogs((prev) => [...prev.slice(-80), l])
 
@@ -57,9 +55,10 @@ export default function Weekly() {
 
     let damage = 0
     const bossMaxHp = boss.maxHp
+    let settle: import('@/lib/battle-client').RunBattleResult['settle'] = null
     try {
       // 服务端战斗会话：状态托管在服务端，通过 onTick 统计对 Boss 的伤害
-      await runServerBattle({
+      const res = await runServerBattle({
         mode: 'weekly',
         layer: 60,
         enemies: [{ ...boss, uid: `${boss.id}#0` }],
@@ -71,6 +70,7 @@ export default function Weekly() {
           if (b) damage = bossMaxHp - b.hp
         },
       })
+      settle = res.settle
     } finally {
       releaseBattle('weekly')
     }
@@ -81,27 +81,20 @@ export default function Weekly() {
       setBattling(false)
       return
     }
-    // 结算
-    damage = Math.max(0, Math.round(damage))
+    // 结算：伤害/奖励/上榜均由服务端完成
+    if (settle) {
+      applyServerState(settle)
+      damage = Math.max(0, Math.round(settle.weeklyDamage || damage))
+    } else {
+      damage = Math.max(0, Math.round(damage))
+    }
     addLog(`═══ 挑战结束：总伤害 ${damage} ═══`)
     setBestDamage((d) => Math.max(d, damage))
-    if (damage > 0) {
-      const after = useGameStore.getState()
-      // 参与奖：经验 + 金币（按伤害折算）
-      const exp = Math.floor(damage * 0.5)
-      const gold = Math.floor(damage * 1.5)
-      after.addPlayerExp(exp)
-      after.addPlayerGold(gold)
-      after.trackTaskEvent('bossKills', 1)
-      addLog(`获得经验 ${exp}、金币 ${gold}`)
-      const name = localStorage.getItem('ad_user') || ''
-      if (name) {
-        try {
-          const r = await submitMut.mutateAsync({ playerId: name, playerName: name, damage, token: getToken() })
-          addLog(r.rank ? `本周排名：第 ${r.rank} 名` : '成绩已提交')
-          topQ.refetch()
-        } catch { /* 排行提交失败不影响奖励 */ }
-      }
+    if (settle && settle.weeklyDamage > 0) {
+      if (settle.exp > 0 || settle.gold > 0) addLog(`获得经验 ${settle.exp}、金币 ${settle.gold}`)
+      if (settle.levelUps > 0) addLog(`★ 升级！等级提升 ${settle.levelUps} 级，全属性成长 ★`)
+      addLog('成绩已提交至本周伤害榜')
+      topQ.refetch()
     }
     // 战败复活：等待 5 秒后满血复活
     if (useGameStore.getState().player && useGameStore.getState().player!.hp <= 0) {

@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Sparkles, Swords, Coins, Gem, RotateCcw } from 'lucide-react'
-import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods } from '@/stores/gameStore'
+import { useGameStore } from '@/stores/gameStore'
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
-import { getItemInfo } from '@/lib/catalog'
 import { runServerBattle } from '@/lib/battle-client'
+import { charApi, applyServerState } from '@/lib/char-api'
 import BattleStage from '@/components/BattleStage'
 
 interface RiftEnemy {
@@ -22,7 +22,6 @@ interface RiftStageData {
   isBoss: boolean; enemies: RiftEnemy[]; modifiers: RiftModifier[]
 }
 
-const GEM_IDS = ['ruby', 'sapphire', 'emerald', 'topaz', 'onyx', 'amethyst']
 
 function todayStr(): string {
   const d = new Date()
@@ -80,41 +79,13 @@ export default function Rift() {
       })
       victory = res.victory
 
-      if (res.victory) {
-        const after = useGameStore.getState()
-        const utilMods = getPlayerMods().utility
-        for (const drop of res.drops) {
-          const cat = getItemInfo(drop.itemId)
-          const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-          const dName = drop.name || cat?.name || drop.itemId
-          if (type === 'currency') {
-            if (drop.itemId === 'gem_diamond') {
-              after.addPlayerDiamonds(drop.quantity)
-              addLog(`获得 钻石×${drop.quantity}`)
-            } else {
-              const mult = 1 + (utilMods.goldGain || 0) / 100
-              after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * mult))
-              addLog(`获得 ${dName}×${drop.quantity}`)
-            }
-            continue
-          }
-          const item = {
-            uid: `rift_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-            id: drop.itemId, name: dName, type, quality: (drop.quality || 'common') as never,
-            quantity: drop.quantity,
-            slot: (cat?.slot) as never, stats: drop.stats, affixes: drop.affixes,
-            setId: cat?.setId, setTier: cat?.setTier,
-            effect: cat?.effect as never, value: cat?.value,
-          }
-          if (shouldAutoDisassemble(item as never, after.settings)) {
-            const g = getDisassembleGold(item as never)
-            after.addPlayerGold(g)
-            addLog(`${dName} 已自动分解 +${g}金币`)
-          } else {
-            after.addItem(item as never)
-            addLog(`获得 ${dName}×${drop.quantity}`)
-          }
-        }
+      if (res.settle) {
+        // 服务端结算：经验/金币/钻石/掉落已写入云端存档
+        const st = res.settle
+        applyServerState(st)
+        if (st.exp > 0) addLog(`获得经验 ${st.exp}${st.gold > 0 ? `、金币 ${st.gold}` : ''}${st.diamonds > 0 ? `、钻石 ${st.diamonds}` : ''}`)
+        if (st.levelUps > 0) addLog(`★ 升级！等级提升 ${st.levelUps} 级，全属性成长 ★`)
+        for (const it of st.items) addLog(`获得 ${it.name}×${it.quantity}`)
       }
     } finally {
       releaseBattle('rift')
@@ -140,36 +111,13 @@ export default function Rift() {
       useGameStore.setState({ riftInBattle: false })
       return
     }
-    const after = useGameStore.getState()
     if (won) {
-      const utilMods = getPlayerMods().utility
-      const rewardMult = 1 + data.modifiers.reduce((s, m) => s + m.rewardBonus, 0) / 100
-      const lv = player.level
-      const base = data.enemies.reduce((sum, e) => sum + 10 + lv * 3 + Math.ceil(e.maxHp / 20) + e.atk, 0)
-      const exp = Math.floor(base * (data.isBoss ? 2 : 1) * rewardMult * (1 + (utilMods.expGain || 0) / 100))
-      const gold = Math.floor((10 + lv * 5) * (data.isBoss ? 5 : 1) * rewardMult * (1 + (utilMods.goldGain || 0) / 100))
-      after.addPlayerExp(exp)
-      after.addPlayerGold(gold)
-      addLog(`获得经验 ${exp}、金币 ${gold}`)
-      after.trackTaskEvent('kills', data.enemies.length)
-      if (data.isBoss) after.trackTaskEvent('bossKills', 1)
-
       if (data.isBoss) {
-        // 通关：钻石 + 随机无瑕宝石
-        const diamonds = 3
-        after.addPlayerDiamonds(diamonds)
-        const gid = `gem_${GEM_IDS[Math.floor(Math.random() * GEM_IDS.length)]}_2`
-        const gdef = getItemInfo(gid)
-        if (gdef) {
-          after.addItem({
-            uid: `rift_gem_${Date.now()}`, id: gid, name: gdef.name, type: 'material',
-            quality: gdef.quality, quantity: 1, desc: gdef.desc || '', value: gdef.value,
-          } as never)
-        }
-        addLog(`★ 秘境通关！额外获得 钻石×${diamonds}、${gdef?.name || '宝石'}×1 ★`)
-        after.setRift({ date: today, stage: 6, clearedDate: today })
+        // 通关奖励（钻石+宝石）已由服务端结算发放
+        addLog('★ 秘境通关！奖励已发放：钻石×3 + 无瑕宝石 ★')
+        void charApi.setRiftStage(6, true)
       } else {
-        after.setRift({ date: today, stage: stage + 1, clearedDate: rift.clearedDate })
+        void charApi.setRiftStage(stage + 1)
         addLog(`═══ 第 ${stage} 境已突破 ═══`)
       }
     } else {

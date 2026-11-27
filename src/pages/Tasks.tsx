@@ -1,11 +1,10 @@
 import { Target, Award, CheckCircle2 } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { TASKS, type TaskDef } from '@/lib/tasks'
+import { charApi } from '@/lib/char-api'
 
 export default function Tasks() {
   const taskState = useGameStore((s) => s.taskState)
-  const claimTaskReward = useGameStore((s) => s.claimTaskReward)
-  const addPlayerExp = useGameStore((s) => s.addPlayerExp)
   const player = useGameStore((s) => s.player)
 
   // 跨天展示一致性（store 内追踪时已处理重置，这里兜底显示）
@@ -36,7 +35,7 @@ export default function Tasks() {
           <CheckCircle2 size={20} style={{ color: '#3FB950' }} />
         ) : (
           <button disabled={!done || !player}
-            onClick={() => { claimTaskReward(t.id, t.scope); addPlayerExp(t.exp) }}
+            onClick={() => { void charApi.claimTask(t.id) }}
             className="rounded-lg px-3 py-1.5 text-xs font-bold transition-all active:scale-95"
             style={{
               backgroundColor: done ? 'var(--accent)' : 'var(--bg-hover)',

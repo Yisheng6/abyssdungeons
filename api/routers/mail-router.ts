@@ -59,7 +59,28 @@ export const mailRouter = createRouter({
     .input(playerInput.extend({ mailId: z.string() }))
     .mutation(async ({ input }) => {
       await guard(input.playerName, input.token);
-      return claimAttachments(input.playerName, input.mailId);
+      // 附件直接写入服务端存档（服务器是唯一存档写入方）
+      const { loadState, writeState, addItemToInventory, serverUid } = await import("../services/char-state-service");
+      const cur = await loadState(input.playerName);
+      if (!cur || !(cur.state as any).player) {
+        return { success: false, message: "请先在角色面板创建角色后再领取", gold: 0, diamonds: 0, items: [] };
+      }
+      const r = claimAttachments(input.playerName, input.mailId);
+      if (!r.success) return r;
+      const s = cur.state as any;
+      s.player.gold = (s.player.gold || 0) + r.gold;
+      s.player.diamonds = (s.player.diamonds || 0) + r.diamonds;
+      s.inventory = s.inventory || [];
+      for (const it of r.items) {
+        s.inventory = addItemToInventory(s.inventory, {
+          uid: serverUid("mail"), id: it.itemId, name: it.name, type: it.type || "material",
+          quality: it.quality || "common", quantity: it.quantity, stats: it.stats,
+          affixes: it.affixes, slot: it.slot, setId: it.setId, setTier: it.setTier,
+          value: it.value, effect: it.effect, learnSkillId: it.learnSkillId,
+        });
+      }
+      const version = await writeState(input.playerName, s);
+      return { ...r, state: s, version };
     }),
 
   remove: publicQuery
