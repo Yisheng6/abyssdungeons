@@ -82,8 +82,15 @@ export async function tickBattle(username: string, battleId: string, action: Com
     }
   }
 
+  // 未指定目标时默认攻击第一个存活敌人
+  const fixedAction: CombatAction = { ...action };
+  if (!fixedAction.targetId) {
+    const firstAlive = s.enemies.find((e) => e.hp > 0);
+    if (firstAlive) fixedAction.targetId = firstAlive.uid ?? firstAlive.id;
+  }
+
   const { logs, player, enemies, ended, victory, fled, drops } = resolveCombat(
-    s.player, s.enemies, action, now + s.round,
+    s.player, s.enemies, fixedAction, now + s.round,
     { layer: s.layer, enemyDropTables: s.dropTables as never },
   );
   if (potionLog) logs.unshift(potionLog);

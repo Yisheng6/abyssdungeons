@@ -65527,10 +65527,15 @@ async function tickBattle(username, battleId, action) {
       potionLog = `\u4F60\u4F7F\u7528\u4E86 ${item.name}\uFF0C\u6062\u590D ${heal} \u70B9\u751F\u547D`;
     }
   }
+  const fixedAction = { ...action };
+  if (!fixedAction.targetId) {
+    const firstAlive = s.enemies.find((e) => e.hp > 0);
+    if (firstAlive) fixedAction.targetId = firstAlive.uid ?? firstAlive.id;
+  }
   const { logs, player, enemies, ended, victory, fled, drops } = resolveCombat(
     s.player,
     s.enemies,
-    action,
+    fixedAction,
     now + s.round,
     { layer: s.layer, enemyDropTables: s.dropTables }
   );
