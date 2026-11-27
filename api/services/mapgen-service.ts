@@ -413,6 +413,7 @@ export function generateEncounter(params: { layer: number; wavesSinceBoss: numbe
   const family = theme?.id || "cave";
 
   const enemies: EncounterResult["enemies"] = [];
+  let effectiveType = type;
   if (isBoss) {
     const boss = getBossByFamily(family);
     if (boss) {
@@ -425,14 +426,20 @@ export function generateEncounter(params: { layer: number; wavesSinceBoss: numbe
         skills: boss.skills, element: boss.element, aiType: boss.aiType,
         dropTable: boss.dropTable,
       });
+    } else {
+      // 兜底：该族未配置 Boss 时降级为精英战，绝不能返回空敌人（否则前端无限走路）
+      effectiveType = "elite";
     }
-  } else {
-    const pool = getEnemiesByFamily(family);
-    const count = isElite ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
+  }
+  if (enemies.length === 0) {
+    const eliteFallback = effectiveType === "elite";
+    let pool = getEnemiesByFamily(family);
+    if (pool.length === 0) pool = getEnemiesByFamily("cave"); // 极端兜底：族下连普通怪都没有
+    const count = eliteFallback ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
     for (let i = 0; i < count && pool.length > 0; i++) {
       const template = rng.pickOne(pool);
       const scaled = scaleMonsterStats(template.baseStats, {
-        layer, isElite, isBoss: false, perLayerGrowth: 0.08,
+        layer, isElite: eliteFallback, isBoss: false, perLayerGrowth: 0.08,
       });
       enemies.push({
         id: template.id, name: template.name,
@@ -442,9 +449,13 @@ export function generateEncounter(params: { layer: number; wavesSinceBoss: numbe
       });
     }
   }
+  // 保险：任何路径都不允许空敌人
+  if (enemies.length === 0) {
+    throw new Error(`generateEncounter: 无法生成敌人 (layer=${layer}, family=${family})`);
+  }
 
-  const loot = rollRoomLoot(type, layer, rng) ?? undefined;
-  return { type, wave, theme: family, enemies, loot };
+  const loot = rollRoomLoot(effectiveType, layer, rng) ?? undefined;
+  return { type: effectiveType, wave, theme: family, enemies, loot };
 }
 
 /**
@@ -475,8 +486,12 @@ function populateRooms(
           skills: boss.skills, element: boss.element, aiType: boss.aiType,
           dropTable: boss.dropTable,
         }];
+      } else {
+        // 兜底：该族未配置 Boss，把 Boss 房降级为精英房，不留空房间
+        room.type = "elite";
       }
-    } else {
+    }
+    if (room.type !== "boss" && room.type !== "entrance" && room.type !== "safe") {
       const enemies = getEnemiesByFamily(family);
       if (enemies.length > 0) {
         const count = room.type === "elite" ? rng.nextInt(1, 2) : rng.nextInt(1, 3);

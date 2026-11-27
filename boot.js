@@ -63878,6 +63878,7 @@ function generateEncounter(params) {
   const theme = getThemeByLayer(layer);
   const family = theme?.id || "cave";
   const enemies = [];
+  let effectiveType = type;
   if (isBoss) {
     const boss = getBossByFamily(family);
     if (boss) {
@@ -63896,15 +63897,20 @@ function generateEncounter(params) {
         aiType: boss.aiType,
         dropTable: boss.dropTable
       });
+    } else {
+      effectiveType = "elite";
     }
-  } else {
-    const pool = getEnemiesByFamily(family);
-    const count = isElite ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
+  }
+  if (enemies.length === 0) {
+    const eliteFallback = effectiveType === "elite";
+    let pool = getEnemiesByFamily(family);
+    if (pool.length === 0) pool = getEnemiesByFamily("cave");
+    const count = eliteFallback ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
     for (let i = 0; i < count && pool.length > 0; i++) {
       const template = rng.pickOne(pool);
       const scaled = scaleMonsterStats(template.baseStats, {
         layer,
-        isElite,
+        isElite: eliteFallback,
         isBoss: false,
         perLayerGrowth: 0.08
       });
@@ -63919,8 +63925,11 @@ function generateEncounter(params) {
       });
     }
   }
-  const loot = rollRoomLoot(type, layer, rng) ?? void 0;
-  return { type, wave, theme: family, enemies, loot };
+  if (enemies.length === 0) {
+    throw new Error(`generateEncounter: \u65E0\u6CD5\u751F\u6210\u654C\u4EBA (layer=${layer}, family=${family})`);
+  }
+  const loot = rollRoomLoot(effectiveType, layer, rng) ?? void 0;
+  return { type: effectiveType, wave, theme: family, enemies, loot };
 }
 function populateRooms(rooms, layer, family, rng) {
   for (const room of rooms) {
@@ -63946,8 +63955,11 @@ function populateRooms(rooms, layer, family, rng) {
           aiType: boss.aiType,
           dropTable: boss.dropTable
         }];
+      } else {
+        room.type = "elite";
       }
-    } else {
+    }
+    if (room.type !== "boss" && room.type !== "entrance" && room.type !== "safe") {
       const enemies = getEnemiesByFamily(family);
       if (enemies.length > 0) {
         const count = room.type === "elite" ? rng.nextInt(1, 2) : rng.nextInt(1, 3);
