@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router'
+import { Navigate } from 'react-router'
 import { Sword } from 'lucide-react'
 import { trpc } from '@/providers/trpc'
 import { setAuth, isLoggedIn } from '@/lib/auth'
@@ -7,7 +7,6 @@ import { setAuth, isLoggedIn } from '@/lib/auth'
 type Mode = 'login' | 'register'
 
 export default function Login() {
-  const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -52,7 +51,8 @@ export default function Login() {
       } else {
         const r = await loginMut.mutateAsync({ username: username.trim(), password })
         setAuth(r.token, r.username)
-        navigate('/')
+        // 整页刷新：让存档 store 以新账号的独立键重新加载
+        window.location.href = '/'
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : '网络错误，请稍后再试')

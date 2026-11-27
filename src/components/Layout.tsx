@@ -69,8 +69,8 @@ export default function Layout() {
   // 启动校验令牌：失效则清除登录态并回登录页
   const meQ = trpc.account.me.useQuery({ token }, { retry: false, staleTime: 60000 })
   useEffect(() => {
-    if (meQ.error) { clearAuth(); navigate('/login', { replace: true }) }
-  }, [meQ.error, navigate])
+    if (meQ.error) { clearAuth(); window.location.href = '/login' }
+  }, [meQ.error])
   const unreadQ = trpc.mail.unread.useQuery({ playerName, token }, { refetchInterval: 30000 })
   const unreadMails = unreadQ.data?.count || 0
   // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
@@ -93,7 +93,7 @@ export default function Layout() {
   const logout = () => {
     logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
     clearAuth()
-    navigate('/login')
+    window.location.href = '/login' // 整页刷新，回到登录页后存档键随之切换
   }
 
   const isActive = (path: string) =>

@@ -483,7 +483,21 @@ export function getDerivedStats(p: { con?: number; wil?: number }) {
   }
 }
 
-const STORAGE_KEY = 'abyss-game-save'
+// 存档按账号隔离：每个账号一个 localStorage 键，互不继承
+const LEGACY_STORAGE_KEY = 'abyss-game-save'
+function resolveStorageKey(): string {
+  const user = (typeof localStorage !== 'undefined' && localStorage.getItem('ad_user')) || 'guest'
+  const key = `abyss-game-save-${user}`
+  // 一次性迁移：账号还没有独立存档、且存在旧共享存档时，旧存档归该账号所有
+  try {
+    if (!localStorage.getItem(key) && localStorage.getItem(LEGACY_STORAGE_KEY)) {
+      localStorage.setItem(key, localStorage.getItem(LEGACY_STORAGE_KEY)!)
+      localStorage.removeItem(LEGACY_STORAGE_KEY)
+    }
+  } catch { /* ignore */ }
+  return key
+}
+const STORAGE_KEY = resolveStorageKey()
 
 // ─── 初始技能：每个职业创建/切换时自动学会前两个职业技能 ───
 const STARTER_SKILLS: Record<string, string[]> = {
