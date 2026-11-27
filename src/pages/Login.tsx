@@ -30,7 +30,7 @@ export default function Login() {
   const validateRegister = () => {
     if (!username.trim() || username.length < 2 || username.length > 16) return '用户名需 2-16 位'
     if (!/^[a-zA-Z0-9_]+$/.test(username)) return '用户名只能包含字母、数字、下划线'
-    if (!password || password.length < 6 || password.length > 32) return '密码需 6-32 位'
+    if (!password || password.length < 8 || password.length > 32) return '密码需 8-32 位'
     if (password !== confirmPassword) return '两次输入的密码不一致'
     return ''
   }
@@ -126,7 +126,7 @@ export default function Login() {
 
           <div>
             <label className="mb-1 block text-xs" style={{ color: 'var(--text-secondary)' }}>密码</label>
-            <input className="game-input w-full" placeholder="6-32位密码" type="password"
+            <input className="game-input w-full" placeholder="8-32位密码" type="password"
               value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
 

@@ -9,6 +9,8 @@ import { getRedis } from "./redis-service";
 const TOKEN_TTL = 30 * 24 * 3600; // 30 天
 const LOGIN_FAIL_LIMIT = 10;
 const LOGIN_FAIL_WINDOW = 600; // 10 分钟
+const REGISTER_LIMIT = 5; // 每 IP 每小时最多注册 5 个账号
+const REGISTER_WINDOW = 3600;
 
 export const USERNAME_RE = /^[a-zA-Z0-9_]{2,16}$/;
 
@@ -30,8 +32,8 @@ export async function registerAccount(username: string, password: string): Promi
   if (!USERNAME_RE.test(username)) {
     return { ok: false, message: "用户名需 2-16 位，只能包含字母、数字、下划线" };
   }
-  if (password.length < 6 || password.length > 32) {
-    return { ok: false, message: "密码需 6-32 位" };
+  if (password.length < 8 || password.length > 32) {
+    return { ok: false, message: "密码需 8-32 位" };
   }
   const r = getRedis();
   const key = `acc:${username.toLowerCase()}`;
@@ -53,6 +55,19 @@ export async function checkLoginRateLimit(ip: string): Promise<boolean> {
     return fails <= LOGIN_FAIL_LIMIT;
   } catch {
     return true; // Redis 异常不阻塞登录
+  }
+}
+
+/** 注册限流：每 IP 每小时最多 5 个账号，防批量灌号 */
+export async function checkRegisterRateLimit(ip: string): Promise<boolean> {
+  try {
+    const r = getRedis();
+    const key = `reglimit:${ip}`;
+    const n = await r.incr(key);
+    if (n === 1) await r.expire(key, REGISTER_WINDOW);
+    return n <= REGISTER_LIMIT;
+  } catch {
+    return true;
   }
 }
 

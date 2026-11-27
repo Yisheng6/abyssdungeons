@@ -3,16 +3,20 @@ import { TRPCError } from "@trpc/server";
 import { createRouter, publicQuery } from "../middleware";
 import {
   registerAccount, loginAccount, logoutToken, verifyToken,
-  checkLoginRateLimit, clientIp, USERNAME_RE,
+  checkLoginRateLimit, checkRegisterRateLimit, clientIp, USERNAME_RE,
 } from "../services/auth-service";
 
 const usernameSchema = z.string().regex(USERNAME_RE, "用户名需 2-16 位，只能包含字母、数字、下划线");
-const passwordSchema = z.string().min(6, "密码至少 6 位").max(32, "密码最长 32 位");
+const passwordSchema = z.string().min(8, "密码至少 8 位").max(32, "密码最长 32 位");
 
 export const accountRouter = createRouter({
   register: publicQuery
     .input(z.object({ username: usernameSchema, password: passwordSchema }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const ip = clientIp(ctx.req);
+      if (!(await checkRegisterRateLimit(ip))) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "注册过于频繁，请 1 小时后再试" });
+      }
       const result = await registerAccount(input.username, input.password);
       if (!result.ok) throw new TRPCError({ code: "BAD_REQUEST", message: result.message });
       return { success: true };

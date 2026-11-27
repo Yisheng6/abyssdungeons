@@ -11234,8 +11234,8 @@ async function registerAccount(username, password) {
   if (!USERNAME_RE.test(username)) {
     return { ok: false, message: "\u7528\u6237\u540D\u9700 2-16 \u4F4D\uFF0C\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u4E0B\u5212\u7EBF" };
   }
-  if (password.length < 6 || password.length > 32) {
-    return { ok: false, message: "\u5BC6\u7801\u9700 6-32 \u4F4D" };
+  if (password.length < 8 || password.length > 32) {
+    return { ok: false, message: "\u5BC6\u7801\u9700 8-32 \u4F4D" };
   }
   const r = getRedis();
   const key = `acc:${username.toLowerCase()}`;
@@ -11253,6 +11253,17 @@ async function checkLoginRateLimit(ip) {
     const fails = await r.incr(key);
     if (fails === 1) await r.expire(key, LOGIN_FAIL_WINDOW);
     return fails <= LOGIN_FAIL_LIMIT;
+  } catch {
+    return true;
+  }
+}
+async function checkRegisterRateLimit(ip) {
+  try {
+    const r = getRedis();
+    const key = `reglimit:${ip}`;
+    const n = await r.incr(key);
+    if (n === 1) await r.expire(key, REGISTER_WINDOW);
+    return n <= REGISTER_LIMIT;
   } catch {
     return true;
   }
@@ -11306,13 +11317,15 @@ function clientIp(req) {
   if (fwd) return fwd.split(",")[0].trim();
   return req.headers.get("x-real-ip") || "unknown";
 }
-var TOKEN_TTL, LOGIN_FAIL_LIMIT, LOGIN_FAIL_WINDOW, USERNAME_RE;
+var TOKEN_TTL, LOGIN_FAIL_LIMIT, LOGIN_FAIL_WINDOW, REGISTER_LIMIT, REGISTER_WINDOW, USERNAME_RE;
 var init_auth_service = __esm({
   "api/services/auth-service.ts"() {
     init_redis_service();
     TOKEN_TTL = 30 * 24 * 3600;
     LOGIN_FAIL_LIMIT = 10;
     LOGIN_FAIL_WINDOW = 600;
+    REGISTER_LIMIT = 5;
+    REGISTER_WINDOW = 3600;
     USERNAME_RE = /^[a-zA-Z0-9_]{2,16}$/;
   }
 });
@@ -65367,9 +65380,13 @@ var leaderboardRouter = createRouter({
 // api/routers/account-router.ts
 init_auth_service();
 var usernameSchema = external_exports.string().regex(USERNAME_RE, "\u7528\u6237\u540D\u9700 2-16 \u4F4D\uFF0C\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u4E0B\u5212\u7EBF");
-var passwordSchema = external_exports.string().min(6, "\u5BC6\u7801\u81F3\u5C11 6 \u4F4D").max(32, "\u5BC6\u7801\u6700\u957F 32 \u4F4D");
+var passwordSchema = external_exports.string().min(8, "\u5BC6\u7801\u81F3\u5C11 8 \u4F4D").max(32, "\u5BC6\u7801\u6700\u957F 32 \u4F4D");
 var accountRouter = createRouter({
-  register: publicQuery.input(external_exports.object({ username: usernameSchema, password: passwordSchema })).mutation(async ({ input }) => {
+  register: publicQuery.input(external_exports.object({ username: usernameSchema, password: passwordSchema })).mutation(async ({ input, ctx }) => {
+    const ip = clientIp(ctx.req);
+    if (!await checkRegisterRateLimit(ip)) {
+      throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "\u6CE8\u518C\u8FC7\u4E8E\u9891\u7E41\uFF0C\u8BF7 1 \u5C0F\u65F6\u540E\u518D\u8BD5" });
+    }
     const result = await registerAccount(input.username, input.password);
     if (!result.ok) throw new TRPCError({ code: "BAD_REQUEST", message: result.message });
     return { success: true };
