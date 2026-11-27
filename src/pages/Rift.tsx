@@ -65,14 +65,7 @@ export default function Rift() {
     const snap = snapshotBattleStats() // 本场战斗属性快照：战斗中换装不影响本场
     gs.setPlayerStatuses([])
     gs.setCombatEnemies(d.enemies.map((e, i) => ({ ...e, uid: `${e.id}#${i}` })))
-    // 玩家增益词缀并入 mods
-    const baseMods = snap.mods
-    const riftMods = { ...baseMods }
-    for (const m of d.modifiers) {
-      for (const [k, v] of Object.entries(m.playerMods || {})) {
-        (riftMods as Record<string, number>)[k] = ((riftMods as Record<string, number>)[k] || 0) + v
-      }
-    }
+    // 玩家增益词缀由服务端按当日词缀自动合并（见 battle.start），客户端无需再传
     let victory = false
 
     try {
@@ -82,7 +75,6 @@ export default function Rift() {
         layer: 1,
         enemies: d.enemies.map((e, i) => ({ ...e, uid: `${e.id}#${i}` })),
         snap,
-        modsOverride: riftMods,
         isAborted: () => battleHijacked('rift'),
         onLog: addLog,
       })

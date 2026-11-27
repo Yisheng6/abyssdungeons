@@ -6115,7 +6115,7 @@ var require_Commander = __commonJS({
       /**
        * @ignore
        */
-      sendCommand(command, stream, node) {
+      sendCommand(command, stream, node2) {
         throw new Error('"sendCommand" is not implemented');
       }
     };
@@ -6443,9 +6443,9 @@ var require_Pipeline = __commonJS({
       return this.promise;
       function execPipeline() {
         let writePending = _this.replyPending = _this._queue.length;
-        let node;
+        let node2;
         if (_this.isCluster) {
-          node = {
+          node2 = {
             slot: pipelineSlot,
             redis: _this.redis.connectionPool.nodes.all[_this.preferKey]
           };
@@ -6454,7 +6454,7 @@ var require_Pipeline = __commonJS({
         let buffers;
         const stream = {
           isPipeline: true,
-          destination: _this.isCluster ? node : { redis: _this.redis },
+          destination: _this.isCluster ? node2 : { redis: _this.redis },
           write(writable) {
             if (typeof writable !== "string") {
               if (!buffers) {
@@ -6493,7 +6493,7 @@ var require_Pipeline = __commonJS({
           }
         };
         for (let i = 0; i < _this._queue.length; ++i) {
-          _this.redis.sendCommand(_this._queue[i], stream, node);
+          _this.redis.sendCommand(_this._queue[i], stream, node2);
         }
         return _this.promise;
       }
@@ -6729,10 +6729,10 @@ var require_util = __commonJS({
     exports.getConnectionName = exports.weightSrvRecords = exports.groupSrvRecords = exports.getUniqueHostnamesFromOptions = exports.normalizeNodeOptions = exports.nodeKeyToRedisOptions = exports.getNodeKey = void 0;
     var utils_1 = require_utils2();
     var net_1 = __require("net");
-    function getNodeKey(node) {
-      node.port = node.port || 6379;
-      node.host = node.host || "127.0.0.1";
-      return node.host + ":" + node.port;
+    function getNodeKey(node2) {
+      node2.port = node2.port || 6379;
+      node2.host = node2.host || "127.0.0.1";
+      return node2.host + ":" + node2.port;
     }
     exports.getNodeKey = getNodeKey;
     function nodeKeyToRedisOptions(nodeKey) {
@@ -6747,16 +6747,16 @@ var require_util = __commonJS({
     }
     exports.nodeKeyToRedisOptions = nodeKeyToRedisOptions;
     function normalizeNodeOptions(nodes) {
-      return nodes.map((node) => {
+      return nodes.map((node2) => {
         const options = {};
-        if (typeof node === "object") {
-          Object.assign(options, node);
-        } else if (typeof node === "string") {
-          Object.assign(options, (0, utils_1.parseURL)(node));
-        } else if (typeof node === "number") {
-          options.port = node;
+        if (typeof node2 === "object") {
+          Object.assign(options, node2);
+        } else if (typeof node2 === "string") {
+          Object.assign(options, (0, utils_1.parseURL)(node2));
+        } else if (typeof node2 === "number") {
+          options.port = node2;
         } else {
-          throw new Error("Invalid argument " + node);
+          throw new Error("Invalid argument " + node2);
         }
         if (typeof options.port === "string") {
           options.port = parseInt(options.port, 10);
@@ -6774,8 +6774,8 @@ var require_util = __commonJS({
     exports.normalizeNodeOptions = normalizeNodeOptions;
     function getUniqueHostnamesFromOptions(nodes) {
       const uniqueHostsMap = {};
-      nodes.forEach((node) => {
-        uniqueHostsMap[node.host] = true;
+      nodes.forEach((node2) => {
+        uniqueHostsMap[node2.host] = true;
       });
       return Object.keys(uniqueHostsMap).filter((host) => !(0, net_1.isIP)(host));
     }
@@ -7045,10 +7045,10 @@ var require_ConnectionPool = __commonJS({
        * Add a master node to the pool
        * @param node
        */
-      addMasterNode(node) {
-        const key2 = (0, util_1.getNodeKey)(node.options);
-        const redis2 = this.createRedisFromOptions(node, node.options.readOnly);
-        if (!node.options.readOnly) {
+      addMasterNode(node2) {
+        const key2 = (0, util_1.getNodeKey)(node2.options);
+        const redis2 = this.createRedisFromOptions(node2, node2.options.readOnly);
+        if (!node2.options.readOnly) {
           this.nodes.all[key2] = redis2;
           this.nodes.master[key2] = redis2;
           return true;
@@ -7060,7 +7060,7 @@ var require_ConnectionPool = __commonJS({
        * @param node
        * @param readOnly
        */
-      createRedisFromOptions(node, readOnly) {
+      createRedisFromOptions(node2, readOnly) {
         const redis2 = new Redis_1.default((0, utils_1.defaults)({
           // By default, never try to reconnect when a node is lost,
           // instead, waiting for a `MOVED` error and fetching slots again.
@@ -7073,19 +7073,19 @@ var require_ConnectionPool = __commonJS({
           // before sending commands to the node.
           enableOfflineQueue: true,
           readOnly
-        }, node, this.redisOptions, { lazyConnect: true }));
+        }, node2, this.redisOptions, { lazyConnect: true }));
         return redis2;
       }
       /**
        * Find or create a connection to the node
        */
-      findOrCreate(node, readOnly = false) {
-        const key2 = (0, util_1.getNodeKey)(node);
+      findOrCreate(node2, readOnly = false) {
+        const key2 = (0, util_1.getNodeKey)(node2);
         readOnly = Boolean(readOnly);
         if (this.specifiedOptions[key2]) {
-          Object.assign(node, this.specifiedOptions[key2]);
+          Object.assign(node2, this.specifiedOptions[key2]);
         } else {
-          this.specifiedOptions[key2] = node;
+          this.specifiedOptions[key2] = node2;
         }
         let redis2;
         if (this.nodes.all[key2]) {
@@ -7104,7 +7104,7 @@ var require_ConnectionPool = __commonJS({
           }
         } else {
           debug("Connecting to %s as %s", key2, readOnly ? "slave" : "master");
-          redis2 = this.createRedisFromOptions(node, readOnly);
+          redis2 = this.createRedisFromOptions(node2, readOnly);
           this.nodes.all[key2] = redis2;
           this.nodes[readOnly ? "slave" : "master"][key2] = redis2;
           redis2.once("end", () => {
@@ -7128,10 +7128,10 @@ var require_ConnectionPool = __commonJS({
       reset(nodes) {
         debug("Reset with %O", nodes);
         const newNodes = {};
-        nodes.forEach((node) => {
-          const key2 = (0, util_1.getNodeKey)(node);
-          if (!(node.readOnly && newNodes[key2])) {
-            newNodes[key2] = node;
+        nodes.forEach((node2) => {
+          const key2 = (0, util_1.getNodeKey)(node2);
+          if (!(node2.readOnly && newNodes[key2])) {
+            newNodes[key2] = node2;
           }
         });
         Object.keys(this.nodes.all).forEach((key2) => {
@@ -7142,8 +7142,8 @@ var require_ConnectionPool = __commonJS({
           }
         });
         Object.keys(newNodes).forEach((key2) => {
-          const node = newNodes[key2];
-          this.findOrCreate(node, node.readOnly);
+          const node2 = newNodes[key2];
+          this.findOrCreate(node2, node2.readOnly);
         });
       }
       /**
@@ -7856,8 +7856,8 @@ var require_ClusterSubscriberGroup = __commonJS({
               this.subscriberGroupEmitter.emit("-subscriber");
             }
             debug("Creating new subscriber for %s", nodeKey);
-            const redis2 = clusterNodes.find((node) => {
-              return (0, util_1.getNodeKey)(node.options) === nodeKey;
+            const redis2 = clusterNodes.find((node2) => {
+              return (0, util_1.getNodeKey)(node2.options) === nodeKey;
             });
             if (!redis2) {
               debug("Failed to find node for key %s", nodeKey);
@@ -7901,11 +7901,11 @@ var require_ClusterSubscriberGroup = __commonJS({
         debug("Refreshing the slots of the subscriber group.");
         this.subscriberToSlotsIndex = /* @__PURE__ */ new Map();
         for (let slot = 0; slot < targetSlots.length; slot++) {
-          const node = targetSlots[slot][0];
-          if (!this.subscriberToSlotsIndex.has(node)) {
-            this.subscriberToSlotsIndex.set(node, []);
+          const node2 = targetSlots[slot][0];
+          if (!this.subscriberToSlotsIndex.has(node2)) {
+            this.subscriberToSlotsIndex.set(node2, []);
           }
-          this.subscriberToSlotsIndex.get(node).push(Number(slot));
+          this.subscriberToSlotsIndex.get(node2).push(Number(slot));
         }
         this.clusterSlots = JSON.parse(JSON.stringify(targetSlots));
         return true;
@@ -8216,7 +8216,7 @@ var require_cluster = __commonJS({
           }.bind(this));
           return ret;
         }
-        return (0, standard_as_callback_1.default)(Promise.all(this.nodes().map((node) => node.quit().catch((err) => {
+        return (0, standard_as_callback_1.default)(Promise.all(this.nodes().map((node2) => node2.quit().catch((err) => {
           if (err.message === utils_1.CONNECTION_CLOSED_ERROR_MSG) {
             return "OK";
           }
@@ -8294,10 +8294,10 @@ var require_cluster = __commonJS({
             const error = new ClusterAllFailedError_1.default(ClusterAllFailedError_1.default.defaultMessage, lastNodeError);
             return wrapper(error);
           }
-          const node = nodes[index2];
-          const key2 = `${node.options.host}:${node.options.port}`;
+          const node2 = nodes[index2];
+          const key2 = `${node2.options.host}:${node2.options.port}`;
           debug("getting slot cache from %s", key2);
-          _this.getInfoFromNode(node, function(err) {
+          _this.getInfoFromNode(node2, function(err) {
             switch (_this.status) {
               case "close":
               case "end":
@@ -8320,7 +8320,7 @@ var require_cluster = __commonJS({
       /**
        * @ignore
        */
-      sendCommand(command, stream, node) {
+      sendCommand(command, stream, node2) {
         if (this.status === "wait") {
           this.connect().catch(utils_1.noop);
         }
@@ -8335,10 +8335,10 @@ var require_cluster = __commonJS({
             to = "master";
           }
         }
-        let targetSlot = node ? node.slot : command.getSlot();
+        let targetSlot = node2 ? node2.slot : command.getSlot();
         const ttl = {};
         const _this = this;
-        if (!node && !REJECT_OVERWRITTEN_COMMANDS.has(command)) {
+        if (!node2 && !REJECT_OVERWRITTEN_COMMANDS.has(command)) {
           REJECT_OVERWRITTEN_COMMANDS.add(command);
           const reject = command.reject;
           command.reject = function(err) {
@@ -8384,8 +8384,8 @@ var require_cluster = __commonJS({
           }
           let redis2;
           if (_this.status === "ready" || command.name === "cluster") {
-            if (node && node.redis) {
-              redis2 = node.redis;
+            if (node2 && node2.redis) {
+              redis2 = node2.redis;
             } else if (Command_1.default.checkFlag("ENTER_SUBSCRIBER_MODE", command.name) || Command_1.default.checkFlag("EXIT_SUBSCRIBER_MODE", command.name)) {
               if (_this.options.shardedSubscribers && (command.name == "ssubscribe" || command.name == "sunsubscribe")) {
                 const sub = _this.shardedSubscribers.getResponsibleSubscriber(targetSlot);
@@ -8452,15 +8452,15 @@ var require_cluster = __commonJS({
                 return;
               }
             }
-            if (node && !node.redis) {
-              node.redis = redis2;
+            if (node2 && !node2.redis) {
+              node2.redis = redis2;
             }
           }
           if (!redis2 && _this.options.enableOfflineQueue) {
             _this.offlineQueue.push({
               command,
               stream,
-              node
+              node: node2
             });
             return;
           }
@@ -8660,13 +8660,13 @@ var require_cluster = __commonJS({
               if (!items[j2][0]) {
                 continue;
               }
-              const node = this.natMapper({
+              const node2 = this.natMapper({
                 host: items[j2][0],
                 port: items[j2][1]
               });
-              node.readOnly = j2 !== 2;
-              nodes.push(node);
-              keys.push(node.host + ":" + node.port);
+              node2.readOnly = j2 !== 2;
+              nodes.push(node2);
+              keys.push(node2.host + ":" + node2.port);
             }
             debug("cluster slots result [%d]: slots %d~%d served by %s", i, slotRangeStart, slotRangeEnd, keys);
             for (let slot = slotRangeStart; slot <= slotRangeEnd; slot++) {
@@ -8783,15 +8783,15 @@ var require_cluster = __commonJS({
         }
         const configs = await Promise.all(hostnames.map((this.options.useSRVRecords ? this.resolveSrv : this.dnsLookup).bind(this)));
         const hostnameToConfig = (0, utils_1.zipMap)(hostnames, configs);
-        return startupNodes.map((node) => {
-          const config = hostnameToConfig.get(node.host);
+        return startupNodes.map((node2) => {
+          const config = hostnameToConfig.get(node2.host);
           if (!config) {
-            return node;
+            return node2;
           }
           if (this.options.useSRVRecords) {
-            return Object.assign({}, node, config);
+            return Object.assign({}, node2, config);
           }
-          return Object.assign({}, node, { host: config });
+          return Object.assign({}, node2, { host: config });
         });
       }
       createScanStream(command, { key: key2, options = {} }) {
@@ -19833,19 +19833,19 @@ var require_dbcs_codec = __commonJS({
       if (bytes.length == 0) {
         bytes.push(0);
       }
-      var node = this.decodeTables[0];
+      var node2 = this.decodeTables[0];
       for (var i2 = bytes.length - 1; i2 > 0; i2--) {
-        var val = node[bytes[i2]];
+        var val = node2[bytes[i2]];
         if (val == UNASSIGNED) {
-          node[bytes[i2]] = NODE_START - this.decodeTables.length;
-          this.decodeTables.push(node = UNASSIGNED_NODE.slice(0));
+          node2[bytes[i2]] = NODE_START - this.decodeTables.length;
+          this.decodeTables.push(node2 = UNASSIGNED_NODE.slice(0));
         } else if (val <= NODE_START) {
-          node = this.decodeTables[NODE_START - val];
+          node2 = this.decodeTables[NODE_START - val];
         } else {
           throw new Error("Overwrite byte in " + this.encodingName + ", addr: " + addr.toString(16));
         }
       }
-      return node;
+      return node2;
     };
     DBCSCodec.prototype._addDecodeChunk = function(chunk) {
       var curAddr = parseInt(chunk[0], 16);
@@ -19908,35 +19908,35 @@ var require_dbcs_codec = __commonJS({
       var uCode = seq[0];
       var bucket = this._getEncodeBucket(uCode);
       var low = uCode & 255;
-      var node;
+      var node2;
       if (bucket[low] <= SEQ_START) {
-        node = this.encodeTableSeq[SEQ_START - bucket[low]];
+        node2 = this.encodeTableSeq[SEQ_START - bucket[low]];
       } else {
-        node = {};
-        if (bucket[low] !== UNASSIGNED) node[DEF_CHAR] = bucket[low];
+        node2 = {};
+        if (bucket[low] !== UNASSIGNED) node2[DEF_CHAR] = bucket[low];
         bucket[low] = SEQ_START - this.encodeTableSeq.length;
-        this.encodeTableSeq.push(node);
+        this.encodeTableSeq.push(node2);
       }
       for (var j = 1; j < seq.length - 1; j++) {
-        var oldVal = node[uCode];
+        var oldVal = node2[uCode];
         if (typeof oldVal === "object") {
-          node = oldVal;
+          node2 = oldVal;
         } else {
-          node = node[uCode] = {};
+          node2 = node2[uCode] = {};
           if (oldVal !== void 0) {
-            node[DEF_CHAR] = oldVal;
+            node2[DEF_CHAR] = oldVal;
           }
         }
       }
       uCode = seq[seq.length - 1];
-      node[uCode] = dbcsCode;
+      node2[uCode] = dbcsCode;
     };
     DBCSCodec.prototype._fillEncodeTable = function(nodeIdx, prefix, skipEncodeChars) {
-      var node = this.decodeTables[nodeIdx];
+      var node2 = this.decodeTables[nodeIdx];
       var hasValues = false;
       var subNodeEmpty = {};
       for (var i2 = 0; i2 < 256; i2++) {
-        var uCode = node[i2];
+        var uCode = node2[i2];
         var mbCode = prefix + i2;
         if (skipEncodeChars[mbCode]) {
           continue;
@@ -30241,9 +30241,9 @@ var require_pool_cluster = __commonJS({
       remove(pattern) {
         const foundNodeIds = this._findNodeIds(pattern, true);
         for (let i = 0; i < foundNodeIds.length; i++) {
-          const node = this._getNode(foundNodeIds[i]);
-          if (node) {
-            this._removeNode(node);
+          const node2 = this._getNode(foundNodeIds[i]);
+          if (node2) {
+            this._removeNode(node2);
           }
         }
       }
@@ -30307,64 +30307,64 @@ var require_pool_cluster = __commonJS({
           return foundNodeIds;
         }
         return foundNodeIds.filter((nodeId) => {
-          const node = this._getNode(nodeId);
-          if (!node._offlineUntil) {
+          const node2 = this._getNode(nodeId);
+          if (!node2._offlineUntil) {
             return true;
           }
           if (!currentTime) {
             currentTime = getMonotonicMilliseconds();
           }
-          return node._offlineUntil <= currentTime;
+          return node2._offlineUntil <= currentTime;
         });
       }
       _getNode(id) {
         return this._nodes[id] || null;
       }
-      _increaseErrorCount(node) {
-        const errorCount = ++node.errorCount;
+      _increaseErrorCount(node2) {
+        const errorCount = ++node2.errorCount;
         if (this._removeNodeErrorCount > errorCount) {
           return;
         }
         if (this._restoreNodeTimeout > 0) {
-          node._offlineUntil = getMonotonicMilliseconds() + this._restoreNodeTimeout;
-          this.emit("offline", node.id);
+          node2._offlineUntil = getMonotonicMilliseconds() + this._restoreNodeTimeout;
+          this.emit("offline", node2.id);
           return;
         }
-        this._removeNode(node);
-        this.emit("remove", node.id);
+        this._removeNode(node2);
+        this.emit("remove", node2.id);
       }
-      _decreaseErrorCount(node) {
-        let errorCount = node.errorCount;
+      _decreaseErrorCount(node2) {
+        let errorCount = node2.errorCount;
         if (errorCount > this._removeNodeErrorCount) {
           errorCount = this._removeNodeErrorCount;
         }
         if (errorCount < 1) {
           errorCount = 1;
         }
-        node.errorCount = errorCount - 1;
-        if (node._offlineUntil) {
-          node._offlineUntil = 0;
-          this.emit("online", node.id);
+        node2.errorCount = errorCount - 1;
+        if (node2._offlineUntil) {
+          node2._offlineUntil = 0;
+          this.emit("online", node2.id);
         }
       }
-      _getConnection(node, cb) {
-        node.pool.getConnection((err, connection) => {
+      _getConnection(node2, cb) {
+        node2.pool.getConnection((err, connection) => {
           if (err) {
-            this._increaseErrorCount(node);
+            this._increaseErrorCount(node2);
             return cb(err);
           }
-          this._decreaseErrorCount(node);
-          connection._clusterId = node.id;
+          this._decreaseErrorCount(node2);
+          connection._clusterId = node2.id;
           return cb(null, connection);
         });
       }
-      _removeNode(node) {
-        const index2 = this._serviceableNodeIds.indexOf(node.id);
+      _removeNode(node2) {
+        const index2 = this._serviceableNodeIds.indexOf(node2.id);
         if (index2 !== -1) {
           this._serviceableNodeIds.splice(index2, 1);
-          delete this._nodes[node.id];
+          delete this._nodes[node2.id];
           this._clearFindCaches();
-          node.pool.end();
+          node2.pool.end();
         }
       }
       _clearFindCaches() {
@@ -55215,7 +55215,7 @@ var Node = class _Node {
     }
     const [token, ...restTokens] = tokens;
     const pattern = token === "*" ? restTokens.length === 0 ? ["", "", ONLY_WILDCARD_REG_EXP_STR] : ["", "", LABEL_REG_EXP_STR] : token === "/*" ? ["", "", TAIL_WILDCARD_REG_EXP_STR] : token.match(/^\:([^\{\}]+)(?:\{(.+)\})?$/);
-    let node;
+    let node2;
     if (pattern) {
       const name = pattern[1];
       let regexpStr = pattern[2] || LABEL_REG_EXP_STR;
@@ -55228,8 +55228,8 @@ var Node = class _Node {
           throw PATH_ERROR;
         }
       }
-      node = this.#children[regexpStr];
-      if (!node) {
+      node2 = this.#children[regexpStr];
+      if (!node2) {
         if (Object.keys(this.#children).some(
           (k) => k !== ONLY_WILDCARD_REG_EXP_STR && k !== TAIL_WILDCARD_REG_EXP_STR
         )) {
@@ -55238,17 +55238,17 @@ var Node = class _Node {
         if (pathErrorCheckOnly) {
           return;
         }
-        node = this.#children[regexpStr] = new _Node();
+        node2 = this.#children[regexpStr] = new _Node();
         if (name !== "") {
-          node.#varIndex = context.varIndex++;
+          node2.#varIndex = context.varIndex++;
         }
       }
       if (!pathErrorCheckOnly && name !== "") {
-        paramMap.push([name, node.#varIndex]);
+        paramMap.push([name, node2.#varIndex]);
       }
     } else {
-      node = this.#children[token];
-      if (!node) {
+      node2 = this.#children[token];
+      if (!node2) {
         if (Object.keys(this.#children).some(
           (k) => k.length > 1 && k !== ONLY_WILDCARD_REG_EXP_STR && k !== TAIL_WILDCARD_REG_EXP_STR
         )) {
@@ -55257,10 +55257,10 @@ var Node = class _Node {
         if (pathErrorCheckOnly) {
           return;
         }
-        node = this.#children[token] = new _Node();
+        node2 = this.#children[token] = new _Node();
       }
     }
-    node.insert(restTokens, index2, paramMap, context, pathErrorCheckOnly);
+    node2.insert(restTokens, index2, paramMap, context, pathErrorCheckOnly);
   }
   buildRegExpStr() {
     const childKeys = Object.keys(this.#children).sort(compareKey);
@@ -55628,9 +55628,9 @@ var Node2 = class _Node2 {
     });
     return curNode;
   }
-  #pushHandlerSets(handlerSets, node, method, nodeParams, params) {
-    for (let i = 0, len = node.#methods.length; i < len; i++) {
-      const m = node.#methods[i];
+  #pushHandlerSets(handlerSets, node2, method, nodeParams, params) {
+    for (let i = 0, len = node2.#methods.length; i < len; i++) {
+      const m = node2.#methods[i];
       const handlerSet = m[method] || m[METHOD_NAME_ALL];
       const processedSet = {};
       if (handlerSet !== void 0) {
@@ -55661,26 +55661,26 @@ var Node2 = class _Node2 {
       const isLast = i === len - 1;
       const tempNodes = [];
       for (let j = 0, len2 = curNodes.length; j < len2; j++) {
-        const node = curNodes[j];
-        const nextNode = node.#children[part];
+        const node2 = curNodes[j];
+        const nextNode = node2.#children[part];
         if (nextNode) {
-          nextNode.#params = node.#params;
+          nextNode.#params = node2.#params;
           if (isLast) {
             if (nextNode.#children["*"]) {
-              this.#pushHandlerSets(handlerSets, nextNode.#children["*"], method, node.#params);
+              this.#pushHandlerSets(handlerSets, nextNode.#children["*"], method, node2.#params);
             }
-            this.#pushHandlerSets(handlerSets, nextNode, method, node.#params);
+            this.#pushHandlerSets(handlerSets, nextNode, method, node2.#params);
           } else {
             tempNodes.push(nextNode);
           }
         }
-        for (let k = 0, len3 = node.#patterns.length; k < len3; k++) {
-          const pattern = node.#patterns[k];
-          const params = node.#params === emptyParams ? {} : { ...node.#params };
+        for (let k = 0, len3 = node2.#patterns.length; k < len3; k++) {
+          const pattern = node2.#patterns[k];
+          const params = node2.#params === emptyParams ? {} : { ...node2.#params };
           if (pattern === "*") {
-            const astNode = node.#children["*"];
+            const astNode = node2.#children["*"];
             if (astNode) {
-              this.#pushHandlerSets(handlerSets, astNode, method, node.#params);
+              this.#pushHandlerSets(handlerSets, astNode, method, node2.#params);
               astNode.#params = params;
               tempNodes.push(astNode);
             }
@@ -55690,7 +55690,7 @@ var Node2 = class _Node2 {
           if (!part && !(matcher instanceof RegExp)) {
             continue;
           }
-          const child = node.#children[key2];
+          const child = node2.#children[key2];
           if (matcher instanceof RegExp) {
             if (partOffsets === null) {
               partOffsets = new Array(len);
@@ -55704,7 +55704,7 @@ var Node2 = class _Node2 {
             const m = matcher.exec(restPathString);
             if (m) {
               params[name] = m[0];
-              this.#pushHandlerSets(handlerSets, child, method, node.#params, params);
+              this.#pushHandlerSets(handlerSets, child, method, node2.#params, params);
               if (hasChildren(child.#children)) {
                 child.#params = params;
                 const componentCount = m[0].match(/\//)?.length ?? 0;
@@ -55717,14 +55717,14 @@ var Node2 = class _Node2 {
           if (matcher === true || matcher.test(part)) {
             params[name] = part;
             if (isLast) {
-              this.#pushHandlerSets(handlerSets, child, method, params, node.#params);
+              this.#pushHandlerSets(handlerSets, child, method, params, node2.#params);
               if (child.#children["*"]) {
                 this.#pushHandlerSets(
                   handlerSets,
                   child.#children["*"],
                   method,
                   params,
-                  node.#params
+                  node2.#params
                 );
               }
             } else {
@@ -63461,6 +63461,9 @@ function getEquipmentSets() {
   const data = getConfigSync("items");
   return data.equipmentSets || [];
 }
+function getEquipmentSetById(id) {
+  return getEquipmentSets().find((s) => s.id === id);
+}
 function getRoomLootTables() {
   const data = getConfigSync("dungeons");
   return data.roomLootTables || {};
@@ -65074,6 +65077,14 @@ var gameRouter = createRouter({
   getTierRules: publicQuery.query(() => {
     return getTierRules();
   }),
+  /** 装备穿戴要求惩罚规则（配表：global.json equipment） */
+  getEquipRules: publicQuery.query(() => {
+    const g = getGlobalConfig();
+    return {
+      penaltyPerLevelPct: g.equipment?.penaltyPerLevelPct ?? 3,
+      penaltyMinPct: g.equipment?.penaltyMinPct ?? 30
+    };
+  }),
   getClassDetail: publicQuery.input(external_exports.object({ classId: external_exports.string() })).query(({ input }) => {
     const cls = getClassById(input.classId);
     if (!cls) return null;
@@ -65545,8 +65556,9 @@ async function tickBattle(username, battleId, action) {
   let expGain = 0;
   if (ended && victory) {
     const lv = s.layer;
+    const cap = 500 + lv * 10;
     expGain = Math.floor(s.enemies.reduce((sum, e) => {
-      const base = 10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5);
+      const base = Math.min(10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5), cap);
       return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base);
     }, 0));
     await getRedis().del(key(username));
@@ -65573,6 +65585,359 @@ async function abandonBattle(username) {
     await getRedis().del(key(username));
   } catch {
   }
+}
+
+// api/services/character-service.ts
+init_redis_service();
+
+// src/lib/talents.ts
+var node = (id, tier, name, desc2, effect, maxRank = 5) => ({ id, tier, name, desc: desc2, effect, maxRank });
+var TALENT_TREES = {
+  warrior: [
+    { id: "berserk", name: "\u72C2\u6218", theme: "#F85149", nodes: [
+      node("w_b1", 1, "\u55DC\u8840", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+      node("w_b2", 2, "\u5F31\u70B9\u6D1E\u6089", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+      node("w_b3", 3, "\u6495\u88C2\u91CD\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+      node("w_b4", 4, "\u8840\u6012", "\u5438\u8840 +1%", { lifesteal: 1 }),
+      node("w_b5", 5, "\u72C2\u66B4", "\u653B\u51FB\u529B +3%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 3, critRate: 1 }),
+      node("w_b6", 6, "\u6218\u795E\u964D\u4E34", "\u653B\u51FB\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { atkPct: 5, critDmg: 5 })
+    ] },
+    { id: "guard", name: "\u94C1\u58C1", theme: "#58A6FF", nodes: [
+      node("w_g1", 1, "\u575A\u97E7", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+      node("w_g2", 2, "\u77F3\u80A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+      node("w_g3", 3, "\u53CD\u7532", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+      node("w_g4", 4, "\u4E0D\u5C48", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+      node("w_g5", 5, "\u9B54\u6CD5\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +2%", { magRes: 2, mdefPct: 2 }),
+      node("w_g6", 6, "\u4E0D\u52A8\u5982\u5C71", "\u9632\u5FA1\u529B +5%\uFF0C\u7269\u7406\u51CF\u4F24 +2%", { defPct: 5, physRes: 2 })
+    ] },
+    { id: "warcry", name: "\u6218\u610F", theme: "#C9A84C", nodes: [
+      node("w_c1", 1, "\u5386\u7EC3", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+      node("w_c2", 2, "\u63A0\u593A", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("w_c3", 3, "\u6218\u543C", "\u653B\u51FB\u529B +2%\uFF0C\u9632\u5FA1\u529B +2%", { atkPct: 2, defPct: 2 }),
+      node("w_c4", 4, "\u51EF\u65CB", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+      node("w_c5", 5, "\u58EB\u6C14\u5982\u8679", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
+      node("w_c6", 6, "\u767E\u6218\u4F59\u751F", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 3, killMp: 2 })
+    ] }
+  ],
+  mage: [
+    { id: "element", name: "\u5143\u7D20", theme: "#F85149", nodes: [
+      node("m_e1", 1, "\u5143\u7D20\u4EB2\u548C", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+      node("m_e2", 2, "\u5143\u7D20\u589E\u5E45", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+      node("m_e3", 3, "\u5965\u672F\u66B4\u51FB", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+      node("m_e4", 4, "\u6BC1\u706D\u548F\u5531", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+      node("m_e5", 5, "\u5143\u7D20\u638C\u63A7", "\u5143\u7D20\u4F24\u5BB3 +3%\uFF0C\u9B54\u6CD5\u529B +2%", { elemDmg: 3, magPct: 2 }),
+      node("m_e6", 6, "\u5927\u9B54\u5BFC\u5E08", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
+    ] },
+    { id: "arcane", name: "\u79D8\u6CD5", theme: "#BC8CFF", nodes: [
+      node("m_a1", 1, "\u9B54\u6CD5\u5C4F\u969C", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+      node("m_a2", 2, "\u7CBE\u795E\u62A4\u58C1", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+      node("m_a3", 3, "\u6CD5\u529B\u56DE\u6D41", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+      node("m_a4", 4, "\u5965\u672F\u5F3A\u5316", "\u9B54\u6CD5\u529B +3%", { magPct: 3 }),
+      node("m_a5", 5, "\u6CD5\u529B\u62A4\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { magRes: 2, physRes: 1 }),
+      node("m_a6", 6, "\u79D8\u6CD5\u4E4B\u5FC3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +3\uFF0C\u9B54\u6CD5\u529B +3%", { killMp: 3, magPct: 3 })
+    ] },
+    { id: "wisdom", name: "\u542F\u8FEA", theme: "#C9A84C", nodes: [
+      node("m_w1", 1, "\u6C42\u77E5", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+      node("m_w2", 2, "\u70BC\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("m_w3", 3, "\u51A5\u60F3", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +1", { killMp: 1, killHeal: 1 }),
+      node("m_w4", 4, "\u667A\u8005", "\u9B54\u6CD5\u529B +2%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +3%", { magPct: 2, expGain: 3 }),
+      node("m_w5", 5, "\u535A\u5B66\u8005", "\u7ECF\u9A8C\u83B7\u53D6 +4%", { expGain: 4 }),
+      node("m_w6", 6, "\u8D24\u8005", "\u9B54\u6CD5\u529B +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +5%", { magPct: 3, goldGain: 5 })
+    ] }
+  ],
+  assassin: [
+    { id: "lethal", name: "\u81F4\u547D", theme: "#F85149", nodes: [
+      node("a_l1", 1, "\u6DEC\u6BD2\u5229\u5203", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+      node("a_l2", 2, "\u80CC\u523A", "\u66B4\u51FB\u7387 +3%", { critRate: 3 }),
+      node("a_l3", 3, "\u5904\u51B3", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
+      node("a_l4", 4, "\u996E\u8840", "\u5438\u8840 +1%", { lifesteal: 1 }),
+      node("a_l5", 5, "\u51B7\u8840", "\u66B4\u51FB\u7387 +2%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +4%", { critRate: 2, critDmg: 4 }),
+      node("a_l6", 6, "\u6B7B\u795E\u4E4B\u821E", "\u653B\u51FB\u529B +5%\uFF0C\u5438\u8840 +2%", { atkPct: 5, lifesteal: 2 })
+    ] },
+    { id: "phantom", name: "\u5E7B\u5F71", theme: "#58A6FF", nodes: [
+      node("a_p1", 1, "\u7075\u5DE7\u8EAB\u6CD5", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
+      node("a_p2", 2, "\u70DF\u96FE\u5E87\u62A4", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+      node("a_p3", 3, "\u9B54\u6CD5\u6597\u7BF7", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+      node("a_p4", 4, "\u6697\u5F71\u53CD\u5236", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+      node("a_p5", 5, "\u865A\u5E7B\u6B65\u4F10", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+      node("a_p6", 6, "\u5E7D\u5F71\u5316\u8EAB", "\u9632\u5FA1\u529B +5%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 5, reflect: 3 })
+    ] },
+    { id: "hunter", name: "\u730E\u624B", theme: "#C9A84C", nodes: [
+      node("a_h1", 1, "\u8D4F\u91D1", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("a_h2", 2, "\u8FFD\u8E2A", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+      node("a_h3", 3, "\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+      node("a_h4", 4, "\u730E\u6740\u672C\u80FD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +1%", { atkPct: 2, critRate: 1 }),
+      node("a_h5", 5, "\u65E0\u60C5\u8FFD\u730E", "\u7ECF\u9A8C\u83B7\u53D6 +3%\uFF0C\u91D1\u5E01\u83B7\u53D6 +3%", { expGain: 3, goldGain: 3 }),
+      node("a_h6", 6, "\u4F20\u5947\u730E\u624B", "\u653B\u51FB\u529B +3%\uFF0C\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { atkPct: 3, killHeal: 2 })
+    ] }
+  ],
+  ranger: [
+    { id: "marksman", name: "\u795E\u5C04", theme: "#F85149", nodes: [
+      node("r_m1", 1, "\u5F3A\u5F13", "\u653B\u51FB\u529B +2%", { atkPct: 2 }),
+      node("r_m2", 2, "\u9E70\u773C", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+      node("r_m3", 3, "\u5143\u7D20\u7BAD\u77E2", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+      node("r_m4", 4, "\u7A7F\u7532\u4E00\u51FB", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+      node("r_m5", 5, "\u8FDE\u73E0\u7BAD", "\u653B\u51FB\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { atkPct: 2, critRate: 2 }),
+      node("r_m6", 6, "\u4E00\u7BAD\u7A7F\u5FC3", "\u653B\u51FB\u529B +4%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +6%", { atkPct: 4, critDmg: 6 })
+    ] },
+    { id: "survival", name: "\u751F\u5B58", theme: "#3FB950", nodes: [
+      node("r_s1", 1, "\u76AE\u7532\u7CBE\u901A", "\u9632\u5FA1\u529B +2%", { defPct: 2 }),
+      node("r_s2", 2, "\u91CE\u5916\u6C42\u751F", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+      node("r_s3", 3, "\u81EA\u7136\u6297\u6027", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+      node("r_s4", 4, "\u751F\u547D\u6C72\u53D6", "\u5438\u8840 +1%", { lifesteal: 1 }),
+      node("r_s5", 5, "\u91CE\u6027\u5F3A\u97E7", "\u9632\u5FA1\u529B +3%\uFF0C\u7269\u7406\u51CF\u4F24 +1%", { defPct: 3, physRes: 1 }),
+      node("r_s6", 6, "\u4E1B\u6797\u4E4B\u738B", "\u9632\u5FA1\u529B +4%\uFF0C\u5438\u8840 +1%", { defPct: 4, lifesteal: 1 })
+    ] },
+    { id: "tracker", name: "\u8FFD\u8E2A", theme: "#C9A84C", nodes: [
+      node("r_t1", 1, "\u5BFB\u8DEF", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+      node("r_t2", 2, "\u5BFB\u5B9D", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("r_t3", 3, "\u8865\u7ED9", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+      node("r_t4", 4, "\u8FDC\u884C\u8005", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { killMp: 2, expGain: 2 }),
+      node("r_t5", 5, "\u730E\u573A\u4E3B\u5BB0", "\u91D1\u5E01\u83B7\u53D6 +4%\uFF0C\u7ECF\u9A8C\u83B7\u53D6 +2%", { goldGain: 4, expGain: 2 }),
+      node("r_t6", 6, "\u6DF1\u6E0A\u5411\u5BFC", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killHeal: 2, killMp: 2 })
+    ] }
+  ],
+  priest: [
+    { id: "holy", name: "\u795E\u5723", theme: "#F85149", nodes: [
+      node("p_h1", 1, "\u5723\u5149\u672F", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+      node("p_h2", 2, "\u795E\u7F5A", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+      node("p_h3", 3, "\u5929\u542F", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+      node("p_h4", 4, "\u5BA1\u5224", "\u66B4\u51FB\u4F24\u5BB3 +6%", { critDmg: 6 }),
+      node("p_h5", 5, "\u5723\u5149\u6D8C\u52A8", "\u9B54\u6CD5\u529B +2%\uFF0C\u5143\u7D20\u4F24\u5BB3 +2%", { magPct: 2, elemDmg: 2 }),
+      node("p_h6", 6, "\u795E\u5723\u5316\u8EAB", "\u9B54\u6CD5\u529B +5%\uFF0C\u66B4\u51FB\u4F24\u5BB3 +5%", { magPct: 5, critDmg: 5 })
+    ] },
+    { id: "blessing", name: "\u5E87\u4F51", theme: "#58A6FF", nodes: [
+      node("p_b1", 1, "\u5B88\u62A4\u795D\u798F", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+      node("p_b2", 2, "\u5723\u76FE", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+      node("p_b3", 3, "\u575A\u97E7\u7977\u8A00", "\u7269\u7406\u51CF\u4F24 +2%", { physRes: 2 }),
+      node("p_b4", 4, "\u795E\u5723\u5E87\u62A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+      node("p_b5", 5, "\u5149\u4E4B\u58C1\u5792", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+      node("p_b6", 6, "\u795E\u6069\u62A4\u4F53", "\u9632\u5FA1\u529B +4%\uFF0C\u9B54\u6CD5\u9632\u5FA1 +4%", { defPct: 4, mdefPct: 4 })
+    ] },
+    { id: "grace", name: "\u6069\u60E0", theme: "#C9A84C", nodes: [
+      node("p_g1", 1, "\u6CBB\u6108\u7977\u8A00", "\u51FB\u6740\u56DE\u590D\u751F\u547D +3", { killHeal: 3 }),
+      node("p_g2", 2, "\u6CD5\u529B\u8D50\u798F", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+      node("p_g3", 3, "\u4F20\u9053", "\u7ECF\u9A8C\u83B7\u53D6 +3%", { expGain: 3 }),
+      node("p_g4", 4, "\u5949\u732E", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("p_g5", 5, "\u6148\u7231", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { killHeal: 2, killMp: 1 }),
+      node("p_g6", 6, "\u795E\u8FF9", "\u7ECF\u9A8C\u83B7\u53D6 +4%\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { expGain: 4, goldGain: 4 })
+    ] }
+  ],
+  warlock: [
+    { id: "ruin", name: "\u6BC1\u706D", theme: "#F85149", nodes: [
+      node("k_r1", 1, "\u6697\u5F71\u7BAD", "\u9B54\u6CD5\u529B +2%", { magPct: 2 }),
+      node("k_r2", 2, "\u8150\u8680", "\u5143\u7D20\u4F24\u5BB3 +3%", { elemDmg: 3 }),
+      node("k_r3", 3, "\u707E\u53D8", "\u66B4\u51FB\u7387 +2%", { critRate: 2 }),
+      node("k_r4", 4, "\u672B\u65E5", "\u66B4\u51FB\u4F24\u5BB3 +7%", { critDmg: 7 }),
+      node("k_r5", 5, "\u6E6E\u706D", "\u9B54\u6CD5\u529B +2%\uFF0C\u66B4\u51FB\u7387 +2%", { magPct: 2, critRate: 2 }),
+      node("k_r6", 6, "\u865A\u7A7A\u9886\u4E3B", "\u9B54\u6CD5\u529B +5%\uFF0C\u5143\u7D20\u4F24\u5BB3 +4%", { magPct: 5, elemDmg: 4 })
+    ] },
+    { id: "curse", name: "\u8BC5\u5492", theme: "#BC8CFF", nodes: [
+      node("k_c1", 1, "\u865A\u5F31\u8BC5\u5492", "\u9B54\u6CD5\u9632\u5FA1 +3%", { mdefPct: 3 }),
+      node("k_c2", 2, "\u75DB\u82E6\u8BC5\u5492", "\u9B54\u6CD5\u51CF\u4F24 +2%", { magRes: 2 }),
+      node("k_c3", 3, "\u8BC5\u5492\u53CD\u566C", "\u53CD\u5F39\u4F24\u5BB3 +3%", { reflect: 3 }),
+      node("k_c4", 4, "\u6076\u9B54\u76AE\u80A4", "\u9632\u5FA1\u529B +3%", { defPct: 3 }),
+      node("k_c5", 5, "\u6050\u60E7\u5149\u73AF", "\u7269\u7406\u51CF\u4F24 +1%\uFF0C\u9B54\u6CD5\u51CF\u4F24 +1%", { physRes: 1, magRes: 1 }),
+      node("k_c6", 6, "\u9B54\u738B\u5A01\u4EEA", "\u9632\u5FA1\u529B +4%\uFF0C\u53CD\u5F39\u4F24\u5BB3 +3%", { defPct: 4, reflect: 3 })
+    ] },
+    { id: "drain", name: "\u6C72\u53D6", theme: "#C9A84C", nodes: [
+      node("k_d1", 1, "\u751F\u547D\u8679\u5438", "\u5438\u8840 +1%", { lifesteal: 1 }),
+      node("k_d2", 2, "\u7075\u9B42\u6536\u5272", "\u51FB\u6740\u56DE\u590D\u6CD5\u529B +2", { killMp: 2 }),
+      node("k_d3", 3, "\u8840\u8089\u732E\u796D", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2", { killHeal: 2 }),
+      node("k_d4", 4, "\u9ED1\u6697\u4EA4\u6613", "\u91D1\u5E01\u83B7\u53D6 +5%", { goldGain: 5 }),
+      node("k_d5", 5, "\u7075\u9B42\u69A8\u53D6", "\u5438\u8840 +1%\uFF0C\u51FB\u6740\u56DE\u590D\u6CD5\u529B +1", { lifesteal: 1, killMp: 1 }),
+      node("k_d6", 6, "\u6DF1\u6E0A\u5951\u7EA6", "\u51FB\u6740\u56DE\u590D\u751F\u547D +2\uFF0C\u91D1\u5E01\u83B7\u53D6 +4%", { killHeal: 2, goldGain: 4 })
+    ] }
+  ]
+};
+var TALENT_UTILITY_KEYS = ["expGain", "goldGain", "killHeal", "killMp"];
+function getTalentMods(ranks, classId) {
+  const combat = {};
+  const utility = {};
+  if (!ranks) return { combat, utility };
+  const tree = TALENT_TREES[classId] || [];
+  for (const branch of tree) {
+    for (const n of branch.nodes) {
+      const r = ranks[n.id] || 0;
+      if (r <= 0) continue;
+      for (const [k, v] of Object.entries(n.effect)) {
+        const eff = v * r;
+        if (TALENT_UTILITY_KEYS.includes(k)) utility[k] = (utility[k] || 0) + eff;
+        else combat[k] = (combat[k] || 0) + eff;
+      }
+    }
+  }
+  return { combat, utility };
+}
+
+// api/services/character-service.ts
+var DEFAULT_CLASS_STATS = {
+  warrior: { hp: 150, mp: 30, atk: 15, def: 12, mag: 2, mdef: 8, agi: 6, luk: 5, con: 12, wil: 5 },
+  mage: { hp: 80, mp: 100, atk: 5, def: 4, mag: 18, mdef: 12, agi: 7, luk: 8, con: 4, wil: 14 },
+  assassin: { hp: 100, mp: 50, atk: 18, def: 6, mag: 4, mdef: 5, agi: 16, luk: 10, con: 6, wil: 7 },
+  ranger: { hp: 110, mp: 45, atk: 14, def: 7, mag: 6, mdef: 7, agi: 14, luk: 9, con: 8, wil: 8 },
+  priest: { hp: 100, mp: 80, atk: 6, def: 6, mag: 14, mdef: 14, agi: 6, luk: 7, con: 6, wil: 14 },
+  warlock: { hp: 90, mp: 90, atk: 7, def: 5, mag: 16, mdef: 10, agi: 8, luk: 12, con: 5, wil: 12 }
+};
+var CLASS_CON_WIL_GROWTH = {
+  warrior: { con: 2, wil: 1 },
+  mage: { con: 1, wil: 2 },
+  priest: { con: 1, wil: 2 },
+  warlock: { con: 1, wil: 2 },
+  assassin: { con: 1, wil: 1 },
+  ranger: { con: 1, wil: 1 }
+};
+var COMBAT_MOD_KEYS = ["atkPct", "defPct", "magPct", "mdefPct", "critRate", "critDmg", "lifesteal", "reflect", "elemDmg", "physRes", "magRes"];
+function equipReqLevel(setTier, levelReq) {
+  const st = setTier || 1;
+  if (st <= 1) return 1;
+  return levelReq[st - 2] ?? levelReq[levelReq.length - 1] ?? 1;
+}
+function equipLevelPenaltyScale(setTier, playerLevel) {
+  const g = getGlobalConfig().equipment || {};
+  const per = g.penaltyPerLevelPct ?? 3;
+  const minPct = g.penaltyMinPct ?? 30;
+  const rules = getTierRules();
+  const req = equipReqLevel(setTier, rules?.levelReq ?? [10, 25, 45, 70, 100, 135, 175, 220, 270]);
+  if (playerLevel >= req) return 1;
+  return Math.max(minPct / 100, 1 - (req - playerLevel) * per / 100);
+}
+function tierScale(setTier, playerTier) {
+  const st = setTier || 1;
+  if (st <= playerTier) return 1;
+  return Math.max(0.05, playerTier / st);
+}
+function effectiveStats(item, scale2) {
+  const lv = item.enhanceLevel || 0;
+  const out = {};
+  for (const [k, v] of Object.entries(item.stats || {})) {
+    if (typeof v !== "number" || !v) continue;
+    const sv = scale2 < 1 ? Math.max(1, Math.round(v * scale2)) : v;
+    out[k] = lv > 0 ? sv + Math.ceil(sv * 0.1 * lv) : sv;
+  }
+  for (const gid of item.gems || []) {
+    const def = getItemById(gid);
+    for (const [k, v] of Object.entries(def?.stats || {})) {
+      if (typeof v === "number" && v) out[k] = (out[k] || 0) + v;
+    }
+  }
+  return out;
+}
+function setBonuses(items) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const it of items) {
+    if (itemHasSet(it)) counts.set(it.setId, (counts.get(it.setId) || 0) + 1);
+  }
+  const total = {};
+  for (const [setId, count] of counts) {
+    const set = getEquipmentSetById(setId);
+    if (!set?.bonus) continue;
+    for (const b of set.bonus) {
+      if (count >= b.pieces) {
+        for (const [k, v] of Object.entries(b.stats)) total[k] = (total[k] || 0) + v;
+      }
+    }
+  }
+  return total;
+}
+function itemHasSet(it) {
+  return !!it && typeof it.setId === "string" && it.setId.length > 0;
+}
+async function computeCharacterSnapshot(username) {
+  let save = null;
+  try {
+    const raw2 = await getRedis().get(`save:${username.toLowerCase()}`);
+    if (raw2) save = JSON.parse(raw2);
+  } catch {
+    return null;
+  }
+  const data = save?.data;
+  const p = data?.player;
+  if (!data || !p || !p.classId || !p.level) return null;
+  const cls = getClassById(p.classId);
+  const awakenCount = p.awakenCount || 0;
+  const baseSrc = p.awakenBase || (awakenCount > 0 ? DEFAULT_CLASS_STATS[p.classId] || DEFAULT_CLASS_STATS.warrior : cls?.baseStats || DEFAULT_CLASS_STATS.warrior);
+  const stats = {
+    maxHp: baseSrc.maxHp ?? baseSrc.hp ?? 100,
+    maxMp: baseSrc.maxMp ?? baseSrc.mp ?? 50,
+    atk: baseSrc.atk ?? 10,
+    def: baseSrc.def ?? 10,
+    mag: baseSrc.mag ?? 10,
+    mdef: baseSrc.mdef ?? 8,
+    agi: baseSrc.agi ?? 10,
+    luk: baseSrc.luk ?? 5,
+    con: baseSrc.con ?? 6,
+    wil: baseSrc.wil ?? 6
+  };
+  const growth = CLASS_CON_WIL_GROWTH[p.classId] || { con: 1, wil: 1 };
+  const awakenMult = 1 + 0.2 * awakenCount;
+  const level = Math.max(1, Math.min(999, p.level));
+  for (let l = 2; l <= level; l++) {
+    stats.con += Math.ceil(growth.con * awakenMult);
+    stats.wil += Math.ceil(growth.wil * awakenMult);
+    stats.maxHp += Math.round((10 + growth.con * 8) * awakenMult);
+    stats.maxMp += Math.round(5 * awakenMult);
+    stats.atk += Math.round(2 * awakenMult);
+    stats.def += Math.round(1 * awakenMult);
+    stats.mag += Math.round(1 * awakenMult);
+    stats.mdef += Math.round(1 * awakenMult);
+    stats.agi += Math.round(1 * awakenMult);
+  }
+  const tier = Math.max(1, Math.min(9, p.tier || 1));
+  const rules = getTierRules();
+  for (let t2 = 2; t2 <= tier; t2++) {
+    const r = rules?.rewards?.[t2 - 1];
+    if (!r) continue;
+    for (const [k, v] of Object.entries(r)) {
+      const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+      if (key2 in stats && typeof v === "number") stats[key2] += v;
+    }
+  }
+  const equipment = data.equipment || {};
+  const equipped = Object.values(equipment).filter(Boolean);
+  const mods = {};
+  for (const it of equipped) {
+    const scale2 = tierScale(it.setTier, tier) * equipLevelPenaltyScale(it.setTier, level);
+    const eff = effectiveStats(it, scale2);
+    for (const [k, v] of Object.entries(eff)) {
+      const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+      if (key2 in stats) stats[key2] += v;
+    }
+    const lv = it.enhanceLevel || 0;
+    for (const [k, v] of Object.entries(it.affixes || {})) {
+      if (!COMBAT_MOD_KEYS.includes(k) || typeof v !== "number") continue;
+      mods[k] = (mods[k] || 0) + v + (lv > 0 ? Math.ceil(v * 0.1 * lv) : 0);
+    }
+  }
+  for (const [k, v] of Object.entries(setBonuses(equipped))) {
+    const key2 = k === "hp" ? "maxHp" : k === "mp" ? "maxMp" : k;
+    if (key2 in stats) stats[key2] += v;
+    else if (COMBAT_MOD_KEYS.includes(k)) mods[k] = (mods[k] || 0) + v;
+  }
+  const talentMods = getTalentMods(data.talents?.[p.classId], p.classId);
+  for (const [k, v] of Object.entries(talentMods.combat)) mods[k] = (mods[k] || 0) + v;
+  const player = {
+    id: p.id,
+    name: p.name,
+    hp: Math.max(1, Math.min(stats.maxHp, Math.round(p.hp || stats.maxHp))),
+    maxHp: stats.maxHp,
+    mp: Math.max(0, Math.min(stats.maxMp, Math.round(p.mp || 0))),
+    maxMp: stats.maxMp,
+    atk: stats.atk,
+    def: stats.def,
+    mag: stats.mag,
+    mdef: stats.mdef,
+    agi: stats.agi,
+    luk: stats.luk,
+    con: stats.con,
+    wil: stats.wil,
+    skills: Array.isArray(p.skills) ? p.skills : [],
+    element: p.element || "none",
+    statuses: [],
+    cooldowns: {},
+    mods
+  };
+  return { player, level };
 }
 
 // api/routers/battle-router.ts
@@ -65625,11 +65990,30 @@ var battleRouter = createRouter({
     token: external_exports.string().min(1).max(128),
     mode: external_exports.enum(["explore", "lawful", "rift", "weekly"]),
     layer: external_exports.number().int().min(1).max(999999),
-    player: combatantSchema,
+    // 角色属性一律以服务端存档重算为准；客户端只报当前血蓝（会被钳制到服务端上限）
+    player: external_exports.object({ hp: external_exports.number().min(0), mp: external_exports.number().min(0) }),
     enemies: external_exports.array(combatantSchema).min(1).max(6),
     dropTables: external_exports.array(external_exports.object({ enemyId: external_exports.string(), dropTable: external_exports.array(external_exports.any()).nullish() })).optional()
   })).mutation(async ({ input }) => {
     const username = await auth2(input.token);
+    const snap = await computeCharacterSnapshot(username);
+    if (!snap) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "NO_CHARACTER" });
+    }
+    const player = { ...snap.player, isPlayer: true };
+    player.hp = Math.max(1, Math.min(player.maxHp, Math.round(input.player.hp) || player.maxHp));
+    player.mp = Math.max(0, Math.min(player.maxMp, Math.round(input.player.mp) || 0));
+    if (input.mode === "rift") {
+      const d = /* @__PURE__ */ new Date();
+      const date2 = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const mods = { ...player.mods || {} };
+      for (const m of getDailyModifiers(date2)) {
+        for (const [k, v] of Object.entries(m.playerMods || {})) {
+          mods[k] = (mods[k] || 0) + v;
+        }
+      }
+      player.mods = mods;
+    }
     const cast = (c) => ({
       ...c,
       isPlayer: false,
@@ -65638,7 +66022,7 @@ var battleRouter = createRouter({
     const r = await startBattle(username, {
       mode: input.mode,
       layer: input.layer,
-      player: { ...cast(input.player), isPlayer: true },
+      player,
       enemies: input.enemies.map(cast),
       dropTables: input.dropTables || []
     });
@@ -69204,16 +69588,16 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
       } else {
         decoder2 = field.sql.decoder;
       }
-      let node = result2;
+      let node2 = result2;
       for (const [pathChunkIndex, pathChunk] of path2.entries()) {
         if (pathChunkIndex < path2.length - 1) {
-          if (!(pathChunk in node)) {
-            node[pathChunk] = {};
+          if (!(pathChunk in node2)) {
+            node2[pathChunk] = {};
           }
-          node = node[pathChunk];
+          node2 = node2[pathChunk];
         } else {
           const rawValue = row[columnIndex];
-          const value = node[pathChunk] = rawValue === null ? null : decoder2.mapFromDriverValue(rawValue);
+          const value = node2[pathChunk] = rawValue === null ? null : decoder2.mapFromDriverValue(rawValue);
           if (joinsNotNullableMap && is(field, Column) && path2.length === 2) {
             const objectName = path2[0];
             if (!(objectName in nullifyMap)) {

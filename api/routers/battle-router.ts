@@ -3,6 +3,8 @@ import { TRPCError } from "@trpc/server";
 import { createRouter, publicQuery } from "../middleware";
 import { requireAccount } from "../services/auth-service";
 import { startBattle, tickBattle, abandonBattle } from "../services/battle-service";
+import { computeCharacterSnapshot } from "../services/character-service";
+import { getDailyModifiers } from "../services/daily-service";
 import type { Combatant } from "../services/combat-service";
 
 const statusSchema = z.object({ id: z.string(), name: z.string(), kind: z.string(), turns: z.number() });
@@ -39,12 +41,34 @@ export const battleRouter = createRouter({
       token: z.string().min(1).max(128),
       mode: z.enum(["explore", "lawful", "rift", "weekly"]),
       layer: z.number().int().min(1).max(999999),
-      player: combatantSchema,
+      // 角色属性一律以服务端存档重算为准；客户端只报当前血蓝（会被钳制到服务端上限）
+      player: z.object({ hp: z.number().min(0), mp: z.number().min(0) }),
       enemies: z.array(combatantSchema).min(1).max(6),
       dropTables: z.array(z.object({ enemyId: z.string(), dropTable: z.array(z.any()).nullish() })).optional(),
     }))
     .mutation(async ({ input }) => {
       const username = await auth(input.token);
+      // 服务端角色快照：基础成长 + 等阶 + 装备（含未达标惩罚）+ 套装 + 天赋
+      const snap = await computeCharacterSnapshot(username);
+      if (!snap) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "NO_CHARACTER" });
+      }
+      const player: Combatant = { ...snap.player, isPlayer: true };
+      // 当前血蓝：以客户端上报为准，但钳制到服务端重算的上限
+      player.hp = Math.max(1, Math.min(player.maxHp, Math.round(input.player.hp) || player.maxHp));
+      player.mp = Math.max(0, Math.min(player.maxMp, Math.round(input.player.mp) || 0));
+      // 秘境词缀由服务端按当日词缀合并，不信任客户端上传
+      if (input.mode === "rift") {
+        const d = new Date();
+        const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const mods = { ...(player.mods || {}) } as Record<string, number | undefined>;
+        for (const m of getDailyModifiers(date)) {
+          for (const [k, v] of Object.entries(m.playerMods || {})) {
+            mods[k] = (mods[k] || 0) + v;
+          }
+        }
+        player.mods = mods as Combatant["mods"];
+      }
       const cast = (c: z.infer<typeof combatantSchema>): Combatant => ({
         ...c, isPlayer: false,
         statuses: c.statuses?.map((s) => ({ ...s, kind: s.kind as never })),
@@ -52,7 +76,7 @@ export const battleRouter = createRouter({
       const r = await startBattle(username, {
         mode: input.mode,
         layer: input.layer,
-        player: { ...cast(input.player), isPlayer: true },
+        player,
         enemies: input.enemies.map(cast),
         dropTables: input.dropTables || [],
       });

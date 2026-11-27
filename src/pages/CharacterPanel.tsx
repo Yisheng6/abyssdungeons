@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, User, Swords, Shield, Sparkles, Zap, Heart, Brain, Wind, Star, Droplets, Clock, BookOpen, Lock, Crown } from 'lucide-react'
-import { useGameStore, getEffectiveStats, getEquipTierScale, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
+import { useGameStore, getEffectiveStats, getEquipScale, getItemDisplayName, getDerivedStats, getEquipmentAffixMods, PCT_AFFIX_KEYS, STAT_NAMES, getExpNeed } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
 import { loadCatalogs, onCatalogLoaded, getSkillInfo, getLearnableSkills, getTierName, getTierRules, FALLBACK_TIER_NAMES } from '@/lib/catalog'
 
@@ -459,7 +459,7 @@ export default function CharacterPanel() {
                       <>
                         <div className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{getItemDisplayName(item)}</div>
                         {(() => {
-                          const scale = getEquipTierScale(item, store.player?.tier || 1)
+                          const scale = getEquipScale(item, store.player?.tier || 1, store.player?.level || 1)
                           const eff = getEffectiveStats(item, scale)
                           const orig = scale < 1 ? getEffectiveStats(item) : null
                           return (

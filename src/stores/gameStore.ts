@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { computeSetBonuses, getSkillInfo, getItemInfo } from '@/lib/catalog'
+import { computeSetBonuses, getSkillInfo, getItemInfo, getEquipRules } from '@/lib/catalog'
 import { getSpentTalentPoints, canLearnTalent, getRespecCost, getTalentMods, mergeMods } from '@/lib/talents'
 import { QUALITY_MAX_AFFIXES, REFORGE_DIAMOND_COST, getReforgeGoldCost, rollAffixes, extractMainStats } from '@/lib/affixes'
 
@@ -20,6 +20,7 @@ export interface Player {
   /** 职业等阶 1-9 */ tier: number
   /** 地牢最深到达层数 */ maxLayer: number
   /** 觉醒次数（≥100 级可觉醒，继承属性并重置等级） */ awakenCount?: number
+  /** 觉醒后的重算基准（服务端角色快照回放的起点） */ awakenBase?: Record<string, number>
 }
 
 /** 等阶规则（与 game-configs/classes.json 的 tierRules 保持一致，作为离线兜底） */
@@ -102,6 +103,26 @@ export function getEquipTierScale(item: { setTier?: number }, playerTier: number
   const st = item.setTier || 1
   if (st <= playerTier) return 1
   return Math.max(0.05, playerTier / st)
+}
+
+/** 装备需求等级：T1 无要求，T2 起对应等阶解锁等级（levelReq[setTier-2]） */
+export function getEquipReqLevel(item: { setTier?: number }): number {
+  const st = item.setTier || 1
+  if (st <= 1) return 1
+  return TIER_RULES.levelReq[st - 2] ?? TIER_RULES.levelReq[TIER_RULES.levelReq.length - 1] ?? 1
+}
+
+/** 等级未达标惩罚：每差 1 级装备属性 -N%（配表 global.json equipment），最低保留 minPct */
+export function getEquipLevelScale(item: { setTier?: number }, playerLevel: number): number {
+  const req = getEquipReqLevel(item)
+  if (playerLevel >= req) return 1
+  const r = getEquipRules()
+  return Math.max(r.penaltyMinPct / 100, 1 - ((req - playerLevel) * r.penaltyPerLevelPct) / 100)
+}
+
+/** 装备综合有效比例 = 等阶解锁 × 等级惩罚（服务端 character-service 同步实现） */
+export function getEquipScale(item: { setTier?: number }, playerTier: number, playerLevel: number): number {
+  return getEquipTierScale(item, playerTier) * getEquipLevelScale(item, playerLevel)
 }
 
 export function getEffectiveStats(item: Item, scale = 1): Record<string, number> {
@@ -631,6 +652,11 @@ export const useGameStore = create<GameState>()(
           agi: (base.agi || 10) + inherit(p.agi), luk: (base.luk || 5) + inherit(p.luk),
           con: (base.con ?? 6) + inherit(p.con || 0), wil: (base.wil ?? 6) + inherit(p.wil || 0),
         }
+        // 记录觉醒后的重算基准：服务端角色快照从这里回放成长
+        np.awakenBase = {
+          maxHp: np.maxHp, maxMp: np.maxMp, atk: np.atk, def: np.def,
+          mag: np.mag, mdef: np.mdef, agi: np.agi, luk: np.luk, con: np.con || 0, wil: np.wil || 0,
+        }
         np.hp = np.maxHp; np.mp = np.maxMp
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
@@ -777,6 +803,7 @@ export const useGameStore = create<GameState>()(
       addPlayerExp: (amount) => {
         const s = get()
         if (!s.player) return
+        const oldLevel = s.player.level
         const np = { ...s.player, exp: s.player.exp + amount }
         // 支持连升多级
         const growth = CLASS_CON_WIL_GROWTH[np.classId] || { con: 1, wil: 1 }
@@ -791,6 +818,24 @@ export const useGameStore = create<GameState>()(
           np.atk += Math.round(2 * awakenMult); np.def += Math.round(1 * awakenMult)
           np.mag += Math.round(1 * awakenMult); np.mdef += Math.round(1 * awakenMult)
           np.agi += Math.round(1 * awakenMult)
+        }
+        // 升级后等级未达标惩罚减轻：对身上装备补算有效属性差值
+        if (np.level > oldLevel) {
+          for (const eq of Object.values(s.equipment)) {
+            if (!eq) continue
+            const oldScale = getEquipTierScale(eq, np.tier || 1) * getEquipLevelScale(eq, oldLevel)
+            const newScale = getEquipTierScale(eq, np.tier || 1) * getEquipLevelScale(eq, np.level)
+            if (oldScale === newScale) continue
+            const oldEff = getEffectiveStats(eq, oldScale)
+            const newEff = getEffectiveStats(eq, newScale)
+            for (const k of new Set([...Object.keys(oldEff), ...Object.keys(newEff)])) {
+              const dv = (newEff[k] || 0) - (oldEff[k] || 0)
+              if (dv === 0) continue
+              if (k === 'hp' || k === 'maxHp') { np.maxHp += dv; np.hp = Math.min(np.maxHp, np.hp + Math.max(0, dv)) }
+              else if (k === 'mp' || k === 'maxMp') { np.maxMp += dv; np.mp = Math.min(np.maxMp, np.mp + Math.max(0, dv)) }
+              else if (k in np) (np as Record<string, number>)[k] += dv
+            }
+          }
         }
         const ns = { ...s.classSaves }
         if (s.activeClassId) ns[s.activeClassId] = { ...ns[s.activeClassId], player: np }
@@ -863,8 +908,8 @@ export const useGameStore = create<GameState>()(
         // 等阶提升后，身上高阶装备的基础属性按新比例解锁（补差值）
         for (const eq of Object.values(s.equipment)) {
           if (!eq) continue
-          const oldEff = getEffectiveStats(eq, getEquipTierScale(eq, cur))
-          const newEff = getEffectiveStats(eq, getEquipTierScale(eq, cur + 1))
+          const oldEff = getEffectiveStats(eq, getEquipTierScale(eq, cur) * getEquipLevelScale(eq, np.level))
+          const newEff = getEffectiveStats(eq, getEquipTierScale(eq, cur + 1) * getEquipLevelScale(eq, np.level))
           for (const k of Object.keys(newEff)) {
             const dv = (newEff[k] || 0) - (oldEff[k] || 0)
             if (dv !== 0 && k in np) (np as Record<string, number>)[k] += dv
@@ -900,8 +945,9 @@ export const useGameStore = create<GameState>()(
         // Apply stat bonuses (effective stats incl. enhance level + set bonus delta)
         // 等阶不足时基础属性按比例解锁
         const pTier = s.player?.tier || 1
+        const pLevel = s.player?.level || 1
         let newPlayer = s.player ? { ...s.player } : null
-        const effStats = getEffectiveStats(item, getEquipTierScale(item, pTier))
+        const effStats = getEffectiveStats(item, getEquipScale(item, pTier, pLevel))
         if (newPlayer) {
           for (const [stat, val] of Object.entries(effStats)) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] += val
@@ -909,7 +955,7 @@ export const useGameStore = create<GameState>()(
         }
         // Remove old equip stats
         if (newPlayer && oldEquip) {
-          for (const [stat, val] of Object.entries(getEffectiveStats(oldEquip, getEquipTierScale(oldEquip, pTier)))) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(oldEquip, getEquipScale(oldEquip, pTier, pLevel)))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }
@@ -939,7 +985,7 @@ export const useGameStore = create<GameState>()(
         // Remove stat bonuses (effective stats, 按当前等阶缩减比例)
         let newPlayer = s.player ? { ...s.player } : null
         if (newPlayer) {
-          for (const [stat, val] of Object.entries(getEffectiveStats(item, getEquipTierScale(item, newPlayer.tier || 1)))) {
+          for (const [stat, val] of Object.entries(getEffectiveStats(item, getEquipScale(item, newPlayer.tier || 1, newPlayer.level)))) {
             if (stat in newPlayer) (newPlayer as Record<string, number>)[stat] -= val
           }
         }

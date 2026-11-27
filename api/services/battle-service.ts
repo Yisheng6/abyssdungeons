@@ -101,8 +101,10 @@ export async function tickBattle(username: string, battleId: string, action: Com
   if (ended && victory) {
     // 经验服务端结算：基础 10 + 层数×3 + 敌人强度，Boss（HP≥500）双倍
     const lv = s.layer;
+    // 单只敌人经验贡献封顶：防止客户端伪造超高强度敌人刷经验
+    const cap = 500 + lv * 10;
     expGain = Math.floor(s.enemies.reduce((sum, e) => {
-      const base = 10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5);
+      const base = Math.min(10 + lv * 3 + Math.ceil((e.maxHp || 30) / 20) + (e.atk || 5), cap);
       return sum + ((e.maxHp || 0) >= 500 ? base * 2 : base);
     }, 0));
     await getRedis().del(key(username));

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, Package, Beaker, Shield, Swords, Heart, Wind, Star, Droplets, Sparkles, X, BookOpen, Hammer } from 'lucide-react'
-import { useGameStore, type Item, getEffectiveStats, getEquipTierScale, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
+import { useGameStore, type Item, getEffectiveStats, getEquipScale, getItemDisplayName, getDisassembleGold, PCT_AFFIX_KEYS } from '@/stores/gameStore'
 import { loadCatalogs, onCatalogLoaded, getSetInfo, getSkillInfo } from '@/lib/catalog'
 
 const qualityColors: Record<string, string> = {
@@ -315,7 +315,8 @@ export default function Inventory() {
             <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>{selectedItem.desc}</p>
             {selectedItem.type === 'equipment' && (() => {
               const pTier = store.player?.tier || 1
-              const scale = getEquipTierScale(selectedItem, pTier)
+              const pLevel = store.player?.level || 1
+              const scale = getEquipScale(selectedItem, pTier, pLevel)
               const eff = getEffectiveStats(selectedItem, scale)
               const orig = scale < 1 ? getEffectiveStats(selectedItem) : null
               const affixes = selectedItem.affixes || {}

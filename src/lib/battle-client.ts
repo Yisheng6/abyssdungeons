@@ -12,13 +12,9 @@ export interface BattleEnemyInit {
   dropTable?: unknown[] | null
 }
 
+// 角色属性由服务端从云存档重算，客户端只上报当前血蓝（服务端钳制到重算上限）
 export interface BattlePlayerInit {
-  id: string; name: string; hp: number; maxHp: number; mp: number; maxMp: number
-  atk: number; def: number; mag: number; mdef: number; agi: number; luk: number
-  con?: number; wil?: number
-  skills: string[]; element: string; mods?: Record<string, number | undefined>
-  statuses?: Array<{ id: string; name: string; kind: string; turns: number }>
-  cooldowns?: Record<string, number>
+  hp: number; mp: number
 }
 
 export async function battleStart(
@@ -29,7 +25,7 @@ export async function battleStart(
 ): Promise<string> {
   const r = await apiClient.battle.start.mutate({
     token: getToken(), mode, layer,
-    player: player as never,
+    player,
     enemies: enemies as never,
     dropTables: enemies.map((e) => ({ enemyId: e.id, dropTable: e.dropTable as never })),
   })
@@ -70,7 +66,6 @@ export async function runServerBattle(opts: {
   layer: number
   enemies: BattleEnemyInit[]
   snap: ReturnType<typeof snapshotBattleStats>
-  modsOverride?: Record<string, number | undefined>
   isAborted: () => boolean
   onLog: (l: string) => void
   onTick?: (r: { player: { hp: number; mp: number }; enemies: Array<{ uid?: string; id: string; name: string; hp: number; maxHp: number; dead: boolean }>; ended: boolean; victory: boolean }) => void
@@ -81,15 +76,9 @@ export async function runServerBattle(opts: {
   const gs = useGameStore.getState()
   const player0 = gs.player!
 
-  // 开战：快照 + 敌人登记到服务端会话
+  // 开战：属性由服务端按存档重算，客户端只登记敌人与当前血蓝
   const battleId = await battleStart(mode, layer, {
-    id: player0.id, name: player0.name, hp: player0.hp, maxHp: snap.maxHp,
-    mp: player0.mp, maxMp: snap.maxMp, atk: snap.atk, def: snap.def,
-    mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
-    con: snap.con, wil: snap.wil,
-    skills: snap.skills, element: snap.element,
-    mods: opts.modsOverride ?? snap.mods,
-    statuses: [], cooldowns: {},
+    hp: player0.hp, mp: player0.mp,
   }, enemies)
 
   let victory = false

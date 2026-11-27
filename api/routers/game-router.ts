@@ -5,7 +5,7 @@ import {
   getEnemiesByFamily, getBossByFamily, getRoomTypes,
   getThemeByLayer, getConsumables, getQualities,
   getElementMultiplier, getEnemyById,
-  getItems, getEquipmentSets, getSkills,
+  getItems, getEquipmentSets, getSkills, getGlobalConfig,
 } from "../services/config-service";
 import { generateDungeon, getRoomDirections, generateEncounter } from "../services/mapgen-service";
 import { genLawfulRooms, LAWFUL_MAX_LAYER, isBossLayer } from "../services/lawful-service";
@@ -39,6 +39,15 @@ export const gameRouter = createRouter({
 
   getTierRules: publicQuery.query(() => {
     return getTierRules();
+  }),
+
+  /** 装备穿戴要求惩罚规则（配表：global.json equipment） */
+  getEquipRules: publicQuery.query(() => {
+    const g = getGlobalConfig() as { equipment?: { penaltyPerLevelPct?: number; penaltyMinPct?: number } };
+    return {
+      penaltyPerLevelPct: g.equipment?.penaltyPerLevelPct ?? 3,
+      penaltyMinPct: g.equipment?.penaltyMinPct ?? 30,
+    };
   }),
 
   getClassDetail: publicQuery

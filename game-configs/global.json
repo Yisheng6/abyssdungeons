@@ -1,7 +1,6 @@
 {
   "_description": "全局通用配置 - 游戏数值常量、系统开关、文案模板。策划修改此文件可直接调整全局体验，无需改代码。",
   "version": "1.0",
-
   "player": {
     "maxLevel": 100,
     "startingGold": 100,
@@ -14,32 +13,29 @@
     "reviveHpPercent": 0.3,
     "inventorySlots": 40
   },
-
   "combat": {
     "critMultiplier": 1.5,
     "critRatePerLukPoint": 0.002,
-    "maxCritRate": 0.30,
+    "maxCritRate": 0.3,
     "dodgeRatePerAgiPoint": 0.003,
-    "maxDodgeRate": 0.30,
+    "maxDodgeRate": 0.3,
     "damageVarianceMin": 0.9,
     "damageVarianceMax": 1.1,
     "minDamage": 1,
-    "fleeBaseChance": 0.30,
+    "fleeBaseChance": 0.3,
     "fleeAgiMultiplier": 0.02,
-    "fleeMaxChance": 0.80,
-    "defendDamageReduction": 0.50,
+    "fleeMaxChance": 0.8,
+    "defendDamageReduction": 0.5,
     "firstStrikeBonus": 0.15,
     "elementAdvantageMultiplier": 1.5,
     "elementDisadvantageMultiplier": 0.67
   },
-
   "experience": {
     "baseExpForLevel": 100,
     "expGrowthRate": 1.15,
     "expShareRadius": 5,
-    "partyBonusPercent": 0.20
+    "partyBonusPercent": 0.2
   },
-
   "dungeon": {
     "maxLayer": 100,
     "globalSeed": "default",
@@ -55,9 +51,8 @@
       "keepItems": true,
       "respawnLocation": "town"
     },
-    "fullExploreBonusPercent": 0.50
+    "fullExploreBonusPercent": 0.5
   },
-
   "drop": {
     "qualityWeights": {
       "common": 5000,
@@ -71,15 +66,18 @@
     "bossLootMultiplier": 3.0,
     "treasureLootMultiplier": 2.0
   },
-
   "chat": {
     "maxMessageLength": 500,
     "chatHistoryLimit": 100,
     "chatMessageTTL": 86400,
     "chatCooldownMs": 1000,
-    "channels": ["world", "area", "party", "guild"]
+    "channels": [
+      "world",
+      "area",
+      "party",
+      "guild"
+    ]
   },
-
   "switches": {
     "pvpEnabled": false,
     "pvpUnlockLevel": 30,
@@ -88,7 +86,6 @@
     "dailyDungeonLimit": 0,
     "maintenanceMode": false
   },
-
   "textTemplates": {
     "deathMessage": "你被击败了... 经验值损失 {lostExp}，已自动返回城镇。",
     "levelUpMessage": "恭喜升级！当前等级 {level}，获得 {statPoints} 属性点和 {skillPoints} 技能点。",
@@ -96,5 +93,10 @@
     "combatVictory": "战斗胜利！获得 {exp} 经验，{gold} 金币。",
     "combatFleeSuccess": "成功逃离了战斗！",
     "combatFleeFail": "逃跑失败！"
+  },
+  "equipment": {
+    "_description": "装备穿戴要求：装备阶级(setTier)对应需求等级取自 classes.tierRules.levelReq（T1无要求，T2需10级，T3需25级…）。角色等级不足时按每级扣减装备属性百分比，最低保留一定比例；与等阶解锁比例叠乘。",
+    "penaltyPerLevelPct": 3,
+    "penaltyMinPct": 30
   }
 }

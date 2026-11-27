@@ -56,6 +56,7 @@ let skillById = new Map<string, CatalogSkill>()
 let classes: CatalogClass[] = []
 let classById = new Map<string, CatalogClass>()
 let tierRules: TierRules | null = null
+let equipRules = { penaltyPerLevelPct: 3, penaltyMinPct: 30 }
 let loaded = false
 let loading: Promise<void> | null = null
 const listeners = new Set<() => void>()
@@ -72,12 +73,13 @@ export function loadCatalogs(): Promise<void> {
   if (loaded) return Promise.resolve()
   if (loading) return loading
   loading = (async () => {
-    const [itemsData, setsData, skillsData, classesData, rulesData] = await Promise.all([
+    const [itemsData, setsData, skillsData, classesData, rulesData, equipRulesData] = await Promise.all([
       trpcGet('game.getItemCatalog'),
       trpcGet('game.getEquipmentSets'),
       trpcGet('game.getSkillCatalog'),
       trpcGet('game.getClasses'),
       trpcGet('game.getTierRules'),
+      trpcGet('game.getEquipRules').catch(() => null),
     ])
     items = (itemsData as CatalogItem[]) || []
     itemById = new Map(items.map((i) => [i.id, i]))
@@ -88,6 +90,7 @@ export function loadCatalogs(): Promise<void> {
     classes = (classesData as CatalogClass[]) || []
     classById = new Map(classes.map((c) => [c.id, c]))
     tierRules = (rulesData as TierRules) || null
+    if (equipRulesData) equipRules = equipRulesData as typeof equipRules
     loaded = true
     listeners.forEach((fn) => fn())
   })().catch((e) => {
@@ -140,6 +143,8 @@ export function computeSetBonuses(
 
 // ═══ 职业等阶 ═══
 export const getTierRules = () => tierRules
+/** 装备未达标惩罚规则（配表：global.json equipment） */
+export const getEquipRules = () => equipRules
 export const getClassInfo = (id: string) => classById.get(id)
 /** 某职业某阶称号（1 起）；目录未加载时回退到静态表 */
 export function getTierName(classId: string, tier: number): string {
