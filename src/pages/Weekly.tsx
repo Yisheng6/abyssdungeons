@@ -5,7 +5,7 @@ import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle
 import { trpc } from '@/providers/trpc'
 import { getToken } from '@/lib/auth'
 import { getItemInfo } from '@/lib/catalog'
-import { chooseAutoSkill } from '@/lib/battle-ai'
+import { runServerBattle } from '@/lib/battle-client'
 import BattleStage from '@/components/BattleStage'
 
 const ELEMENT_NAMES: Record<string, string> = {
@@ -22,7 +22,6 @@ export default function Weekly() {
 
   const bossQ = trpc.weekly.boss.useQuery(undefined, { refetchInterval: 60000 })
   const topQ = trpc.weekly.top.useQuery({ count: 10 })
-  const combatTurnMut = trpc.game.combatTurn.useMutation()
   const submitMut = trpc.weekly.submit.useMutation()
 
   const addLog = (l: string) => setLogs((prev) => [...prev.slice(-80), l])
@@ -59,73 +58,19 @@ export default function Weekly() {
     let damage = 0
     const bossMaxHp = boss.maxHp
     try {
-      for (let round = 1; round <= 90; round++) {
-        if (battleHijacked('weekly')) { addLog('已切换到其他战斗玩法'); break }
-        const cur = useGameStore.getState()
-        const alive = cur.combatEnemies.filter((e) => e.hp > 0)
-        if (alive.length === 0) break
-        const p0 = cur.player
-        if (!p0 || p0.hp <= 0) { addLog('你被击败了...'); break }
-
-        // 自动喝药
-        const threshold = cur.settings.autoPotionThreshold ?? 50
-        if (cur.settings.autoPotion && p0.hp / p0.maxHp * 100 < threshold) {
-          const healOf = (i: { effect?: unknown; id: string }) =>
-            (((i.effect as any)?.heal ?? (getItemInfo(i.id)?.effect as any)?.heal ?? 0) as number)
-          const potion = cur.inventory
-            .filter((i) => i.type === 'consumable' && i.quantity > 0 && healOf(i) > 0)
-            .sort((a, b) => healOf(a) - healOf(b))[0]
-          if (potion) {
-            const r = cur.useConsumable(potion.uid)
-            if (r.success) addLog(`⚕ 自动使用 ${potion.name}：${r.message}`)
-          }
-        }
-
-        const p = useGameStore.getState().player!
-        const st0 = useGameStore.getState()
-        const sid = chooseAutoSkill(
-          { hp: p.hp, maxHp: snap.maxHp, mp: p.mp, skills: snap.skills || [],
-            statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
-          snap.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
-        const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
-
-        const result = await combatTurnMut.mutateAsync({
-          player: {
-            id: p.id, name: p.name, hp: p.hp, maxHp: snap.maxHp, mp: p.mp, maxMp: snap.maxMp,
-            atk: snap.atk, def: snap.def, mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
-            con: snap.con, wil: snap.wil,
-            skills: snap.skills, element: snap.element,
-            statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns || {},
-            mods: snap.mods,
-          },
-          enemies: alive.map((e) => ({
-            id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
-            atk: e.atk, def: e.def, mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
-            skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
-            statuses: (e as any).statuses || [],
-          })),
-          action: { type: action.type, targetId: alive[0].uid ?? alive[0].id, skillId: action.skillId },
-          turnSeed: Date.now() + round,
-          layer: 60,
-        })
-
-        result.logs.forEach((l) => addLog(l))
-        const after = useGameStore.getState()
-        const bossNow = result.enemies.find((e) => e.id === boss.id)
-        if (bossNow) damage = bossMaxHp - bossNow.hp
-        const merged = after.combatEnemies.map((e) => {
-          const u = result.enemies.find((r) => (r.uid ?? r.id) === (e.uid ?? e.id))
-          return u ? { ...e, ...u } : e
-        })
-        after.setCombatEnemies(merged)
-        after.updatePlayerHp(result.player.hp)
-        after.updatePlayerMp(result.player.mp)
-        after.setPlayerStatuses((result.player as any).statuses || [])
-        after.setSkillCooldowns((result.player as any).cooldowns || {})
-        if (result.ended) break
-        // 回合节奏：留出攻击/技能动画播放时间
-        await new Promise((r) => setTimeout(r, 2000))
-      }
+      // 服务端战斗会话：状态托管在服务端，通过 onTick 统计对 Boss 的伤害
+      await runServerBattle({
+        mode: 'weekly',
+        layer: 60,
+        enemies: [{ ...boss, uid: `${boss.id}#0` }],
+        snap,
+        isAborted: () => battleHijacked('weekly'),
+        onLog: addLog,
+        onTick: (r) => {
+          const b = r.enemies.find((e) => e.id === boss.id)
+          if (b) damage = bossMaxHp - b.hp
+        },
+      })
     } finally {
       releaseBattle('weekly')
     }

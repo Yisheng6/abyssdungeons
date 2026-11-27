@@ -3,15 +3,9 @@
 // - startAutoSave() 后每 30s 检查脏标记并上传；切后台/关页/登出时强制 flush
 // - 版本号乐观锁：冲突说明别的设备存了更新的档 → 以服务器为准并刷新页面
 // - localStorage 保留为离线缓存：网络失败时游戏照玩，恢复后自动补传
-import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import superjson from 'superjson'
-import type { AppRouter } from '../../api/router'
+import { apiClient as client } from './api'
 import { getToken } from './auth'
 import { useGameStore, STORAGE_KEY } from '@/stores/gameStore'
-
-const client = createTRPCClient<AppRouter>({
-  links: [httpBatchLink({ url: '/api/trpc', transformer: superjson })],
-})
 
 let version = 0 // 本地基于的服务端版本
 let dirty = false

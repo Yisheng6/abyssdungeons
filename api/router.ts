@@ -3,6 +3,7 @@ import { gameRouter } from "./routers/game-router";
 import { leaderboardRouter } from "./routers/leaderboard-router";
 import { accountRouter } from "./routers/account-router";
 import { saveRouter } from "./routers/save-router";
+import { battleRouter } from "./routers/battle-router";
 import { chatRouter } from "./routers/chat-router";
 import { weeklyRouter } from "./routers/weekly-router";
 import { mailRouter } from "./routers/mail-router";
@@ -13,6 +14,7 @@ export const appRouter = createRouter({
   auth: authRouter,
   account: accountRouter,
   save: saveRouter,
+  battle: battleRouter,
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,

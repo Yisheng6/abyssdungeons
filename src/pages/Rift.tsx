@@ -4,7 +4,7 @@ import { useGameStore, shouldAutoDisassemble, getDisassembleGold, getPlayerMods 
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
 import { getItemInfo } from '@/lib/catalog'
-import { chooseAutoSkill } from '@/lib/battle-ai'
+import { runServerBattle } from '@/lib/battle-client'
 import BattleStage from '@/components/BattleStage'
 
 interface RiftEnemy {
@@ -54,7 +54,6 @@ export default function Rift() {
     { date: today, classId: player?.classId || 'warrior', level: player?.level || 1, stage: Math.min(stage, 5) },
     { enabled: !!player && !done }
   )
-  const combatTurnMut = trpc.game.combatTurn.useMutation()
 
   const addLog = (l: string) => setLogs((prev) => [...prev.slice(-80), l])
   const data = stageQ.data as RiftStageData | undefined
@@ -77,108 +76,53 @@ export default function Rift() {
     let victory = false
 
     try {
-      for (let round = 1; round <= 90; round++) {
-        if (battleHijacked('rift')) { addLog('已切换到其他战斗玩法'); break }
-        const cur = useGameStore.getState()
-        const alive = cur.combatEnemies.filter((e) => e.hp > 0)
-        if (alive.length === 0) { victory = true; break }
-        const p0 = cur.player
-        if (!p0 || p0.hp <= 0) { addLog('你被击败了...'); break }
+      // 服务端战斗会话：状态托管在服务端（词缀已并入 mods 快照）
+      const res = await runServerBattle({
+        mode: 'rift',
+        layer: 1,
+        enemies: d.enemies.map((e, i) => ({ ...e, uid: `${e.id}#${i}` })),
+        snap,
+        modsOverride: riftMods,
+        isAborted: () => battleHijacked('rift'),
+        onLog: addLog,
+      })
+      victory = res.victory
 
-        // 自动喝药
-        const threshold = cur.settings.autoPotionThreshold ?? 50
-        if (cur.settings.autoPotion && p0.hp / p0.maxHp * 100 < threshold) {
-          const healOf = (i: { effect?: unknown; id: string }) =>
-            (((i.effect as any)?.heal ?? (getItemInfo(i.id)?.effect as any)?.heal ?? 0) as number)
-          const potion = cur.inventory
-            .filter((i) => i.type === 'consumable' && i.quantity > 0 && healOf(i) > 0)
-            .sort((a, b) => healOf(a) - healOf(b))[0]
-          if (potion) {
-            const r = cur.useConsumable(potion.uid)
-            if (r.success) addLog(`⚕ 自动使用 ${potion.name}：${r.message}`)
-          }
-        }
-
-        const p = useGameStore.getState().player!
-        const st0 = useGameStore.getState()
-        const sid = chooseAutoSkill(
-          { hp: p.hp, maxHp: snap.maxHp, mp: p.mp, skills: snap.skills || [],
-            statuses: st0.playerStatuses || [], cooldowns: st0.skillCooldowns },
-          snap.skills || [], (alive[0] as unknown as { statuses?: Array<{ id: string }> })?.statuses)
-        const action: { type: 'attack' | 'skill'; skillId?: string } = sid ? { type: 'skill', skillId: sid } : { type: 'attack' }
-
-        const result = await combatTurnMut.mutateAsync({
-          player: {
-            id: p.id, name: p.name, hp: p.hp, maxHp: snap.maxHp, mp: p.mp, maxMp: snap.maxMp,
-            atk: snap.atk, def: snap.def, mag: snap.mag, mdef: snap.mdef, agi: snap.agi, luk: snap.luk,
-            con: snap.con, wil: snap.wil,
-            skills: snap.skills, element: snap.element,
-            statuses: useGameStore.getState().playerStatuses || [],
-            cooldowns: useGameStore.getState().skillCooldowns || {},
-            mods: riftMods,
-          },
-          enemies: alive.map((e) => ({
-            id: e.id, uid: e.uid, name: e.name, hp: e.hp, maxHp: e.maxHp, mp: e.mp || 0, maxMp: e.maxMp || 0,
-            atk: e.atk, def: e.def, mag: e.mag || 0, mdef: e.mdef || 0, agi: e.agi || 0, luk: e.luk || 0,
-            skills: e.skills || [], element: e.element || 'none', aiType: e.aiType,
-            statuses: (e as any).statuses || [],
-          })),
-          action: { type: action.type, targetId: alive[0].uid ?? alive[0].id, skillId: action.skillId },
-          turnSeed: Date.now() + round,
-          layer: 1,
-          enemyDropTables: alive.map((e) => ({ enemyId: e.id, dropTable: d.enemies.find((r2) => r2.id === e.id)?.dropTable })),
-        })
-
-        result.logs.forEach((l) => addLog(l))
+      if (res.victory) {
         const after = useGameStore.getState()
-        after.setCombatEnemies(after.combatEnemies.map((e) => {
-          const u = result.enemies.find((r) => (r.uid ?? r.id) === (e.uid ?? e.id))
-          return u ? { ...e, ...u } : e
-        }))
-        after.updatePlayerHp(result.player.hp)
-        after.updatePlayerMp(result.player.mp)
-        after.setPlayerStatuses((result.player as any).statuses || [])
-        after.setSkillCooldowns((result.player as any).cooldowns || {})
-
-        if (result.victory) {
-          victory = true
-          const utilMods = getPlayerMods().utility
-          for (const drop of result.drops || []) {
-            const cat = getItemInfo(drop.itemId)
-            const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
-            const dName = drop.name || cat?.name || drop.itemId
-            if (type === 'currency') {
-              if (drop.itemId === 'gem_diamond') {
-                after.addPlayerDiamonds(drop.quantity)
-                addLog(`获得 钻石×${drop.quantity}`)
-              } else {
-                const mult = 1 + (utilMods.goldGain || 0) / 100
-                after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * mult))
-                addLog(`获得 ${dName}×${drop.quantity}`)
-              }
-              continue
-            }
-            const item = {
-              uid: `rift_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-              id: drop.itemId, name: dName, type, quality: (drop.quality || 'common') as never,
-              quantity: drop.quantity,
-              slot: (cat?.slot) as never, stats: drop.stats, affixes: drop.affixes,
-              setId: cat?.setId, setTier: cat?.setTier,
-              effect: cat?.effect as never, value: cat?.value,
-            }
-            if (shouldAutoDisassemble(item as never, after.settings)) {
-              const g = getDisassembleGold(item as never)
-              after.addPlayerGold(g)
-              addLog(`${dName} 已自动分解 +${g}金币`)
+        const utilMods = getPlayerMods().utility
+        for (const drop of res.drops) {
+          const cat = getItemInfo(drop.itemId)
+          const type = (drop.type || cat?.type || 'material') as 'equipment' | 'consumable' | 'material' | 'currency' | 'skillbook'
+          const dName = drop.name || cat?.name || drop.itemId
+          if (type === 'currency') {
+            if (drop.itemId === 'gem_diamond') {
+              after.addPlayerDiamonds(drop.quantity)
+              addLog(`获得 钻石×${drop.quantity}`)
             } else {
-              after.addItem(item as never)
+              const mult = 1 + (utilMods.goldGain || 0) / 100
+              after.addPlayerGold(Math.floor(drop.quantity * (cat?.value ?? 1) * mult))
               addLog(`获得 ${dName}×${drop.quantity}`)
             }
+            continue
+          }
+          const item = {
+            uid: `rift_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            id: drop.itemId, name: dName, type, quality: (drop.quality || 'common') as never,
+            quantity: drop.quantity,
+            slot: (cat?.slot) as never, stats: drop.stats, affixes: drop.affixes,
+            setId: cat?.setId, setTier: cat?.setTier,
+            effect: cat?.effect as never, value: cat?.value,
+          }
+          if (shouldAutoDisassemble(item as never, after.settings)) {
+            const g = getDisassembleGold(item as never)
+            after.addPlayerGold(g)
+            addLog(`${dName} 已自动分解 +${g}金币`)
+          } else {
+            after.addItem(item as never)
+            addLog(`获得 ${dName}×${drop.quantity}`)
           }
         }
-        if (result.ended) break
-        // 回合节奏：留出攻击/技能动画播放时间
-        await new Promise((r) => setTimeout(r, 2000))
       }
     } finally {
       releaseBattle('rift')
