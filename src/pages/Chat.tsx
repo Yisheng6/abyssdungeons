@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { MessageSquare, Send } from 'lucide-react'
 import { useSocket } from '@/hooks/useSocket'
+import { getToken } from '@/lib/auth'
 import { trpc } from '@/providers/trpc'
 
 interface ChatMsg { senderId: string; senderName: string; content: string; time: number }
 
 export default function Chat() {
   const playerName = localStorage.getItem('ad_user') || '冒险者'
-  const { sendChat, onChatMessage } = useSocket(playerName, playerName)
+  const { sendChat, onChatMessage } = useSocket(playerName, playerName, getToken())
   const [messages, setMessages] = useState<ChatMsg[]>([])
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)

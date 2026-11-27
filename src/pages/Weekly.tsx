@@ -3,6 +3,7 @@ import { Crown, Swords, Trophy, Skull } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { confirmSwitchBattle, snapshotBattleStats, battleHijacked, releaseBattle } from '@/lib/battle-switch'
 import { trpc } from '@/providers/trpc'
+import { getToken } from '@/lib/auth'
 import { getItemInfo } from '@/lib/catalog'
 import { chooseAutoSkill } from '@/lib/battle-ai'
 import BattleStage from '@/components/BattleStage'
@@ -151,7 +152,7 @@ export default function Weekly() {
       const name = localStorage.getItem('ad_user') || ''
       if (name) {
         try {
-          const r = await submitMut.mutateAsync({ playerId: name, playerName: name, damage })
+          const r = await submitMut.mutateAsync({ playerId: name, playerName: name, damage, token: getToken() })
           addLog(r.rank ? `本周排名：第 ${r.rank} 名` : '成绩已提交')
           topQ.refetch()
         } catch { /* 排行提交失败不影响奖励 */ }

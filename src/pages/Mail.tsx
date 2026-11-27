@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Mail, MailOpen, Gift, Trash2, Inbox, Coins, Gem, Package } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
+import { getToken } from '@/lib/auth'
 import { trpc } from '@/providers/trpc'
 
 interface MailItem {
@@ -20,7 +21,8 @@ const attText = (a: { kind: string; amount?: number; itemId?: string; quantity?:
 export default function MailPage() {
   const store = useGameStore()
   const playerName = localStorage.getItem('ad_user') || '冒险者'
-  const listQ = trpc.mail.list.useQuery({ playerName }, { refetchInterval: 30000 })
+  const token = getToken()
+  const listQ = trpc.mail.list.useQuery({ playerName, token }, { refetchInterval: 30000 })
   const readMut = trpc.mail.read.useMutation()
   const claimMut = trpc.mail.claim.useMutation()
   const removeMut = trpc.mail.remove.useMutation()
@@ -34,11 +36,11 @@ export default function MailPage() {
 
   const openMail = (m: MailItem) => {
     setSelected(m.id)
-    if (!m.read) readMut.mutate({ playerName, mailId: m.id }, { onSuccess: refresh })
+    if (!m.read) readMut.mutate({ playerName, token, mailId: m.id }, { onSuccess: refresh })
   }
 
   const claim = (m: MailItem) => {
-    claimMut.mutate({ playerName, mailId: m.id }, {
+    claimMut.mutate({ playerName, token, mailId: m.id }, {
       onSuccess: (r) => {
         if (!r.success) { setMsg(r.message); return }
         if (r.gold > 0) store.addPlayerGold(r.gold)
@@ -60,7 +62,7 @@ export default function MailPage() {
   }
 
   const remove = (m: MailItem) => {
-    removeMut.mutate({ playerName, mailId: m.id }, {
+    removeMut.mutate({ playerName, token, mailId: m.id }, {
       onSuccess: (r) => { setMsg(r.message); if (r.success) setSelected(null); refresh() },
     })
   }

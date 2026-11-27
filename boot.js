@@ -4005,8 +4005,8 @@ var require_defaults = __commonJS({
       object = Object(object);
       const objectProto = Object.prototype;
       let length = sources.length;
-      const guard = length > 2 ? sources[2] : void 0;
-      if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+      const guard2 = length > 2 ? sources[2] : void 0;
+      if (guard2 && isIterateeCall(sources[0], sources[1], guard2)) {
         length = 1;
       }
       for (let i = 0; i < length; i++) {
@@ -11222,6 +11222,98 @@ var init_redis_service = __esm({
   "api/services/redis-service.ts"() {
     import_ioredis = __toESM(require_built3(), 1);
     redis = null;
+  }
+});
+
+// api/services/auth-service.ts
+import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
+function hashPassword(password, salt) {
+  return scryptSync(password, salt, 32).toString("hex");
+}
+async function registerAccount(username, password) {
+  if (!USERNAME_RE.test(username)) {
+    return { ok: false, message: "\u7528\u6237\u540D\u9700 2-16 \u4F4D\uFF0C\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u4E0B\u5212\u7EBF" };
+  }
+  if (password.length < 6 || password.length > 32) {
+    return { ok: false, message: "\u5BC6\u7801\u9700 6-32 \u4F4D" };
+  }
+  const r = getRedis();
+  const key = `acc:${username.toLowerCase()}`;
+  const claimed = await r.set(key, "RESERVED", "EX", 60, "NX");
+  if (!claimed) return { ok: false, message: "\u8BE5\u7528\u6237\u540D\u5DF2\u88AB\u6CE8\u518C" };
+  const salt = randomBytes(16).toString("hex");
+  const rec = { salt, hash: hashPassword(password, salt), createdAt: Date.now() };
+  await r.set(key, JSON.stringify(rec));
+  return { ok: true, username };
+}
+async function checkLoginRateLimit(ip) {
+  try {
+    const r = getRedis();
+    const key = `loginfail:${ip}`;
+    const fails = await r.incr(key);
+    if (fails === 1) await r.expire(key, LOGIN_FAIL_WINDOW);
+    return fails <= LOGIN_FAIL_LIMIT;
+  } catch {
+    return true;
+  }
+}
+async function loginAccount(username, password) {
+  const r = getRedis();
+  const raw2 = await r.get(`acc:${username.toLowerCase()}`);
+  if (!raw2 || raw2 === "RESERVED") return { ok: false, message: "\u7528\u6237\u540D\u6216\u5BC6\u7801\u9519\u8BEF" };
+  let rec;
+  try {
+    rec = JSON.parse(raw2);
+  } catch {
+    return { ok: false, message: "\u8D26\u53F7\u6570\u636E\u5F02\u5E38\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458" };
+  }
+  const candidate = Buffer.from(hashPassword(password, rec.salt), "hex");
+  const stored = Buffer.from(rec.hash, "hex");
+  if (candidate.length !== stored.length || !timingSafeEqual(candidate, stored)) {
+    return { ok: false, message: "\u7528\u6237\u540D\u6216\u5BC6\u7801\u9519\u8BEF" };
+  }
+  const token = randomBytes(32).toString("hex");
+  await r.setex(`tok:${token}`, TOKEN_TTL, rec ? username : username);
+  return { ok: true, token, username };
+}
+async function verifyToken(token) {
+  if (!token || token.length > 128) return null;
+  try {
+    const r = getRedis();
+    const username = await r.get(`tok:${token}`);
+    if (!username) return null;
+    await r.expire(`tok:${token}`, TOKEN_TTL);
+    return username;
+  } catch {
+    return null;
+  }
+}
+async function logoutToken(token) {
+  try {
+    await getRedis().del(`tok:${token}`);
+  } catch {
+  }
+}
+async function requireAccount(token, expectedName) {
+  if (!token) throw new Error("UNAUTHENTICATED");
+  const username = await verifyToken(token);
+  if (!username) throw new Error("UNAUTHENTICATED");
+  if (expectedName && username !== expectedName) throw new Error("FORBIDDEN");
+  return username;
+}
+function clientIp(req) {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return req.headers.get("x-real-ip") || "unknown";
+}
+var TOKEN_TTL, LOGIN_FAIL_LIMIT, LOGIN_FAIL_WINDOW, USERNAME_RE;
+var init_auth_service = __esm({
+  "api/services/auth-service.ts"() {
+    init_redis_service();
+    TOKEN_TTL = 30 * 24 * 3600;
+    LOGIN_FAIL_LIMIT = 10;
+    LOGIN_FAIL_WINDOW = 600;
+    USERNAME_RE = /^[a-zA-Z0-9_]{2,16}$/;
   }
 });
 
@@ -45049,7 +45141,7 @@ var require_websocket2 = __commonJS({
     var http = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes, createHash } = __require("crypto");
+    var { randomBytes: randomBytes2, createHash } = __require("crypto");
     var { Duplex, Readable: Readable3 } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
@@ -45587,7 +45679,7 @@ var require_websocket2 = __commonJS({
         }
       }
       const defaultPort = isSecure ? 443 : 80;
-      const key = randomBytes(16).toString("base64");
+      const key = randomBytes2(16).toString("base64");
       const request = isSecure ? https.request : http.request;
       const protocolSet = /* @__PURE__ */ new Set();
       let perMessageDeflate;
@@ -53468,8 +53560,19 @@ function initRealtime(server) {
     pingInterval: 15e3
   });
   io2.on("connection", (socket) => {
-    const playerId = socket.handshake.query.playerId || `guest_${socket.id}`;
-    const playerName = socket.handshake.query.playerName || "\u5192\u9669\u8005";
+    const claimedId = socket.handshake.query.playerId || `guest_${socket.id}`;
+    const claimedName = socket.handshake.query.playerName || "\u5192\u9669\u8005";
+    const token = socket.handshake.query.token || "";
+    socket.data.authed = false;
+    verifyToken(token).then((username) => {
+      if (username && username === claimedId) {
+        socket.data.authed = true;
+        socket.data.username = username;
+      }
+    }).catch(() => {
+    });
+    const playerId = claimedId;
+    const playerName = claimedName;
     console.log(`[Socket] ${playerName}(${playerId}) connected`);
     setPlayerOnline(playerId, playerName, "online");
     socket.broadcast.emit("player:online", { playerId, name: playerName });
@@ -53480,11 +53583,18 @@ function initRealtime(server) {
       socket.leave(`chat:${channel}`);
     });
     socket.on("chat:message", async (data) => {
-      await addChatMessage(data.channel, playerId, playerName, data.content);
+      if (!socket.data.authed || !socket.data.username) {
+        socket.emit("chat:error", { message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548\uFF0C\u65E0\u6CD5\u53D1\u8A00" });
+        return;
+      }
+      const sender = socket.data.username;
+      const content = typeof data.content === "string" ? data.content.slice(0, 500) : "";
+      if (!content.trim()) return;
+      await addChatMessage(data.channel, sender, sender, content);
       io2?.to(`chat:${data.channel}`).emit("chat:message", {
-        senderId: playerId,
-        senderName: playerName,
-        content: data.content,
+        senderId: sender,
+        senderName: sender,
+        content,
         time: Date.now()
       });
     });
@@ -53549,6 +53659,7 @@ var init_realtime_service = __esm({
   "api/services/realtime-service.ts"() {
     init_wrapper();
     init_redis_service();
+    init_auth_service();
     io2 = null;
   }
 });
@@ -65214,6 +65325,7 @@ var gameRouter = createRouter({
 });
 
 // api/routers/leaderboard-router.ts
+init_auth_service();
 init_redis_service();
 var leaderboardRouter = createRouter({
   submitScore: publicQuery.input(external_exports.object({
@@ -65221,8 +65333,15 @@ var leaderboardRouter = createRouter({
     playerId: external_exports.string().min(1).max(32),
     score: external_exports.number().int().min(0),
     playerName: external_exports.string().min(1).max(32),
+    token: external_exports.string().min(1).max(128),
     details: external_exports.record(external_exports.any()).optional()
   })).mutation(async ({ input }) => {
+    try {
+      await requireAccount(input.token, input.playerId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+    }
     await addLeaderboardScore(input.category, input.playerId, input.score, {
       name: input.playerName,
       ...input.details
@@ -65245,15 +65364,54 @@ var leaderboardRouter = createRouter({
   })
 });
 
+// api/routers/account-router.ts
+init_auth_service();
+var usernameSchema = external_exports.string().regex(USERNAME_RE, "\u7528\u6237\u540D\u9700 2-16 \u4F4D\uFF0C\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u4E0B\u5212\u7EBF");
+var passwordSchema = external_exports.string().min(6, "\u5BC6\u7801\u81F3\u5C11 6 \u4F4D").max(32, "\u5BC6\u7801\u6700\u957F 32 \u4F4D");
+var accountRouter = createRouter({
+  register: publicQuery.input(external_exports.object({ username: usernameSchema, password: passwordSchema })).mutation(async ({ input }) => {
+    const result = await registerAccount(input.username, input.password);
+    if (!result.ok) throw new TRPCError({ code: "BAD_REQUEST", message: result.message });
+    return { success: true };
+  }),
+  login: publicQuery.input(external_exports.object({ username: external_exports.string().min(1).max(32), password: external_exports.string().min(1).max(64) })).mutation(async ({ input, ctx }) => {
+    const ip = clientIp(ctx.req);
+    if (!await checkLoginRateLimit(ip)) {
+      throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "\u5C1D\u8BD5\u6B21\u6570\u8FC7\u591A\uFF0C\u8BF7 10 \u5206\u949F\u540E\u518D\u8BD5" });
+    }
+    const result = await loginAccount(input.username, input.password);
+    if (!result.ok) throw new TRPCError({ code: "UNAUTHORIZED", message: result.message });
+    return { token: result.token, username: result.username };
+  }),
+  logout: publicQuery.input(external_exports.object({ token: external_exports.string().min(1).max(128) })).mutation(async ({ input }) => {
+    await logoutToken(input.token);
+    return { success: true };
+  }),
+  /** 校验令牌有效性（前端启动时调用，失效则强制重新登录） */
+  me: publicQuery.input(external_exports.object({ token: external_exports.string().min(1).max(128) })).query(async ({ input }) => {
+    const username = await verifyToken(input.token);
+    if (!username) throw new TRPCError({ code: "UNAUTHORIZED", message: "\u767B\u5F55\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u767B\u5F55" });
+    return { username };
+  })
+});
+
 // api/routers/chat-router.ts
+init_auth_service();
 init_redis_service();
 var chatRouter = createRouter({
   send: publicQuery.input(external_exports.object({
     channel: external_exports.enum(["world", "area", "party", "guild"]).default("world"),
     senderId: external_exports.string().min(1).max(32),
     senderName: external_exports.string().min(1).max(32),
-    content: external_exports.string().min(1).max(500)
+    content: external_exports.string().min(1).max(500),
+    token: external_exports.string().min(1).max(128)
   })).mutation(async ({ input }) => {
+    try {
+      await requireAccount(input.token, input.senderId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+    }
     await addChatMessage(input.channel, input.senderId, input.senderName, input.content);
     return { success: true };
   }),
@@ -65269,6 +65427,9 @@ var chatRouter = createRouter({
     return players;
   })
 });
+
+// api/routers/weekly-router.ts
+init_auth_service();
 
 // api/services/weekly-service.ts
 var WEEKLY_BOSSES = [
@@ -65327,8 +65488,15 @@ var weeklyRouter = createRouter({
   submit: publicQuery.input(external_exports.object({
     playerId: external_exports.string().min(1).max(32),
     playerName: external_exports.string().min(1).max(32),
-    damage: external_exports.number().int().min(0)
+    damage: external_exports.number().int().min(0),
+    token: external_exports.string().min(1).max(128)
   })).mutation(async ({ input }) => {
+    try {
+      await requireAccount(input.token, input.playerId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+    }
     const { weekId } = getWeeklyBoss();
     const cat = weeklyCategory(weekId);
     const oldRank = await getPlayerRank(cat, input.playerId);
@@ -65496,10 +65664,23 @@ function claimAttachments(to, mailId) {
 }
 
 // api/routers/mail-router.ts
-var playerInput = external_exports.object({ playerName: external_exports.string().min(1).max(32) });
+init_auth_service();
+var playerInput = external_exports.object({
+  playerName: external_exports.string().min(1).max(32),
+  token: external_exports.string().min(1).max(128)
+});
+async function guard(playerName, token) {
+  try {
+    await requireAccount(token, playerName);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
+  }
+}
 var mailRouter = createRouter({
   // 邮件列表（顺带确保欢迎邮件送达）
-  list: publicQuery.input(playerInput).query(({ input }) => {
+  list: publicQuery.input(playerInput).query(async ({ input }) => {
+    await guard(input.playerName, input.token);
     sendMailOnce(
       input.playerName,
       "welcome",
@@ -65523,18 +65704,29 @@ var mailRouter = createRouter({
       tag: m.tag
     }));
   }),
-  unread: publicQuery.input(playerInput).query(({ input }) => ({
-    count: unreadCount(input.playerName)
-  })),
-  read: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => ({ success: markRead(input.playerName, input.mailId) })),
-  claim: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => claimAttachments(input.playerName, input.mailId)),
-  remove: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(({ input }) => deleteMail(input.playerName, input.mailId))
+  unread: publicQuery.input(playerInput).query(async ({ input }) => {
+    await guard(input.playerName, input.token);
+    return { count: unreadCount(input.playerName) };
+  }),
+  read: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
+    await guard(input.playerName, input.token);
+    return { success: markRead(input.playerName, input.mailId) };
+  }),
+  claim: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
+    await guard(input.playerName, input.token);
+    return claimAttachments(input.playerName, input.mailId);
+  }),
+  remove: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
+    await guard(input.playerName, input.token);
+    return deleteMail(input.playerName, input.mailId);
+  })
 });
 
 // api/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
+  account: accountRouter,
   game: gameRouter,
   lb: leaderboardRouter,
   chat: chatRouter,

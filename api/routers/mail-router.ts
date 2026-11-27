@@ -1,14 +1,30 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createRouter, publicQuery } from "../middleware";
 import {
   listMails, unreadCount, markRead, deleteMail, claimAttachments, sendMailOnce,
 } from "../services/mail-service";
+import { requireAccount } from "../services/auth-service";
 
-const playerInput = z.object({ playerName: z.string().min(1).max(32) });
+// 邮箱属私人数据：所有操作必须持有效 token，且 token 绑定账号与 playerName 一致
+const playerInput = z.object({
+  playerName: z.string().min(1).max(32),
+  token: z.string().min(1).max(128),
+});
+
+async function guard(playerName: string, token: string) {
+  try {
+    await requireAccount(token, playerName);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "登录状态无效" });
+  }
+}
 
 export const mailRouter = createRouter({
   // 邮件列表（顺带确保欢迎邮件送达）
-  list: publicQuery.input(playerInput).query(({ input }) => {
+  list: publicQuery.input(playerInput).query(async ({ input }) => {
+    await guard(input.playerName, input.token);
     sendMailOnce(
       input.playerName,
       "welcome",
@@ -27,19 +43,29 @@ export const mailRouter = createRouter({
     }));
   }),
 
-  unread: publicQuery.input(playerInput).query(({ input }) => ({
-    count: unreadCount(input.playerName),
-  })),
+  unread: publicQuery.input(playerInput).query(async ({ input }) => {
+    await guard(input.playerName, input.token);
+    return { count: unreadCount(input.playerName) };
+  }),
 
   read: publicQuery
     .input(playerInput.extend({ mailId: z.string() }))
-    .mutation(({ input }) => ({ success: markRead(input.playerName, input.mailId) })),
+    .mutation(async ({ input }) => {
+      await guard(input.playerName, input.token);
+      return { success: markRead(input.playerName, input.mailId) };
+    }),
 
   claim: publicQuery
     .input(playerInput.extend({ mailId: z.string() }))
-    .mutation(({ input }) => claimAttachments(input.playerName, input.mailId)),
+    .mutation(async ({ input }) => {
+      await guard(input.playerName, input.token);
+      return claimAttachments(input.playerName, input.mailId);
+    }),
 
   remove: publicQuery
     .input(playerInput.extend({ mailId: z.string() }))
-    .mutation(({ input }) => deleteMail(input.playerName, input.mailId)),
+    .mutation(async ({ input }) => {
+      await guard(input.playerName, input.token);
+      return deleteMail(input.playerName, input.mailId);
+    }),
 });

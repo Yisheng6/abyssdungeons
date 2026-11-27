@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Trophy, Medal } from 'lucide-react'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
+import { getToken } from '@/lib/auth'
 
 const CATEGORIES = [
   { id: 'deepest_layer' as const, name: '混乱深渊', suffix: '层' },
@@ -33,7 +34,7 @@ export default function Leaderboard() {
       : cat === 'kills' ? totalKills
       : 0
     if (score > 0) {
-      submitMut.mutateAsync({ category: cat, playerId: playerName, playerName, score }).catch(() => {})
+      submitMut.mutateAsync({ category: cat, playerId: playerName, playerName, score, token: getToken() }).catch(() => {})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cat, playerName, totalKills, lawfulBest])

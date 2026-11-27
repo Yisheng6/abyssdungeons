@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import PixIcon from './PixIcon'
 import { useGameStore } from '@/stores/gameStore'
 import { trpc } from '@/providers/trpc'
+import { getToken, clearAuth } from '@/lib/auth'
 import AutoDisassembleSettings from './AutoDisassembleSettings'
 import AutoPotionSettings from './AutoPotionSettings'
 import Explore from '@/pages/Explore'
@@ -64,7 +65,13 @@ export default function Layout() {
     () => location.pathname.startsWith('/explore') || location.pathname.startsWith('/lawful'),
   )
   const playerName = localStorage.getItem('ad_user') || '冒险者'
-  const unreadQ = trpc.mail.unread.useQuery({ playerName }, { refetchInterval: 30000 })
+  const token = getToken()
+  // 启动校验令牌：失效则清除登录态并回登录页
+  const meQ = trpc.account.me.useQuery({ token }, { retry: false, staleTime: 60000 })
+  useEffect(() => {
+    if (meQ.error) { clearAuth(); navigate('/login', { replace: true }) }
+  }, [meQ.error, navigate])
+  const unreadQ = trpc.mail.unread.useQuery({ playerName, token }, { refetchInterval: 30000 })
   const unreadMails = unreadQ.data?.count || 0
   // 战斗页常驻挂载：首次访问后不卸载，切换页签战斗不中断
   const onExplore = location.pathname.startsWith('/explore')
@@ -82,9 +89,10 @@ export default function Layout() {
   // 进入混乱/守序深渊时自动展开分组
   useEffect(() => { if (onExplore || onLawful) setAbyssOpen(true) }, [onExplore, onLawful])
 
+  const logoutMut = trpc.account.logout.useMutation()
   const logout = () => {
-    localStorage.removeItem('ad_token')
-    localStorage.removeItem('ad_user')
+    logoutMut.mutate({ token }) // 服务端销毁令牌（不等待结果）
+    clearAuth()
     navigate('/login')
   }
 

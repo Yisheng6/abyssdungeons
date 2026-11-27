@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createRouter, publicQuery } from "../middleware";
+import { requireAccount } from "../services/auth-service";
 import {
   addLeaderboardScore,
   getLeaderboardTop,
@@ -13,9 +15,16 @@ export const leaderboardRouter = createRouter({
       playerId: z.string().min(1).max(32),
       score: z.number().int().min(0),
       playerName: z.string().min(1).max(32),
+      token: z.string().min(1).max(128),
       details: z.record(z.any()).optional(),
     }))
     .mutation(async ({ input }) => {
+      try {
+        await requireAccount(input.token, input.playerId);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "";
+        throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "登录状态无效" });
+      }
       await addLeaderboardScore(input.category, input.playerId, input.score, {
         name: input.playerName,
         ...input.details,

@@ -9,6 +9,7 @@ import {
   getChatMessages,
   setPlayerSession,
 } from "./redis-service";
+import { verifyToken } from "./auth-service";
 
 let io: SocketIOServer | null = null;
 
@@ -21,8 +22,21 @@ export function initRealtime(server: HttpServer) {
   });
 
   io.on("connection", (socket: Socket) => {
-    const playerId = socket.handshake.query.playerId as string || `guest_${socket.id}`;
-    const playerName = socket.handshake.query.playerName as string || "冒险者";
+    const claimedId = socket.handshake.query.playerId as string || `guest_${socket.id}`;
+    const claimedName = socket.handshake.query.playerName as string || "冒险者";
+    const token = (socket.handshake.query.token as string) || "";
+
+    // 令牌校验：通过则以令牌绑定账号为准（防冒名），失败标记为游客（禁言聊天）
+    socket.data.authed = false;
+    verifyToken(token).then((username) => {
+      if (username && username === claimedId) {
+        socket.data.authed = true;
+        socket.data.username = username;
+      }
+    }).catch(() => { /* 保持未认证 */ });
+
+    const playerId = claimedId;
+    const playerName = claimedName;
 
     console.log(`[Socket] ${playerName}(${playerId}) connected`);
     setPlayerOnline(playerId, playerName, "online");
@@ -38,11 +52,19 @@ export function initRealtime(server: HttpServer) {
     });
 
     socket.on("chat:message", async (data: { channel: string; content: string }) => {
-      await addChatMessage(data.channel, playerId, playerName, data.content);
+      // 未通过令牌校验的连接禁止发言（防冒名）
+      if (!socket.data.authed || !socket.data.username) {
+        socket.emit("chat:error", { message: "登录状态无效，无法发言" });
+        return;
+      }
+      const sender = socket.data.username as string;
+      const content = typeof data.content === "string" ? data.content.slice(0, 500) : "";
+      if (!content.trim()) return;
+      await addChatMessage(data.channel, sender, sender, content);
       io?.to(`chat:${data.channel}`).emit("chat:message", {
-        senderId: playerId,
-        senderName: playerName,
-        content: data.content,
+        senderId: sender,
+        senderName: sender,
+        content,
         time: Date.now(),
       });
     });
