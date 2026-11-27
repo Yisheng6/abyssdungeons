@@ -384,6 +384,9 @@ export const gameRouter = createRouter({
         ts.daily.bossKills += r.bossKills; ts.totals.bossKills += r.bossKills;
         if (ups > 0 || r.rooms > 0) applyRecompute(p, s.equipment || {}, s.talents || {});
         const version = await writeState(username, s);
+        const { logOp } = await import("../services/oplog-service");
+        logOp(username, "offline_settle", true,
+          `离线结算：${r.rooms}房间 击杀${r.kills} 经验+${r.exp} 金币+${r.gold + disGold} 钻石+${r.diamonds} 第${r.startLayer}→${r.finalLayer}层`, version);
         return { ...r, disassembledGold: disGold, keptCount: kept, state: s, version };
       } catch { /* 存档写入失败时仍返回结算摘要 */ }
       return r;

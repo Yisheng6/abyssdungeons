@@ -80,6 +80,9 @@ export const mailRouter = createRouter({
         });
       }
       const version = await writeState(input.playerName, s);
+      const { logOp } = await import("../services/oplog-service");
+      logOp(input.playerName, "mail_claim", true,
+        `领取邮件附件：金币+${r.gold} 钻石+${r.diamonds} 道具×${r.items.reduce((a, i) => a + i.quantity, 0)}`, version);
       return { ...r, state: s, version };
     }),
 

@@ -6,6 +6,7 @@ import { ensureTaskState } from "./char-ops-service";
 import { getDailyRewardBonus } from "./daily-service";
 import { getWeeklyBoss, weeklyCategory } from "./weekly-service";
 import { addLeaderboardScore } from "./redis-service";
+import { logOp } from "./oplog-service";
 
 const QUALITY_RANK: Record<string, number> = {
   common: 0, fine: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, eternal: 6,
@@ -180,5 +181,12 @@ export async function settleBattle(
   }
 
   const version = await writeState(username, s);
+  logOp(username, `battle_${session.mode}`, opts.victory,
+    weeklyDmg
+      ? `每周挑战：伤害${weeklyDmg} 经验+${exp} 金币+${gold}`
+      : opts.victory
+        ? `战斗胜利：经验+${exp} 金币+${gold}${diamonds > 0 ? ` 钻石+${diamonds}` : ""} 掉落×${items.length}${ups > 0 ? ` 升级×${ups}` : ""}`
+        : "战斗失败",
+    version);
   return { exp, gold, diamonds, levelUps: ups, items, weeklyDamage: weeklyDmg, passHeal: settlePassHeal, state: s, version };
 }

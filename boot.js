@@ -12814,6 +12814,41 @@ var init_auth_service = __esm({
   }
 });
 
+// api/services/oplog-service.ts
+var oplog_service_exports = {};
+__export(oplog_service_exports, {
+  logOp: () => logOp,
+  readOpLog: () => readOpLog
+});
+function logOp(username, op, ok2, detail, version2) {
+  const entry = { t: Date.now(), op, ok: ok2, detail: String(detail || "").slice(0, 200), v: version2 };
+  void (async () => {
+    try {
+      const r = getRedis();
+      const k = KEY(username);
+      await r.lpush(k, JSON.stringify(entry));
+      await r.ltrim(k, 0, MAX_ENTRIES - 1);
+    } catch {
+    }
+  })();
+}
+async function readOpLog(username, limit = 100) {
+  try {
+    const raw2 = await getRedis().lrange(KEY(username), 0, Math.max(0, limit - 1));
+    return raw2.map((s) => JSON.parse(s));
+  } catch {
+    return [];
+  }
+}
+var KEY, MAX_ENTRIES;
+var init_oplog_service = __esm({
+  "api/services/oplog-service.ts"() {
+    init_redis_service();
+    KEY = (u) => `oplog:${u.toLowerCase()}`;
+    MAX_ENTRIES = 300;
+  }
+});
+
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
   "node_modules/dotenv/lib/main.js"(exports, module) {
@@ -66856,6 +66891,14 @@ var gameRouter = createRouter({
       ts.totals.bossKills += r.bossKills;
       if (ups > 0 || r.rooms > 0) applyRecompute2(p, s.equipment || {}, s.talents || {});
       const version2 = await writeState2(username, s);
+      const { logOp: logOp2 } = await Promise.resolve().then(() => (init_oplog_service(), oplog_service_exports));
+      logOp2(
+        username,
+        "offline_settle",
+        true,
+        `\u79BB\u7EBF\u7ED3\u7B97\uFF1A${r.rooms}\u623F\u95F4 \u51FB\u6740${r.kills} \u7ECF\u9A8C+${r.exp} \u91D1\u5E01+${r.gold + disGold} \u94BB\u77F3+${r.diamonds} \u7B2C${r.startLayer}\u2192${r.finalLayer}\u5C42`,
+        version2
+      );
       return { ...r, disassembledGold: disGold, keptCount: kept, state: s, version: version2 };
     } catch {
     }
@@ -67041,6 +67084,7 @@ var weeklyCategory = (weekId) => `weekly_boss_${weekId}`;
 
 // api/services/battle-settle-service.ts
 init_redis_service();
+init_oplog_service();
 function todayStr() {
   const d = /* @__PURE__ */ new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -67169,6 +67213,13 @@ async function settleBattle(username, session, drops, opts) {
     s.classSaves[s.activeClassId] = { player: p, equipment };
   }
   const version2 = await writeState(username, s);
+  logOp(
+    username,
+    `battle_${session.mode}`,
+    opts.victory,
+    weeklyDmg ? `\u6BCF\u5468\u6311\u6218\uFF1A\u4F24\u5BB3${weeklyDmg} \u7ECF\u9A8C+${exp} \u91D1\u5E01+${gold}` : opts.victory ? `\u6218\u6597\u80DC\u5229\uFF1A\u7ECF\u9A8C+${exp} \u91D1\u5E01+${gold}${diamonds > 0 ? ` \u94BB\u77F3+${diamonds}` : ""} \u6389\u843D\xD7${items.length}${ups > 0 ? ` \u5347\u7EA7\xD7${ups}` : ""}` : "\u6218\u6597\u5931\u8D25",
+    version2
+  );
   return { exp, gold, diamonds, levelUps: ups, items, weeklyDamage: weeklyDmg, passHeal: settlePassHeal, state: s, version: version2 };
 }
 
@@ -67401,6 +67452,7 @@ var battleRouter = createRouter({
 // api/routers/char-router.ts
 init_auth_service();
 init_char_state_service();
+init_oplog_service();
 init_char_ops_service();
 async function auth3(token) {
   try {
@@ -67410,7 +67462,7 @@ async function auth3(token) {
     throw new TRPCError({ code: msg === "FORBIDDEN" ? "FORBIDDEN" : "UNAUTHORIZED", message: "\u767B\u5F55\u72B6\u6001\u65E0\u6548" });
   }
 }
-async function run2(token, fn, allowNew = false) {
+async function run2(token, op, fn, allowNew = false) {
   const username = await auth3(token);
   const rec = await loadState(username);
   if (!rec && !allowNew) throw new TRPCError({ code: "BAD_REQUEST", message: "\u5B58\u6863\u4E0D\u5B58\u5728" });
@@ -67418,41 +67470,50 @@ async function run2(token, fn, allowNew = false) {
   const r = fn(state, username);
   let version2 = rec?.version ?? 0;
   if (r.success) version2 = await writeState(username, state);
+  logOp(username, op, r.success, r.message, r.success ? version2 : void 0);
   return { ...r, state, version: version2 };
 }
 var charRouter = createRouter({
   // ─── 角色 ───
-  createPlayer: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s, username) => opCreatePlayer(s, input.classId, username), true)),
-  switchClass: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opSwitchClass(s, input.classId))),
+  createPlayer: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, "createPlayer", (s, username) => opCreatePlayer(s, input.classId, username), true)),
+  switchClass: publicQuery.input(external_exports.object({ token: external_exports.string(), classId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, "switchClass", (s) => opSwitchClass(s, input.classId))),
   // ─── 装备 ───
-  equip: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opEquip(s, input.uid))),
-  unequip: publicQuery.input(external_exports.object({ token: external_exports.string(), slot: external_exports.string().max(16) })).mutation(({ input }) => run2(input.token, (s) => opUnequip(s, input.slot))),
-  useItem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opUseConsumable(s, input.uid))),
-  disassemble: publicQuery.input(external_exports.object({ token: external_exports.string(), uids: external_exports.array(external_exports.string().max(64)).min(1).max(50) })).mutation(({ input }) => run2(input.token, (s) => opDisassemble(s, input.uids))),
-  buy: publicQuery.input(external_exports.object({ token: external_exports.string(), itemId: external_exports.string().max(64), qty: external_exports.number().int().min(1).max(99) })).mutation(({ input }) => run2(input.token, (s) => opBuyItem(s, input.itemId, input.qty))),
+  equip: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, "equip", (s) => opEquip(s, input.uid))),
+  unequip: publicQuery.input(external_exports.object({ token: external_exports.string(), slot: external_exports.string().max(16) })).mutation(({ input }) => run2(input.token, "unequip", (s) => opUnequip(s, input.slot))),
+  useItem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, "useItem", (s) => opUseConsumable(s, input.uid))),
+  disassemble: publicQuery.input(external_exports.object({ token: external_exports.string(), uids: external_exports.array(external_exports.string().max(64)).min(1).max(50) })).mutation(({ input }) => run2(input.token, "disassemble", (s) => opDisassemble(s, input.uids))),
+  buy: publicQuery.input(external_exports.object({ token: external_exports.string(), itemId: external_exports.string().max(64), qty: external_exports.number().int().min(1).max(99) })).mutation(({ input }) => run2(input.token, "buy", (s) => opBuyItem(s, input.itemId, input.qty))),
   // ─── 铁匠铺 ───
-  enhance: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useProtect: external_exports.boolean().optional(), useLucky: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opEnhance(s, input.uid, !!input.useProtect, !!input.useLucky))),
-  reforge: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useDiamond: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opReforge(s, input.uid, !!input.useDiamond))),
-  socketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemUid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opSocketGem(s, input.uid, input.gemUid))),
-  unsocketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemIndex: external_exports.number().int().min(0).max(5) })).mutation(({ input }) => run2(input.token, (s) => opUnsocketGem(s, input.uid, input.gemIndex))),
+  enhance: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useProtect: external_exports.boolean().optional(), useLucky: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, "enhance", (s) => opEnhance(s, input.uid, !!input.useProtect, !!input.useLucky))),
+  reforge: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), useDiamond: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, "reforge", (s) => opReforge(s, input.uid, !!input.useDiamond))),
+  socketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemUid: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, "socketGem", (s) => opSocketGem(s, input.uid, input.gemUid))),
+  unsocketGem: publicQuery.input(external_exports.object({ token: external_exports.string(), uid: external_exports.string().max(64), gemIndex: external_exports.number().int().min(0).max(5) })).mutation(({ input }) => run2(input.token, "unsocketGem", (s) => opUnsocketGem(s, input.uid, input.gemIndex))),
   // ─── 成长 ───
-  advanceTier: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opAdvanceTier(s))),
-  awaken: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opAwaken(s))),
-  learnTalent: publicQuery.input(external_exports.object({ token: external_exports.string(), nodeId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opLearnTalent(s, input.nodeId))),
-  respecTalents: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, (s) => opRespecTalents(s))),
-  learnSkill: publicQuery.input(external_exports.object({ token: external_exports.string(), skillId: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, (s) => opLearnSkill(s, input.skillId))),
-  claimTask: publicQuery.input(external_exports.object({ token: external_exports.string(), taskId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, (s) => opClaimTask(s, input.taskId))),
+  advanceTier: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, "advanceTier", (s) => opAdvanceTier(s))),
+  awaken: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, "awaken", (s) => opAwaken(s))),
+  learnTalent: publicQuery.input(external_exports.object({ token: external_exports.string(), nodeId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, "learnTalent", (s) => opLearnTalent(s, input.nodeId))),
+  respecTalents: publicQuery.input(external_exports.object({ token: external_exports.string() })).mutation(({ input }) => run2(input.token, "respecTalents", (s) => opRespecTalents(s))),
+  learnSkill: publicQuery.input(external_exports.object({ token: external_exports.string(), skillId: external_exports.string().max(64) })).mutation(({ input }) => run2(input.token, "learnSkill", (s) => opLearnSkill(s, input.skillId))),
+  claimTask: publicQuery.input(external_exports.object({ token: external_exports.string(), taskId: external_exports.string().max(32) })).mutation(({ input }) => run2(input.token, "claimTask", (s) => opClaimTask(s, input.taskId))),
   // ─── 进度（探索计数/层数/秘境阶段/设置） ───
-  track: publicQuery.input(external_exports.object({ token: external_exports.string(), kind: external_exports.enum(["rooms", "kills", "layers", "bossKills"]), n: external_exports.number().int().min(1).max(50).optional() })).mutation(({ input }) => run2(input.token, (s) => opTrackEvent(s, input.kind, input.n ?? 1))),
-  updateMaxLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(1e3) })).mutation(({ input }) => run2(input.token, (s) => opUpdateMaxLayer(s, input.layer))),
-  setLawfulLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(101) })).mutation(({ input }) => run2(input.token, (s) => opSetLawfulLayer(s, input.layer))),
-  setRiftStage: publicQuery.input(external_exports.object({ token: external_exports.string(), stage: external_exports.number().int().min(1).max(6), cleared: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, (s) => opSetRiftStage(s, input.stage, !!input.cleared))),
+  track: publicQuery.input(external_exports.object({ token: external_exports.string(), kind: external_exports.enum(["rooms", "kills", "layers", "bossKills"]), n: external_exports.number().int().min(1).max(50).optional() })).mutation(({ input }) => run2(input.token, "track", (s) => opTrackEvent(s, input.kind, input.n ?? 1))),
+  updateMaxLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(1e3) })).mutation(({ input }) => run2(input.token, "updateMaxLayer", (s) => opUpdateMaxLayer(s, input.layer))),
+  setLawfulLayer: publicQuery.input(external_exports.object({ token: external_exports.string(), layer: external_exports.number().int().min(1).max(101) })).mutation(({ input }) => run2(input.token, "setLawfulLayer", (s) => opSetLawfulLayer(s, input.layer))),
+  setRiftStage: publicQuery.input(external_exports.object({ token: external_exports.string(), stage: external_exports.number().int().min(1).max(6), cleared: external_exports.boolean().optional() })).mutation(({ input }) => run2(input.token, "setRiftStage", (s) => opSetRiftStage(s, input.stage, !!input.cleared))),
   /** 领取探索掉落（凭证制，服务端暂存的战利品入库） */
   claimLoot: publicQuery.input(external_exports.object({ token: external_exports.string(), voucher: external_exports.string().max(64) })).mutation(async ({ input }) => {
     const username = await auth3(input.token);
-    return claimLootVoucher(username, input.voucher);
+    const r = await claimLootVoucher(username, input.voucher);
+    logOp(username, "claimLoot", r.success, r.message, r.version);
+    return r;
   }),
-  updateSettings: publicQuery.input(external_exports.object({ token: external_exports.string(), patch: external_exports.record(external_exports.unknown()) })).mutation(({ input }) => run2(input.token, (s) => opUpdateSettings(s, input.patch)))
+  updateSettings: publicQuery.input(external_exports.object({ token: external_exports.string(), patch: external_exports.record(external_exports.unknown()) })).mutation(({ input }) => run2(input.token, "updateSettings", (s) => opUpdateSettings(s, input.patch))),
+  /** 查询自己的操作日志（最新在前，最多 100 条） */
+  opLog: publicQuery.input(external_exports.object({ token: external_exports.string(), limit: external_exports.number().int().min(1).max(100).optional() })).query(async ({ input }) => {
+    const username = await auth3(input.token);
+    const { readOpLog: readOpLog2 } = await Promise.resolve().then(() => (init_oplog_service(), oplog_service_exports));
+    return readOpLog2(username, input.limit ?? 100);
+  })
 });
 
 // api/routers/chat-router.ts
@@ -67758,6 +67819,14 @@ var mailRouter = createRouter({
       });
     }
     const version2 = await writeState2(input.playerName, s);
+    const { logOp: logOp2 } = await Promise.resolve().then(() => (init_oplog_service(), oplog_service_exports));
+    logOp2(
+      input.playerName,
+      "mail_claim",
+      true,
+      `\u9886\u53D6\u90AE\u4EF6\u9644\u4EF6\uFF1A\u91D1\u5E01+${r.gold} \u94BB\u77F3+${r.diamonds} \u9053\u5177\xD7${r.items.reduce((a, i) => a + i.quantity, 0)}`,
+      version2
+    );
     return { ...r, state: s, version: version2 };
   }),
   remove: publicQuery.input(playerInput.extend({ mailId: external_exports.string() })).mutation(async ({ input }) => {
