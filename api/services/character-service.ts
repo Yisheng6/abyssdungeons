@@ -122,7 +122,10 @@ export async function computeCharacterSnapshot(username: string): Promise<Charac
     const raw = await getRedis().get(`save:${username.toLowerCase()}`)
     if (raw) save = JSON.parse(raw)
   } catch { return null }
-  const data = save?.data
+  // 存档为 zustand persist 格式：{ state: {...}, version }（兼容无包装的旧格式）
+  const rawData = save?.data as unknown
+  const wrapped = (typeof rawData === 'string' ? JSON.parse(rawData) : rawData) as { state?: Record<string, unknown> } & Record<string, unknown>
+  const data = (wrapped?.state ?? wrapped) as { player?: SavePlayer; equipment?: Record<string, SaveItem | null>; talents?: Record<string, Record<string, number>> }
   const p = data?.player as SavePlayer | undefined
   if (!data || !p || !p.classId || !p.level) return null
 

@@ -65851,7 +65851,9 @@ async function computeCharacterSnapshot(username) {
   } catch {
     return null;
   }
-  const data = save?.data;
+  const rawData = save?.data;
+  const wrapped = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
+  const data = wrapped?.state ?? wrapped;
   const p = data?.player;
   if (!data || !p || !p.classId || !p.level) return null;
   const cls = getClassById(p.classId);
